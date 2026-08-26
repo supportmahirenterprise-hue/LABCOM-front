@@ -12,9 +12,9 @@ export function Sidebar() {
 
   const NAV_ITEMS = [
     { label: "Overview", href: "/", icon: "◒" },
-    { label: "Batch History", href: "#", icon: "≡" },
-    { label: "Templates", href: "#", icon: "⚏" },
-    { label: "Settings", href: "#", icon: "⚙" },
+    { label: "Analytics", href: "/analytics", icon: "📈" },
+    { label: "Templates", href: "/templates", icon: "⚏" },
+    { label: "Settings", href: "/settings", icon: "⚙" },
   ];
 
   return (

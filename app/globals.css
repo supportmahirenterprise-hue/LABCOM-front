@@ -144,6 +144,31 @@ html, body {
   position: relative;
 }
 
+/* Interactive Elements Base */
+button,
+.btn-primary,
+.btn-secondary,
+.tag-pill,
+.dropzone,
+label,
+select,
+[role="button"],
+a {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+button *,
+.btn-primary *,
+.btn-secondary *,
+.tag-pill *,
+label * {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 /* Premium Buttons */
 .btn-primary {
   background: linear-gradient(135deg, var(--aurora-2) 0%, var(--aurora-1) 100%);
@@ -155,6 +180,8 @@ html, body {
   border-radius: var(--radius-full);
   border: none;
   cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -184,6 +211,8 @@ html, body {
   padding: 8px 18px;
   border-radius: var(--radius-full);
   cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
   display: inline-flex;
   align-items: center;
   gap: 8px;

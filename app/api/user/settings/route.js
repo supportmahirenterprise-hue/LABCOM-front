@@ -30,8 +30,13 @@ export async function POST(req) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await req.json();
     const {
+      storeName,
+      phone,
+      supportEmail,
+      storeUrl,
+      instagramHandle,
+      customNote,
       enableQr,
       qrText,
       detailText,
@@ -50,15 +55,21 @@ export async function POST(req) {
       {
         $set: {
           email: session.user.email,
+          storeName: storeName !== undefined ? storeName : "",
+          phone: phone !== undefined ? phone : "",
+          supportEmail: supportEmail !== undefined ? supportEmail : "",
+          storeUrl: storeUrl !== undefined ? storeUrl : "",
+          instagramHandle: instagramHandle !== undefined ? instagramHandle : "",
+          customNote: customNote !== undefined ? customNote : "",
           enableQr: enableQr !== undefined ? enableQr : true,
-          qrText,
-          detailText,
-          qrX,
-          qrY,
-          qrSize,
-          fontSize,
-          sortBy,
-          sortOrder,
+          qrText: qrText !== undefined ? qrText : "https://www.meesho.com/themahirenterprise",
+          detailText: detailText !== undefined ? detailText : "Scan to Follow Meesho Store!\nOrder: {orderNo}\nSKU: {sku}",
+          qrX: qrX !== undefined ? qrX : 30,
+          qrY: qrY !== undefined ? qrY : 30,
+          qrSize: qrSize !== undefined ? qrSize : 90,
+          fontSize: fontSize !== undefined ? fontSize : 8,
+          sortBy: sortBy !== undefined ? sortBy : "sku",
+          sortOrder: sortOrder !== undefined ? sortOrder : "asc",
           updatedAt: new Date(),
         },
       },

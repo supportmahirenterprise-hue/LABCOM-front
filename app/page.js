@@ -373,6 +373,21 @@ export default function Home() {
       a.remove();
       URL.revokeObjectURL(url);
       
+      // Log generation run to MongoDB History
+      fetch("/api/history", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fileName: file.name,
+          pageCount: isSample ? 1 : pages.length,
+          isSample,
+          sortBy,
+          sortOrder,
+          enableQr,
+          qrText,
+        }),
+      }).catch((e) => console.error("Failed to log history:", e));
+
       if (isSample) {
         const msg = "🧪 Test Sample (Page 1) downloaded! Check QR alignment & print preview.";
         setSuccessMsg(msg);
@@ -930,12 +945,12 @@ export default function Home() {
                 className="btn-secondary"
                 style={{ fontSize: "0.82rem", padding: "8px 16px" }}
                 onClick={() => {
-                  setQrText("https://instagram.com/your_brand_name");
-                  setDetailText("Scan to Follow us on Instagram!\nSKU: {sku}");
+                  setQrText("https://instagram.com/mahir.enterprise_");
+                  setDetailText("Scan to Follow on Instagram!\n@mahir.enterprise_\nSKU: {sku}");
                   setActiveInput("qrText");
                 }}
               >
-                📸 Instagram Page
+                📸 Instagram Page (@mahir.enterprise_)
               </button>
 
               <button
