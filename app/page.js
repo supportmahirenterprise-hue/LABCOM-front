@@ -27,11 +27,13 @@ const SORT_OPTIONS = [
 ];
 
 const TAG_PLACEHOLDERS = [
+  "{regionalThankYou}",
   "{orderNo}",
   "{sku}",
   "{orderDate}",
   "{qty}",
   "{customerName}",
+  "{state}",
   "{invoiceNo}",
 ];
 
@@ -53,17 +55,21 @@ const MOCK_PAGES = [
     color: "NA",
     customerName: "Sample Customer A",
     invoiceNo: "INV-9876541",
+    state: "Gujarat",
+    regionalThankYou: "Aabhar! Tamara prem ane order badal khub khub aabhar! ❤️",
   },
   {
     page: 2,
-    orderNo: "OD-398241030_2",
-    orderDate: "25/08/2026",
-    sku: "SAMPLE-SKU-DENIM-JACKET",
-    size: "L",
+    orderNo: "OD-782194012_2",
+    orderDate: "23/08/2026",
+    sku: "SAMPLE-SKU-SILK-SAREE",
+    size: "Free Size",
     qty: "2",
-    color: "Royal Blue",
+    color: "Red",
     customerName: "Sample Customer B",
     invoiceNo: "INV-9876542",
+    state: "Punjab",
+    regionalThankYou: "Dhanvaad ji! Tuhade vishwas aur order layi bahut dhanvaad! ❤️",
   },
   {
     page: 3,
@@ -108,7 +114,7 @@ export default function Home() {
   // QR Config with default Meesho Store URL requested by user
   const [qrText, setQrText] = useState("https://www.meesho.com/themahirenterprise");
   const [detailText, setDetailText] = useState(
-    "Scan to Follow Meesho Store!\nOrder: {orderNo}\nSKU: {sku}"
+    "Thank You for Shopping with Us!\n{regionalThankYou}\nOrder: {orderNo} | SKU: {sku}"
   );
   const [qrX, setQrX] = useState(30);
   const [qrY, setQrY] = useState(30);
@@ -418,7 +424,7 @@ export default function Home() {
   const previewText = useMemo(() => {
     let text = detailText;
     if (!text) return "QR Stamp";
-    const p = pages[0];
+    const p = pages[0] || MOCK_PAGES[0];
     if (p) {
       TAG_PLACEHOLDERS.forEach(tag => {
         const key = tag.replace(/[{}]/g, "");
@@ -955,14 +961,14 @@ export default function Home() {
 
               <button
                 className="btn-secondary"
-                style={{ fontSize: "0.82rem", padding: "8px 16px" }}
+                style={{ fontSize: "0.82rem", padding: "8px 16px", borderColor: "rgba(236, 72, 153, 0.4)", color: "#f472b6" }}
                 onClick={() => {
-                  setQrText("{orderNo}");
-                  setDetailText("Order: {orderNo}\nSKU: {sku}\nDate: {orderDate}");
+                  setQrText("https://www.meesho.com/themahirenterprise");
+                  setDetailText("Thank You for Shopping with Us!\n{regionalThankYou}\nOrder: {orderNo} | SKU: {sku}");
                   setActiveInput("qrText");
                 }}
               >
-                🆔 Order Number Only ({"{orderNo}"})
+                ❤️ State-Smart Regional Thank You
               </button>
             </div>
           </div>
