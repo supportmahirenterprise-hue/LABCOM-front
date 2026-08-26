@@ -1,37 +1,43 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --bg-dark: #09090b;
-  --bg-card: #141417;
-  --bg-card-hover: #18181c;
-  --bg-card-solid: #18181b;
+  /* Deep Slate Industrial Theme */
+  --bg-dark: #0B1120;
+  --bg-sidebar: #0F172A;
+  --bg-card: #111827;
+  --bg-card-hover: #172033;
+  --bg-card-solid: #1F2937;
   
-  --border-subtle: #27272a;
-  --border-strong: #3f3f46;
-  --border-accent: rgba(16, 185, 129, 0.4);
+  --border-subtle: #1F2937;
+  --border-strong: #374151;
+  --border-accent: rgba(249, 115, 22, 0.4);
   
-  --primary: #f4f4f5;
-  --primary-emerald: #10b981;
-  --primary-emerald-hover: #059669;
+  --primary: #F8FAFC;
   
-  --accent-cyan: #06b6d4;
-  --accent-blue: #3b82f6;
-  --accent-amber: #f59e0b;
-  --accent-rose: #f43f5e;
+  /* Laser Orange Signature */
+  --primary-accent: #F97316;
+  --primary-accent-hover: #EA580C;
+  --primary-accent-glow: rgba(249, 115, 22, 0.2);
   
-  --text-main: #fafafa;
-  --text-muted: #a1a1aa;
-  --text-dim: #71717a;
+  --accent-cyan: #38BDF8;
+  --accent-blue: #3B82F6;
+  --accent-amber: #F59E0B;
+  --accent-rose: #EF4444;
   
-  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --text-main: #F8FAFC;
+  --text-muted: #94A3B8;
+  --text-dim: #64748B;
+  
+  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
   --radius-full: 9999px;
   
-  --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 15px var(--primary-accent-glow);
 }
 
 * {
@@ -49,11 +55,13 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Subtle background accent grid */
+/* Blueprint Grid Background */
 body {
   background-image: 
-    radial-gradient(at 50% 0%, rgba(24, 24, 27, 0.8) 0px, transparent 75%),
-    radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.04) 0px, transparent 50%);
+    linear-gradient(rgba(55, 65, 81, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(55, 65, 81, 0.15) 1px, transparent 1px);
+  background-size: 30px 30px;
+  background-position: center center;
   background-attachment: fixed;
 }
 
@@ -63,14 +71,14 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #09090b;
+  background: var(--bg-dark);
 }
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
+  background: var(--border-strong);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
+  background: var(--text-dim);
 }
 
 /* Studio Glass Cards */
@@ -79,7 +87,7 @@ body {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   padding: 22px;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   box-shadow: var(--shadow-subtle);
 }
 
@@ -89,13 +97,14 @@ body {
 
 /* Studio Buttons */
 .btn-primary {
-  background: #fafafa;
-  color: #09090b;
+  background: var(--primary-accent);
+  color: #fff;
   font-weight: 700;
   font-size: 0.9rem;
+  letter-spacing: 0.02em;
   padding: 10px 20px;
-  border-radius: var(--radius-md);
-  border: 1px solid #ffffff;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--primary-accent-hover);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -103,26 +112,28 @@ body {
   gap: 8px;
   transition: all 0.15s ease;
   text-decoration: none;
+  text-transform: uppercase;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #e4e4e7;
+  background: var(--primary-accent-hover);
+  box-shadow: var(--shadow-glow);
   transform: translateY(-1px);
 }
 
 .btn-primary:disabled {
-  opacity: 0.4;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .btn-secondary {
-  background: #18181b;
+  background: var(--bg-card-solid);
   border: 1px solid var(--border-subtle);
   color: var(--text-main);
   font-weight: 600;
   font-size: 0.82rem;
   padding: 8px 14px;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -131,7 +142,7 @@ body {
 }
 
 .btn-secondary:hover {
-  background: #27272a;
+  background: var(--border-subtle);
   border-color: var(--border-strong);
   color: #ffffff;
 }
@@ -139,19 +150,20 @@ body {
 /* Form Controls */
 .input-field {
   width: 100%;
-  background: #09090b;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  color: var(--text-main);
+  background: var(--bg-dark);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--primary);
   padding: 9px 12px;
   font-size: 0.88rem;
   font-family: var(--font-sans);
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .input-field:focus {
-  border-color: var(--primary-emerald);
+  border-color: var(--primary-accent);
+  box-shadow: 0 0 0 2px var(--primary-accent-glow);
 }
 
 .input-field-mono {
@@ -164,39 +176,39 @@ body {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 5px;
-  background: #27272a;
-  border-radius: 3px;
+  height: 4px;
+  background: var(--border-strong);
+  border-radius: 2px;
   outline: none;
 }
 
 .range-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  background: #fafafa;
+  background: var(--primary-accent);
   cursor: pointer;
-  border: 2px solid #09090b;
+  border: 2px solid var(--bg-card);
   transition: transform 0.1s ease;
 }
 
 .range-slider::-webkit-slider-thumb:hover {
   transform: scale(1.2);
-  background: var(--primary-emerald);
+  background: var(--primary-accent-hover);
 }
 
 /* Tag Pills */
 .tag-pill {
-  background: #18181b;
+  background: var(--bg-card-solid);
   border: 1px solid var(--border-subtle);
   color: var(--text-muted);
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 500;
   padding: 4px 10px;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.15s ease;
   user-select: none;
@@ -206,9 +218,9 @@ body {
 }
 
 .tag-pill:hover {
-  background: #27272a;
-  border-color: var(--border-strong);
-  color: #fafafa;
+  background: var(--border-subtle);
+  border-color: var(--primary-accent);
+  color: var(--primary-accent);
 }
 
 /* Custom Table */
@@ -220,14 +232,15 @@ body {
 }
 
 .custom-table th {
-  background: #18181b;
+  background: var(--bg-card-solid);
   color: var(--text-muted);
   font-weight: 600;
   font-size: 0.75rem;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   padding: 10px 14px;
   text-align: left;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-strong);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -235,11 +248,11 @@ body {
 
 .custom-table td {
   padding: 8px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .custom-table tr:hover td {
-  background: #18181b;
+  background: var(--bg-card-solid);
 }
 
 .table-input {
@@ -250,18 +263,18 @@ body {
   border-radius: var(--radius-sm);
   width: 100%;
   font-size: 0.83rem;
-  font-family: var(--font-sans);
+  font-family: var(--font-mono);
   transition: all 0.15s ease;
 }
 
 .table-input:hover {
   border-color: var(--border-subtle);
-  background: #09090b;
+  background: var(--bg-dark);
 }
 
 .table-input:focus {
-  border-color: var(--primary-emerald);
-  background: #09090b;
+  border-color: var(--primary-accent);
+  background: var(--bg-dark);
   outline: none;
 }
 
@@ -271,14 +284,14 @@ body {
   border-radius: var(--radius-lg);
   padding: 32px 20px;
   text-align: center;
-  background: #09090b;
+  background: var(--bg-dark);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .dropzone:hover, .dropzone.active {
-  border-color: var(--primary-emerald);
-  background: rgba(16, 185, 129, 0.03);
+  border-color: var(--primary-accent);
+  background: var(--primary-accent-glow);
 }
 
 /* Responsive adjustments */

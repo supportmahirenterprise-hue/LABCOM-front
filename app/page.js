@@ -1,6 +1,8 @@
 "use client";
 
-import { useMemo, useState, useRef } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
+import { useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
@@ -88,6 +90,15 @@ function parseDdMmYyyy(str) {
 }
 
 export default function Home() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
+
   const [file, setFile] = useState(null);
   const [pages, setPages] = useState([]);
   const [loadingPreview, setLoadingPreview] = useState(false);
@@ -284,87 +295,62 @@ export default function Home() {
   const canvasH = 404;
   const scale = canvasW / 412; // ~0.6796
 
+  const previewText = useMemo(() => {
+    let text = detailText;
+    if (!text) return "QR Stamp";
+    const p = pages[0];
+    if (p) {
+      TAG_PLACEHOLDERS.forEach(tag => {
+        const key = tag.replace(/[{}]/g, "");
+        text = text.replace(new RegExp(tag, "g"), p[key] || "");
+      });
+    }
+    return text;
+  }, [detailText, pages]);
+
   const simQrSize = Math.max(20, Math.min(140, qrSize * scale));
   const simQrX = Math.max(0, Math.min(canvasW - simQrSize, qrX * scale));
   const simQrY = Math.max(0, Math.min(canvasH - simQrSize, canvasH - (qrY * scale) - simQrSize));
 
   return (
     <div style={{ minHeight: "100vh", paddingBottom: 100 }}>
-      {/* Studio Header */}
+      {/* Workspace Top Bar */}
       <header
         style={{
-          background: "rgba(9, 9, 11, 0.9)",
+          background: "rgba(11, 17, 32, 0.8)",
           backdropFilter: "blur(12px)",
           borderBottom: "1px solid var(--border-subtle)",
           position: "sticky",
           top: 0,
           zIndex: 100,
-          padding: "12px 24px",
+          padding: "16px 24px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center"
         }}
       >
-        <div
-          style={{
-            maxWidth: 1280,
-            margin: "0 auto",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: 12,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: "var(--radius-sm)",
-                background: "#fafafa",
-                color: "#09090b",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: 800,
-                fontSize: "1rem",
-              }}
-            >
-              V
-            </div>
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <h1 style={{ fontSize: "1.05rem", fontWeight: 700, color: "#fff", letterSpacing: "-0.01em" }}>
-                  Veloura Engine
-                </h1>
-                <span className="tag-pill" style={{ fontSize: "0.68rem" }}>
-                  Label Studio
-                </span>
-              </div>
-              <p style={{ fontSize: "0.75rem", color: "var(--text-dim)", margin: 0 }}>
-                Meesho & E-Commerce Shipping Label QR Stamper & Sorter
-              </p>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <button className="btn-secondary" onClick={loadSampleData}>
-              ⚡ Load Sample Demo
-            </button>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "4px 10px",
-                background: "#18181b",
-                border: "1px solid var(--border-subtle)",
-                borderRadius: "var(--radius-full)",
-                fontSize: "0.75rem",
-                color: "var(--text-muted)",
-              }}
-            >
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--primary-emerald)" }} />
-              <span>Ready</span>
-            </div>
+        <h2 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0, display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ color: "var(--primary-accent)" }}>●</span> Thermal Print Studio
+        </h2>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <button className="btn-secondary" onClick={loadSampleData}>
+            ⚡ Load Sample Demo
+          </button>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "4px 10px",
+              background: "var(--bg-card-solid)",
+              border: "1px solid var(--border-subtle)",
+              borderRadius: "var(--radius-full)",
+              fontSize: "0.75rem",
+              color: "var(--text-muted)",
+            }}
+          >
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--primary-accent)", boxShadow: "var(--shadow-glow)" }} />
+            <span>Engine Ready</span>
           </div>
         </div>
       </header>
@@ -611,42 +597,46 @@ export default function Home() {
                     position: "absolute",
                     left: simQrX,
                     top: simQrY,
-                    width: simQrSize,
-                    height: simQrSize,
-                    background: "rgba(16, 185, 129, 0.15)",
-                    border: "1.5px solid #10b981",
+                    maxWidth: canvasW - simQrX,
+                    maxHeight: canvasH - simQrY,
+                    background: "rgba(249, 115, 22, 0.15)",
+                    border: "1.5px solid #F97316",
                     borderRadius: 3,
                     display: "flex",
-                    flexDirection: "column",
+                    flexDirection: "row",
                     alignItems: "center",
-                    justifyContent: "center",
                     transition: "all 0.1s ease-out",
-                    overflow: "hidden",
-                    padding: 2,
+                    padding: 4,
+                    gap: 6,
                     zIndex: 20,
+                    overflow: "hidden",
+                    boxSizing: "border-box",
                   }}
                 >
+                  {/* QR Code Graphic */}
                   <div
                     style={{
-                      width: "65%",
-                      height: "65%",
-                      background: "repeating-conic-gradient(#059669 0% 25%, #ecfdf5 0% 50%) 50% / 6px 6px",
+                      width: simQrSize,
+                      height: simQrSize,
+                      background: "repeating-conic-gradient(#EA580C 0% 25%, #FFF7ED 0% 50%) 50% / 6px 6px",
                       borderRadius: 1,
+                      flexShrink: 0,
                     }}
                   />
+                  {/* Text Details next to QR */}
                   <div
                     style={{
                       fontSize: Math.max(5, fontSize * scale),
-                      fontFamily: "var(--font-mono)",
-                      color: "#047857",
+                      fontFamily: '"Times New Roman", Times, serif',
+                      fontStyle: "italic",
+                      color: "#C2410C",
                       fontWeight: 700,
-                      marginTop: 2,
-                      textAlign: "center",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
+                      whiteSpace: "pre-wrap",
+                      wordBreak: "break-word",
+                      lineHeight: 1.2,
                     }}
                   >
-                    QR Stamp
+                    {previewText}
                   </div>
                 </div>
               </div>
@@ -682,7 +672,7 @@ export default function Home() {
                 Encode your store URL into every parcel QR code to boost followers and repeat orders.
               </p>
             </div>
-            <span className="tag-pill" style={{ background: "rgba(16, 185, 129, 0.12)", color: "var(--primary-emerald)" }}>
+            <span className="tag-pill" style={{ background: "var(--primary-accent-glow)", color: "var(--primary-accent)" }}>
               Active Link: themahirenterprise
             </span>
           </div>
@@ -695,7 +685,7 @@ export default function Home() {
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <button
                 className="btn-secondary"
-                style={{ background: "rgba(16, 185, 129, 0.15)", borderColor: "var(--border-accent)", color: "#fff", fontSize: "0.76rem" }}
+                style={{ background: "var(--primary-accent-glow)", borderColor: "var(--border-accent)", color: "#fff", fontSize: "0.76rem" }}
                 onClick={() => {
                   setQrText("https://www.meesho.com/themahirenterprise");
                   setDetailText("Scan to Follow Meesho Store!\nOrder: {orderNo}\nSKU: {sku}");

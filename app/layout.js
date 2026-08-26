@@ -1,9 +1,12 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Veloura Label QR Engine | Intelligent Shipping Label QR Stamper & Sorter",
+  title: "LabelPro.in | Intelligent Shipping Label QR Stamper & Sorter",
   description: "High-precision PDF shipping label QR code stamper, field editor, and smart multi-attribute sorter.",
 };
+
+import { Providers } from "./components/Providers";
+import { Sidebar } from "./components/Sidebar";
 
 export default function RootLayout({ children }) {
   return (
@@ -13,7 +16,14 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body>
-        {children}
+        <Providers>
+          <div style={{ display: "flex", minHeight: "100vh" }}>
+            <Sidebar />
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", height: "100vh", overflowY: "auto" }}>
+              {children}
+            </div>
+          </div>
+        </Providers>
       </body>
     </html>
   );
