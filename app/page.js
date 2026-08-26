@@ -103,6 +103,7 @@ export default function Home() {
   const [successMsg, setSuccessMsg] = useState("");
   const [toast, setToast] = useState(null);
   const [savingSettings, setSavingSettings] = useState(false);
+  const [enableQr, setEnableQr] = useState(true);
 
   // QR Config with default Meesho Store URL requested by user
   const [qrText, setQrText] = useState("https://www.meesho.com/themahirenterprise");
@@ -144,6 +145,7 @@ export default function Home() {
           const data = await res.json();
           if (data.settings) {
             const s = data.settings;
+            if (s.enableQr !== undefined) setEnableQr(s.enableQr);
             if (s.qrText !== undefined) setQrText(s.qrText);
             if (s.detailText !== undefined) setDetailText(s.detailText);
             if (s.qrX !== undefined) setQrX(s.qrX);
@@ -175,6 +177,7 @@ export default function Home() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            enableQr,
             qrText,
             detailText,
             qrX,
@@ -193,7 +196,7 @@ export default function Home() {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [qrText, detailText, qrX, qrY, qrSize, fontSize, sortBy, sortOrder, status]);
+  }, [enableQr, qrText, detailText, qrX, qrY, qrSize, fontSize, sortBy, sortOrder, status]);
 
   // Filtered & Sorted preview row indices
   const filteredAndSortedIndexes = useMemo(() => {
@@ -334,6 +337,7 @@ export default function Home() {
     try {
       const fd = new FormData();
       fd.append("pdf", file);
+      fd.append("enableQr", enableQr ? "true" : "false");
       fd.append("qrText", qrText);
       fd.append("detailText", detailText);
       fd.append("sortBy", sortBy);
@@ -755,53 +759,72 @@ export default function Home() {
                 </div>
 
                 {/* DYNAMIC QR STAMP OVERLAY */}
-                <div
-                  style={{
-                    position: "absolute",
-                    left: simQrX,
-                    top: simQrY,
-                    maxWidth: canvasW - simQrX,
-                    maxHeight: canvasH - simQrY,
-                    background: "rgba(249, 115, 22, 0.15)",
-                    border: "1.5px solid #F97316",
-                    borderRadius: 3,
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    transition: "all 0.1s ease-out",
-                    padding: 4,
-                    gap: 6,
-                    zIndex: 20,
-                    overflow: "hidden",
-                    boxSizing: "border-box",
-                  }}
-                >
-                  {/* QR Code Graphic */}
+                {enableQr ? (
                   <div
                     style={{
-                      width: simQrSize,
-                      height: simQrSize,
-                      background: "repeating-conic-gradient(#EA580C 0% 25%, #FFF7ED 0% 50%) 50% / 6px 6px",
-                      borderRadius: 1,
-                      flexShrink: 0,
-                    }}
-                  />
-                  {/* Text Details next to QR */}
-                  <div
-                    style={{
-                      fontSize: Math.max(5, fontSize * scale),
-                      fontFamily: '"Times New Roman", Times, serif',
-                      fontStyle: "italic",
-                      color: "#C2410C",
-                      fontWeight: 700,
-                      whiteSpace: "pre-wrap",
-                      wordBreak: "break-word",
-                      lineHeight: 1.2,
+                      position: "absolute",
+                      left: simQrX,
+                      top: simQrY,
+                      maxWidth: canvasW - simQrX,
+                      maxHeight: canvasH - simQrY,
+                      background: "rgba(249, 115, 22, 0.15)",
+                      border: "1.5px solid #F97316",
+                      borderRadius: 3,
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      transition: "all 0.1s ease-out",
+                      padding: 4,
+                      gap: 6,
+                      zIndex: 20,
+                      overflow: "hidden",
+                      boxSizing: "border-box",
                     }}
                   >
-                    {previewText}
+                    {/* QR Code Graphic */}
+                    <div
+                      style={{
+                        width: simQrSize,
+                        height: simQrSize,
+                        background: "repeating-conic-gradient(#EA580C 0% 25%, #FFF7ED 0% 50%) 50% / 6px 6px",
+                        borderRadius: 1,
+                        flexShrink: 0,
+                      }}
+                    />
+                    {/* Text Details next to QR */}
+                    <div
+                      style={{
+                        fontSize: Math.max(5, fontSize * scale),
+                        fontFamily: '"Times New Roman", Times, serif',
+                        fontStyle: "italic",
+                        color: "#C2410C",
+                        fontWeight: 700,
+                        whiteSpace: "pre-wrap",
+                        wordBreak: "break-word",
+                        lineHeight: 1.2,
+                      }}
+                    >
+                      {previewText}
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: 20,
+                      bottom: 20,
+                      border: "1px dashed #bbb",
+                      borderRadius: 3,
+                      padding: "4px 8px",
+                      color: "#888",
+                      fontSize: 5.5,
+                      fontStyle: "italic",
+                      background: "rgba(0,0,0,0.02)",
+                    }}
+                  >
+                    🚫 QR Stamper Disabled (Sorting Only)
+                  </div>
+                )}
               </div>
 
               {/* Preset Position Shortcuts */}
@@ -838,13 +861,52 @@ export default function Home() {
                 Store Growth & QR Stamp Setup
               </h3>
               <p style={{ fontSize: "0.82rem", color: "var(--text-silver)", margin: 0 }}>
-                Encode your Meesho or Instagram store link into every parcel label to boost followers and repeat orders.
+                {enableQr
+                  ? "Encode your Meesho or Instagram store link into every parcel label to boost followers and repeat orders."
+                  : "QR stamping is currently disabled. Label pages will only be sorted and organized."}
               </p>
             </div>
-            <span className="tag-pill active" style={{ fontSize: "0.75rem", padding: "6px 14px" }}>
-              Active: Meesho Store
-            </span>
+            
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  cursor: "pointer",
+                  userSelect: "none",
+                  background: enableQr ? "rgba(79, 172, 254, 0.12)" : "rgba(255, 255, 255, 0.04)",
+                  border: `1px solid ${enableQr ? "var(--aurora-2)" : "var(--glass-border)"}`,
+                  padding: "6px 14px",
+                  borderRadius: "var(--radius-full)",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={enableQr}
+                  onChange={(e) => setEnableQr(e.target.checked)}
+                  style={{
+                    width: 16,
+                    height: 16,
+                    accentColor: "var(--aurora-1)",
+                    cursor: "pointer",
+                  }}
+                />
+                <span style={{ fontSize: "0.8rem", fontWeight: 600, color: enableQr ? "var(--aurora-1)" : "var(--text-silver)" }}>
+                  {enableQr ? "QR Stamper: Enabled" : "QR Stamper: Disabled (Sort Only)"}
+                </span>
+              </label>
+
+              {enableQr && (
+                <span className="tag-pill active" style={{ fontSize: "0.75rem", padding: "6px 14px" }}>
+                  Active: Meesho Store
+                </span>
+              )}
+            </div>
           </div>
+
+          <div style={{ opacity: enableQr ? 1 : 0.4, pointerEvents: enableQr ? "auto" : "none", transition: "all 0.2s ease" }}>
 
           {/* Preset Bar */}
           <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--glass-border)", borderRadius: "14px", padding: "18px 20px", marginBottom: 24 }}>
@@ -1001,6 +1063,7 @@ export default function Home() {
             </div>
           </div>
         </div>
+      </div>
 
         {/* Batch Sorter & Filter Control */}
         <div className="premium-glass" style={{ marginBottom: 24 }}>

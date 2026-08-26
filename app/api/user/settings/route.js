@@ -32,6 +32,7 @@ export async function POST(req) {
 
     const body = await req.json();
     const {
+      enableQr,
       qrText,
       detailText,
       qrX,
@@ -49,6 +50,7 @@ export async function POST(req) {
       {
         $set: {
           email: session.user.email,
+          enableQr: enableQr !== undefined ? enableQr : true,
           qrText,
           detailText,
           qrX,
