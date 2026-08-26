@@ -8,15 +8,13 @@ const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 
 const FIELD_COLUMNS = [
-  { key: "page", label: "Page", editable: false, width: "60px" },
-  { key: "orderNo", label: "Order No", width: "150px" },
-  { key: "orderDate", label: "Order Date", width: "110px" },
-  { key: "sku", label: "SKU", width: "140px" },
-  { key: "size", label: "Size", width: "80px" },
-  { key: "qty", label: "Qty", width: "70px" },
-  { key: "color", label: "Color", width: "90px" },
-  { key: "customerName", label: "Customer", width: "160px" },
-  { key: "invoiceNo", label: "Invoice No", width: "140px" },
+  { key: "page", label: "Page", editable: false, width: "90px" },
+  { key: "sku", label: "SKU", width: "160px" },
+  { key: "orderNo", label: "Order No", width: "160px" },
+  { key: "orderDate", label: "Order Date", width: "120px" },
+  { key: "qty", label: "Qty", width: "80px" },
+  { key: "customerName", label: "Customer", width: "180px" },
+  { key: "invoiceNo", label: "Invoice No", width: "150px" },
 ];
 
 const SORT_OPTIONS = [
@@ -25,8 +23,7 @@ const SORT_OPTIONS = [
   { value: "sku", label: "SKU Code" },
   { value: "orderNo", label: "Order Number" },
   { value: "qty", label: "Quantity" },
-  { value: "size", label: "Size" },
-  { value: "color", label: "Color" },
+  { value: "customerName", label: "Customer Name" },
 ];
 
 const TAG_PLACEHOLDERS = [
@@ -34,16 +31,14 @@ const TAG_PLACEHOLDERS = [
   "{sku}",
   "{orderDate}",
   "{qty}",
-  "{size}",
-  "{color}",
   "{customerName}",
   "{invoiceNo}",
 ];
 
 const POSITION_PRESETS = [
   { name: "Bottom Left Blank Area", x: 30, y: 30, size: 90, font: 8 },
-  { name: "Bottom Right Corner", x: 280, y: 30, size: 90, font: 8 },
-  { name: "Top Right Header", x: 280, y: 480, size: 75, font: 7 },
+  { name: "Bottom Right Corner", x: 180, y: 30, size: 85, font: 8 },
+  { name: "Bottom Center", x: 95, y: 30, size: 85, font: 8 },
   { name: "Compact Corner", x: 20, y: 20, size: 70, font: 7 },
 ];
 
@@ -103,8 +98,11 @@ export default function Home() {
   const [pages, setPages] = useState([]);
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [loadingGenerate, setLoadingGenerate] = useState(false);
+  const [loadingSample, setLoadingSample] = useState(false);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [toast, setToast] = useState(null);
+  const [savingSettings, setSavingSettings] = useState(false);
 
   // QR Config with default Meesho Store URL requested by user
   const [qrText, setQrText] = useState("https://www.meesho.com/themahirenterprise");
@@ -116,13 +114,86 @@ export default function Home() {
   const [qrSize, setQrSize] = useState(90);
   const [fontSize, setFontSize] = useState(8);
 
-  // Sorting & Filtering
-  const [sortBy, setSortBy] = useState("none");
+  // Sorting & Filtering (Default: Sort by SKU with highest Qty first)
+  const [sortBy, setSortBy] = useState("sku");
   const [sortOrder, setSortOrder] = useState("asc");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeInput, setActiveInput] = useState("qrText");
 
   const fileInputRef = useRef(null);
+  const isInitialLoadDone = useRef(false);
+
+  function showToast(message, type = "error") {
+    setToast({ message, type });
+  }
+
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 4000);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  // Load user settings from MongoDB on login
+  useEffect(() => {
+    if (status !== "authenticated") return;
+
+    async function loadSettings() {
+      try {
+        const res = await fetch("/api/user/settings");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.settings) {
+            const s = data.settings;
+            if (s.qrText !== undefined) setQrText(s.qrText);
+            if (s.detailText !== undefined) setDetailText(s.detailText);
+            if (s.qrX !== undefined) setQrX(s.qrX);
+            if (s.qrY !== undefined) setQrY(s.qrY);
+            if (s.qrSize !== undefined) setQrSize(s.qrSize);
+            if (s.fontSize !== undefined) setFontSize(s.fontSize);
+            if (s.sortBy !== undefined) setSortBy(s.sortBy);
+            if (s.sortOrder !== undefined) setSortOrder(s.sortOrder);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load settings:", err);
+      } finally {
+        isInitialLoadDone.current = true;
+      }
+    }
+
+    loadSettings();
+  }, [status]);
+
+  // Debounced auto-save settings to MongoDB
+  useEffect(() => {
+    if (!isInitialLoadDone.current || status !== "authenticated") return;
+
+    const timer = setTimeout(async () => {
+      setSavingSettings(true);
+      try {
+        await fetch("/api/user/settings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            qrText,
+            detailText,
+            qrX,
+            qrY,
+            qrSize,
+            fontSize,
+            sortBy,
+            sortOrder,
+          }),
+        });
+      } catch (err) {
+        console.error("Auto-save settings failed:", err);
+      } finally {
+        setSavingSettings(false);
+      }
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [qrText, detailText, qrX, qrY, qrSize, fontSize, sortBy, sortOrder, status]);
 
   // Filtered & Sorted preview row indices
   const filteredAndSortedIndexes = useMemo(() => {
@@ -143,8 +214,22 @@ export default function Home() {
 
     if (sortBy !== "none") {
       idx.sort((a, b) => {
-        let va = pages[a][sortBy] ?? "";
-        let vb = pages[b][sortBy] ?? "";
+        const itemA = pages[a];
+        const itemB = pages[b];
+
+        if (sortBy === "sku") {
+          const skuA = (itemA.sku || "").toString().toLowerCase();
+          const skuB = (itemB.sku || "").toString().toLowerCase();
+          if (skuA < skuB) return sortOrder === "asc" ? -1 : 1;
+          if (skuA > skuB) return sortOrder === "asc" ? 1 : -1;
+          // Secondary Sort: Higher Quantity comes first
+          const qtyA = parseFloat(itemA.qty) || 0;
+          const qtyB = parseFloat(itemB.qty) || 0;
+          return qtyB - qtyA;
+        }
+
+        let va = itemA[sortBy] ?? "";
+        let vb = itemB[sortBy] ?? "";
         if (sortBy === "orderDate") {
           va = parseDdMmYyyy(va);
           vb = parseDdMmYyyy(vb);
@@ -193,19 +278,13 @@ export default function Home() {
       }
       const data = await res.json();
       setPages(data.pages || []);
-      setSuccessMsg(`Extracted data from ${data.pages?.length || 0} label pages.`);
+      showToast(`Successfully extracted ${data.pages?.length || 0} label pages!`, "success");
     } catch (err) {
+      showToast(err.message || "Error connecting to backend server", "error");
       setError(err.message || "Error connecting to backend server");
     } finally {
       setLoadingPreview(false);
     }
-  }
-
-  function loadSampleData() {
-    setFile({ name: "sample_meesho_labels.pdf", size: 1048576, isMock: true });
-    setPages(MOCK_PAGES);
-    setError("");
-    setSuccessMsg("Loaded sample Meesho labels for instant demonstration!");
   }
 
   function updateCell(pageIdx, key, value) {
@@ -231,23 +310,28 @@ export default function Home() {
     setFontSize(p.font);
   }
 
-  async function handleGenerate() {
+  async function handleGenerate(options = {}) {
+    const isSample = Boolean(options.sampleOnly);
     if (!file) {
-      setError("Please upload a PDF file first.");
+      const msg = isSample
+        ? "Please upload a PDF file first to download a test sample."
+        : "Please upload a PDF file first to generate labels.";
+      showToast(msg, "error");
+      setError(msg);
+      if (fileInputRef.current) {
+        fileInputRef.current.parentElement?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
       return;
     }
     setError("");
     setSuccessMsg("");
-    setLoadingGenerate(true);
+    if (isSample) {
+      setLoadingSample(true);
+    } else {
+      setLoadingGenerate(true);
+    }
 
     try {
-      if (file.isMock) {
-        await new Promise((resolve) => setTimeout(resolve, 1200));
-        setSuccessMsg("Sample labels processed! Upload a real PDF to download the final stamped output.");
-        setLoadingGenerate(false);
-        return;
-      }
-
       const fd = new FormData();
       fd.append("pdf", file);
       fd.append("qrText", qrText);
@@ -259,6 +343,7 @@ export default function Home() {
       fd.append("qrSize", String(qrSize));
       fd.append("fontSize", String(fontSize));
       fd.append("overrides", JSON.stringify(pages));
+      fd.append("sampleOnly", String(isSample));
 
       const res = await fetch(`${BACKEND_URL}/api/generate`, {
         method: "POST",
@@ -277,16 +362,32 @@ export default function Home() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `stamped_${file.name.replace(/\.pdf$/i, "")}.pdf`;
+      const baseName = file.name.replace(/\.pdf$/i, "");
+      a.download = isSample ? `sample_test_page_1_${baseName}.pdf` : `stamped_${baseName}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
-      setSuccessMsg("PDF generated and downloaded successfully!");
+      
+      if (isSample) {
+        const msg = "🧪 Test Sample (Page 1) downloaded! Check QR alignment & print preview.";
+        setSuccessMsg(msg);
+        showToast(msg, "success");
+      } else {
+        const msg = "✅ Full batch PDF generated and downloaded successfully!";
+        setSuccessMsg(msg);
+        showToast(msg, "success");
+      }
     } catch (err) {
-      setError(err.message || "Failed to generate PDF");
+      const msg = err.message || "Failed to generate PDF";
+      setError(msg);
+      showToast(msg, "error");
     } finally {
-      setLoadingGenerate(false);
+      if (isSample) {
+        setLoadingSample(false);
+      } else {
+        setLoadingGenerate(false);
+      }
     }
   }
 
@@ -313,50 +414,94 @@ export default function Home() {
   const simQrY = Math.max(0, Math.min(canvasH - simQrSize, canvasH - (qrY * scale) - simQrSize));
 
   return (
-    <div style={{ minHeight: "100vh", paddingBottom: 100 }}>
-      {/* Workspace Top Bar */}
-      <header
-        style={{
-          background: "rgba(11, 17, 32, 0.8)",
-          backdropFilter: "blur(12px)",
-          borderBottom: "1px solid var(--border-subtle)",
-          position: "sticky",
-          top: 0,
-          zIndex: 100,
-          padding: "16px 24px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center"
-        }}
-      >
-        <h2 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0, display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ color: "var(--primary-accent)" }}>●</span> Thermal Print Studio
-        </h2>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <button className="btn-secondary" onClick={loadSampleData}>
-            ⚡ Load Sample Demo
-          </button>
-          <div
+    <div style={{ minHeight: "100vh", paddingBottom: 40, position: "relative", width: "100%", maxWidth: "100%", overflowX: "hidden" }}>
+      {/* Floating Toast Notification */}
+      {toast && (
+        <div
+          style={{
+            position: "fixed",
+            top: 24,
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 9999,
+            background: toast.type === "error" ? "rgba(239, 68, 68, 0.95)" : "rgba(16, 185, 129, 0.95)",
+            backdropFilter: "blur(16px)",
+            color: "#ffffff",
+            padding: "12px 24px",
+            borderRadius: "var(--radius-full)",
+            boxShadow: toast.type === "error" ? "0 10px 30px rgba(239, 68, 68, 0.4)" : "0 10px 30px rgba(16, 185, 129, 0.4)",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            fontSize: "0.88rem",
+            fontWeight: 600,
+            letterSpacing: "-0.01em",
+            animation: "fadeInDown 0.3s ease-out",
+          }}
+        >
+          <span>{toast.type === "error" ? "⚠️" : "🎉"}</span>
+          <span>{toast.message}</span>
+          <button
+            onClick={() => setToast(null)}
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              padding: "4px 10px",
-              background: "var(--bg-card-solid)",
-              border: "1px solid var(--border-subtle)",
-              borderRadius: "var(--radius-full)",
-              fontSize: "0.75rem",
-              color: "var(--text-muted)",
+              background: "none",
+              border: "none",
+              color: "rgba(255,255,255,0.8)",
+              cursor: "pointer",
+              fontSize: "1.1rem",
+              lineHeight: 1,
+              padding: "0 0 0 8px",
             }}
           >
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--primary-accent)", boxShadow: "var(--shadow-glow)" }} />
-            <span>Engine Ready</span>
-          </div>
+            ×
+          </button>
         </div>
-      </header>
+      )}
+
+      {/* Workspace Header */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 24,
+          padding: "4px 0",
+          flexWrap: "wrap",
+          gap: 12,
+        }}
+      >
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <h1 className="heading-display" style={{ fontSize: "1.5rem", color: "var(--text-pure)", margin: 0, letterSpacing: "-0.02em" }}>
+              Thermal Label Studio
+            </h1>
+            {session && (
+              <span
+                style={{
+                  fontSize: "0.72rem",
+                  padding: "3px 8px",
+                  borderRadius: "var(--radius-full)",
+                  background: savingSettings ? "rgba(79, 172, 254, 0.15)" : "rgba(255, 255, 255, 0.05)",
+                  color: savingSettings ? "var(--aurora-1)" : "var(--text-dim)",
+                  border: "1px solid var(--glass-border)",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                  transition: "all 0.2s ease",
+                }}
+              >
+                {savingSettings ? "☁️ Syncing..." : "☁️ Saved to Account"}
+              </span>
+            )}
+          </div>
+          <p style={{ fontSize: "0.82rem", color: "var(--text-silver)", marginTop: 4, marginBottom: 0 }}>
+            Upload Meesho, Xpressbees, or Delhivery labels to stamp QR codes and sort batches.
+          </p>
+        </div>
+      </div>
 
       {/* Main Container */}
-      <main style={{ maxWidth: 1280, margin: "24px auto", padding: "0 16px" }}>
+      <main style={{ width: "100%" }}>
         
         {/* Banner Alert Messages */}
         {error && (
@@ -392,56 +537,72 @@ export default function Home() {
         )}
 
         {/* Top 2-Column Workspace: File Ingestion (Left) & Thermal Studio Canvas (Right) */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 20, marginBottom: 20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))", gap: 24, marginBottom: 24, alignItems: "stretch" }}>
           
           {/* File Ingestion Dropzone */}
-          <div className="glass-card">
-            <div style={{ fontSize: "0.95rem", fontWeight: 700, marginBottom: 14, color: "var(--text-main)" }}>
-              Shipping Label PDF Upload
+          <div className="premium-glass" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                <h3 className="heading-display" style={{ fontSize: "1.1rem", color: "var(--text-pure)", margin: 0 }}>
+                  Shipping Label PDF
+                </h3>
+                <span className="tag-pill" style={{ fontSize: "0.72rem" }}>
+                  Step 1: Upload
+                </span>
+              </div>
+              
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept="application/pdf"
+                style={{ display: "none" }}
+                onChange={(e) => handleFileSelect(e.target.files?.[0])}
+              />
+
+              <div
+                className={`dropzone ${file ? "active" : ""}`}
+                style={{
+                  minHeight: 300,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "16px",
+                  padding: "36px 24px",
+                }}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>📄</div>
+                {file ? (
+                  <div>
+                    <p style={{ fontWeight: 600, color: "var(--aurora-1)", fontSize: "0.95rem" }}>
+                      {file.name}
+                    </p>
+                    <p style={{ fontSize: "0.8rem", color: "var(--text-silver)", marginTop: 6 }}>
+                      {pages.length > 0 ? `✅ ${pages.length} Pages Extracted & Ready` : "Click to replace PDF file"}
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <p style={{ fontWeight: 600, color: "var(--text-pure)", fontSize: "0.95rem" }}>
+                      Drop PDF shipping label here or <span style={{ color: "var(--aurora-1)" }}>Browse</span>
+                    </p>
+                    <p style={{ fontSize: "0.78rem", color: "var(--text-dim)", marginTop: 6 }}>
+                      Supports Meesho, Xpressbees, and Delhivery label sheets
+                    </p>
+                  </div>
+                )}
+
+                {loadingPreview && (
+                  <div style={{ marginTop: 14, color: "var(--aurora-1)", fontSize: "0.85rem", fontWeight: 600 }}>
+                    ⏳ Extracting label fields & metadata...
+                  </div>
+                )}
+              </div>
             </div>
-            
-            <input
-              type="file"
-              ref={fileInputRef}
-              accept="application/pdf"
-              style={{ display: "none" }}
-              onChange={(e) => handleFileSelect(e.target.files?.[0])}
-            />
 
-            <div
-              className={`dropzone ${file ? "active" : ""}`}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <div style={{ fontSize: "2rem", marginBottom: 6 }}>📄</div>
-              {file ? (
-                <div>
-                  <p style={{ fontWeight: 600, color: "var(--primary-emerald)", fontSize: "0.9rem" }}>
-                    {file.name}
-                  </p>
-                  <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: 4 }}>
-                    {pages.length > 0 ? `${pages.length} Pages Extracted` : "Click to change file"}
-                  </p>
-                </div>
-              ) : (
-                <div>
-                  <p style={{ fontWeight: 600, color: "var(--text-main)", fontSize: "0.9rem" }}>
-                    Drop PDF file here or <span style={{ color: "var(--primary-emerald)" }}>Browse</span>
-                  </p>
-                  <p style={{ fontSize: "0.75rem", color: "var(--text-dim)", marginTop: 4 }}>
-                    Supports Meesho, Xpressbees, Delhivery label sheets
-                  </p>
-                </div>
-              )}
-
-              {loadingPreview && (
-                <div style={{ marginTop: 10, color: "var(--accent-cyan)", fontSize: "0.82rem", fontWeight: 600 }}>
-                  ⏳ Extracting label fields...
-                </div>
-              )}
-            </div>
-
-            <div style={{ marginTop: 14, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: "0.75rem", color: "var(--text-dim)" }}>
+            <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid var(--glass-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: "0.78rem", color: "var(--text-dim)" }}>
                 Auto-regex parses Order ID, SKU, Date & Quantity
               </span>
               {file && (
@@ -452,7 +613,7 @@ export default function Home() {
                     setFile(null);
                     setPages([]);
                   }}
-                  style={{ padding: "3px 8px", fontSize: "0.72rem" }}
+                  style={{ padding: "4px 12px", fontSize: "0.75rem" }}
                 >
                   Clear
                 </button>
@@ -461,26 +622,28 @@ export default function Home() {
           </div>
 
           {/* Thermal Label Studio Canvas */}
-          <div className="glass-card">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-              <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text-main)" }}>
-                Thermal Print Studio Preview
-              </div>
-              <span className="tag-pill" style={{ fontSize: "0.68rem" }}>
-                Live Canvas
+          <div className="premium-glass">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+              <h3 className="heading-display" style={{ fontSize: "1.1rem", color: "var(--text-pure)", margin: 0 }}>
+                Live Stamp Preview
+              </h3>
+              <span className="tag-pill active" style={{ fontSize: "0.72rem", padding: "4px 10px" }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--aurora-1)", boxShadow: "var(--shadow-glow)" }} />
+                4" × 6" Thermal Canvas
               </span>
             </div>
 
-            <div style={{ display: "flex", gap: 20, alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: 24, alignItems: "flex-start", justifyContent: "space-between" }}>
               {/* Thermal Label Sheet Frame */}
               <div
                 style={{
                   width: canvasW,
                   height: canvasH,
+                  flexShrink: 0,
                   background: "#ffffff",
-                  borderRadius: 4,
+                  borderRadius: 6,
                   position: "relative",
-                  boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+                  boxShadow: "0 14px 40px rgba(0,0,0,0.6)",
                   border: "1px solid #111",
                   overflow: "hidden",
                   userSelect: "none",
@@ -642,16 +805,22 @@ export default function Home() {
               </div>
 
               {/* Preset Position Shortcuts */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1, minWidth: 160 }}>
-                <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 600 }}>
-                  Stamp Position Shortcuts:
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
+                <span style={{ fontSize: "0.78rem", color: "var(--text-silver)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>
+                  Position Shortcuts
                 </span>
                 {POSITION_PRESETS.map((p, idx) => (
                   <button
                     key={idx}
                     className="btn-secondary"
                     onClick={() => applyPreset(p)}
-                    style={{ justifyContent: "flex-start", padding: "6px 10px", fontSize: "0.76rem" }}
+                    style={{
+                      width: "100%",
+                      justifyContent: "flex-start",
+                      padding: "10px 14px",
+                      fontSize: "0.82rem",
+                      borderRadius: "var(--radius-sm)",
+                    }}
                   >
                     📍 {p.name}
                   </button>
@@ -662,54 +831,54 @@ export default function Home() {
         </div>
 
         {/* Store Growth Engine & QR Stamp Config */}
-        <div className="glass-card" style={{ marginBottom: 20 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <div className="premium-glass" style={{ marginBottom: 24 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
             <div>
-              <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text-main)" }}>
-                Meesho Store Growth & QR Configuration
-              </div>
-              <p style={{ fontSize: "0.75rem", color: "var(--text-dim)", marginTop: 2 }}>
-                Encode your store URL into every parcel QR code to boost followers and repeat orders.
+              <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 4px 0" }}>
+                Store Growth & QR Stamp Setup
+              </h3>
+              <p style={{ fontSize: "0.82rem", color: "var(--text-silver)", margin: 0 }}>
+                Encode your Meesho or Instagram store link into every parcel label to boost followers and repeat orders.
               </p>
             </div>
-            <span className="tag-pill" style={{ background: "var(--primary-accent-glow)", color: "var(--primary-accent)" }}>
-              Active Link: themahirenterprise
+            <span className="tag-pill active" style={{ fontSize: "0.75rem", padding: "6px 14px" }}>
+              Active: Meesho Store
             </span>
           </div>
 
           {/* Preset Bar */}
-          <div style={{ background: "#18181b", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-md)", padding: 12, marginBottom: 16 }}>
-            <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--text-muted)", display: "block", marginBottom: 8 }}>
-              Store Link Presets:
+          <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--glass-border)", borderRadius: "14px", padding: "18px 20px", marginBottom: 24 }}>
+            <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-silver)", display: "block", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              Store Link Presets
             </span>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
               <button
                 className="btn-secondary"
-                style={{ background: "var(--primary-accent-glow)", borderColor: "var(--border-accent)", color: "#fff", fontSize: "0.76rem" }}
+                style={{ background: "rgba(79, 172, 254, 0.12)", borderColor: "var(--aurora-2)", color: "var(--aurora-1)", fontSize: "0.82rem", padding: "8px 16px" }}
                 onClick={() => {
                   setQrText("https://www.meesho.com/themahirenterprise");
                   setDetailText("Scan to Follow Meesho Store!\nOrder: {orderNo}\nSKU: {sku}");
                   setActiveInput("qrText");
                 }}
               >
-                🏬 Default Meesho Store (https://www.meesho.com/themahirenterprise)
+                🏬 Default Meesho Store (themahirenterprise)
               </button>
 
               <button
                 className="btn-secondary"
-                style={{ fontSize: "0.76rem" }}
+                style={{ fontSize: "0.82rem", padding: "8px 16px" }}
                 onClick={() => {
                   setQrText("https://instagram.com/your_brand_name");
                   setDetailText("Scan to Follow us on Instagram!\nSKU: {sku}");
                   setActiveInput("qrText");
                 }}
               >
-                📸 Instagram Page (https://instagram.com/...)
+                📸 Instagram Page
               </button>
 
               <button
                 className="btn-secondary"
-                style={{ fontSize: "0.76rem" }}
+                style={{ fontSize: "0.82rem", padding: "8px 16px" }}
                 onClick={() => {
                   setQrText("{orderNo}");
                   setDetailText("Order: {orderNo}\nSKU: {sku}\nDate: {orderDate}");
@@ -722,23 +891,23 @@ export default function Home() {
           </div>
 
           {/* Variable Chips */}
-          <div style={{ marginBottom: 14 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
-              <span style={{ fontSize: "0.78rem", color: "var(--text-muted)", fontWeight: 600 }}>
-                Insert Variable:
-              </span>
+          <div style={{ marginBottom: 24 }}>
+            <span style={{ fontSize: "0.78rem", color: "var(--text-silver)", fontWeight: 600, display: "block", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              Insert Variable
+            </span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
               {TAG_PLACEHOLDERS.map((t) => (
-                <span key={t} className="tag-pill" onClick={() => insertTag(t)}>
+                <span key={t} className="tag-pill" onClick={() => insertTag(t)} style={{ padding: "6px 12px", fontSize: "0.78rem" }}>
                   + {t}
                 </span>
               ))}
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16, marginBottom: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginBottom: 28 }}>
             {/* QR Content */}
             <div>
-              <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-main)", marginBottom: 6 }}>
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-pure)", marginBottom: 8 }}>
                 QR Code Scannable URL / Content
               </label>
               <input
@@ -748,48 +917,48 @@ export default function Home() {
                 onChange={(e) => setQrText(e.target.value)}
                 placeholder="https://www.meesho.com/themahirenterprise"
               />
-              <span style={{ fontSize: "0.72rem", color: qrText.startsWith("http") ? "var(--primary-emerald)" : "var(--text-dim)", marginTop: 4, display: "block" }}>
-                {qrText.startsWith("http") ? "✓ Valid URL: Scanning QR directly opens this web page." : "Active focus: QR Content input"}
+              <span style={{ fontSize: "0.75rem", color: "var(--text-dim)", marginTop: 6, display: "block" }}>
+                ✓ Valid URL: Scanning QR directly opens this web page.
               </span>
             </div>
 
-            {/* Printed Detail Lines */}
+            {/* Detail Lines */}
             <div>
-              <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-main)", marginBottom: 6 }}>
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-pure)", marginBottom: 8 }}>
                 Printed Text Lines (Next to QR)
               </label>
               <textarea
                 className="input-field input-field-mono"
-                style={{ height: 68, resize: "vertical" }}
+                style={{ height: 74, resize: "vertical" }}
                 value={detailText}
                 onFocus={() => setActiveInput("detailText")}
                 onChange={(e) => setDetailText(e.target.value)}
-                placeholder="Scan to follow store!\nOrder: {orderNo}"
+                placeholder="Scan to Follow!\nSKU: {sku}\nOrder: {orderNo}"
               />
             </div>
           </div>
 
-          {/* Coordinate Tuning Sliders */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 16, background: "#18181b", padding: 14, borderRadius: "var(--radius-md)", border: "1px solid var(--border-subtle)" }}>
+          {/* Interactive Range Sliders */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 24, paddingTop: 20, borderTop: "1px solid var(--glass-border)" }}>
             <div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", color: "var(--text-muted)", marginBottom: 4 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", color: "var(--text-silver)", marginBottom: 8 }}>
                 <span>X Offset (Left)</span>
-                <strong style={{ color: "var(--primary-emerald)" }}>{qrX} pt</strong>
+                <strong style={{ color: "var(--aurora-1)" }}>{qrX} pt</strong>
               </div>
               <input
                 type="range"
                 className="range-slider"
                 min="0"
-                max="350"
+                max="300"
                 value={qrX}
                 onChange={(e) => setQrX(Number(e.target.value))}
               />
             </div>
 
             <div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", color: "var(--text-muted)", marginBottom: 4 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", color: "var(--text-silver)", marginBottom: 8 }}>
                 <span>Y Offset (Bottom)</span>
-                <strong style={{ color: "var(--primary-emerald)" }}>{qrY} pt</strong>
+                <strong style={{ color: "var(--aurora-1)" }}>{qrY} pt</strong>
               </div>
               <input
                 type="range"
@@ -802,24 +971,24 @@ export default function Home() {
             </div>
 
             <div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", color: "var(--text-muted)", marginBottom: 4 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", color: "var(--text-silver)", marginBottom: 8 }}>
                 <span>QR Size</span>
-                <strong style={{ color: "var(--accent-cyan)" }}>{qrSize} pt</strong>
+                <strong style={{ color: "var(--aurora-1)" }}>{qrSize} pt</strong>
               </div>
               <input
                 type="range"
                 className="range-slider"
-                min="40"
-                max="160"
+                min="30"
+                max="180"
                 value={qrSize}
                 onChange={(e) => setQrSize(Number(e.target.value))}
               />
             </div>
 
             <div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", color: "var(--text-muted)", marginBottom: 4 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", color: "var(--text-silver)", marginBottom: 8 }}>
                 <span>Font Size</span>
-                <strong style={{ color: "var(--accent-cyan)" }}>{fontSize} pt</strong>
+                <strong style={{ color: "var(--aurora-1)" }}>{fontSize} pt</strong>
               </div>
               <input
                 type="range"
@@ -834,23 +1003,28 @@ export default function Home() {
         </div>
 
         {/* Batch Sorter & Filter Control */}
-        <div className="glass-card" style={{ marginBottom: 20 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, marginBottom: 14 }}>
-            <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text-main)" }}>
-              Multi-Field Batch Sorter & Search Filter
+        <div className="premium-glass" style={{ marginBottom: 24 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, marginBottom: 20 }}>
+            <div>
+              <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 4px 0" }}>
+                Multi-Field Batch Sorter & Search Filter
+              </h3>
+              <p style={{ fontSize: "0.82rem", color: "var(--text-silver)", margin: 0 }}>
+                Automatically group and sort label pages by SKU, Quantity, Order Date, or Customer Name.
+              </p>
             </div>
             {analytics && (
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", gap: 8 }}>
                 <span className="tag-pill">📦 {analytics.totalPages} Total Labels</span>
                 <span className="tag-pill">🏷️ {analytics.uniqueSkus} Unique SKUs</span>
-                <span className="tag-pill">🔢 {analytics.totalQty} Total Units</span>
+                <span className="tag-pill">🔢 {analytics.totalQty} Total Items</span>
               </div>
             )}
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 20 }}>
             <div>
-              <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "var(--text-muted)", marginBottom: 4 }}>
+              <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
                 Sort Pages By Field
               </label>
               <select
@@ -858,26 +1032,28 @@ export default function Home() {
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
               >
-                {SORT_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value} style={{ background: "#18181b", color: "#fff" }}>
-                    {o.label}
-                  </option>
-                ))}
+                <option value="none">Original PDF Sequence (No Sorting)</option>
+                <option value="sku">Sort by SKU / Product Name</option>
+                <option value="qty">Sort by Item Quantity</option>
+                <option value="orderDate">Sort by Order Date</option>
+                <option value="orderNo">Sort by Order ID / Number</option>
+                <option value="customerName">Sort by Customer Name</option>
               </select>
             </div>
 
             <div>
-              <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "var(--text-muted)", marginBottom: 4 }}>
+              <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
                 Order Direction
               </label>
-              <div style={{ display: "flex", gap: 8 }}>
+              <div style={{ display: "flex", gap: 10 }}>
                 <button
                   className="btn-secondary"
                   style={{
                     flex: 1,
-                    background: sortOrder === "asc" ? "#27272a" : "#18181b",
-                    borderColor: sortOrder === "asc" ? "var(--border-strong)" : "var(--border-subtle)",
-                    color: sortOrder === "asc" ? "#ffffff" : "var(--text-muted)",
+                    background: sortOrder === "asc" ? "rgba(79, 172, 254, 0.15)" : "rgba(255, 255, 255, 0.03)",
+                    borderColor: sortOrder === "asc" ? "var(--aurora-2)" : "var(--glass-border)",
+                    color: sortOrder === "asc" ? "var(--aurora-1)" : "var(--text-silver)",
+                    padding: "10px",
                   }}
                   onClick={() => setSortOrder("asc")}
                 >
@@ -887,9 +1063,10 @@ export default function Home() {
                   className="btn-secondary"
                   style={{
                     flex: 1,
-                    background: sortOrder === "desc" ? "#27272a" : "#18181b",
-                    borderColor: sortOrder === "desc" ? "var(--border-strong)" : "var(--border-subtle)",
-                    color: sortOrder === "desc" ? "#ffffff" : "var(--text-muted)",
+                    background: sortOrder === "desc" ? "rgba(79, 172, 254, 0.15)" : "rgba(255, 255, 255, 0.03)",
+                    borderColor: sortOrder === "desc" ? "var(--aurora-2)" : "var(--glass-border)",
+                    color: sortOrder === "desc" ? "var(--aurora-1)" : "var(--text-silver)",
+                    padding: "10px",
                   }}
                   onClick={() => setSortOrder("desc")}
                 >
@@ -899,7 +1076,7 @@ export default function Home() {
             </div>
 
             <div>
-              <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "var(--text-muted)", marginBottom: 4 }}>
+              <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
                 Instant Search Filter
               </label>
               <input
@@ -914,17 +1091,17 @@ export default function Home() {
 
         {/* Data Grid */}
         {pages.length > 0 && (
-          <div className="glass-card" style={{ marginBottom: 40, padding: 0, overflow: "hidden" }}>
-            <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--border-subtle)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
-              <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "var(--text-main)" }}>
+          <div className="premium-glass" style={{ marginBottom: 24, padding: 0, overflow: "hidden", maxWidth: "100%" }}>
+            <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--glass-border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
+              <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text-pure)" }}>
                 Extracted Fields Preview Grid
               </div>
-              <span style={{ fontSize: "0.75rem", color: "var(--text-dim)" }}>
+              <span style={{ fontSize: "0.78rem", color: "var(--text-silver)" }}>
                 Showing {filteredAndSortedIndexes.length} of {pages.length} pages
               </span>
             </div>
 
-            <div style={{ overflowX: "auto", maxHeight: 400 }}>
+            <div style={{ overflowX: "auto", width: "100%", maxWidth: "100%", maxHeight: 420 }}>
               <table className="custom-table">
                 <thead>
                   <tr>
@@ -966,51 +1143,44 @@ export default function Home() {
 
       </main>
 
-      {/* Floating Action Bar */}
-      <footer
-        style={{
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          background: "rgba(9, 9, 11, 0.95)",
-          backdropFilter: "blur(12px)",
-          borderTop: "1px solid var(--border-subtle)",
-          padding: "12px 24px",
-          zIndex: 900,
-        }}
-      >
-        <div
-          style={{
-            maxWidth: 1280,
-            margin: "0 auto",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: 16,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>
-              {file ? (
-                <>Ready to process <strong>{pages.length} pages</strong> from <code style={{ color: "var(--text-main)" }}>{file.name}</code></>
-              ) : (
-                "Upload a PDF or click 'Load Sample Demo' to begin"
-              )}
-            </span>
-          </div>
+      {/* Sticky Action Bar */}
+      <footer className="action-dock premium-glass">
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <span style={{ fontSize: "0.82rem", color: "var(--text-silver)" }}>
+            {file ? (
+              <>Ready to process <strong>{pages.length} pages</strong> from <code style={{ color: "var(--text-pure)" }}>{file.name}</code></>
+            ) : (
+              "Upload a PDF file to preview, test sample, and sort labels"
+            )}
+          </span>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <button
+            className="btn-secondary"
+            style={{
+              minWidth: 190,
+              opacity: file ? 1 : 0.6,
+              cursor: file ? "pointer" : "not-allowed",
+            }}
+            onClick={() => handleGenerate({ sampleOnly: true })}
+          >
+            {loadingSample ? "⏳ Generating Sample..." : "🧪 Download Test Sample (Page 1)"}
+          </button>
 
           <button
             className="btn-primary"
-            disabled={!file || loadingGenerate}
-            onClick={handleGenerate}
-            style={{ minWidth: 220 }}
+            style={{
+              minWidth: 220,
+              opacity: file ? 1 : 0.5,
+              cursor: file ? "pointer" : "not-allowed",
+            }}
+            onClick={() => handleGenerate({ sampleOnly: false })}
           >
             {loadingGenerate ? (
-              <>⏳ Processing & Sorting PDF...</>
+              <>⏳ Processing All {pages.length} Pages...</>
             ) : (
-              <>Generate & Download PDF</>
+              <>⚡ Generate Full PDF ({pages.length > 0 ? `${pages.length} Pages` : "Batch"})</>
             )}
           </button>
         </div>

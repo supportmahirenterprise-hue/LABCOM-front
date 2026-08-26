@@ -16,10 +16,11 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body>
+        <div className="ambient-bg" />
         <Providers>
-          <div style={{ display: "flex", minHeight: "100vh" }}>
+          <div className="layout-wrapper">
             <Sidebar />
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", height: "100vh", overflowY: "auto" }}>
+            <div style={{ flex: 1, minWidth: 0, width: "100%", maxWidth: "100%", display: "flex", flexDirection: "column", minHeight: "100%", position: "relative", zIndex: 1 }}>
               {children}
             </div>
           </div>
