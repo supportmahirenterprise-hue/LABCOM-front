@@ -1,7 +1,10 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../../lib/auth";
-import clientPromise from "../../../lib/mongodb";
 import { NextResponse } from "next/server";
+
+const BACKEND_URL = (
+  process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
+).replace(/\/+$/, "");
 
 export async function GET(req) {
   try {
@@ -9,19 +12,16 @@ export async function GET(req) {
     if (!session || !session.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const client = await clientPromise;
-    const db = client.db();
-    const history = await db
-      .collection("batch_history")
-      .find({ email: session.user.email })
-      .sort({ createdAt: -1 })
-      .limit(50)
-      .toArray();
-
-    return NextResponse.json({ history });
+    const userEmail = session.user.email;
+    const res = await fetch(
+      `${BACKEND_URL}/api/history?email=${encodeURIComponent(userEmail)}`,
+      {
+        headers: { "x-user-email": userEmail },
+      }
+    );
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
   } catch (error) {
-    console.error("Error fetching history:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -32,27 +32,19 @@ export async function POST(req) {
     if (!session || !session.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
+    const userEmail = session.user.email;
     const body = await req.json();
-    const { fileName, pageCount, isSample, sortBy, sortOrder, enableQr, qrText } = body;
-
-    const client = await clientPromise;
-    const db = client.db();
-    await db.collection("batch_history").insertOne({
-      email: session.user.email,
-      fileName: fileName || "Untitled_Batch.pdf",
-      pageCount: pageCount || 1,
-      isSample: Boolean(isSample),
-      sortBy: sortBy || "sku",
-      sortOrder: sortOrder || "asc",
-      enableQr: Boolean(enableQr),
-      qrText: qrText || "",
-      createdAt: new Date(),
+    const res = await fetch(`${BACKEND_URL}/api/history`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-user-email": userEmail,
+      },
+      body: JSON.stringify({ email: userEmail, ...body }),
     });
-
-    return NextResponse.json({ success: true });
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
   } catch (error) {
-    console.error("Error creating history log:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

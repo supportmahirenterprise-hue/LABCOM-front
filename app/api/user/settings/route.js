@@ -1,7 +1,10 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../../../lib/auth";
-import clientPromise from "../../../../lib/mongodb";
 import { NextResponse } from "next/server";
+
+const BACKEND_URL = (
+  process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
+).replace(/\/+$/, "");
 
 export async function GET(req) {
   try {
@@ -9,16 +12,16 @@ export async function GET(req) {
     if (!session || !session.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const client = await clientPromise;
-    const db = client.db();
-    const settings = await db
-      .collection("user_settings")
-      .findOne({ email: session.user.email });
-
-    return NextResponse.json({ settings: settings || null });
+    const userEmail = session.user.email;
+    const res = await fetch(
+      `${BACKEND_URL}/api/user/settings?email=${encodeURIComponent(userEmail)}`,
+      {
+        headers: { "x-user-email": userEmail },
+      }
+    );
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
   } catch (error) {
-    console.error("Error fetching settings:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -29,57 +32,19 @@ export async function POST(req) {
     if (!session || !session.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
+    const userEmail = session.user.email;
     const body = await req.json();
-    const {
-      storeName,
-      phone,
-      supportEmail,
-      storeUrl,
-      instagramHandle,
-      customNote,
-      enableQr,
-      qrText,
-      detailText,
-      qrX,
-      qrY,
-      qrSize,
-      fontSize,
-      sortBy,
-      sortOrder,
-    } = body;
-
-    const client = await clientPromise;
-    const db = client.db();
-    await db.collection("user_settings").updateOne(
-      { email: session.user.email },
-      {
-        $set: {
-          email: session.user.email,
-          storeName: storeName !== undefined ? storeName : "",
-          phone: phone !== undefined ? phone : "",
-          supportEmail: supportEmail !== undefined ? supportEmail : "",
-          storeUrl: storeUrl !== undefined ? storeUrl : "",
-          instagramHandle: instagramHandle !== undefined ? instagramHandle : "",
-          customNote: customNote !== undefined ? customNote : "",
-          enableQr: enableQr !== undefined ? enableQr : true,
-          qrText: qrText !== undefined ? qrText : "https://www.meesho.com/themahirenterprise",
-          detailText: detailText !== undefined ? detailText : "Scan to Follow Meesho Store!\nOrder: {orderNo}\nSKU: {sku}",
-          qrX: qrX !== undefined ? qrX : 30,
-          qrY: qrY !== undefined ? qrY : 30,
-          qrSize: qrSize !== undefined ? qrSize : 90,
-          fontSize: fontSize !== undefined ? fontSize : 8,
-          sortBy: sortBy !== undefined ? sortBy : "sku",
-          sortOrder: sortOrder !== undefined ? sortOrder : "asc",
-          updatedAt: new Date(),
-        },
+    const res = await fetch(`${BACKEND_URL}/api/user/settings`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-user-email": userEmail,
       },
-      { upsert: true }
-    );
-
-    return NextResponse.json({ success: true });
+      body: JSON.stringify({ email: userEmail, ...body }),
+    });
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
   } catch (error) {
-    console.error("Error saving settings:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

@@ -5,6 +5,10 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+const BACKEND_URL = (
+  process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
+).replace(/\/+$/, "");
+
 export default function TemplatesPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -45,8 +49,15 @@ export default function TemplatesPage() {
   }, [toast]);
 
   async function fetchTemplates() {
+    if (!session?.user?.email) return;
     try {
-      const res = await fetch("/api/templates");
+      const userEmail = session.user.email;
+      const res = await fetch(
+        `${BACKEND_URL}/api/templates?email=${encodeURIComponent(userEmail)}`,
+        {
+          headers: { "x-user-email": userEmail },
+        }
+      );
       if (res.ok) {
         const data = await res.json();
         setTemplates(data.templates || []);
@@ -59,10 +70,10 @@ export default function TemplatesPage() {
   }
 
   useEffect(() => {
-    if (status === "authenticated") {
+    if (status === "authenticated" && session?.user?.email) {
       fetchTemplates();
     }
-  }, [status]);
+  }, [status, session]);
 
   async function handleCreate(e) {
     e.preventDefault();
@@ -70,12 +81,21 @@ export default function TemplatesPage() {
       showToast("Please enter a template name", "error");
       return;
     }
+    if (!session?.user?.email) {
+      showToast("Please log in first", "error");
+      return;
+    }
     setCreating(true);
     try {
-      const res = await fetch("/api/templates", {
+      const userEmail = session.user.email;
+      const res = await fetch(`${BACKEND_URL}/api/templates`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-email": userEmail,
+        },
         body: JSON.stringify({
+          email: userEmail,
           name,
           description,
           enableQr,
@@ -107,7 +127,14 @@ export default function TemplatesPage() {
   async function handleDelete(id) {
     if (!confirm("Are you sure you want to delete this template?")) return;
     try {
-      const res = await fetch(`/api/templates?id=${id}`, { method: "DELETE" });
+      const userEmail = session?.user?.email || "";
+      const res = await fetch(
+        `${BACKEND_URL}/api/templates?id=${id}&email=${encodeURIComponent(userEmail)}`,
+        {
+          method: "DELETE",
+          headers: { "x-user-email": userEmail },
+        }
+      );
       if (!res.ok) throw new Error("Failed to delete template");
       showToast("Template removed", "success");
       fetchTemplates();
@@ -118,11 +145,16 @@ export default function TemplatesPage() {
 
   async function handleApply(tpl) {
     try {
-      // Save this template as active user settings in MongoDB
-      await fetch("/api/user/settings", {
+      const userEmail = session?.user?.email || "";
+      // Save this template as active user settings in Node.js backend
+      await fetch(`${BACKEND_URL}/api/user/settings`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-email": userEmail,
+        },
         body: JSON.stringify({
+          email: userEmail,
           enableQr: tpl.enableQr,
           qrText: tpl.qrText,
           detailText: tpl.detailText,

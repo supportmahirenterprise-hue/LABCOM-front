@@ -141,13 +141,19 @@ export default function Home() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  // Load user settings from MongoDB on login
+  // Load user settings from Node.js backend on login
   useEffect(() => {
-    if (status !== "authenticated") return;
+    if (status !== "authenticated" || !session?.user?.email) return;
 
     async function loadSettings() {
       try {
-        const res = await fetch("/api/user/settings");
+        const userEmail = session.user.email;
+        const res = await fetch(
+          `${BACKEND_URL}/api/user/settings?email=${encodeURIComponent(userEmail)}`,
+          {
+            headers: { "x-user-email": userEmail },
+          }
+        );
         if (res.ok) {
           const data = await res.json();
           if (data.settings) {
@@ -164,26 +170,31 @@ export default function Home() {
           }
         }
       } catch (err) {
-        console.error("Failed to load settings:", err);
+        console.error("Failed to load settings from Node backend:", err);
       } finally {
         isInitialLoadDone.current = true;
       }
     }
 
     loadSettings();
-  }, [status]);
+  }, [status, session]);
 
-  // Debounced auto-save settings to MongoDB
+  // Debounced auto-save settings to Node.js backend
   useEffect(() => {
-    if (!isInitialLoadDone.current || status !== "authenticated") return;
+    if (!isInitialLoadDone.current || status !== "authenticated" || !session?.user?.email) return;
 
     const timer = setTimeout(async () => {
       setSavingSettings(true);
       try {
-        await fetch("/api/user/settings", {
+        const userEmail = session.user.email;
+        await fetch(`${BACKEND_URL}/api/user/settings`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-user-email": userEmail,
+          },
           body: JSON.stringify({
+            email: userEmail,
             enableQr,
             qrText,
             detailText,
@@ -380,11 +391,16 @@ export default function Home() {
       a.remove();
       URL.revokeObjectURL(url);
       
-      // Log generation run to MongoDB History
-      fetch("/api/history", {
+      // Log generation run to Node.js Backend History
+      const userEmail = session?.user?.email || "";
+      fetch(`${BACKEND_URL}/api/history`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-email": userEmail,
+        },
         body: JSON.stringify({
+          email: userEmail,
           fileName: file.name,
           pageCount: isSample ? 1 : pages.length,
           isSample,
@@ -393,7 +409,7 @@ export default function Home() {
           enableQr,
           qrText,
         }),
-      }).catch((e) => console.error("Failed to log history:", e));
+      }).catch((e) => console.error("Failed to log history to Node backend:", e));
 
       if (isSample) {
         const msg = "🧪 Test Sample (Page 1) downloaded! Check QR alignment & print preview.";

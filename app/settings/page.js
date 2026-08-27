@@ -5,6 +5,10 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+const BACKEND_URL = (
+  process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
+).replace(/\/+$/, "");
+
 export default function SettingsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -52,11 +56,17 @@ export default function SettingsPage() {
 
   // Load Settings on Mount
   useEffect(() => {
-    if (status !== "authenticated") return;
+    if (status !== "authenticated" || !session?.user?.email) return;
 
     async function load() {
       try {
-        const res = await fetch("/api/user/settings");
+        const userEmail = session.user.email;
+        const res = await fetch(
+          `${BACKEND_URL}/api/user/settings?email=${encodeURIComponent(userEmail)}`,
+          {
+            headers: { "x-user-email": userEmail },
+          }
+        );
         if (res.ok) {
           const data = await res.json();
           if (data.settings) {
@@ -87,17 +97,26 @@ export default function SettingsPage() {
     }
 
     load();
-  }, [status]);
+  }, [status, session]);
 
   // Save Settings Handler
   async function handleSave(e) {
     if (e) e.preventDefault();
+    if (!session?.user?.email) {
+      showToast("Please log in first", "error");
+      return;
+    }
     setSaving(true);
     try {
-      const res = await fetch("/api/user/settings", {
+      const userEmail = session.user.email;
+      const res = await fetch(`${BACKEND_URL}/api/user/settings`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-email": userEmail,
+        },
         body: JSON.stringify({
+          email: userEmail,
           storeName,
           phone,
           supportEmail,

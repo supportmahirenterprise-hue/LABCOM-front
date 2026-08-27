@@ -5,6 +5,10 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+const BACKEND_URL = (
+  process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
+).replace(/\/+$/, "");
+
 export default function AnalyticsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -31,8 +35,15 @@ export default function AnalyticsPage() {
   }, [toast]);
 
   async function fetchAnalytics() {
+    if (!session?.user?.email) return;
     try {
-      const res = await fetch("/api/analytics");
+      const userEmail = session.user.email;
+      const res = await fetch(
+        `${BACKEND_URL}/api/analytics?email=${encodeURIComponent(userEmail)}`,
+        {
+          headers: { "x-user-email": userEmail },
+        }
+      );
       if (res.ok) {
         const json = await res.json();
         setData(json);
@@ -45,14 +56,19 @@ export default function AnalyticsPage() {
   }
 
   useEffect(() => {
-    if (status === "authenticated") {
+    if (status === "authenticated" && session?.user?.email) {
       fetchAnalytics();
     }
-  }, [status]);
+  }, [status, session]);
 
   async function handleSimulateScan() {
+    if (!session?.user?.email) {
+      showToast("Please log in first", "error");
+      return;
+    }
     setSimulating(true);
     try {
+      const userEmail = session.user.email;
       const sampleSkus = [
         "CHHANDO_4_pieces",
         "KERI_6_piece",
@@ -63,10 +79,14 @@ export default function AnalyticsPage() {
       const randomSku = sampleSkus[Math.floor(Math.random() * sampleSkus.length)];
       const randomOrder = `324${Math.floor(10000000000000 + Math.random() * 90000000000000)}`;
 
-      const res = await fetch("/api/analytics", {
+      const res = await fetch(`${BACKEND_URL}/api/analytics`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-email": userEmail,
+        },
         body: JSON.stringify({
+          email: userEmail,
           orderNo: randomOrder,
           sku: randomSku,
           targetUrl: "https://www.meesho.com/themahirenterprise",

@@ -5,6 +5,10 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+const BACKEND_URL = (
+  process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
+).replace(/\/+$/, "");
+
 export default function HistoryPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -30,11 +34,17 @@ export default function HistoryPage() {
   }, [toast]);
 
   useEffect(() => {
-    if (status !== "authenticated") return;
+    if (status !== "authenticated" || !session?.user?.email) return;
 
     async function fetchHistory() {
       try {
-        const res = await fetch("/api/history");
+        const userEmail = session.user.email;
+        const res = await fetch(
+          `${BACKEND_URL}/api/history?email=${encodeURIComponent(userEmail)}`,
+          {
+            headers: { "x-user-email": userEmail },
+          }
+        );
         if (res.ok) {
           const data = await res.json();
           setHistory(data.history || []);
@@ -47,7 +57,7 @@ export default function HistoryPage() {
     }
 
     fetchHistory();
-  }, [status]);
+  }, [status, session]);
 
   if (status === "loading" || loading) {
     return (
