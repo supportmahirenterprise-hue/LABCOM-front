@@ -4,8 +4,9 @@ import { useMemo, useState, useRef, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-const BACKEND_URL =
-  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5001";
+const BACKEND_URL = (
+  process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
+).replace(/\/+$/, "");
 
 const FIELD_COLUMNS = [
   { key: "page", label: "Page", editable: false, width: "90px" },
