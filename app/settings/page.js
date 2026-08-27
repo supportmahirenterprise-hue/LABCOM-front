@@ -223,7 +223,7 @@ export default function SettingsPage() {
             </span>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))", gap: 16 }}>
             <div>
               <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
                 Store / Brand Name
@@ -238,80 +238,56 @@ export default function SettingsPage() {
 
             <div>
               <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
-                Support Phone / WhatsApp Number
+                Meesho Store Link / Custom URL
               </label>
               <input
                 className="input-field"
-                placeholder="e.g. +91 98765 43210"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                placeholder="https://www.meesho.com/yourstore"
+                value={storeUrl}
+                onChange={(e) => setStoreUrl(e.target.value)}
               />
             </div>
 
             <div>
               <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
-                Support Email
-              </label>
-              <input
-                type="email"
-                className="input-field"
-                placeholder="e.g. support@mahirenterprise.com"
-                value={supportEmail}
-                onChange={(e) => setSupportEmail(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
-                Instagram / Social Handle
+                Instagram Profile Link or @Handle
               </label>
               <input
                 className="input-field"
-                placeholder="e.g. @mahir.enterprise_"
+                placeholder="https://instagram.com/your_handle"
                 value={instagramHandle}
                 onChange={(e) => setInstagramHandle(e.target.value)}
               />
             </div>
-          </div>
 
-          <div style={{ marginTop: 20 }}>
-            <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
-              Store URL / Website (Default QR Destination)
-            </label>
-            <input
-              className="input-field input-field-mono"
-              placeholder="https://www.meesho.com/themahirenterprise"
-              value={storeUrl}
-              onChange={(e) => setStoreUrl(e.target.value)}
-            />
-          </div>
-
-          <div style={{ marginTop: 20 }}>
-            <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
-              Custom Return Policy or Package Notice
-            </label>
-            <textarea
-              className="input-field"
-              style={{ height: 75, resize: "vertical" }}
-              placeholder="e.g. Please record an unboxing video for seamless returns and replacements."
-              value={customNote}
-              onChange={(e) => setCustomNote(e.target.value)}
-            />
+            <div>
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
+                Custom Thank You / Return Policy Note
+              </label>
+              <input
+                className="input-field"
+                placeholder="e.g. For hassle-free exchange, contact support"
+                value={customNote}
+                onChange={(e) => setCustomNote(e.target.value)}
+              />
+            </div>
           </div>
         </div>
 
-        {/* Card 2: Default Printing & QR Configurations */}
-        <div className="premium-glass">
+        {/* Global Default QR Configuration */}
+        <div className="premium-glass" style={{ marginBottom: 24 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 10 }}>
             <div>
               <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 4px 0" }}>
-                🖨️ Default Stamp & Sorter Defaults
+                Global Default QR & Layout Setup
               </h3>
-              <p style={{ fontSize: "0.8rem", color: "var(--text-silver)", margin: 0 }}>
-                These presets will automatically load every time you open the Thermal Studio workspace.
+              <p style={{ fontSize: "0.82rem", color: "var(--text-silver)", margin: 0 }}>
+                These parameters will be automatically pre-filled every time you upload a shipping PDF.
               </p>
             </div>
+          </div>
 
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))", gap: 16 }}>
             <label
               style={{
                 display: "flex",
@@ -337,7 +313,7 @@ export default function SettingsPage() {
             </label>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))", gap: 16, marginTop: 16 }}>
             <div>
               <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
                 Default Sort Rule

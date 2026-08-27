@@ -239,7 +239,7 @@ export default function TemplatesPage() {
       </div>
 
       {/* Template Grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 24 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: 16 }}>
         {templates.map((tpl) => (
           <div
             key={tpl._id}
@@ -415,7 +415,7 @@ export default function TemplatesPage() {
                 />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 14 }}>
                 <div>
                   <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-silver)", marginBottom: 4 }}>
                     X Offset (pt)

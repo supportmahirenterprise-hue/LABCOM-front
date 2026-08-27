@@ -579,7 +579,7 @@ export default function Home() {
         )}
 
         {/* Top 2-Column Workspace: File Ingestion (Left) & Thermal Studio Canvas (Right) */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))", gap: 24, marginBottom: 24, alignItems: "stretch" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))", gap: 20, marginBottom: 24, alignItems: "stretch" }}>
           
           {/* File Ingestion Dropzone */}
           <div className="premium-glass" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
@@ -604,19 +604,19 @@ export default function Home() {
               <div
                 className={`dropzone ${file ? "active" : ""}`}
                 style={{
-                  minHeight: 300,
+                  minHeight: 280,
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "center",
                   borderRadius: "16px",
-                  padding: "36px 24px",
+                  padding: "28px 16px",
                 }}
                 onClick={() => fileInputRef.current?.click()}
               >
                 <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>📄</div>
                 {file ? (
-                  <div>
+                  <div style={{ textAlign: "center", wordBreak: "break-all" }}>
                     <p style={{ fontWeight: 600, color: "var(--aurora-1)", fontSize: "0.95rem" }}>
                       {file.name}
                     </p>
@@ -625,7 +625,7 @@ export default function Home() {
                     </p>
                   </div>
                 ) : (
-                  <div>
+                  <div style={{ textAlign: "center" }}>
                     <p style={{ fontWeight: 600, color: "var(--text-pure)", fontSize: "0.95rem" }}>
                       Drop PDF shipping label here or <span style={{ color: "var(--aurora-1)" }}>Browse</span>
                     </p>
@@ -643,8 +643,8 @@ export default function Home() {
               </div>
             </div>
 
-            <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid var(--glass-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: "0.78rem", color: "var(--text-dim)" }}>
+            <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid var(--glass-border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+              <span style={{ fontSize: "0.75rem", color: "var(--text-dim)" }}>
                 Auto-regex parses Order ID, SKU, Date & Quantity
               </span>
               {file && (
@@ -665,7 +665,7 @@ export default function Home() {
 
           {/* Thermal Label Studio Canvas */}
           <div className="premium-glass">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 8 }}>
               <h3 className="heading-display" style={{ fontSize: "1.1rem", color: "var(--text-pure)", margin: 0 }}>
                 Live Stamp Preview
               </h3>
@@ -675,7 +675,7 @@ export default function Home() {
               </span>
             </div>
 
-            <div style={{ display: "flex", gap: 24, alignItems: "flex-start", justifyContent: "space-between" }}>
+            <div className="simulator-layout-wrap" style={{ display: "flex", gap: 20, alignItems: "flex-start", justifyContent: "space-between" }}>
               {/* Thermal Label Sheet Frame */}
               <div
                 style={{
@@ -1004,7 +1004,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginBottom: 28 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: 20, marginBottom: 24 }}>
             {/* QR Content */}
             <div>
               <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-pure)", marginBottom: 8 }}>

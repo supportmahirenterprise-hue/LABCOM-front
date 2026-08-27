@@ -172,13 +172,13 @@ export default function AnalyticsPage() {
       </div>
 
       {/* 4 KPI Stat Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 20, marginBottom: 24 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))", gap: 16, marginBottom: 24 }}>
         {/* Total Scans */}
-        <div className="premium-glass" style={{ padding: "20px 24px" }}>
+        <div className="premium-glass" style={{ padding: "20px 20px" }}>
           <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--text-silver)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
             Total QR Scans
           </span>
-          <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "var(--text-pure)", marginTop: 6, fontFamily: "var(--font-display)" }}>
+          <div style={{ fontSize: "2rem", fontWeight: 800, color: "var(--text-pure)", marginTop: 6, fontFamily: "var(--font-display)" }}>
             {data?.totalScans || 0}
           </div>
           <span style={{ fontSize: "0.76rem", color: "var(--aurora-1)", marginTop: 4, display: "block" }}>
@@ -187,11 +187,11 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Unique Orders Scanned */}
-        <div className="premium-glass" style={{ padding: "20px 24px" }}>
+        <div className="premium-glass" style={{ padding: "20px 20px" }}>
           <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--text-silver)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
             Unique Orders Scanned
           </span>
-          <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "var(--accent-emerald)", marginTop: 6, fontFamily: "var(--font-display)" }}>
+          <div style={{ fontSize: "2rem", fontWeight: 800, color: "var(--accent-emerald)", marginTop: 6, fontFamily: "var(--font-display)" }}>
             {data?.uniqueOrders || 0}
           </div>
           <span style={{ fontSize: "0.76rem", color: "var(--text-dim)", marginTop: 4, display: "block" }}>
@@ -200,11 +200,11 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Today's Scans */}
-        <div className="premium-glass" style={{ padding: "20px 24px" }}>
+        <div className="premium-glass" style={{ padding: "20px 20px" }}>
           <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--text-silver)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
             Today's Live Scans
           </span>
-          <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#38bdf8", marginTop: 6, fontFamily: "var(--font-display)" }}>
+          <div style={{ fontSize: "2rem", fontWeight: 800, color: "#38bdf8", marginTop: 6, fontFamily: "var(--font-display)" }}>
             {data?.todayScans || 0}
           </div>
           <span style={{ fontSize: "0.76rem", color: "var(--text-dim)", marginTop: 4, display: "block" }}>
@@ -213,22 +213,22 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Top Destination */}
-        <div className="premium-glass" style={{ padding: "20px 24px" }}>
+        <div className="premium-glass" style={{ padding: "20px 20px" }}>
           <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--text-silver)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
             Primary Traffic Channel
           </span>
-          <div style={{ fontSize: "1.4rem", fontWeight: 700, color: "var(--text-pure)", marginTop: 10, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          <div style={{ fontSize: "1.3rem", fontWeight: 700, color: "var(--text-pure)", marginTop: 8, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             Meesho Store
           </div>
-          <span style={{ fontSize: "0.76rem", color: "var(--aurora-1)", marginTop: 8, display: "block" }}>
+          <span style={{ fontSize: "0.76rem", color: "var(--aurora-1)", marginTop: 6, display: "block" }}>
             🏬 Highest customer repeat channel
           </span>
         </div>
       </div>
 
       {/* Date-wise Daily Scan Timeline Histogram */}
-      <div className="premium-glass" style={{ marginBottom: 24 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, flexWrap: "wrap", gap: 10 }}>
+      <div className="premium-glass" style={{ marginBottom: 24, overflowX: "auto" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 10 }}>
           <div>
             <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 4px 0" }}>
               📅 Date-wise Scan Volume (Last 7 Days)
@@ -243,18 +243,18 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Histogram Bars */}
-        <div style={{ display: "grid", gridTemplateColumns: `repeat(${data?.dailyTimeline?.length || 7}, 1fr)`, gap: 16, alignItems: "flex-end", minHeight: 180, padding: "20px 10px 10px", background: "rgba(0,0,0,0.2)", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.04)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: `repeat(${data?.dailyTimeline?.length || 7}, 1fr)`, gap: 10, alignItems: "flex-end", minHeight: 180, minWidth: 320, padding: "20px 8px 10px", background: "rgba(0,0,0,0.2)", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.04)" }}>
           {data?.dailyTimeline?.map((day) => {
             const heightPercent = Math.max(12, Math.round((day.count / maxDaily) * 100));
             return (
-              <div key={day.date} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, height: "100%", justifyContent: "flex-end" }}>
-                <span style={{ fontSize: "0.78rem", fontWeight: 700, color: day.count > 0 ? "var(--aurora-1)" : "var(--text-dim)" }}>
+              <div key={day.date} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, height: "100%", justifyContent: "flex-end" }}>
+                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: day.count > 0 ? "var(--aurora-1)" : "var(--text-dim)" }}>
                   {day.count}
                 </span>
                 <div
                   style={{
                     width: "100%",
-                    maxWidth: 48,
+                    maxWidth: 40,
                     height: `${heightPercent}%`,
                     minHeight: 14,
                     background: day.count > 0 ? "linear-gradient(180deg, var(--aurora-1) 0%, var(--aurora-2) 100%)" : "rgba(255,255,255,0.05)",
@@ -263,7 +263,7 @@ export default function AnalyticsPage() {
                     transition: "all 0.3s ease",
                   }}
                 />
-                <span style={{ fontSize: "0.72rem", color: "var(--text-silver)", textAlign: "center", whiteSpace: "nowrap", marginTop: 4 }}>
+                <span style={{ fontSize: "0.68rem", color: "var(--text-silver)", textAlign: "center", whiteSpace: "nowrap", marginTop: 4 }}>
                   {day.label}
                 </span>
               </div>
@@ -273,7 +273,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* 2-Column Split: Top Scanned SKUs (Left) & Channel Breakdown (Right) */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 24, marginBottom: 24 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: 20, marginBottom: 24 }}>
         {/* Top Scanned SKUs */}
         <div className="premium-glass">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>

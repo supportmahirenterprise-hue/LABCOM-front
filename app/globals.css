@@ -375,7 +375,7 @@ select.input-field option {
   letter-spacing: -0.02em;
 }
 
-/* Action Bar Card (Static at the end of the page) */
+/* Action Bar Card */
 .action-dock {
   width: 100%;
   padding: 20px 32px;
@@ -388,10 +388,117 @@ select.input-field option {
   gap: 16px;
 }
 
+/* Mobile & Tablet Responsive Engine */
+@media (min-width: 1025px) {
+  .mobile-topbar {
+    display: none !important;
+  }
+  .mobile-bottom-nav {
+    display: none !important;
+  }
+}
+
 @media (max-width: 1024px) {
+  .layout-wrapper {
+    flex-direction: column;
+    padding: 12px 14px 90px 14px;
+    gap: 16px;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  .sidebar-desktop {
+    display: none !important;
+  }
+
+  .mobile-topbar {
+    display: flex !important;
+  }
+
+  .mobile-bottom-nav {
+    display: flex !important;
+  }
+
+  .premium-glass {
+    padding: 18px 16px;
+    border-radius: 16px;
+  }
+
   .action-dock {
     flex-direction: column;
     align-items: stretch;
-    padding: 20px;
+    padding: 16px;
+    gap: 14px;
+    margin-bottom: 80px;
+  }
+
+  .action-dock > div {
+    flex-direction: column;
+    align-items: stretch !important;
+    width: 100%;
+    gap: 10px !important;
+  }
+
+  .action-dock .btn-primary,
+  .action-dock .btn-secondary {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .simulator-layout-wrap {
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+
+  .simulator-layout-wrap > div:first-child {
+    margin: 0 auto;
+  }
+
+  .simulator-layout-wrap > div:last-child {
+    width: 100% !important;
+  }
+
+  .mobile-stack {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .mobile-full-width {
+    width: 100% !important;
+  }
+
+  .mobile-text-center {
+    text-align: center !important;
+  }
+
+  .custom-table th,
+  .custom-table td {
+    padding: 8px 10px;
+    font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .layout-wrapper {
+    padding: 8px 10px 96px 10px;
+  }
+
+  .premium-glass {
+    padding: 14px 12px;
+    border-radius: 14px;
+  }
+
+  .tag-pill {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+  }
+
+  .input-field {
+    padding: 10px 12px;
+    font-size: 0.85rem;
   }
 }
