@@ -1039,11 +1039,11 @@ export default function Home() {
           </div>
 
           {/* Interactive Range Sliders */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 24, paddingTop: 20, borderTop: "1px solid var(--glass-border)" }}>
-            <div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", color: "var(--text-silver)", marginBottom: 8 }}>
-                <span>X Offset (Left)</span>
-                <strong style={{ color: "var(--aurora-1)" }}>{qrX} pt</strong>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))", gap: 16, paddingTop: 20, borderTop: "1px solid var(--glass-border)" }}>
+            <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--glass-border)", borderRadius: "12px", padding: "12px 14px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-silver)" }}>X Offset (Left)</span>
+                <span style={{ background: "rgba(0, 242, 254, 0.1)", border: "1px solid rgba(0, 242, 254, 0.25)", color: "var(--aurora-1)", padding: "2px 8px", borderRadius: "6px", fontSize: "0.75rem", fontFamily: "var(--font-mono)", fontWeight: 700 }}>{qrX} pt</span>
               </div>
               <input
                 type="range"
@@ -1055,10 +1055,10 @@ export default function Home() {
               />
             </div>
 
-            <div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", color: "var(--text-silver)", marginBottom: 8 }}>
-                <span>Y Offset (Bottom)</span>
-                <strong style={{ color: "var(--aurora-1)" }}>{qrY} pt</strong>
+            <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--glass-border)", borderRadius: "12px", padding: "12px 14px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-silver)" }}>Y Offset (Bottom)</span>
+                <span style={{ background: "rgba(0, 242, 254, 0.1)", border: "1px solid rgba(0, 242, 254, 0.25)", color: "var(--aurora-1)", padding: "2px 8px", borderRadius: "6px", fontSize: "0.75rem", fontFamily: "var(--font-mono)", fontWeight: 700 }}>{qrY} pt</span>
               </div>
               <input
                 type="range"
@@ -1070,10 +1070,10 @@ export default function Home() {
               />
             </div>
 
-            <div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", color: "var(--text-silver)", marginBottom: 8 }}>
-                <span>QR Size</span>
-                <strong style={{ color: "var(--aurora-1)" }}>{qrSize} pt</strong>
+            <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--glass-border)", borderRadius: "12px", padding: "12px 14px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-silver)" }}>QR Size</span>
+                <span style={{ background: "rgba(0, 242, 254, 0.1)", border: "1px solid rgba(0, 242, 254, 0.25)", color: "var(--aurora-1)", padding: "2px 8px", borderRadius: "6px", fontSize: "0.75rem", fontFamily: "var(--font-mono)", fontWeight: 700 }}>{qrSize} pt</span>
               </div>
               <input
                 type="range"
@@ -1085,10 +1085,10 @@ export default function Home() {
               />
             </div>
 
-            <div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", color: "var(--text-silver)", marginBottom: 8 }}>
-                <span>Font Size</span>
-                <strong style={{ color: "var(--aurora-1)" }}>{fontSize} pt</strong>
+            <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--glass-border)", borderRadius: "12px", padding: "12px 14px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-silver)" }}>Font Size</span>
+                <span style={{ background: "rgba(0, 242, 254, 0.1)", border: "1px solid rgba(0, 242, 254, 0.25)", color: "var(--aurora-1)", padding: "2px 8px", borderRadius: "6px", fontSize: "0.75rem", fontFamily: "var(--font-mono)", fontWeight: 700 }}>{fontSize} pt</span>
               </div>
               <input
                 type="range"

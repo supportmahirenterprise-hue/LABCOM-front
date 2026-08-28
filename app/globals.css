@@ -257,6 +257,40 @@ select.input-field option {
   color: var(--aurora-1);
 }
 
+/* Custom Range Slider */
+.range-slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.12);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  accent-color: var(--aurora-1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.range-slider:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--aurora-1);
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.6);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+}
+
 /* Custom Table Styles */
 .custom-table {
   width: 100%;
