@@ -132,6 +132,8 @@ export default function Home() {
   const fileInputRef = useRef(null);
   const isInitialLoadDone = useRef(false);
 
+  const isBusy = loadingPreview || loadingGenerate || loadingSample;
+
   function showToast(message, type = "error") {
     setToast({ message, type });
   }
@@ -283,7 +285,7 @@ export default function Home() {
   }, [pages]);
 
   async function handleFileSelect(f) {
-    if (!f) return;
+    if (!f || isBusy) return;
     setFile(f);
     setPages([]);
     setError("");
@@ -335,6 +337,7 @@ export default function Home() {
   }
 
   async function handleGenerate(options = {}) {
+    if (isBusy) return;
     const isSample = Boolean(options.sampleOnly);
     if (!file) {
       const msg = isSample
@@ -1003,13 +1006,14 @@ export default function Home() {
               >
                 <input
                   type="checkbox"
+                  disabled={isBusy}
                   checked={enableQr}
                   onChange={(e) => setEnableQr(e.target.checked)}
                   style={{
                     width: 16,
                     height: 16,
                     accentColor: "var(--aurora-1)",
-                    cursor: "pointer",
+                    cursor: isBusy ? "not-allowed" : "pointer",
                   }}
                 />
                 <span style={{ fontSize: "0.8rem", fontWeight: 600, color: enableQr ? "var(--aurora-1)" : "var(--text-silver)" }}>
@@ -1222,9 +1226,10 @@ export default function Home() {
               >
                 <input
                   type="checkbox"
+                  disabled={isBusy}
                   checked={downloadSummary}
                   onChange={(e) => setDownloadSummary(e.target.checked)}
-                  style={{ width: 16, height: 16, accentColor: "#10b981", cursor: "pointer" }}
+                  style={{ width: 16, height: 16, accentColor: "#10b981", cursor: isBusy ? "not-allowed" : "pointer" }}
                 />
                 <span style={{ fontSize: "0.82rem", fontWeight: 700, color: downloadSummary ? "#a7f3d0" : "var(--text-silver)" }}>
                   📊 Download Summary
@@ -1369,10 +1374,11 @@ export default function Home() {
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <button
             className="btn-secondary"
+            disabled={!file || isBusy}
             style={{
               minWidth: 190,
-              opacity: file ? 1 : 0.6,
-              cursor: file ? "pointer" : "not-allowed",
+              opacity: file && !isBusy ? 1 : 0.5,
+              cursor: file && !isBusy ? "pointer" : "not-allowed",
             }}
             onClick={() => handleGenerate({ sampleOnly: true })}
           >
@@ -1381,10 +1387,11 @@ export default function Home() {
 
           <button
             className="btn-primary"
+            disabled={!file || isBusy}
             style={{
               minWidth: 220,
-              opacity: file ? 1 : 0.5,
-              cursor: file ? "pointer" : "not-allowed",
+              opacity: file && !isBusy ? 1 : 0.5,
+              cursor: file && !isBusy ? "pointer" : "not-allowed",
             }}
             onClick={() => handleGenerate({ sampleOnly: false })}
           >

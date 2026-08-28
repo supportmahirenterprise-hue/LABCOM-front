@@ -306,9 +306,10 @@ export default function SettingsPage() {
             >
               <input
                 type="checkbox"
+                disabled={saving}
                 checked={enableQr}
                 onChange={(e) => setEnableQr(e.target.checked)}
-                style={{ width: 16, height: 16, accentColor: "var(--aurora-1)", cursor: "pointer" }}
+                style={{ width: 16, height: 16, accentColor: "var(--aurora-1)", cursor: saving ? "not-allowed" : "pointer" }}
               />
               <span style={{ fontSize: "0.8rem", fontWeight: 600, color: enableQr ? "var(--aurora-1)" : "var(--text-silver)" }}>
                 {enableQr ? "QR Stamper: Enabled by Default" : "QR Stamper: Disabled by Default"}
@@ -330,9 +331,10 @@ export default function SettingsPage() {
             >
               <input
                 type="checkbox"
+                disabled={saving}
                 checked={downloadSummary}
                 onChange={(e) => setDownloadSummary(e.target.checked)}
-                style={{ width: 16, height: 16, accentColor: "var(--border-accent)", cursor: "pointer" }}
+                style={{ width: 16, height: 16, accentColor: "var(--border-accent)", cursor: saving ? "not-allowed" : "pointer" }}
               />
               <span style={{ fontSize: "0.8rem", fontWeight: 600, color: downloadSummary ? "#a7f3d0" : "var(--text-silver)" }}>
                 {downloadSummary ? "📊 Download Summary PDF: Enabled by Default" : "📊 Download Summary PDF: Disabled"}
