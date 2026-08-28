@@ -1093,8 +1093,8 @@ export default function Home() {
               <input
                 type="range"
                 className="range-slider"
-                min="5"
-                max="16"
+                min="4"
+                max="72"
                 value={fontSize}
                 onChange={(e) => setFontSize(Number(e.target.value))}
               />
