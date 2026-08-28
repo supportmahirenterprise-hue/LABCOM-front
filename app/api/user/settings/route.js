@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../../../lib/auth";
 import { NextResponse } from "next/server";
-import clientPromise from "../../../../lib/mongodb";
+import { getDb } from "../../../../lib/mongodb";
 
 export async function GET(req) {
   try {
@@ -15,8 +15,7 @@ export async function GET(req) {
       return NextResponse.json({ error: "Unauthorized / Missing email" }, { status: 401 });
     }
 
-    const client = await clientPromise;
-    const db = client.db("labelpro");
+    const db = await getDb();
     const settings = await db.collection("user_settings").findOne({ email: userEmail.toLowerCase().trim() });
 
     return NextResponse.json({ settings: settings || null });
@@ -57,8 +56,7 @@ export async function POST(req) {
       downloadSummary,
     } = body;
 
-    const client = await clientPromise;
-    const db = client.db("labelpro");
+    const db = await getDb();
 
     const updateDoc = {
       email: cleanEmail,
