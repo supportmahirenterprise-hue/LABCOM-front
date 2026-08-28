@@ -917,13 +917,15 @@ export default function Home() {
                     <div
                       style={{
                         fontSize: Math.max(5, fontSize * scale),
+                        transform: "scale(0.85)",
+                        transformOrigin: "left center",
                         fontFamily: '"Times New Roman", Times, serif',
                         fontStyle: "italic",
                         color: "#C2410C",
                         fontWeight: 700,
                         whiteSpace: "pre-wrap",
                         wordBreak: "break-word",
-                        lineHeight: 1.2,
+                        lineHeight: 1.1,
                       }}
                     >
                       {previewText}
