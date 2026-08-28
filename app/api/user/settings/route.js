@@ -1,27 +1,27 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../../../lib/auth";
 import { NextResponse } from "next/server";
-
-const BACKEND_URL = (
-  process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
-).replace(/\/+$/, "");
+import clientPromise from "../../../../lib/mongodb";
 
 export async function GET(req) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !session.user?.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const { searchParams } = new URL(req.url);
+    const queryEmail = searchParams.get("email");
+    const headerEmail = req.headers.get("x-user-email");
+    const userEmail = session?.user?.email || queryEmail || headerEmail || "";
+
+    if (!userEmail) {
+      return NextResponse.json({ error: "Unauthorized / Missing email" }, { status: 401 });
     }
-    const userEmail = session.user.email;
-    const res = await fetch(
-      `${BACKEND_URL}/api/user/settings?email=${encodeURIComponent(userEmail)}`,
-      {
-        headers: { "x-user-email": userEmail },
-      }
-    );
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
+
+    const client = await clientPromise;
+    const db = client.db("labelpro");
+    const settings = await db.collection("user_settings").findOne({ email: userEmail.toLowerCase().trim() });
+
+    return NextResponse.json({ settings: settings || null });
   } catch (error) {
+    console.error("GET user settings error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -29,22 +29,68 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !session.user?.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const headerEmail = req.headers.get("x-user-email");
+    const body = await req.json().catch(() => ({}));
+    const userEmail = session?.user?.email || body.email || headerEmail || "";
+
+    if (!userEmail) {
+      return NextResponse.json({ error: "Unauthorized / Missing email" }, { status: 401 });
     }
-    const userEmail = session.user.email;
-    const body = await req.json();
-    const res = await fetch(`${BACKEND_URL}/api/user/settings`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-user-email": userEmail,
-      },
-      body: JSON.stringify({ email: userEmail, ...body }),
-    });
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
+
+    const cleanEmail = userEmail.toLowerCase().trim();
+    const {
+      storeName,
+      phone,
+      supportEmail,
+      storeUrl,
+      instagramHandle,
+      customNote,
+      enableQr,
+      qrText,
+      detailText,
+      qrX,
+      qrY,
+      qrSize,
+      fontSize,
+      sortBy,
+      sortOrder,
+      downloadSummary,
+    } = body;
+
+    const client = await clientPromise;
+    const db = client.db("labelpro");
+
+    const updateDoc = {
+      email: cleanEmail,
+      updatedAt: new Date(),
+    };
+
+    if (storeName !== undefined) updateDoc.storeName = storeName;
+    if (phone !== undefined) updateDoc.phone = phone;
+    if (supportEmail !== undefined) updateDoc.supportEmail = supportEmail;
+    if (storeUrl !== undefined) updateDoc.storeUrl = storeUrl;
+    if (instagramHandle !== undefined) updateDoc.instagramHandle = instagramHandle;
+    if (customNote !== undefined) updateDoc.customNote = customNote;
+    if (enableQr !== undefined) updateDoc.enableQr = enableQr;
+    if (qrText !== undefined) updateDoc.qrText = qrText;
+    if (detailText !== undefined) updateDoc.detailText = detailText;
+    if (qrX !== undefined) updateDoc.qrX = qrX;
+    if (qrY !== undefined) updateDoc.qrY = qrY;
+    if (qrSize !== undefined) updateDoc.qrSize = qrSize;
+    if (fontSize !== undefined) updateDoc.fontSize = fontSize;
+    if (sortBy !== undefined) updateDoc.sortBy = sortBy;
+    if (sortOrder !== undefined) updateDoc.sortOrder = sortOrder;
+    if (downloadSummary !== undefined) updateDoc.downloadSummary = downloadSummary;
+
+    await db.collection("user_settings").updateOne(
+      { email: cleanEmail },
+      { $set: updateDoc },
+      { upsert: true }
+    );
+
+    return NextResponse.json({ success: true, settings: updateDoc });
   } catch (error) {
+    console.error("POST user settings error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

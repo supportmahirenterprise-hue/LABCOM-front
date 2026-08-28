@@ -39,6 +39,7 @@ export default function SettingsPage() {
   const [fontSize, setFontSize] = useState(8);
   const [sortBy, setSortBy] = useState("sku");
   const [sortOrder, setSortOrder] = useState("asc");
+  const [downloadSummary, setDownloadSummary] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -62,7 +63,7 @@ export default function SettingsPage() {
       try {
         const userEmail = session.user.email;
         const res = await fetch(
-          `${BACKEND_URL}/api/user/settings?email=${encodeURIComponent(userEmail)}`,
+          `/api/user/settings?email=${encodeURIComponent(userEmail)}`,
           {
             headers: { "x-user-email": userEmail },
           }
@@ -87,6 +88,7 @@ export default function SettingsPage() {
             if (s.fontSize !== undefined) setFontSize(s.fontSize);
             if (s.sortBy !== undefined) setSortBy(s.sortBy);
             if (s.sortOrder !== undefined) setSortOrder(s.sortOrder);
+            if (s.downloadSummary !== undefined) setDownloadSummary(s.downloadSummary);
           }
         }
       } catch (err) {
@@ -109,7 +111,7 @@ export default function SettingsPage() {
     setSaving(true);
     try {
       const userEmail = session.user.email;
-      const res = await fetch(`${BACKEND_URL}/api/user/settings`, {
+      const res = await fetch(`/api/user/settings`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -132,6 +134,7 @@ export default function SettingsPage() {
           fontSize,
           sortBy,
           sortOrder,
+          downloadSummary,
         }),
       });
 
@@ -297,8 +300,8 @@ export default function SettingsPage() {
                 userSelect: "none",
                 background: enableQr ? "rgba(79, 172, 254, 0.12)" : "rgba(255, 255, 255, 0.04)",
                 border: `1px solid ${enableQr ? "var(--aurora-2)" : "var(--glass-border)"}`,
-                padding: "6px 14px",
-                borderRadius: "var(--radius-full)",
+                padding: "8px 14px",
+                borderRadius: "var(--radius-md)",
               }}
             >
               <input
@@ -309,6 +312,30 @@ export default function SettingsPage() {
               />
               <span style={{ fontSize: "0.8rem", fontWeight: 600, color: enableQr ? "var(--aurora-1)" : "var(--text-silver)" }}>
                 {enableQr ? "QR Stamper: Enabled by Default" : "QR Stamper: Disabled by Default"}
+              </span>
+            </label>
+
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                cursor: "pointer",
+                userSelect: "none",
+                background: downloadSummary ? "rgba(16, 185, 129, 0.12)" : "rgba(255, 255, 255, 0.04)",
+                border: `1px solid ${downloadSummary ? "rgba(16, 185, 129, 0.4)" : "var(--glass-border)"}`,
+                padding: "8px 14px",
+                borderRadius: "var(--radius-md)",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={downloadSummary}
+                onChange={(e) => setDownloadSummary(e.target.checked)}
+                style={{ width: 16, height: 16, accentColor: "var(--border-accent)", cursor: "pointer" }}
+              />
+              <span style={{ fontSize: "0.8rem", fontWeight: 600, color: downloadSummary ? "#a7f3d0" : "var(--text-silver)" }}>
+                {downloadSummary ? "📊 Download Summary PDF: Enabled by Default" : "📊 Download Summary PDF: Disabled"}
               </span>
             </label>
           </div>

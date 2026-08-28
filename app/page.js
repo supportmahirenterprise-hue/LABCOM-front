@@ -127,6 +127,7 @@ export default function Home() {
   const [sortOrder, setSortOrder] = useState("asc");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeInput, setActiveInput] = useState("qrText");
+  const [downloadSummary, setDownloadSummary] = useState(false);
 
   const fileInputRef = useRef(null);
   const isInitialLoadDone = useRef(false);
@@ -149,7 +150,7 @@ export default function Home() {
       try {
         const userEmail = session.user.email;
         const res = await fetch(
-          `${BACKEND_URL}/api/user/settings?email=${encodeURIComponent(userEmail)}`,
+          `/api/user/settings?email=${encodeURIComponent(userEmail)}`,
           {
             headers: { "x-user-email": userEmail },
           }
@@ -167,6 +168,7 @@ export default function Home() {
             if (s.fontSize !== undefined) setFontSize(s.fontSize);
             if (s.sortBy !== undefined) setSortBy(s.sortBy);
             if (s.sortOrder !== undefined) setSortOrder(s.sortOrder);
+            if (s.downloadSummary !== undefined) setDownloadSummary(s.downloadSummary);
           }
         }
       } catch (err) {
@@ -187,7 +189,7 @@ export default function Home() {
       setSavingSettings(true);
       try {
         const userEmail = session.user.email;
-        await fetch(`${BACKEND_URL}/api/user/settings`, {
+        await fetch(`/api/user/settings`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -204,6 +206,7 @@ export default function Home() {
             fontSize,
             sortBy,
             sortOrder,
+            downloadSummary,
           }),
         });
       } catch (err) {
@@ -214,7 +217,7 @@ export default function Home() {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [enableQr, qrText, detailText, qrX, qrY, qrSize, fontSize, sortBy, sortOrder, status]);
+  }, [enableQr, qrText, detailText, qrX, qrY, qrSize, fontSize, sortBy, sortOrder, downloadSummary, status, session]);
 
   // Filtered & Sorted preview row indices
   const filteredAndSortedIndexes = useMemo(() => {
@@ -385,12 +388,60 @@ export default function Home() {
       const a = document.createElement("a");
       a.href = url;
       const baseName = file.name.replace(/\.pdf$/i, "");
-      a.download = isSample ? `sample_test_page_1_${baseName}.pdf` : `stamped_${baseName}.pdf`;
+      a.download = isSample ? `${baseName}_sample_test_page_1.pdf` : `${baseName}_stamped.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
       
+      // Download Summary PDF if enabled
+      if (downloadSummary) {
+        try {
+          let summaryPages = pages;
+          if (!summaryPages || summaryPages.length === 0) {
+            const previewFd = new FormData();
+            previewFd.append("pdf", file);
+            const prevRes = await fetch(`${BACKEND_URL}/api/preview`, {
+              method: "POST",
+              body: previewFd,
+            });
+            if (prevRes.ok) {
+              const prevData = await prevRes.json();
+              summaryPages = prevData.pages || [];
+            }
+          }
+
+          if (isSample && summaryPages && summaryPages.length > 0) {
+            summaryPages = summaryPages.slice(0, 1);
+          }
+
+          if (summaryPages && summaryPages.length > 0) {
+            await new Promise((resolve) => setTimeout(resolve, 400));
+            const summaryRes = await fetch(`/api/generate-summary`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                pages: summaryPages,
+                fileName: file.name,
+              }),
+            });
+            if (summaryRes.ok) {
+              const summaryBlob = await summaryRes.blob();
+              const summaryUrl = URL.createObjectURL(summaryBlob);
+              const summaryA = document.createElement("a");
+              summaryA.href = summaryUrl;
+              summaryA.download = isSample ? `${baseName}_sample_summary.pdf` : `${baseName}_summary.pdf`;
+              document.body.appendChild(summaryA);
+              summaryA.click();
+              summaryA.remove();
+              URL.revokeObjectURL(summaryUrl);
+            }
+          }
+        } catch (err) {
+          console.error("Summary PDF generation failed:", err);
+        }
+      }
+
       // Log generation run to Node.js Backend History
       const userEmail = session?.user?.email || "";
       fetch(`${BACKEND_URL}/api/history`, {
@@ -416,7 +467,9 @@ export default function Home() {
         setSuccessMsg(msg);
         showToast(msg, "success");
       } else {
-        const msg = "✅ Full batch PDF generated and downloaded successfully!";
+        const msg = downloadSummary
+          ? "✅ Full batch PDF & Summary PDF generated and downloaded successfully!"
+          : "✅ Full batch PDF generated and downloaded successfully!";
         setSuccessMsg(msg);
         showToast(msg, "success");
       }
@@ -430,6 +483,34 @@ export default function Home() {
       } else {
         setLoadingGenerate(false);
       }
+    }
+  }
+
+  async function handleDownloadSummaryOnly() {
+    if (!file || pages.length === 0) {
+      showToast("Please upload a PDF file first to download summary.", "error");
+      return;
+    }
+    try {
+      const baseName = file.name.replace(/\.pdf$/i, "");
+      const res = await fetch(`${BACKEND_URL}/api/generate-summary`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pages, fileName: file.name }),
+      });
+      if (!res.ok) throw new Error("Failed to generate summary PDF");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${baseName}_summary.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast("📊 Summary PDF downloaded successfully!", "success");
+    } catch (err) {
+      showToast(err.message || "Failed to download summary", "error");
     }
   }
 
@@ -1105,7 +1186,7 @@ export default function Home() {
 
         {/* Batch Sorter & Filter Control */}
         <div className="premium-glass" style={{ marginBottom: 24 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, marginBottom: 20 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 20 }}>
             <div>
               <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 4px 0" }}>
                 Multi-Field Batch Sorter & Search Filter
@@ -1114,13 +1195,42 @@ export default function Home() {
                 Automatically group and sort label pages by SKU, Quantity, Order Date, or Customer Name.
               </p>
             </div>
-            {analytics && (
-              <div style={{ display: "flex", gap: 8 }}>
-                <span className="tag-pill">📦 {analytics.totalPages} Total Labels</span>
-                <span className="tag-pill">🏷️ {analytics.uniqueSkus} Unique SKUs</span>
-                <span className="tag-pill">🔢 {analytics.totalQty} Total Items</span>
-              </div>
-            )}
+            
+            <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+              {analytics && (
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <span className="tag-pill">📦 {analytics.totalPages} Total Labels</span>
+                  <span className="tag-pill">🏷️ {analytics.uniqueSkus} Unique SKUs</span>
+                  <span className="tag-pill">🔢 {analytics.totalQty} Total Items</span>
+                </div>
+              )}
+
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  cursor: "pointer",
+                  userSelect: "none",
+                  background: downloadSummary ? "rgba(16, 185, 129, 0.15)" : "rgba(255, 255, 255, 0.05)",
+                  border: `1px solid ${downloadSummary ? "rgba(16, 185, 129, 0.5)" : "var(--glass-border)"}`,
+                  padding: "7px 16px",
+                  borderRadius: "var(--radius-full)",
+                  boxShadow: downloadSummary ? "0 0 15px rgba(16, 185, 129, 0.2)" : "none",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={downloadSummary}
+                  onChange={(e) => setDownloadSummary(e.target.checked)}
+                  style={{ width: 16, height: 16, accentColor: "#10b981", cursor: "pointer" }}
+                />
+                <span style={{ fontSize: "0.82rem", fontWeight: 700, color: downloadSummary ? "#a7f3d0" : "var(--text-silver)" }}>
+                  📊 Download Summary
+                </span>
+              </label>
+            </div>
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 20 }}>
