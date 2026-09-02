@@ -57,7 +57,9 @@ const MOCK_PAGES = [
     customerName: "Sample Customer A",
     invoiceNo: "INV-9876541",
     state: "Gujarat",
-    regionalThankYou: "Aabhar! Tamara prem ane order badal khub khub aabhar! ❤️",
+    regionalThankYouLatin: "Aabhar! Tamara prem ane order badal khub khub aabhar!",
+    regionalThankYouNative: "આભાર! તમારા પ્રેમ અને ઓર્ડર બદલ ખૂબ ખૂબ આભાર!",
+    regionalThankYou: "Aabhar! Tamara prem ane order badal khub khub aabhar!",
   },
   {
     page: 2,
@@ -70,7 +72,9 @@ const MOCK_PAGES = [
     customerName: "Sample Customer B",
     invoiceNo: "INV-9876542",
     state: "Punjab",
-    regionalThankYou: "Dhanvaad ji! Tuhade vishwas aur order layi bahut dhanvaad! ❤️",
+    regionalThankYouLatin: "Dhanvaad ji! Tuhade vishwas aur order layi bahut dhanvaad!",
+    regionalThankYouNative: "ਧੰਨਵਾਦ ਜੀ! ਤੁਹਾਡੇ ਵਿਸ਼ਵਾਸ ਅਤੇ ਆਰਡਰ ਲਈ ਬਹੁਤ ਧੰਨਵਾਦ!",
+    regionalThankYou: "Dhanvaad ji! Tuhade vishwas aur order layi bahut dhanvaad!",
   },
   {
     page: 3,
@@ -82,6 +86,10 @@ const MOCK_PAGES = [
     color: "Crimson Red",
     customerName: "Sample Customer C",
     invoiceNo: "INV-9876543",
+    state: "Maharashtra",
+    regionalThankYouLatin: "Dhanyavaad! Aplya vishvasabaddal manapasun aabhar!",
+    regionalThankYouNative: "धन्यवाद! आपल्या विश्वासाबद्दल मनापासून आभार!",
+    regionalThankYou: "Dhanyavaad! Aplya vishvasabaddal manapasun aabhar!",
   },
 ];
 
@@ -111,6 +119,7 @@ export default function Home() {
   const [toast, setToast] = useState(null);
   const [savingSettings, setSavingSettings] = useState(false);
   const [enableQr, setEnableQr] = useState(true);
+  const [useNativeScript, setUseNativeScript] = useState(false);
 
   // QR Config with default Meesho Store URL requested by user
   const [qrText, setQrText] = useState("https://www.meesho.com/themahirenterprise");
@@ -162,6 +171,7 @@ export default function Home() {
           if (data.settings) {
             const s = data.settings;
             if (s.enableQr !== undefined) setEnableQr(s.enableQr);
+            if (s.useNativeScript !== undefined) setUseNativeScript(s.useNativeScript);
             if (s.qrText !== undefined) setQrText(s.qrText);
             if (s.detailText !== undefined) setDetailText(s.detailText);
             if (s.qrX !== undefined) setQrX(s.qrX);
@@ -200,6 +210,7 @@ export default function Home() {
           body: JSON.stringify({
             email: userEmail,
             enableQr,
+            useNativeScript,
             qrText,
             detailText,
             qrX,
@@ -219,7 +230,7 @@ export default function Home() {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [enableQr, qrText, detailText, qrX, qrY, qrSize, fontSize, sortBy, sortOrder, downloadSummary, status, session]);
+  }, [enableQr, useNativeScript, qrText, detailText, qrX, qrY, qrSize, fontSize, sortBy, sortOrder, downloadSummary, status, session]);
 
   // Filtered & Sorted preview row indices
   const filteredAndSortedIndexes = useMemo(() => {
@@ -284,8 +295,9 @@ export default function Home() {
     return { totalPages, uniqueSkus, totalQty };
   }, [pages]);
 
-  async function handleFileSelect(f) {
+  async function handleFileSelect(f, nativeOverride) {
     if (!f || isBusy) return;
+    const isNative = nativeOverride !== undefined ? nativeOverride : useNativeScript;
     setFile(f);
     setPages([]);
     setError("");
@@ -294,6 +306,7 @@ export default function Home() {
     try {
       const fd = new FormData();
       fd.append("pdf", f);
+      fd.append("useNativeScript", isNative ? "true" : "false");
       const res = await fetch(`${BACKEND_URL}/api/preview`, {
         method: "POST",
         body: fd,
@@ -310,6 +323,26 @@ export default function Home() {
       setError(err.message || "Error connecting to backend server");
     } finally {
       setLoadingPreview(false);
+    }
+  }
+
+  function handleNativeScriptToggle(val) {
+    setUseNativeScript(val);
+    if (file) {
+      handleFileSelect(file, val);
+    } else {
+      setPages((prev) => {
+        const targetList = prev && prev.length ? prev : MOCK_PAGES;
+        return targetList.map((p) => {
+          if (p.regionalThankYouNative && p.regionalThankYouLatin) {
+            return {
+              ...p,
+              regionalThankYou: val ? p.regionalThankYouNative : p.regionalThankYouLatin,
+            };
+          }
+          return p;
+        });
+      });
     }
   }
 
@@ -362,6 +395,7 @@ export default function Home() {
       const fd = new FormData();
       fd.append("pdf", file);
       fd.append("enableQr", enableQr ? "true" : "false");
+      fd.append("useNativeScript", useNativeScript ? "true" : "false");
       fd.append("qrText", qrText);
       fd.append("detailText", detailText);
       fd.append("sortBy", sortBy);
@@ -991,7 +1025,39 @@ export default function Home() {
               </p>
             </div>
             
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  cursor: "pointer",
+                  userSelect: "none",
+                  background: useNativeScript ? "rgba(168, 85, 247, 0.14)" : "rgba(255, 255, 255, 0.04)",
+                  border: `1px solid ${useNativeScript ? "#a855f7" : "var(--glass-border)"}`,
+                  padding: "6px 14px",
+                  borderRadius: "var(--radius-full)",
+                  transition: "all 0.2s ease",
+                }}
+                title="Tick to print regional greetings in their native language script (e.g. Gujarati/Marathi/Tamil/Punjabi font)"
+              >
+                <input
+                  type="checkbox"
+                  disabled={isBusy}
+                  checked={useNativeScript}
+                  onChange={(e) => handleNativeScriptToggle(e.target.checked)}
+                  style={{
+                    width: 16,
+                    height: 16,
+                    accentColor: "#a855f7",
+                    cursor: isBusy ? "not-allowed" : "pointer",
+                  }}
+                />
+                <span style={{ fontSize: "0.8rem", fontWeight: 600, color: useNativeScript ? "#c084fc" : "var(--text-silver)" }}>
+                  {useNativeScript ? "Regional Script (Lipi): ON" : "Regional Script (Lipi): OFF"}
+                </span>
+              </label>
+
               <label
                 style={{
                   display: "flex",

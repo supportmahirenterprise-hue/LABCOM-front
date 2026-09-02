@@ -54,6 +54,7 @@ export async function POST(req) {
       sortBy,
       sortOrder,
       downloadSummary,
+      useNativeScript,
     } = body;
 
     const db = await getDb();
@@ -70,6 +71,7 @@ export async function POST(req) {
     if (instagramHandle !== undefined) updateDoc.instagramHandle = instagramHandle;
     if (customNote !== undefined) updateDoc.customNote = customNote;
     if (enableQr !== undefined) updateDoc.enableQr = enableQr;
+    if (useNativeScript !== undefined) updateDoc.useNativeScript = useNativeScript;
     if (qrText !== undefined) updateDoc.qrText = qrText;
     if (detailText !== undefined) updateDoc.detailText = detailText;
     if (qrX !== undefined) updateDoc.qrX = qrX;
