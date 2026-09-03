@@ -119,7 +119,7 @@ export default function Home() {
   const [toast, setToast] = useState(null);
   const [savingSettings, setSavingSettings] = useState(false);
   const [enableQr, setEnableQr] = useState(true);
-  const [useNativeScript, setUseNativeScript] = useState(false);
+  const [useNativeScript, setUseNativeScript] = useState(true);
 
   // QR Config with default Meesho Store URL requested by user
   const [qrText, setQrText] = useState("https://www.meesho.com/themahirenterprise");
@@ -953,7 +953,7 @@ export default function Home() {
                         fontSize: Math.max(5, fontSize * scale),
                         transform: "scale(0.85)",
                         transformOrigin: "left center",
-                        fontFamily: '"Times New Roman", Times, serif',
+                        fontFamily: "'Nirmala UI', 'Noto Sans', 'Segoe UI', system-ui, sans-serif",
                         fontStyle: "italic",
                         color: "#C2410C",
                         fontWeight: 700,
