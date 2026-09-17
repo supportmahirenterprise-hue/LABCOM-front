@@ -3,6 +3,7 @@
 import { useMemo, useState, useRef, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { PDFDocument } from "pdf-lib";
 
 const BACKEND_URL = (
   process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
@@ -304,20 +305,63 @@ export default function Home() {
     setSuccessMsg("");
     setLoadingPreview(true);
     try {
-      const fd = new FormData();
-      fd.append("pdf", f);
-      fd.append("useNativeScript", isNative ? "true" : "false");
-      const res = await fetch(`${BACKEND_URL}/api/preview`, {
-        method: "POST",
-        body: fd,
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to read PDF preview");
+      let totalPagesInPdf = 1;
+      try {
+        const fileBuffer = await f.arrayBuffer();
+        const loadedPdf = await PDFDocument.load(fileBuffer, { ignoreEncryption: true });
+        totalPagesInPdf = loadedPdf.getPageCount();
+      } catch (e) {
+        console.warn("Could not read page count client-side:", e);
       }
-      const data = await res.json();
-      setPages(data.pages || []);
-      showToast(`Successfully extracted ${data.pages?.length || 0} label pages!`, "success");
+
+      const CHUNK_SIZE = 150;
+      let allExtractedPages = [];
+
+      if (totalPagesInPdf <= CHUNK_SIZE) {
+        const fd = new FormData();
+        fd.append("pdf", f);
+        fd.append("useNativeScript", isNative ? "true" : "false");
+        const res = await fetch(`${BACKEND_URL}/api/preview`, {
+          method: "POST",
+          body: fd,
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || "Failed to read PDF preview");
+        }
+        const data = await res.json();
+        allExtractedPages = data.pages || [];
+      } else {
+        const totalChunks = Math.ceil(totalPagesInPdf / CHUNK_SIZE);
+        showToast(`Large PDF detected (${totalPagesInPdf} pages). Processing in ${totalChunks} fast chunks...`, "info");
+
+        for (let c = 0; c < totalChunks; c++) {
+          const startP = c * CHUNK_SIZE + 1;
+          const endP = Math.min(totalPagesInPdf, (c + 1) * CHUNK_SIZE);
+          showToast(`Reading pages ${startP}-${endP} of ${totalPagesInPdf}...`, "info");
+
+          const fd = new FormData();
+          fd.append("pdf", f);
+          fd.append("useNativeScript", isNative ? "true" : "false");
+          fd.append("startPage", String(startP));
+          fd.append("endPage", String(endP));
+
+          const res = await fetch(`${BACKEND_URL}/api/preview`, {
+            method: "POST",
+            body: fd,
+          });
+
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.error || `Failed to read PDF preview chunk ${c + 1}`);
+          }
+          const data = await res.json();
+          allExtractedPages = [...allExtractedPages, ...(data.pages || [])];
+        }
+      }
+
+      setPages(allExtractedPages);
+      showToast(`Successfully extracted ${allExtractedPages.length} label pages!`, "success");
     } catch (err) {
       showToast(err.message || "Error connecting to backend server", "error");
       setError(err.message || "Error connecting to backend server");
@@ -392,42 +436,105 @@ export default function Home() {
     }
 
     try {
-      const fd = new FormData();
-      fd.append("pdf", file);
-      fd.append("enableQr", enableQr ? "true" : "false");
-      fd.append("useNativeScript", useNativeScript ? "true" : "false");
-      fd.append("qrText", qrText);
-      fd.append("detailText", detailText);
-      fd.append("sortBy", sortBy);
-      fd.append("sortOrder", sortOrder);
-      fd.append("qrX", String(qrX));
-      fd.append("qrY", String(qrY));
-      fd.append("qrSize", String(qrSize));
-      fd.append("fontSize", String(fontSize));
-      const modifiedPages = pages.filter((p) => p && p._modified);
-      fd.append("overrides", JSON.stringify(modifiedPages));
-      fd.append("sampleOnly", String(isSample));
+      let totalPagesInPdf = pages?.length || 1;
+      try {
+        const fileBuffer = await file.arrayBuffer();
+        const loadedPdf = await PDFDocument.load(fileBuffer, { ignoreEncryption: true });
+        totalPagesInPdf = loadedPdf.getPageCount();
+      } catch (e) {}
 
-      const res = await fetch(`${BACKEND_URL}/api/generate`, {
-        method: "POST",
-        body: fd,
-      });
+      const CHUNK_SIZE = 150;
+      let finalPdfBlob = null;
 
-      if (!res.ok) {
-        const ct = res.headers.get("content-type") || "";
-        if (ct.includes("application/json")) {
-          throw new Error((await res.json()).error || "Generation failed");
+      if (isSample || totalPagesInPdf <= CHUNK_SIZE) {
+        const fd = new FormData();
+        fd.append("pdf", file);
+        fd.append("enableQr", enableQr ? "true" : "false");
+        fd.append("useNativeScript", useNativeScript ? "true" : "false");
+        fd.append("qrText", qrText);
+        fd.append("detailText", detailText);
+        fd.append("sortBy", sortBy);
+        fd.append("sortOrder", sortOrder);
+        fd.append("qrX", String(qrX));
+        fd.append("qrY", String(qrY));
+        fd.append("qrSize", String(qrSize));
+        fd.append("fontSize", String(fontSize));
+        const modifiedPages = pages.filter((p) => p && p._modified);
+        fd.append("overrides", JSON.stringify(modifiedPages));
+        fd.append("sampleOnly", String(isSample));
+
+        const res = await fetch(`${BACKEND_URL}/api/generate`, {
+          method: "POST",
+          body: fd,
+        });
+
+        if (!res.ok) {
+          const ct = res.headers.get("content-type") || "";
+          if (ct.includes("application/json")) {
+            throw new Error((await res.json()).error || "Generation failed");
+          }
+          throw new Error("PDF processing failed on server");
         }
-        throw new Error("PDF processing failed on server");
+
+        finalPdfBlob = await res.blob();
+      } else {
+        const totalChunks = Math.ceil(totalPagesInPdf / CHUNK_SIZE);
+        showToast(`Processing ${totalPagesInPdf} pages in ${totalChunks} fast chunks to prevent timeout...`, "info");
+
+        const mergedPdfDoc = await PDFDocument.create();
+        const modifiedPages = pages.filter((p) => p && p._modified);
+
+        for (let c = 0; c < totalChunks; c++) {
+          const startP = c * CHUNK_SIZE + 1;
+          const endP = Math.min(totalPagesInPdf, (c + 1) * CHUNK_SIZE);
+          showToast(`Stamping chunk ${c + 1}/${totalChunks} (pages ${startP}-${endP})...`, "info");
+
+          const fd = new FormData();
+          fd.append("pdf", file);
+          fd.append("enableQr", enableQr ? "true" : "false");
+          fd.append("useNativeScript", useNativeScript ? "true" : "false");
+          fd.append("qrText", qrText);
+          fd.append("detailText", detailText);
+          fd.append("sortBy", sortBy);
+          fd.append("sortOrder", sortOrder);
+          fd.append("qrX", String(qrX));
+          fd.append("qrY", String(qrY));
+          fd.append("qrSize", String(qrSize));
+          fd.append("fontSize", String(fontSize));
+          fd.append("overrides", JSON.stringify(modifiedPages));
+          fd.append("sampleOnly", "false");
+          fd.append("startPage", String(startP));
+          fd.append("endPage", String(endP));
+
+          const res = await fetch(`${BACKEND_URL}/api/generate`, {
+            method: "POST",
+            body: fd,
+          });
+
+          if (!res.ok) {
+            const ct = res.headers.get("content-type") || "";
+            if (ct.includes("application/json")) {
+              throw new Error((await res.json()).error || `Chunk ${c + 1} generation failed`);
+            }
+            throw new Error(`PDF chunk ${c + 1} processing failed`);
+          }
+
+          const chunkArrayBuffer = await res.arrayBuffer();
+          const chunkPdfDoc = await PDFDocument.load(chunkArrayBuffer);
+          const copiedPages = await mergedPdfDoc.copyPages(chunkPdfDoc, chunkPdfDoc.getPageIndices());
+          copiedPages.forEach((p) => mergedPdfDoc.addPage(p));
+        }
+
+        const mergedPdfBytes = await mergedPdfDoc.save();
+        finalPdfBlob = new Blob([mergedPdfBytes], { type: "application/pdf" });
       }
 
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
+      const url = URL.createObjectURL(finalPdfBlob);
       const a = document.createElement("a");
       a.href = url;
       const today = new Date();
       const dateStr = `${String(today.getDate()).padStart(2, "0")}.${String(today.getMonth() + 1).padStart(2, "0")}.${today.getFullYear()}`;
-      const pageCount = isSample ? 1 : (pages?.length || 1);
+      const pageCount = isSample ? 1 : (pages?.length || totalPagesInPdf || 1);
       a.download = isSample ? `1_${dateStr}_sample_test_page_1.pdf` : `${pageCount}_${dateStr}_stamped.pdf`;
       document.body.appendChild(a);
       a.click();
