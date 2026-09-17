@@ -1,17 +1,11 @@
 const fs = require('fs');
 const filePath = 'app/customer-analysis/page.js';
 let content = fs.readFileSync(filePath, 'utf8');
+let lines = content.split(/\r?\n/);
+let index = lines.findIndex(l => l.includes('{/* Controls Section:'));
 
-const searchStr = `            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Controls Section:`;
-
-const replaceStr = `            )}
-          </div>
-
+if (index > 4) {
+    const newLines = `
           {/* Top State Hubs */}
           <div style={{ background: "rgba(0,0,0,0.25)", padding: "16px 18px", borderRadius: "14px", border: "1px solid rgba(16, 185, 129, 0.25)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
@@ -43,9 +37,9 @@ const replaceStr = `            )}
                       gap: 6,
                     }}
                   >
-                    <span>?? {s.name}</span>
+                    <span>?? \${s.name}</span>
                     <span style={{ background: "#10b981", color: "#000", padding: "1px 6px", borderRadius: "99px", fontSize: "0.72rem", fontWeight: 800 }}>
-                      {s.count} Orders
+                      \${s.count} Orders
                     </span>
                   </div>
                 ))}
@@ -54,9 +48,12 @@ const replaceStr = `            )}
           </div>
         </div>
       </div>
+`.split('\n');
 
-      {/* Controls Section:`;
-
-content = content.replace(searchStr, replaceStr);
-fs.writeFileSync(filePath, content, 'utf8');
-console.log('Done');
+    lines.splice(index - 3, 3, ...newLines);
+    
+    fs.writeFileSync(filePath, lines.join('\n'), 'utf8');
+    console.log('Successfully injected!');
+} else {
+    console.log('Target not found!');
+}
