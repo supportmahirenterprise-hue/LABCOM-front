@@ -327,13 +327,15 @@ export async function POST(req) {
     }
 
     const pdfBuffer = await generateSummaryPdf(pages, fileName);
-    const baseName = fileName.replace(/\.pdf$/i, "");
+    const now = new Date();
+    const dateStr = `${String(now.getDate()).padStart(2, "0")}.${String(now.getMonth() + 1).padStart(2, "0")}.${now.getFullYear()}`;
+    const pageCount = pages.length;
     
     return new NextResponse(pdfBuffer, {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${baseName}_summary.pdf"`,
+        "Content-Disposition": `attachment; filename="${pageCount}_${dateStr}_summary.pdf"`,
       },
     });
   } catch (err) {

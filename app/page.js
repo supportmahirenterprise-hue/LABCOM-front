@@ -424,8 +424,10 @@ export default function Home() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      const baseName = file.name.replace(/\.pdf$/i, "");
-      a.download = isSample ? `${baseName}_sample_test_page_1.pdf` : `${baseName}_stamped.pdf`;
+      const today = new Date();
+      const dateStr = `${String(today.getDate()).padStart(2, "0")}.${String(today.getMonth() + 1).padStart(2, "0")}.${today.getFullYear()}`;
+      const pageCount = isSample ? 1 : (pages?.length || 1);
+      a.download = isSample ? `1_${dateStr}_sample_test_page_1.pdf` : `${pageCount}_${dateStr}_stamped.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -467,7 +469,8 @@ export default function Home() {
               const summaryUrl = URL.createObjectURL(summaryBlob);
               const summaryA = document.createElement("a");
               summaryA.href = summaryUrl;
-              summaryA.download = isSample ? `${baseName}_sample_summary.pdf` : `${baseName}_summary.pdf`;
+              const sCount = isSample ? 1 : summaryPages.length;
+              summaryA.download = isSample ? `1_${dateStr}_sample_summary.pdf` : `${sCount}_${dateStr}_summary.pdf`;
               document.body.appendChild(summaryA);
               summaryA.click();
               summaryA.remove();
@@ -529,7 +532,9 @@ export default function Home() {
       return;
     }
     try {
-      const baseName = file.name.replace(/\.pdf$/i, "");
+      const today = new Date();
+      const dateStr = `${String(today.getDate()).padStart(2, "0")}.${String(today.getMonth() + 1).padStart(2, "0")}.${today.getFullYear()}`;
+      const pageCount = pages?.length || 1;
       const res = await fetch(`${BACKEND_URL}/api/generate-summary`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -540,7 +545,7 @@ export default function Home() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${baseName}_summary.pdf`;
+      a.download = `${pageCount}_${dateStr}_summary.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
