@@ -41,6 +41,16 @@ export default function SettingsPage() {
   const [sortOrder, setSortOrder] = useState("asc");
   const [downloadSummary, setDownloadSummary] = useState(false);
 
+  // WhatsApp Dispatcher Configuration
+  const [enableWhatsApp, setEnableWhatsApp] = useState(true);
+  const [waApiKey, setWaApiKey] = useState("wa_c6854599bd4b7a54cad78edbdd6ace51");
+  const [waBearerToken, setWaBearerToken] = useState(
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YTVkZjQ3MzBjOWQwZTA0Nzg2OTBkMDkiLCJ1c2VybmFtZSI6IlZpc2hhbCIsImlhdCI6MTc4ODc4Mjg2MSwiZXhwIjoxNzkxMzc0ODYxfQ.mfXOSRinxqUpVpXBpaLQ4wHwaz0i9_Ni7RTxOi19k-4"
+  );
+  const [waReceiverNumber, setWaReceiverNumber] = useState("918140148878");
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [testingWa, setTestingWa] = useState(false);
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
@@ -89,6 +99,11 @@ export default function SettingsPage() {
             if (s.sortBy !== undefined) setSortBy(s.sortBy);
             if (s.sortOrder !== undefined) setSortOrder(s.sortOrder);
             if (s.downloadSummary !== undefined) setDownloadSummary(s.downloadSummary);
+
+            if (s.enableWhatsApp !== undefined) setEnableWhatsApp(s.enableWhatsApp);
+            if (s.waApiKey !== undefined) setWaApiKey(s.waApiKey);
+            if (s.waBearerToken !== undefined) setWaBearerToken(s.waBearerToken);
+            if (s.waReceiverNumber !== undefined) setWaReceiverNumber(s.waReceiverNumber);
           }
         }
       } catch (err) {
@@ -135,6 +150,10 @@ export default function SettingsPage() {
           sortBy,
           sortOrder,
           downloadSummary,
+          enableWhatsApp,
+          waApiKey,
+          waBearerToken,
+          waReceiverNumber,
         }),
       });
 
@@ -147,6 +166,41 @@ export default function SettingsPage() {
       showToast(err.message || "Failed to save settings", "error");
     } finally {
       setSaving(false);
+    }
+  }
+
+  // Test WhatsApp Dispatch Handler
+  async function handleTestWhatsApp() {
+    setTestingWa(true);
+    try {
+      const userEmail = session?.user?.email || "";
+      const targetNum = waReceiverNumber || "918140148878";
+      const testRes = await fetch(`${BACKEND_URL}/api/whatsapp/send-media`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-email": userEmail,
+          "x-internal-secret": "core-engine-internal",
+        },
+        body: JSON.stringify({
+          number: targetNum,
+          fileData:
+            "data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PC9UaXRsZSAoVGVzdCk+PgplbmRvYmoKMiAwIG9iagocPDAvUGFnZXMgMyAwIFJdPj4KZW5kb2JqCjMgMCBvYmoKPDwvQ291bnQgMTAvS2lkcyBbNCAwIFJdPj4KZW5kb2JqCjQgMCBvYmoKPDwvVHlwZSAvUGFnZT4+CmVuZG9iagp0cmFpbGVyCjw8L1Jvb3QgMiAwIFI+PgolJUVPRg==",
+          fileName: "test_whatsapp_delivery.pdf",
+          caption: "📲 WhatsApp Settings Test Message",
+          typeName: "Test WhatsApp Message",
+        }),
+      });
+
+      if (testRes.ok) {
+        showToast(`📲 Test WhatsApp message sent successfully to ${targetNum}!`, "success");
+      } else {
+        throw new Error("Failed to send test WhatsApp message");
+      }
+    } catch (err) {
+      showToast(err.message || "Test WhatsApp send failed", "error");
+    } finally {
+      setTestingWa(false);
     }
   }
 
@@ -395,6 +449,117 @@ export default function SettingsPage() {
                   ⬇️ Descending
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 3: WhatsApp Automatic Media Dispatcher Setup */}
+        <div className="premium-glass" style={{ marginBottom: 24 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 10 }}>
+            <div>
+              <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 4px 0" }}>
+                📲 WhatsApp Automatic Media Dispatcher
+              </h3>
+              <p style={{ fontSize: "0.82rem", color: "var(--text-silver)", margin: 0 }}>
+                Configure your personal WhatsApp API Key, Bearer Token, and Receiver Number for automatic media dispatch.
+              </p>
+            </div>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={handleTestWhatsApp}
+              disabled={testingWa}
+              style={{ fontSize: "0.82rem", padding: "8px 16px", borderColor: "var(--aurora-2)", color: "var(--aurora-1)", display: "flex", alignItems: "center", gap: 6 }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="22" y1="2" x2="11" y2="13" />
+                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+              </svg>
+              {testingWa ? "Sending Test..." : "📲 Test WhatsApp Send"}
+            </button>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))", gap: 16 }}>
+            {/* Enable Checkbox */}
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                cursor: "pointer",
+                userSelect: "none",
+                background: enableWhatsApp ? "rgba(16, 185, 129, 0.12)" : "rgba(255, 255, 255, 0.04)",
+                border: `1px solid ${enableWhatsApp ? "rgba(16, 185, 129, 0.4)" : "var(--glass-border)"}`,
+                padding: "10px 14px",
+                borderRadius: "var(--radius-md)",
+                gridColumn: "1 / -1",
+              }}
+            >
+              <input
+                type="checkbox"
+                disabled={saving}
+                checked={enableWhatsApp}
+                onChange={(e) => setEnableWhatsApp(e.target.checked)}
+                style={{ width: 16, height: 16, accentColor: "#10b981", cursor: saving ? "not-allowed" : "pointer" }}
+              />
+              <span style={{ fontSize: "0.84rem", fontWeight: 600, color: enableWhatsApp ? "#a7f3d0" : "var(--text-silver)" }}>
+                {enableWhatsApp ? "WhatsApp Auto-Dispatch: Enabled" : "WhatsApp Auto-Dispatch: Disabled"}
+              </span>
+            </label>
+
+            {/* Receiver Phone Number */}
+            <div>
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
+                Default Receiver WhatsApp Number (with Country Code)
+              </label>
+              <input
+                className="input-field"
+                placeholder="e.g. 918140148878"
+                value={waReceiverNumber}
+                onChange={(e) => setWaReceiverNumber(e.target.value)}
+              />
+              <span style={{ fontSize: "0.74rem", color: "var(--text-dim)", marginTop: 4, display: "block" }}>
+                Target phone number where PDFs and Summary images are delivered (Default: 918140148878)
+              </span>
+            </div>
+
+            {/* Personal Secret API Key */}
+            <div>
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
+                Personal Secret API Key (x-api-key)
+              </label>
+              <div style={{ position: "relative" }}>
+                <input
+                  type={showApiKey ? "text" : "password"}
+                  className="input-field"
+                  placeholder="wa_c6854599bd4b7a54cad78edbdd6ace51"
+                  value={waApiKey}
+                  onChange={(e) => setWaApiKey(e.target.value)}
+                  style={{ paddingRight: 40 }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowApiKey(!showApiKey)}
+                  style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--text-silver)", cursor: "pointer", fontSize: "0.9rem" }}
+                >
+                  {showApiKey ? "🙈" : "👁️"}
+                </button>
+              </div>
+            </div>
+
+            {/* Bearer Authorization Token */}
+            <div style={{ gridColumn: "1 / -1" }}>
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
+                Authorization Bearer Token (JWT Token)
+              </label>
+              <textarea
+                className="input-field"
+                rows={2}
+                placeholder="Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                value={waBearerToken}
+                onChange={(e) => setWaBearerToken(e.target.value)}
+                style={{ fontFamily: "var(--font-mono)", fontSize: "0.78rem" }}
+              />
             </div>
           </div>
         </div>
