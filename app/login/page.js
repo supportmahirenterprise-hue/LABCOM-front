@@ -2,12 +2,11 @@
 
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 export default function LoginPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -21,20 +20,6 @@ export default function LoginPage() {
         <p>Loading...</p>
       </div>
     );
-  }
-
-  async function handleDemoLogin() {
-    setLoading(true);
-    try {
-      await signIn("credentials", {
-        email: "demo@labelpro.in",
-        callbackUrl: "/",
-        redirect: true,
-      });
-    } catch (e) {
-      console.error(e);
-      setLoading(false);
-    }
   }
 
   return (
@@ -72,38 +57,6 @@ export default function LoginPage() {
         <p style={{ fontSize: "0.85rem", color: "var(--text-dim)", marginBottom: 28 }}>
           Log in to access your intelligent shipping label engine.
         </p>
-
-        {/* Quick Instant Dev Login Button */}
-        <button
-          className="btn-primary"
-          style={{
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 10,
-            padding: "13px 16px",
-            fontSize: "0.95rem",
-            fontWeight: 700,
-            background: "linear-gradient(135deg, #a855f7, #6366f1)",
-            color: "#ffffff",
-            border: "none",
-            borderRadius: "var(--radius-md)",
-            cursor: "pointer",
-            marginBottom: 14,
-            boxShadow: "0 4px 14px rgba(168, 85, 247, 0.4)",
-          }}
-          disabled={loading}
-          onClick={handleDemoLogin}
-        >
-          ⚡ {loading ? "Logging in..." : "Instant Demo Login"}
-        </button>
-
-        <div style={{ margin: "16px 0", color: "#555", fontSize: "0.8rem", display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ flex: 1, height: 1, background: "#27272a" }}></div>
-          <span>OR</span>
-          <div style={{ flex: 1, height: 1, background: "#27272a" }}></div>
-        </div>
 
         {/* Google Login */}
         <button
