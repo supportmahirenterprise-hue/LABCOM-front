@@ -607,7 +607,7 @@ export default function CustomerAnalysisPage() {
                   return (
                     <tr key={c.id || idx}>
                       <td style={{ color: "var(--text-dim)", fontSize: "0.8rem", fontFamily: "var(--font-mono)" }}>
-                        {globalIdx}
+                        {globalIdx} 
                       </td>
                       <td style={{ fontWeight: 700, color: "var(--text-pure)", fontSize: "0.88rem" }}>
                         {c.name}
@@ -845,9 +845,6 @@ export default function CustomerAnalysisPage() {
                 </button>
               </div>
             </div>
-          </div>
-        )}
-            </table>
           </div>
         )}
       </div>
