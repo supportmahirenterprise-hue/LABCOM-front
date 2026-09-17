@@ -407,7 +407,7 @@ export default function CustomerAnalysisPage() {
           <div style={{ background: "rgba(0,0,0,0.25)", padding: "16px 18px", borderRadius: "14px", border: "1px solid rgba(16, 185, 129, 0.25)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
               <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#10b981", display: "flex", alignItems: "center", gap: 6 }}>
-                ??? Top High-Volume State Hubs
+                dY-,? Top High-Volume State Hubs
               </span>
               <span style={{ fontSize: "0.72rem", color: "var(--text-dim)" }}>Top States</span>
             </div>
@@ -434,9 +434,9 @@ export default function CustomerAnalysisPage() {
                       gap: 6,
                     }}
                   >
-                    <span>?? ${s.name}</span>
+                    <span>dY-? {s.name}</span>
                     <span style={{ background: "#10b981", color: "#000", padding: "1px 6px", borderRadius: "99px", fontSize: "0.72rem", fontWeight: 800 }}>
-                      ${s.count} Orders
+                      {s.count} Orders
                     </span>
                   </div>
                 ))}
