@@ -17,6 +17,7 @@ export default function CustomerAnalysisPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [repeatOnly, setRepeatOnly] = useState(false);
+  const [selectedState, setSelectedState] = useState("ALL");
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [toast, setToast] = useState(null);
 
@@ -45,6 +46,7 @@ export default function CustomerAnalysisPage() {
         email: userEmail,
         search: search.trim(),
         repeatOnly: repeatOnly ? "true" : "false",
+        state: selectedState,
       });
 
       const res = await fetch(
@@ -72,7 +74,7 @@ export default function CustomerAnalysisPage() {
     if (status === "authenticated" && session?.user?.email) {
       fetchCustomerAnalysis();
     }
-  }, [status, session, repeatOnly]);
+  }, [status, session, repeatOnly, selectedState]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -190,7 +192,7 @@ export default function CustomerAnalysisPage() {
         </div>
       </div>
 
-      {/* Controls Bar: Search & Filter Tabs */}
+      {/* Controls Bar: Search, State Filter & Repeat Filter */}
       <div className="premium-glass" style={{ marginBottom: 20, padding: "16px 20px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14 }}>
           {/* Search Form */}
@@ -219,6 +221,37 @@ export default function CustomerAnalysisPage() {
               Search
             </button>
           </form>
+
+          {/* State Filter Dropdown */}
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <span style={{ fontSize: "0.8rem", color: "var(--text-silver)", fontWeight: 600, whiteSpace: "nowrap" }}>
+              📍 Filter State:
+            </span>
+            <select
+              value={selectedState}
+              onChange={(e) => setSelectedState(e.target.value)}
+              style={{
+                padding: "8px 14px",
+                background: "rgba(0, 0, 0, 0.4)",
+                border: "1px solid var(--glass-border-hover)",
+                borderRadius: "var(--radius-md)",
+                color: "var(--aurora-1)",
+                fontSize: "0.82rem",
+                fontWeight: 600,
+                outline: "none",
+                cursor: "pointer",
+              }}
+            >
+              <option value="ALL" style={{ background: "#121218", color: "#fff" }}>
+                🌐 All States ({data?.summary?.allStates?.length || 0})
+              </option>
+              {data?.summary?.allStates?.map((st) => (
+                <option key={st} value={st} style={{ background: "#121218", color: "#fff" }}>
+                  📍 {st}
+                </option>
+              ))}
+            </select>
+          </div>
 
           {/* Repeat Only Toggle */}
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -275,7 +308,7 @@ export default function CustomerAnalysisPage() {
           </div>
         ) : (!data?.customers || data.customers.length === 0) ? (
           <div style={{ padding: "50px 20px", textAlign: "center", color: "var(--text-dim)", fontSize: "0.88rem" }}>
-            No customer records found. Process shipping labels in Studio to automatically save customers!
+            No customer records found matching the criteria.
           </div>
         ) : (
           <div style={{ overflowX: "auto", width: "100%", maxWidth: "100%" }}>
@@ -283,10 +316,10 @@ export default function CustomerAnalysisPage() {
               <thead>
                 <tr>
                   <th style={{ width: "50px" }}>#</th>
-                  <th style={{ width: "200px" }}>Customer Name</th>
-                  <th style={{ width: "140px" }}>Mobile Number</th>
+                  <th style={{ width: "180px" }}>Customer Name</th>
+                  <th style={{ width: "130px" }}>Mobile Number</th>
                   <th style={{ width: "130px" }}>State</th>
-                  <th style={{ width: "280px" }}>Delivery Address</th>
+                  <th style={{ minWidth: "260px", maxWidth: "400px" }}>Delivery Address</th>
                   <th style={{ width: "160px", textAlign: "center" }}>Orders Count (Click to View)</th>
                   <th style={{ width: "120px" }}>Last Order Date</th>
                 </tr>
@@ -309,7 +342,20 @@ export default function CustomerAnalysisPage() {
                           📍 {c.state}
                         </span>
                       </td>
-                      <td style={{ fontSize: "0.78rem", color: "var(--text-silver)", maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+
+                      {/* Full Address Multi-Line Wrap */}
+                      <td
+                        style={{
+                          fontSize: "0.82rem",
+                          color: "var(--text-silver)",
+                          minWidth: 260,
+                          maxWidth: 400,
+                          whiteSpace: "normal",
+                          wordBreak: "break-word",
+                          lineHeight: "1.45",
+                          padding: "10px 12px",
+                        }}
+                      >
                         {c.address}
                       </td>
 
@@ -418,7 +464,7 @@ export default function CustomerAnalysisPage() {
                     </span>
                   )}
                 </div>
-                <div style={{ fontSize: "0.78rem", color: "var(--text-dim)", marginTop: 2 }}>
+                <div style={{ fontSize: "0.78rem", color: "var(--text-dim)", marginTop: 2, whiteSpace: "normal", wordBreak: "break-word" }}>
                   📍 Address: {selectedCustomer.address} ({selectedCustomer.state})
                 </div>
               </div>
