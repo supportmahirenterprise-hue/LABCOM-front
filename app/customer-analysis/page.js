@@ -770,7 +770,7 @@ export default function CustomerAnalysisPage() {
                   <thead>
                     <tr>
                       <th style={{ width: "40px" }}>#</th>
-                      <th style={{ width: "170px" }}>ORDER NUMBER</th>
+                      <th style={{ width: "200px" }}>SUB ORDER ID / ORDER NO</th>
                       <th style={{ width: "120px" }}>ORDER DATE</th>
                       <th style={{ width: "180px" }}>SKU CODE</th>
                       <th style={{ width: "60px" }}>QTY</th>
@@ -779,12 +779,12 @@ export default function CustomerAnalysisPage() {
                   </thead>
                   <tbody>
                     {selectedCustomer.orders.map((ord, i) => (
-                      <tr key={ord.orderNo || i}>
+                      <tr key={ord.subOrderNo || ord.orderNo || i}>
                         <td style={{ color: "var(--text-dim)", fontSize: "0.8rem", fontFamily: "var(--font-mono)" }}>
                           {i + 1}
                         </td>
                         <td style={{ fontWeight: 700, color: "var(--aurora-1)", fontFamily: "var(--font-mono)" }}>
-                          {ord.orderNo || "N/A"}
+                          {ord.subOrderNo || ord.orderNo || "N/A"}
                         </td>
                         <td style={{ fontSize: "0.8rem", color: "var(--text-silver)", fontFamily: "var(--font-mono)" }}>
                           {ord.orderDate || "N/A"}
