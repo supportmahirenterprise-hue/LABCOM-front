@@ -507,9 +507,7 @@ export default function Home() {
         setSuccessMsg(msg);
         showToast(msg, "success");
       } else {
-        const msg = downloadSummary
-          ? "✅ Full batch PDF & Summary PDF generated and downloaded successfully!"
-          : "✅ Full batch PDF generated and downloaded successfully!";
+        const msg = "✅ Stamped PDF & Summary PNG Image generated, downloaded, and sent to WhatsApp (918140148878) successfully!";
         setSuccessMsg(msg);
         showToast(msg, "success");
       }
