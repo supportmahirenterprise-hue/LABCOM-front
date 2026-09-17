@@ -113,6 +113,7 @@ export default function Home() {
   const [file, setFile] = useState(null);
   const [pages, setPages] = useState([]);
   const [loadingPreview, setLoadingPreview] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [loadingGenerate, setLoadingGenerate] = useState(false);
   const [loadingSample, setLoadingSample] = useState(false);
   const [error, setError] = useState("");
@@ -304,6 +305,7 @@ export default function Home() {
     setError("");
     setSuccessMsg("");
     setLoadingPreview(true);
+    setUploadProgress(0);
     try {
       let totalPagesInPdf = 1;
       try {
@@ -331,6 +333,7 @@ export default function Home() {
         }
         const data = await res.json();
         allExtractedPages = data.pages || [];
+        setUploadProgress(100);
       } else {
         const totalChunks = Math.ceil(totalPagesInPdf / CHUNK_SIZE);
         showToast(`Large PDF detected (${totalPagesInPdf} pages). Processing in ${totalChunks} fast chunks...`, "info");
@@ -357,6 +360,7 @@ export default function Home() {
           }
           const data = await res.json();
           allExtractedPages = [...allExtractedPages, ...(data.pages || [])];
+          setUploadProgress(Math.round(((c + 1) / totalChunks) * 100));
         }
       }
 
@@ -367,6 +371,7 @@ export default function Home() {
       setError(err.message || "Error connecting to backend server");
     } finally {
       setLoadingPreview(false);
+      setUploadProgress(0);
     }
   }
 
@@ -882,8 +887,14 @@ export default function Home() {
                 )}
 
                 {loadingPreview && (
-                  <div style={{ marginTop: 14, color: "var(--aurora-1)", fontSize: "0.85rem", fontWeight: 600 }}>
-                    ⏳ Extracting label fields & metadata...
+                  <div style={{ marginTop: 24, width: "100%", maxWidth: "340px", margin: "24px auto 0" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: "0.85rem", color: "var(--aurora-1)", fontWeight: 600 }}>
+                      <span>Extracting label fields & metadata...</span>
+                      <span>${uploadProgress}%</span>
+                    </div>
+                    <div style={{ width: "100%", height: 6, background: "rgba(255,255,255,0.08)", borderRadius: 10, overflow: "hidden" }}>
+                      <div style={{ height: "100%", width: `${uploadProgress}%`, background: "linear-gradient(90deg, var(--aurora-1), var(--aurora-2))", transition: "width 0.4s ease" }} />
+                    </div>
                   </div>
                 )}
               </div>
