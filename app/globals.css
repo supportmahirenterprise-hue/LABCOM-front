@@ -541,3 +541,14 @@ select.input-field option {
     font-size: 0.85rem;
   }
 }
+
+/* Prevent text selection and cursor caret on clicks across the app */
+* {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+input, textarea, select, [contenteditable="true"] {
+  user-select: auto;
+  -webkit-user-select: auto;
+}
