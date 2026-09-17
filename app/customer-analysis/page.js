@@ -95,7 +95,7 @@ export default function CustomerAnalysisPage() {
     if (status === "authenticated" && session?.user?.email) {
       fetchCustomerAnalysis();
     }
-  }, [status, session, repeatOnly, selectedState, selectedDistrict]);
+  }, [status, session?.user?.email, repeatOnly, selectedState, selectedDistrict]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
