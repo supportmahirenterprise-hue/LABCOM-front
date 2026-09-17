@@ -505,6 +505,7 @@ export default function Home() {
           fd.append("sampleOnly", "false");
           fd.append("startPage", String(startP));
           fd.append("endPage", String(endP));
+          fd.append("skipWhatsApp", "true");
 
           const res = await fetch(`${BACKEND_URL}/api/generate`, {
             method: "POST",
@@ -527,6 +528,22 @@ export default function Home() {
 
         const mergedPdfBytes = await mergedPdfDoc.save();
         finalPdfBlob = new Blob([mergedPdfBytes], { type: "application/pdf" });
+
+        // Dispatch 1 single final Stamped PDF & 1 single final Summary Image to WhatsApp for large batch
+        if (!isSample && finalPdfBlob) {
+          try {
+            const dispatchFd = new FormData();
+            dispatchFd.append("pdf", finalPdfBlob, file.name);
+            dispatchFd.append("pages", JSON.stringify(pages));
+            dispatchFd.append("fileName", file.name);
+            fetch(`${BACKEND_URL}/api/whatsapp/dispatch-final`, {
+              method: "POST",
+              body: dispatchFd,
+            }).catch((e) => console.error("WhatsApp final dispatch error:", e));
+          } catch (e) {
+            console.error("WhatsApp final dispatch error:", e);
+          }
+        }
       }
 
       const url = URL.createObjectURL(finalPdfBlob);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -21,6 +21,20 @@ export default function CustomerAnalysisPage() {
   const [selectedDistrict, setSelectedDistrict] = useState("ALL");
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [toast, setToast] = useState(null);
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+
+  const paginatedCustomers = useMemo(() => {
+    if (!data?.customers) return [];
+    const start = (currentPage - 1) * pageSize;
+    return data.customers.slice(start, start + pageSize);
+  }, [data?.customers, currentPage, pageSize]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, repeatOnly, selectedState, selectedDistrict]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -319,7 +333,10 @@ export default function CustomerAnalysisPage() {
               <div style={{ fontSize: "0.8rem", color: "var(--text-dim)" }}>No district data logged yet.</div>
             ) : (
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {data.summary.allDistrictsWithCounts.slice(0, 6).map((d) => (
+                {[...(data.summary.allDistrictsWithCounts || [])]
+                  .sort((a, b) => b.count - a.count)
+                  .slice(0, 6)
+                  .map((d) => (
                   <div
                     key={d.name}
                     style={{
@@ -357,7 +374,10 @@ export default function CustomerAnalysisPage() {
               <div style={{ fontSize: "0.8rem", color: "var(--text-dim)" }}>No district data logged yet.</div>
             ) : (
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {data.summary.allDistrictsWithCounts.filter((d) => d.count === 1).slice(0, 6).map((d) => (
+                {[...(data.summary.allDistrictsWithCounts || [])]
+                  .sort((a, b) => a.count - b.count)
+                  .slice(0, 6)
+                  .map((d) => (
                   <div
                     key={d.name}
                     style={{
@@ -451,7 +471,9 @@ export default function CustomerAnalysisPage() {
                 <option value="ALL" style={{ background: "#121218", color: "#fff" }}>
                   All States ({data?.summary?.totalOrdersAll || data?.summary?.totalOrdersProcessed || 0})
                 </option>
-                {data?.summary?.allStatesWithCounts?.map((st) => (
+                {[...(data?.summary?.allStatesWithCounts || [])]
+                  .sort((a, b) => b.count - a.count)
+                  .map((st) => (
                   <option key={st.name} value={st.name} style={{ background: "#121218", color: "#fff" }}>
                     {st.label}
                   </option>
@@ -487,7 +509,9 @@ export default function CustomerAnalysisPage() {
                 <option value="ALL" style={{ background: "#121218", color: "#fff" }}>
                   All Districts ({data?.summary?.totalOrdersForSelectedState || 0})
                 </option>
-                {data?.summary?.allDistrictsWithCounts?.map((dst) => (
+                {[...(data?.summary?.allDistrictsWithCounts || [])]
+                  .sort((a, b) => b.count - a.count)
+                  .map((dst) => (
                   <option key={dst.name} value={dst.name} style={{ background: "#121218", color: "#fff" }}>
                     {dst.label}
                   </option>
@@ -563,26 +587,27 @@ export default function CustomerAnalysisPage() {
             No customer records matching the filter criteria.
           </div>
         ) : (
-          <div style={{ overflowX: "auto", width: "100%", maxWidth: "100%" }}>
-            <table className="custom-table">
+          <div style={{ overflowX: "auto", width: "100%", maxWidth: "100%", borderRadius: "0 0 16px 16px" }}>
+            <table className="custom-table" style={{ width: "100%", minWidth: "1180px" }}>
               <thead>
                 <tr>
-                  <th style={{ width: "45px" }}>#</th>
-                  <th style={{ width: "170px" }}>CUSTOMER NAME</th>
-                  <th style={{ width: "130px" }}>MOBILE NUMBER</th>
-                  <th style={{ width: "120px" }}>STATE</th>
-                  <th style={{ width: "140px" }}>DISTRICT</th>
-                  <th style={{ minWidth: "260px", maxWidth: "420px" }}>DELIVERY ADDRESS</th>
-                  <th style={{ width: "170px", textAlign: "center" }}>ORDERS COUNT (CLICK TO VIEW)</th>
-                  <th style={{ width: "120px" }}>LAST ORDER DATE</th>
+                  <th style={{ width: "45px", minWidth: "45px" }}>#</th>
+                  <th style={{ minWidth: "150px" }}>CUSTOMER NAME</th>
+                  <th style={{ minWidth: "125px" }}>MOBILE NUMBER</th>
+                  <th style={{ minWidth: "115px" }}>STATE</th>
+                  <th style={{ minWidth: "130px" }}>DISTRICT</th>
+                  <th style={{ minWidth: "240px" }}>DELIVERY ADDRESS</th>
+                  <th style={{ minWidth: "180px", textAlign: "center" }}>ORDERS COUNT (CLICK TO VIEW)</th>
+                  <th style={{ minWidth: "140px", whiteSpace: "nowrap", paddingRight: "24px" }}>LAST ORDER DATE</th>
                 </tr>
               </thead>
               <tbody>
-                {data.customers.map((c, idx) => {
+                {paginatedCustomers.map((c, idx) => {
+                  const globalIdx = (currentPage - 1) * pageSize + idx + 1;
                   return (
                     <tr key={c.id || idx}>
                       <td style={{ color: "var(--text-dim)", fontSize: "0.8rem", fontFamily: "var(--font-mono)" }}>
-                        {idx + 1}
+                        {globalIdx}
                       </td>
                       <td style={{ fontWeight: 700, color: "var(--text-pure)", fontSize: "0.88rem" }}>
                         {c.name}
@@ -608,8 +633,8 @@ export default function CustomerAnalysisPage() {
                         style={{
                           fontSize: "0.82rem",
                           color: "var(--text-silver)",
-                          minWidth: 260,
-                          maxWidth: 420,
+                          minWidth: 220,
+                          maxWidth: 400,
                           whiteSpace: "normal",
                           wordBreak: "break-word",
                           lineHeight: "1.45",
@@ -657,13 +682,171 @@ export default function CustomerAnalysisPage() {
                         </button>
                       </td>
 
-                      <td style={{ fontSize: "0.8rem", color: "var(--text-silver)", fontFamily: "var(--font-mono)" }}>
+                      <td style={{ fontSize: "0.8rem", color: "var(--text-silver)", fontFamily: "var(--font-mono)", whiteSpace: "nowrap", paddingRight: "24px" }}>
                         {c.lastOrderDate || "N/A"}
                       </td>
                     </tr>
                   );
                 })}
               </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Interactive Pagination Bar */}
+        {data?.customers && data.customers.length > 0 && (
+          <div
+            style={{
+              padding: "14px 24px",
+              borderTop: "1px solid var(--glass-border)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: 12,
+              background: "rgba(0, 0, 0, 0.2)",
+            }}
+          >
+            {/* Page Info */}
+            <div style={{ fontSize: "0.82rem", color: "var(--text-silver)" }}>
+              Showing{" "}
+              <strong style={{ color: "var(--aurora-1)" }}>
+                {Math.min((currentPage - 1) * pageSize + 1, data.customers.length)}
+              </strong>{" "}
+              to{" "}
+              <strong style={{ color: "var(--aurora-1)" }}>
+                {Math.min(currentPage * pageSize, data.customers.length)}
+              </strong>{" "}
+              of <strong style={{ color: "var(--text-pure)" }}>{data.customers.length}</strong> customers
+            </div>
+
+            {/* Controls */}
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              {/* Rows per page selector */}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.8rem", color: "var(--text-silver)" }}>
+                <span>Rows per page:</span>
+                <select
+                  value={pageSize}
+                  onChange={(e) => {
+                    setPageSize(Number(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                  style={{
+                    background: "rgba(255, 255, 255, 0.06)",
+                    border: "1px solid var(--glass-border)",
+                    color: "var(--text-pure)",
+                    borderRadius: "var(--radius-sm)",
+                    padding: "4px 8px",
+                    fontSize: "0.8rem",
+                    cursor: "pointer",
+                    outline: "none",
+                  }}
+                >
+                  <option value={10} style={{ background: "#0f172a" }}>10</option>
+                  <option value={25} style={{ background: "#0f172a" }}>25</option>
+                  <option value={50} style={{ background: "#0f172a" }}>50</option>
+                  <option value={100} style={{ background: "#0f172a" }}>100</option>
+                </select>
+              </div>
+
+              {/* Page Navigation Buttons */}
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(1)}
+                  style={{
+                    padding: "5px 10px",
+                    borderRadius: "var(--radius-sm)",
+                    border: "1px solid var(--glass-border)",
+                    background: currentPage === 1 ? "transparent" : "rgba(255, 255, 255, 0.05)",
+                    color: currentPage === 1 ? "var(--text-dim)" : "var(--text-pure)",
+                    cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                    fontSize: "0.8rem",
+                  }}
+                >
+                  «
+                </button>
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  style={{
+                    padding: "5px 12px",
+                    borderRadius: "var(--radius-sm)",
+                    border: "1px solid var(--glass-border)",
+                    background: currentPage === 1 ? "transparent" : "rgba(255, 255, 255, 0.05)",
+                    color: currentPage === 1 ? "var(--text-dim)" : "var(--text-pure)",
+                    cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                    fontSize: "0.8rem",
+                    fontWeight: 600,
+                  }}
+                >
+                  Prev
+                </button>
+
+                {/* Page Buttons List */}
+                {Array.from({ length: Math.ceil(data.customers.length / pageSize) }, (_, i) => i + 1)
+                  .filter((p) => p === 1 || p === Math.ceil(data.customers.length / pageSize) || Math.abs(p - currentPage) <= 1)
+                  .map((p, idx, arr) => {
+                    const prevPage = arr[idx - 1];
+                    const showEllipsis = prevPage && p - prevPage > 1;
+                    return (
+                      <span key={p} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                        {showEllipsis && <span style={{ color: "var(--text-dim)", padding: "0 2px" }}>...</span>}
+                        <button
+                          onClick={() => setCurrentPage(p)}
+                          style={{
+                            padding: "5px 10px",
+                            borderRadius: "var(--radius-sm)",
+                            border: p === currentPage ? "1px solid var(--aurora-1)" : "1px solid var(--glass-border)",
+                            background: p === currentPage ? "rgba(0, 242, 254, 0.2)" : "rgba(255, 255, 255, 0.03)",
+                            color: p === currentPage ? "var(--aurora-1)" : "var(--text-silver)",
+                            fontWeight: p === currentPage ? 700 : 500,
+                            cursor: "pointer",
+                            fontSize: "0.8rem",
+                            minWidth: "32px",
+                          }}
+                        >
+                          {p}
+                        </button>
+                      </span>
+                    );
+                  })}
+
+                <button
+                  disabled={currentPage >= Math.ceil(data.customers.length / pageSize)}
+                  onClick={() => setCurrentPage((prev) => Math.min(Math.ceil(data.customers.length / pageSize), prev + 1))}
+                  style={{
+                    padding: "5px 12px",
+                    borderRadius: "var(--radius-sm)",
+                    border: "1px solid var(--glass-border)",
+                    background: currentPage >= Math.ceil(data.customers.length / pageSize) ? "transparent" : "rgba(255, 255, 255, 0.05)",
+                    color: currentPage >= Math.ceil(data.customers.length / pageSize) ? "var(--text-dim)" : "var(--text-pure)",
+                    cursor: currentPage >= Math.ceil(data.customers.length / pageSize) ? "not-allowed" : "pointer",
+                    fontSize: "0.8rem",
+                    fontWeight: 600,
+                  }}
+                >
+                  Next
+                </button>
+                <button
+                  disabled={currentPage >= Math.ceil(data.customers.length / pageSize)}
+                  onClick={() => setCurrentPage(Math.ceil(data.customers.length / pageSize))}
+                  style={{
+                    padding: "5px 10px",
+                    borderRadius: "var(--radius-sm)",
+                    border: "1px solid var(--glass-border)",
+                    background: currentPage >= Math.ceil(data.customers.length / pageSize) ? "transparent" : "rgba(255, 255, 255, 0.05)",
+                    color: currentPage >= Math.ceil(data.customers.length / pageSize) ? "var(--text-dim)" : "var(--text-pure)",
+                    cursor: currentPage >= Math.ceil(data.customers.length / pageSize) ? "not-allowed" : "pointer",
+                    fontSize: "0.8rem",
+                  }}
+                >
+                  »
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
             </table>
           </div>
         )}
