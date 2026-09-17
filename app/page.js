@@ -349,7 +349,7 @@ export default function Home() {
   function updateCell(pageIdx, key, value) {
     setPages((prev) => {
       const copy = [...prev];
-      copy[pageIdx] = { ...copy[pageIdx], [key]: value };
+      copy[pageIdx] = { ...copy[pageIdx], [key]: value, _modified: true };
       return copy;
     });
   }
@@ -404,7 +404,8 @@ export default function Home() {
       fd.append("qrY", String(qrY));
       fd.append("qrSize", String(qrSize));
       fd.append("fontSize", String(fontSize));
-      fd.append("overrides", JSON.stringify(pages));
+      const modifiedPages = pages.filter((p) => p && p._modified);
+      fd.append("overrides", JSON.stringify(modifiedPages));
       fd.append("sampleOnly", String(isSample));
 
       const res = await fetch(`${BACKEND_URL}/api/generate`, {
