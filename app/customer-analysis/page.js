@@ -770,11 +770,12 @@ export default function CustomerAnalysisPage() {
                   <thead>
                     <tr>
                       <th style={{ width: "40px" }}>#</th>
-                      <th style={{ width: "200px" }}>SUB ORDER ID / ORDER NO</th>
-                      <th style={{ width: "120px" }}>ORDER DATE</th>
-                      <th style={{ width: "180px" }}>SKU CODE</th>
-                      <th style={{ width: "60px" }}>QTY</th>
-                      <th style={{ width: "120px" }}>DESTINATION</th>
+                      <th style={{ width: "190px" }}>SUB ORDER ID / ORDER NO</th>
+                      <th style={{ width: "110px" }}>PAYMENT</th>
+                      <th style={{ width: "110px" }}>ORDER DATE</th>
+                      <th style={{ width: "160px" }}>SKU CODE</th>
+                      <th style={{ width: "50px" }}>QTY</th>
+                      <th style={{ width: "110px" }}>DESTINATION</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -785,6 +786,21 @@ export default function CustomerAnalysisPage() {
                         </td>
                         <td style={{ fontWeight: 700, color: "var(--aurora-1)", fontFamily: "var(--font-mono)" }}>
                           {ord.subOrderNo || ord.orderNo || "N/A"}
+                        </td>
+                        <td>
+                          <span
+                            className="tag-pill"
+                            style={{
+                              fontSize: "0.75rem",
+                              padding: "3px 8px",
+                              fontWeight: 700,
+                              background: (ord.paymentType || "COD").toUpperCase() === "COD" ? "rgba(245, 158, 11, 0.15)" : "rgba(16, 185, 129, 0.15)",
+                              border: (ord.paymentType || "COD").toUpperCase() === "COD" ? "1px solid rgba(245, 158, 11, 0.4)" : "1px solid rgba(16, 185, 129, 0.4)",
+                              color: (ord.paymentType || "COD").toUpperCase() === "COD" ? "#f59e0b" : "#10b981",
+                            }}
+                          >
+                            {(ord.paymentType || "COD").toUpperCase() === "COD" ? "💵 COD" : "💳 Prepaid"}
+                          </span>
                         </td>
                         <td style={{ fontSize: "0.8rem", color: "var(--text-silver)", fontFamily: "var(--font-mono)" }}>
                           {ord.orderDate || "N/A"}
