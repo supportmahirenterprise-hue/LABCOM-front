@@ -15,6 +15,7 @@ export function Sidebar() {
   const NAV_ITEMS = [
     { label: "Studio", href: "/", icon: "◒", shortLabel: "Studio" },
     { label: "Analytics", href: "/analytics", icon: "📈", shortLabel: "Stats" },
+    { label: "Customer Analysis", href: "/customer-analysis", icon: "👥", shortLabel: "Customers" },
     { label: "Templates", href: "/templates", icon: "⚏", shortLabel: "Templates" },
     { label: "Settings", href: "/settings", icon: "⚙", shortLabel: "Settings" },
   ];
