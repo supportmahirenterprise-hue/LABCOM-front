@@ -362,47 +362,6 @@ export default function CustomerAnalysisPage() {
             )}
           </div>
 
-          {/* Low Volume / Emerging Regions */}
-          <div style={{ background: "rgba(0,0,0,0.25)", padding: "16px 18px", borderRadius: "14px", border: "1px solid rgba(56, 189, 248, 0.25)" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-              <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#38bdf8", display: "flex", alignItems: "center", gap: 6 }}>
-                🌱 Low-Volume Districts (Growth Opportunities)
-              </span>
-              <span style={{ fontSize: "0.72rem", color: "var(--text-dim)" }}>Opportunities</span>
-            </div>
-            {(!data?.summary?.allDistrictsWithCounts || data.summary.allDistrictsWithCounts.length === 0) ? (
-              <div style={{ fontSize: "0.8rem", color: "var(--text-dim)" }}>No district data logged yet.</div>
-            ) : (
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {[...(data.summary.allDistrictsWithCounts || [])]
-                  .sort((a, b) => a.count - b.count)
-                  .slice(0, 6)
-                  .map((d) => (
-                  <div
-                    key={d.name}
-                    style={{
-                      padding: "6px 12px",
-                      borderRadius: "var(--radius-full)",
-                      background: "rgba(56, 189, 248, 0.12)",
-                      border: "1px solid rgba(56, 189, 248, 0.3)",
-                      color: "#e0f2fe",
-                      fontSize: "0.8rem",
-                      fontWeight: 600,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                    }}
-                  >
-                    <span>🏙️ {d.name}</span>
-                    <span style={{ background: "#38bdf8", color: "#000", padding: "1px 6px", borderRadius: "99px", fontSize: "0.72rem", fontWeight: 800 }}>
-                      1 Order
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
           {/* Top State Hubs */}
           <div style={{ background: "rgba(0,0,0,0.25)", padding: "16px 18px", borderRadius: "14px", border: "1px solid rgba(16, 185, 129, 0.25)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
