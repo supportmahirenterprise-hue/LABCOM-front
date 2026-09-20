@@ -140,6 +140,11 @@ export default function Home() {
   const [activeInput, setActiveInput] = useState("qrText");
   const [downloadSummary, setDownloadSummary] = useState(false);
 
+  // Return History Warning Modal State
+  const [returnWarnings, setReturnWarnings] = useState([]);
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [currentWarningIndex, setCurrentWarningIndex] = useState(0);
+
   const fileInputRef = useRef(null);
   const isInitialLoadDone = useRef(false);
 
@@ -318,6 +323,7 @@ export default function Home() {
 
       const CHUNK_SIZE = 150;
       let allExtractedPages = [];
+      let allReturnWarnings = [];
 
       if (totalPagesInPdf <= CHUNK_SIZE) {
         const fd = new FormData();
@@ -325,6 +331,7 @@ export default function Home() {
         fd.append("useNativeScript", isNative ? "true" : "false");
         const res = await fetch(`${BACKEND_URL}/api/preview`, {
           method: "POST",
+          headers: { "x-user-email": session?.user?.email || "" },
           body: fd,
         });
         if (!res.ok) {
@@ -333,6 +340,7 @@ export default function Home() {
         }
         const data = await res.json();
         allExtractedPages = data.pages || [];
+        allReturnWarnings = data.returnWarnings || [];
         setUploadProgress(100);
       } else {
         const totalChunks = Math.ceil(totalPagesInPdf / CHUNK_SIZE);
@@ -351,6 +359,7 @@ export default function Home() {
 
           const res = await fetch(`${BACKEND_URL}/api/preview`, {
             method: "POST",
+            headers: { "x-user-email": session?.user?.email || "" },
             body: fd,
           });
 
@@ -360,12 +369,21 @@ export default function Home() {
           }
           const data = await res.json();
           allExtractedPages = [...allExtractedPages, ...(data.pages || [])];
+          allReturnWarnings = [...allReturnWarnings, ...(data.returnWarnings || [])];
           setUploadProgress(Math.round(((c + 1) / totalChunks) * 100));
         }
       }
 
       setPages(allExtractedPages);
-      showToast(`Successfully extracted ${allExtractedPages.length} label pages!`, "success");
+
+      if (allReturnWarnings.length > 0) {
+        setReturnWarnings(allReturnWarnings);
+        setCurrentWarningIndex(0);
+        setShowWarningModal(true);
+        showToast(`⚠️ Warning: Found ${allReturnWarnings.length} order(s) in this PDF with past return history!`, "error");
+      } else {
+        showToast(`Successfully extracted ${allExtractedPages.length} label pages!`, "success");
+      }
     } catch (err) {
       showToast(err.message || "Error connecting to backend server", "error");
       setError(err.message || "Error connecting to backend server");
@@ -1610,6 +1628,232 @@ export default function Home() {
           </button>
         </div>
       </footer>
+
+      {/* Return Warning Notice Modal Popup */}
+      {showWarningModal && returnWarnings.length > 0 && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0, 0, 0, 0.88)",
+            backdropFilter: "blur(14px)",
+            WebkitBackdropFilter: "blur(14px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 999999,
+            padding: 20,
+          }}
+        >
+          <div
+            className="premium-glass"
+            style={{
+              width: "100%",
+              maxWidth: 720,
+              maxHeight: "90vh",
+              overflowY: "auto",
+              padding: "26px 30px",
+              borderRadius: "22px",
+              boxShadow: "0 25px 70px rgba(0,0,0,0.95), 0 0 40px rgba(239, 68, 68, 0.3)",
+              border: "1px solid rgba(239, 68, 68, 0.4)",
+              background: "rgba(18, 18, 24, 0.98)",
+            }}
+          >
+            {/* Modal Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, borderBottom: "1px solid var(--glass-border)", paddingBottom: 16 }}>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: "1.4rem" }}>⚠️</span>
+                  <h2 className="heading-display" style={{ fontSize: "1.3rem", color: "#f87171", margin: 0 }}>
+                    Past Return Warning Notice
+                  </h2>
+                  <span
+                    style={{
+                      padding: "4px 12px",
+                      borderRadius: "var(--radius-full)",
+                      background: "rgba(239, 68, 68, 0.25)",
+                      color: "#ef4444",
+                      border: "1px solid rgba(239, 68, 68, 0.5)",
+                      fontSize: "0.78rem",
+                      fontWeight: 700,
+                    }}
+                  >
+                    Order {currentWarningIndex + 1} of {returnWarnings.length}
+                  </span>
+                </div>
+                <p style={{ fontSize: "0.8rem", color: "var(--text-silver)", margin: "4px 0 0 0" }}>
+                  Label Page #{returnWarnings[currentWarningIndex]?.page} in uploaded PDF has prior return records in DB!
+                </p>
+              </div>
+              <button
+                onClick={() => setShowWarningModal(false)}
+                style={{
+                  background: "rgba(255, 255, 255, 0.08)",
+                  border: "1px solid var(--glass-border)",
+                  borderRadius: "50%",
+                  width: 34,
+                  height: 34,
+                  color: "#ffffff",
+                  fontSize: "1rem",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Current Label Details Card */}
+            <div style={{ background: "rgba(239, 68, 68, 0.08)", padding: "16px 18px", borderRadius: "14px", border: "1px solid rgba(239, 68, 68, 0.3)", marginBottom: 20 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#f87171", textTransform: "uppercase" }}>
+                  📦 Uploaded Label Page #{returnWarnings[currentWarningIndex]?.page}
+                </span>
+                <span style={{ fontSize: "0.78rem", color: "var(--aurora-1)", fontFamily: "var(--font-mono)", fontWeight: 700 }}>
+                  Sub Order: {returnWarnings[currentWarningIndex]?.subOrderNo}
+                </span>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div>
+                  <div style={{ fontSize: "0.88rem", color: "#fff", fontWeight: 700 }}>
+                    Buyer: {returnWarnings[currentWarningIndex]?.customerName}
+                  </div>
+                  {returnWarnings[currentWarningIndex]?.customerMobile !== "N/A" && (
+                    <div style={{ fontSize: "0.78rem", color: "var(--aurora-1)", fontFamily: "var(--font-mono)", marginTop: 2 }}>
+                      📞 Mobile: {returnWarnings[currentWarningIndex]?.customerMobile}
+                    </div>
+                  )}
+                  <div style={{ fontSize: "0.78rem", color: "var(--text-silver)", marginTop: 4 }}>
+                    📍 State: {returnWarnings[currentWarningIndex]?.state}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: "0.82rem", color: "var(--text-silver)" }}>
+                    SKU: <strong style={{ color: "#fff" }}>{returnWarnings[currentWarningIndex]?.sku}</strong>
+                  </div>
+                  <div style={{ fontSize: "0.78rem", color: "var(--text-silver)", marginTop: 2 }}>
+                    Qty: <strong style={{ color: "#fff" }}>{returnWarnings[currentWarningIndex]?.qty}</strong>
+                  </div>
+                  <div style={{ fontSize: "0.75rem", color: "var(--text-dim)", marginTop: 4, lineHeight: 1.35 }}>
+                    🏠 Address: {returnWarnings[currentWarningIndex]?.customerAddress}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Prior Returns Breakdown */}
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#fbbf24" }}>
+                  ⚠️ Previous Return Records Found ({returnWarnings[currentWarningIndex]?.returnCount})
+                </span>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: 260, overflowY: "auto", paddingRight: 4 }}>
+                {returnWarnings[currentWarningIndex]?.previousReturns?.map((pr, pIdx) => (
+                  <div
+                    key={pr.id || pIdx}
+                    style={{
+                      background: "rgba(0, 0, 0, 0.4)",
+                      padding: "12px 14px",
+                      borderRadius: "12px",
+                      border: "1px solid var(--glass-border)",
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span
+                        style={{
+                          fontSize: "0.72rem",
+                          padding: "3px 8px",
+                          borderRadius: "var(--radius-sm)",
+                          fontWeight: 700,
+                          background: /RTO|Courier/i.test(pr.returnType) ? "rgba(245, 158, 11, 0.2)" : "rgba(239, 68, 68, 0.2)",
+                          color: /RTO|Courier/i.test(pr.returnType) ? "#fbbf24" : "#f87171",
+                        }}
+                      >
+                        {pr.returnType}
+                      </span>
+                      <span style={{ fontSize: "0.75rem", color: "var(--text-silver)", fontFamily: "var(--font-mono)" }}>
+                        📅 Return Date: {pr.deliveredDate}
+                      </span>
+                    </div>
+
+                    <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#fff", marginTop: 8 }}>
+                      Reason: {pr.returnReason}
+                    </div>
+                    {pr.detailedReturnReason && pr.detailedReturnReason !== pr.returnReason && (
+                      <div style={{ fontSize: "0.75rem", color: "var(--text-silver)", marginTop: 2 }}>
+                        {pr.detailedReturnReason}
+                      </div>
+                    )}
+
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8, fontSize: "0.76rem", color: "var(--text-dim)" }}>
+                      <span>Returned SKU: <strong style={{ color: "#a855f7" }}>{pr.sku}</strong> (Qty: {pr.qty})</span>
+                      <span>Courier: <strong style={{ color: "#38bdf8" }}>{pr.courierPartner}</strong> ({pr.awbNumber})</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Navigation Controls Footer */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 24, paddingTop: 16, borderTop: "1px solid var(--glass-border)" }}>
+              <div style={{ display: "flex", gap: 10 }}>
+                <button
+                  disabled={currentWarningIndex === 0}
+                  onClick={() => setCurrentWarningIndex((prev) => Math.max(0, prev - 1))}
+                  className="btn-secondary"
+                  style={{
+                    padding: "8px 16px",
+                    fontSize: "0.84rem",
+                    opacity: currentWarningIndex === 0 ? 0.4 : 1,
+                    cursor: currentWarningIndex === 0 ? "not-allowed" : "pointer",
+                  }}
+                >
+                  ◀ Previous Order
+                </button>
+
+                <button
+                  disabled={currentWarningIndex >= returnWarnings.length - 1}
+                  onClick={() => setCurrentWarningIndex((prev) => Math.min(returnWarnings.length - 1, prev + 1))}
+                  className="btn-secondary"
+                  style={{
+                    padding: "8px 16px",
+                    fontSize: "0.84rem",
+                    opacity: currentWarningIndex >= returnWarnings.length - 1 ? 0.4 : 1,
+                    cursor: currentWarningIndex >= returnWarnings.length - 1 ? "not-allowed" : "pointer",
+                    borderColor: "var(--aurora-1)",
+                    color: "var(--aurora-1)",
+                  }}
+                >
+                  Next Order ▶
+                </button>
+              </div>
+
+              <button
+                className="btn-primary"
+                onClick={() => setShowWarningModal(false)}
+                style={{
+                  padding: "9px 24px",
+                  fontSize: "0.85rem",
+                  background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                  color: "#fff",
+                  border: "none",
+                }}
+              >
+                Dismiss & Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
