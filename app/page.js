@@ -316,28 +316,6 @@ export default function Home() {
         console.warn("Could not read page count client-side:", e);
       }
 
-      const createFallbackPages = (startIdx, count) =>
-        Array.from({ length: count }, (_, i) => ({
-          page: startIdx + i,
-          orderNo: "",
-          subOrderNo: "",
-          paymentType: "COD",
-          orderDate: "",
-          invoiceNo: "",
-          customerName: "",
-          customerAddress: "",
-          mobileNumber: "",
-          sku: "",
-          size: "",
-          qty: "1",
-          color: "",
-          state: "India",
-          regionalThankYou: "Thank you!",
-          regionalThankYouLatin: "Thank you!",
-          regionalThankYouNative: "Thank you!",
-          regionalLanguage: "Hindi",
-        }));
-
       const CHUNK_SIZE = 150;
       let allExtractedPages = [];
 
@@ -345,22 +323,16 @@ export default function Home() {
         const fd = new FormData();
         fd.append("pdf", f);
         fd.append("useNativeScript", isNative ? "true" : "false");
-        try {
-          const res = await fetch(`${BACKEND_URL}/api/preview`, {
-            method: "POST",
-            body: fd,
-          });
-          if (res.ok) {
-            const data = await res.json();
-            allExtractedPages = data.pages || [];
-          } else {
-            console.warn("Backend /api/preview error, using client-side PDF structure fallback.");
-            allExtractedPages = createFallbackPages(1, totalPagesInPdf);
-          }
-        } catch (fetchErr) {
-          console.warn("Network error on /api/preview, using client-side fallback:", fetchErr.message);
-          allExtractedPages = createFallbackPages(1, totalPagesInPdf);
+        const res = await fetch(`${BACKEND_URL}/api/preview`, {
+          method: "POST",
+          body: fd,
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || "Failed to read PDF preview");
         }
+        const data = await res.json();
+        allExtractedPages = data.pages || [];
         setUploadProgress(100);
       } else {
         const totalChunks = Math.ceil(totalPagesInPdf / CHUNK_SIZE);
@@ -369,7 +341,6 @@ export default function Home() {
         for (let c = 0; c < totalChunks; c++) {
           const startP = c * CHUNK_SIZE + 1;
           const endP = Math.min(totalPagesInPdf, (c + 1) * CHUNK_SIZE);
-          const chunkCount = endP - startP + 1;
           showToast(`Reading pages ${startP}-${endP} of ${totalPagesInPdf}...`, "info");
 
           const fd = new FormData();
@@ -378,35 +349,26 @@ export default function Home() {
           fd.append("startPage", String(startP));
           fd.append("endPage", String(endP));
 
-          try {
-            const res = await fetch(`${BACKEND_URL}/api/preview`, {
-              method: "POST",
-              body: fd,
-            });
-            if (res.ok) {
-              const data = await res.json();
-              allExtractedPages = [...allExtractedPages, ...(data.pages || [])];
-            } else {
-              console.warn(`Backend preview chunk ${c + 1} error, using fallback.`);
-              allExtractedPages = [...allExtractedPages, ...createFallbackPages(startP, chunkCount)];
-            }
-          } catch (chunkErr) {
-            console.warn(`Chunk ${c + 1} network error, using fallback:`, chunkErr.message);
-            allExtractedPages = [...allExtractedPages, ...createFallbackPages(startP, chunkCount)];
+          const res = await fetch(`${BACKEND_URL}/api/preview`, {
+            method: "POST",
+            body: fd,
+          });
+
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.error || `Failed to read PDF preview chunk ${c + 1}`);
           }
+          const data = await res.json();
+          allExtractedPages = [...allExtractedPages, ...(data.pages || [])];
           setUploadProgress(Math.round(((c + 1) / totalChunks) * 100));
         }
       }
 
-      if (allExtractedPages.length === 0 && totalPagesInPdf > 0) {
-        allExtractedPages = createFallbackPages(1, totalPagesInPdf);
-      }
-
       setPages(allExtractedPages);
-      showToast(`Successfully ready with ${allExtractedPages.length} label pages!`, "success");
+      showToast(`Successfully extracted ${allExtractedPages.length} label pages!`, "success");
     } catch (err) {
-      console.error("handleFileSelect error:", err);
-      showToast("Loaded PDF structure successfully!", "info");
+      showToast(err.message || "Error connecting to backend server", "error");
+      setError(err.message || "Error connecting to backend server");
     } finally {
       setLoadingPreview(false);
       setUploadProgress(0);
