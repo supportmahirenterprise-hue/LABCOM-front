@@ -495,20 +495,20 @@ export default function ReturnsPage() {
             No return records found matching the criteria. Click "Upload Return CSV / Excel" above to import return data.
           </div>
         ) : (
-          <div style={{ overflowX: "auto", width: "100%", maxWidth: "100%", borderRadius: "0 0 16px 16px" }}>
-            <table className="custom-table" style={{ width: "100%", minWidth: "1280px" }}>
+          <div style={{ overflowX: "auto", width: "100%", maxWidth: "100%", borderRadius: "0 0 16px 16px", WebkitOverflowScrolling: "touch" }}>
+            <table className="custom-table" style={{ width: "100%", minWidth: "1050px", tableLayout: "auto" }}>
               <thead>
                 <tr>
-                  <th style={{ width: "45px", minWidth: "45px" }}>#</th>
-                  <th style={{ minWidth: "180px" }}>SUB ORDER ID / ORDER NO</th>
-                  <th style={{ minWidth: "135px" }}>RETURN TYPE</th>
-                  <th style={{ minWidth: "140px" }}>SKU / PRODUCT</th>
-                  <th style={{ minWidth: "50px", textAlign: "center" }}>QTY</th>
-                  <th style={{ minWidth: "190px" }}>RETURN REASON</th>
-                  <th style={{ minWidth: "160px" }}>CUSTOMER NAME & MOBILE</th>
-                  <th style={{ minWidth: "125px" }}>STATE / DISTRICT</th>
-                  <th style={{ minWidth: "150px" }}>COURIER & AWB</th>
-                  <th style={{ minWidth: "125px", whiteSpace: "nowrap", paddingRight: "24px" }}>RETURN DATE</th>
+                  <th style={{ width: "40px", minWidth: "40px", paddingLeft: "18px" }}>#</th>
+                  <th style={{ minWidth: "150px" }}>SUB ORDER ID / ORDER NO</th>
+                  <th style={{ minWidth: "125px" }}>RETURN TYPE</th>
+                  <th style={{ minWidth: "130px" }}>SKU / PRODUCT</th>
+                  <th style={{ minWidth: "45px", textAlign: "center" }}>QTY</th>
+                  <th style={{ minWidth: "160px" }}>RETURN REASON</th>
+                  <th style={{ minWidth: "140px" }}>CUSTOMER NAME & MOBILE</th>
+                  <th style={{ minWidth: "115px" }}>STATE / DISTRICT</th>
+                  <th style={{ minWidth: "130px" }}>COURIER & AWB</th>
+                  <th style={{ minWidth: "110px", whiteSpace: "nowrap", paddingRight: "18px" }}>RETURN DATE</th>
                 </tr>
               </thead>
               <tbody>
@@ -521,13 +521,13 @@ export default function ReturnsPage() {
                       onClick={() => setSelectedReturn(r)}
                       style={{ cursor: "pointer" }}
                     >
-                      <td style={{ color: "var(--text-dim)", fontSize: "0.8rem", fontFamily: "var(--font-mono)" }}>
+                      <td style={{ color: "var(--text-dim)", fontSize: "0.8rem", fontFamily: "var(--font-mono)", paddingLeft: "18px" }}>
                         {globalIdx}
                       </td>
 
                       {/* Sub Order ID */}
                       <td>
-                        <div style={{ fontWeight: 700, color: "var(--aurora-1)", fontSize: "0.85rem", fontFamily: "var(--font-mono)" }}>
+                        <div style={{ fontWeight: 700, color: "var(--aurora-1)", fontSize: "0.85rem", fontFamily: "var(--font-mono)", wordBreak: "break-all" }}>
                           {r.subOrderNo}
                         </div>
                         {r.orderNo !== r.subOrderNo && (
@@ -542,9 +542,11 @@ export default function ReturnsPage() {
                         <span
                           className="tag-pill"
                           style={{
-                            fontSize: "0.75rem",
-                            padding: "4px 10px",
+                            fontSize: "0.74rem",
+                            padding: "4px 8px",
                             fontWeight: 700,
+                            display: "inline-block",
+                            whiteSpace: "nowrap",
                             background: isRto ? "rgba(245, 158, 11, 0.15)" : "rgba(239, 68, 68, 0.15)",
                             border: isRto ? "1px solid rgba(245, 158, 11, 0.4)" : "1px solid rgba(239, 68, 68, 0.4)",
                             color: isRto ? "#f59e0b" : "#ef4444",
@@ -556,7 +558,7 @@ export default function ReturnsPage() {
 
                       {/* SKU */}
                       <td>
-                        <span className="tag-pill" style={{ fontSize: "0.78rem", padding: "3px 8px", background: "rgba(255, 255, 255, 0.06)", fontWeight: 700 }}>
+                        <span className="tag-pill" style={{ fontSize: "0.78rem", padding: "3px 8px", background: "rgba(255, 255, 255, 0.06)", fontWeight: 700, display: "inline-block", maxWidth: "160px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {r.sku}
                         </span>
                       </td>
@@ -577,7 +579,7 @@ export default function ReturnsPage() {
                       </td>
 
                       {/* Customer Info */}
-                      <td>
+                      <td style={{ whiteSpace: "normal", wordBreak: "break-word" }}>
                         <div style={{ fontWeight: 600, color: "var(--text-pure)", fontSize: "0.84rem" }}>
                           {r.customerName}
                         </div>
@@ -590,7 +592,7 @@ export default function ReturnsPage() {
 
                       {/* State */}
                       <td>
-                        <span className="tag-pill" style={{ fontSize: "0.75rem", padding: "3px 8px", background: "rgba(0, 242, 254, 0.08)", border: "1px solid rgba(0, 242, 254, 0.2)", color: "var(--aurora-1)" }}>
+                        <span className="tag-pill" style={{ fontSize: "0.75rem", padding: "3px 8px", background: "rgba(0, 242, 254, 0.08)", border: "1px solid rgba(0, 242, 254, 0.2)", color: "var(--aurora-1)", display: "inline-block", whiteSpace: "nowrap" }}>
                           📍 {r.state}
                         </span>
                       </td>
@@ -608,7 +610,7 @@ export default function ReturnsPage() {
                       </td>
 
                       {/* Return Date */}
-                      <td style={{ fontSize: "0.8rem", color: "var(--text-silver)", fontFamily: "var(--font-mono)", whiteSpace: "nowrap", paddingRight: "24px" }}>
+                      <td style={{ fontSize: "0.8rem", color: "var(--text-silver)", fontFamily: "var(--font-mono)", whiteSpace: "nowrap", paddingRight: "18px" }}>
                         {r.deliveredDate || r.returnCreatedDate || "N/A"}
                       </td>
                     </tr>
