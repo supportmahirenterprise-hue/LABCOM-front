@@ -19,6 +19,7 @@ export default function ReturnsPage() {
   const [search, setSearch] = useState("");
   const [selectedType, setSelectedType] = useState("ALL");
   const [selectedState, setSelectedState] = useState("ALL");
+  const [selectedSku, setSelectedSku] = useState("ALL");
   const [selectedReturn, setSelectedReturn] = useState(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [toast, setToast] = useState(null);
@@ -53,6 +54,7 @@ export default function ReturnsPage() {
         search: search.trim(),
         type: selectedType,
         state: selectedState,
+        sku: selectedSku,
         page: String(currentPage),
         limit: String(pageSize),
       });
@@ -82,7 +84,7 @@ export default function ReturnsPage() {
     if (status === "authenticated" && session?.user?.email) {
       fetchReturnsData();
     }
-  }, [status, session, selectedType, selectedState, currentPage, pageSize]);
+  }, [status, session, selectedType, selectedState, selectedSku, currentPage, pageSize]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -382,55 +384,90 @@ export default function ReturnsPage() {
           </form>
 
           {/* Type Filter Buttons */}
-          <div style={{ display: "flex", gap: 6, background: "rgba(0,0,0,0.3)", padding: "4px", borderRadius: "var(--radius-md)", border: "1px solid var(--glass-border)" }}>
-            <button
-              onClick={() => { setSelectedType("ALL"); setCurrentPage(1); }}
-              style={{
-                padding: "6px 14px",
-                borderRadius: "var(--radius-sm)",
-                border: "none",
-                background: selectedType === "ALL" ? "rgba(0, 242, 254, 0.15)" : "transparent",
-                color: selectedType === "ALL" ? "var(--aurora-1)" : "var(--text-silver)",
-                fontSize: "0.8rem",
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all 0.2s ease",
-              }}
-            >
-              All Returns ({summary.totalReturns || 0})
-            </button>
-            <button
-              onClick={() => { setSelectedType("Customer Return"); setCurrentPage(1); }}
-              style={{
-                padding: "6px 14px",
-                borderRadius: "var(--radius-sm)",
-                border: "none",
-                background: selectedType === "Customer Return" ? "rgba(239, 68, 68, 0.2)" : "transparent",
-                color: selectedType === "Customer Return" ? "#f87171" : "var(--text-silver)",
-                fontSize: "0.8rem",
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all 0.2s ease",
-              }}
-            >
-              Customer Returns ({summary.customerReturnsCount || 0})
-            </button>
-            <button
-              onClick={() => { setSelectedType("RTO"); setCurrentPage(1); }}
-              style={{
-                padding: "6px 14px",
-                borderRadius: "var(--radius-sm)",
-                border: "none",
-                background: selectedType === "RTO" ? "rgba(245, 158, 11, 0.2)" : "transparent",
-                color: selectedType === "RTO" ? "#fbbf24" : "var(--text-silver)",
-                fontSize: "0.8rem",
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all 0.2s ease",
-              }}
-            >
-              Courier RTO ({summary.rtoCount || 0})
-            </button>
+          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: 6, background: "rgba(0,0,0,0.3)", padding: "4px", borderRadius: "var(--radius-md)", border: "1px solid var(--glass-border)" }}>
+              <button
+                onClick={() => { setSelectedType("ALL"); setCurrentPage(1); }}
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: "var(--radius-sm)",
+                  border: "none",
+                  background: selectedType === "ALL" ? "rgba(0, 242, 254, 0.15)" : "transparent",
+                  color: selectedType === "ALL" ? "var(--aurora-1)" : "var(--text-silver)",
+                  fontSize: "0.8rem",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                All Returns ({summary.totalReturns || 0})
+              </button>
+              <button
+                onClick={() => { setSelectedType("Customer Return"); setCurrentPage(1); }}
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: "var(--radius-sm)",
+                  border: "none",
+                  background: selectedType === "Customer Return" ? "rgba(239, 68, 68, 0.2)" : "transparent",
+                  color: selectedType === "Customer Return" ? "#f87171" : "var(--text-silver)",
+                  fontSize: "0.8rem",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                Customer Returns ({summary.customerReturnsCount || 0})
+              </button>
+              <button
+                onClick={() => { setSelectedType("RTO"); setCurrentPage(1); }}
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: "var(--radius-sm)",
+                  border: "none",
+                  background: selectedType === "RTO" ? "rgba(245, 158, 11, 0.2)" : "transparent",
+                  color: selectedType === "RTO" ? "#fbbf24" : "var(--text-silver)",
+                  fontSize: "0.8rem",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                Courier RTO ({summary.rtoCount || 0})
+              </button>
+            </div>
+
+            {/* SKU Dropdown Filter */}
+            <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+              <select
+                value={selectedSku}
+                onChange={(e) => {
+                  setSelectedSku(e.target.value);
+                  setCurrentPage(1);
+                }}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: "var(--radius-md)",
+                  border: selectedSku !== "ALL" ? "1px solid var(--aurora-1)" : "1px solid var(--glass-border)",
+                  background: "rgba(15, 23, 42, 0.85)",
+                  color: selectedSku !== "ALL" ? "var(--aurora-1)" : "var(--text-pure)",
+                  fontSize: "0.82rem",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  outline: "none",
+                  maxWidth: "280px",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+                }}
+              >
+                <option value="ALL" style={{ background: "#0f172a", color: "#fff" }}>
+                  All SKUs ({summary.totalReturns || 0})
+                </option>
+                {(summary.allSkusWithCounts || []).map((s) => (
+                  <option key={s.name} value={s.name} style={{ background: "#0f172a", color: "#fff" }}>
+                    {s.label || `${s.name} (${s.count})`}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
       </div>
