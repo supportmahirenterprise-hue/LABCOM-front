@@ -145,6 +145,11 @@ export default function Home() {
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [currentWarningIndex, setCurrentWarningIndex] = useState(0);
 
+  // Duplicate Saved Order Warning Modal State
+  const [duplicateOrderWarnings, setDuplicateOrderWarnings] = useState([]);
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  const [currentDuplicateIndex, setCurrentDuplicateIndex] = useState(0);
+
   const fileInputRef = useRef(null);
   const isInitialLoadDone = useRef(false);
 
@@ -324,6 +329,7 @@ export default function Home() {
       const CHUNK_SIZE = 150;
       let allExtractedPages = [];
       let allReturnWarnings = [];
+      let allDuplicateOrderWarnings = [];
 
       if (totalPagesInPdf <= CHUNK_SIZE) {
         const fd = new FormData();
@@ -341,6 +347,7 @@ export default function Home() {
         const data = await res.json();
         allExtractedPages = data.pages || [];
         allReturnWarnings = data.returnWarnings || [];
+        allDuplicateOrderWarnings = data.duplicateOrderWarnings || [];
         setUploadProgress(100);
       } else {
         const totalChunks = Math.ceil(totalPagesInPdf / CHUNK_SIZE);
@@ -370,18 +377,28 @@ export default function Home() {
           const data = await res.json();
           allExtractedPages = [...allExtractedPages, ...(data.pages || [])];
           allReturnWarnings = [...allReturnWarnings, ...(data.returnWarnings || [])];
+          allDuplicateOrderWarnings = [...allDuplicateOrderWarnings, ...(data.duplicateOrderWarnings || [])];
           setUploadProgress(Math.round(((c + 1) / totalChunks) * 100));
         }
       }
 
       setPages(allExtractedPages);
 
+      if (allDuplicateOrderWarnings.length > 0) {
+        setDuplicateOrderWarnings(allDuplicateOrderWarnings);
+        setCurrentDuplicateIndex(0);
+        setShowDuplicateModal(true);
+        showToast(`⚠️ Notice: Found ${allDuplicateOrderWarnings.length} order(s) already saved in database!`, "info");
+      }
+
       if (allReturnWarnings.length > 0) {
         setReturnWarnings(allReturnWarnings);
         setCurrentWarningIndex(0);
         setShowWarningModal(true);
         showToast(`⚠️ Warning: Found ${allReturnWarnings.length} order(s) in this PDF with past return history!`, "error");
-      } else {
+      }
+
+      if (allDuplicateOrderWarnings.length === 0 && allReturnWarnings.length === 0) {
         showToast(`Successfully extracted ${allExtractedPages.length} label pages!`, "success");
       }
     } catch (err) {
@@ -1844,6 +1861,217 @@ export default function Home() {
                   padding: "9px 24px",
                   fontSize: "0.85rem",
                   background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                  color: "#fff",
+                  border: "none",
+                }}
+              >
+                Dismiss & Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Duplicate Saved Order Warning Notice Modal Popup */}
+      {showDuplicateModal && duplicateOrderWarnings.length > 0 && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0, 0, 0, 0.88)",
+            backdropFilter: "blur(14px)",
+            WebkitBackdropFilter: "blur(14px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 999999,
+            padding: 20,
+          }}
+        >
+          <div
+            className="premium-glass"
+            style={{
+              width: "100%",
+              maxWidth: 720,
+              maxHeight: "90vh",
+              overflowY: "auto",
+              padding: "26px 30px",
+              borderRadius: "22px",
+              boxShadow: "0 25px 70px rgba(0,0,0,0.95), 0 0 40px rgba(245, 158, 11, 0.3)",
+              border: "1px solid rgba(245, 158, 11, 0.4)",
+              background: "rgba(18, 18, 24, 0.98)",
+            }}
+          >
+            {/* Modal Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, borderBottom: "1px solid var(--glass-border)", paddingBottom: 16 }}>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: "1.4rem" }}>📦</span>
+                  <h2 className="heading-display" style={{ fontSize: "1.3rem", color: "#fbbf24", margin: 0 }}>
+                    Previously Saved Order Notice
+                  </h2>
+                  <span
+                    style={{
+                      padding: "4px 12px",
+                      borderRadius: "var(--radius-full)",
+                      background: "rgba(245, 158, 11, 0.25)",
+                      color: "#fbbf24",
+                      border: "1px solid rgba(245, 158, 11, 0.5)",
+                      fontSize: "0.78rem",
+                      fontWeight: 700,
+                    }}
+                  >
+                    Order {currentDuplicateIndex + 1} of {duplicateOrderWarnings.length}
+                  </span>
+                </div>
+                <p style={{ fontSize: "0.8rem", color: "var(--text-silver)", margin: "4px 0 0 0" }}>
+                  Sub Order ID on Label Page #{duplicateOrderWarnings[currentDuplicateIndex]?.page} was previously saved in DB!
+                </p>
+              </div>
+              <button
+                onClick={() => setShowDuplicateModal(false)}
+                style={{
+                  background: "rgba(255, 255, 255, 0.08)",
+                  border: "1px solid var(--glass-border)",
+                  borderRadius: "50%",
+                  width: 34,
+                  height: 34,
+                  color: "#ffffff",
+                  fontSize: "1rem",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Current Label Details Card */}
+            <div style={{ background: "rgba(245, 158, 11, 0.08)", padding: "16px 18px", borderRadius: "14px", border: "1px solid rgba(245, 158, 11, 0.3)", marginBottom: 16 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#fbbf24", textTransform: "uppercase" }}>
+                  🏷️ Current Uploaded Label (Page #{duplicateOrderWarnings[currentDuplicateIndex]?.page})
+                </span>
+                <span style={{ fontSize: "0.78rem", color: "var(--aurora-1)", fontFamily: "var(--font-mono)", fontWeight: 700 }}>
+                  Sub Order: {duplicateOrderWarnings[currentDuplicateIndex]?.subOrderNo}
+                </span>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div>
+                  <div style={{ fontSize: "0.88rem", color: "#fff", fontWeight: 700 }}>
+                    Buyer: {duplicateOrderWarnings[currentDuplicateIndex]?.customerName}
+                  </div>
+                  {duplicateOrderWarnings[currentDuplicateIndex]?.customerMobile !== "N/A" && (
+                    <div style={{ fontSize: "0.78rem", color: "var(--aurora-1)", fontFamily: "var(--font-mono)", marginTop: 2 }}>
+                      📞 Mobile: {duplicateOrderWarnings[currentDuplicateIndex]?.customerMobile}
+                    </div>
+                  )}
+                  <div style={{ fontSize: "0.78rem", color: "var(--text-silver)", marginTop: 4 }}>
+                    📍 State: {duplicateOrderWarnings[currentDuplicateIndex]?.state}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: "0.82rem", color: "var(--text-silver)" }}>
+                    SKU: <strong style={{ color: "#fff" }}>{duplicateOrderWarnings[currentDuplicateIndex]?.sku}</strong>
+                  </div>
+                  <div style={{ fontSize: "0.78rem", color: "var(--text-silver)", marginTop: 2 }}>
+                    Qty: <strong style={{ color: "#fff" }}>{duplicateOrderWarnings[currentDuplicateIndex]?.qty}</strong>
+                  </div>
+                  <div style={{ fontSize: "0.75rem", color: "var(--text-dim)", marginTop: 4, lineHeight: 1.35 }}>
+                    🏠 Address: {duplicateOrderWarnings[currentDuplicateIndex]?.customerAddress}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Previously Saved DB Order Record */}
+            <div style={{ background: "rgba(0,0,0,0.4)", padding: "16px 18px", borderRadius: "14px", border: "1px solid var(--glass-border)", marginBottom: 20 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--aurora-1)", textTransform: "uppercase" }}>
+                  💾 Database Record (Already Saved)
+                </span>
+                <span style={{ fontSize: "0.76rem", color: "#fbbf24", fontFamily: "var(--font-mono)", fontWeight: 700 }}>
+                  Saved On: {duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.savedAt}
+                </span>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div>
+                  <div style={{ fontSize: "0.84rem", color: "var(--text-silver)" }}>
+                    Saved Order No: <strong style={{ color: "#fff", fontFamily: "var(--font-mono)" }}>{duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.orderNo}</strong>
+                  </div>
+                  <div style={{ fontSize: "0.82rem", color: "var(--text-silver)", marginTop: 4 }}>
+                    Saved Buyer: <strong style={{ color: "#fff" }}>{duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.customerName}</strong>
+                  </div>
+                  {duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.customerMobile !== "N/A" && (
+                    <div style={{ fontSize: "0.76rem", color: "var(--aurora-1)", fontFamily: "var(--font-mono)", marginTop: 2 }}>
+                      📞 {duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.customerMobile}
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <div style={{ fontSize: "0.82rem", color: "var(--text-silver)" }}>
+                    Saved SKU: <strong style={{ color: "#a855f7" }}>{duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.sku}</strong> (Qty: {duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.qty})
+                  </div>
+                  <div style={{ fontSize: "0.78rem", color: "var(--text-silver)", marginTop: 4 }}>
+                    Payment Type: <strong style={{ color: "#10b981" }}>{duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.paymentType}</strong>
+                  </div>
+                  <div style={{ fontSize: "0.76rem", color: "var(--text-dim)", marginTop: 4 }}>
+                    Original Order Date: {duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.orderDate}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Navigation Controls Footer */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 24, paddingTop: 16, borderTop: "1px solid var(--glass-border)" }}>
+              <div style={{ display: "flex", gap: 10 }}>
+                <button
+                  disabled={currentDuplicateIndex === 0}
+                  onClick={() => setCurrentDuplicateIndex((prev) => Math.max(0, prev - 1))}
+                  className="btn-secondary"
+                  style={{
+                    padding: "8px 16px",
+                    fontSize: "0.84rem",
+                    opacity: currentDuplicateIndex === 0 ? 0.4 : 1,
+                    cursor: currentDuplicateIndex === 0 ? "not-allowed" : "pointer",
+                  }}
+                >
+                  ◀ Previous Order
+                </button>
+
+                <button
+                  disabled={currentDuplicateIndex >= duplicateOrderWarnings.length - 1}
+                  onClick={() => setCurrentDuplicateIndex((prev) => Math.min(duplicateOrderWarnings.length - 1, prev + 1))}
+                  className="btn-secondary"
+                  style={{
+                    padding: "8px 16px",
+                    fontSize: "0.84rem",
+                    opacity: currentDuplicateIndex >= duplicateOrderWarnings.length - 1 ? 0.4 : 1,
+                    cursor: currentDuplicateIndex >= duplicateOrderWarnings.length - 1 ? "not-allowed" : "pointer",
+                    borderColor: "#fbbf24",
+                    color: "#fbbf24",
+                  }}
+                >
+                  Next Order ▶
+                </button>
+              </div>
+
+              <button
+                className="btn-primary"
+                onClick={() => setShowDuplicateModal(false)}
+                style={{
+                  padding: "9px 24px",
+                  fontSize: "0.85rem",
+                  background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
                   color: "#fff",
                   border: "none",
                 }}
