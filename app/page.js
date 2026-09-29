@@ -1578,9 +1578,29 @@ export default function Home() {
                         {FIELD_COLUMNS.map((c) => (
                           <td key={c.key}>
                             {c.editable === false ? (
-                              <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600, color: "var(--accent-cyan)" }}>
-                                Page {row[c.key]}
-                              </span>
+                              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600, color: "var(--accent-cyan)" }}>
+                                  Page {row[c.key]}
+                                </span>
+                                {row.customerReturnAlert && (
+                                  <span
+                                    style={{
+                                      background: "rgba(245, 158, 11, 0.18)",
+                                      border: "1px solid rgba(245, 158, 11, 0.4)",
+                                      color: "#fbbf24",
+                                      borderRadius: "999px",
+                                      padding: "2px 8px",
+                                      fontSize: "0.68rem",
+                                      fontWeight: 700,
+                                      whiteSpace: "nowrap",
+                                      cursor: "help",
+                                    }}
+                                    title={`Buyer (${row.customerName || "Customer"}) has ${row.customerReturnAlert.returnCount} past return record(s) in DB.`}
+                                  >
+                                    ⚠️ Buyer Return Risk ({row.customerReturnAlert.returnCount})
+                                  </span>
+                                )}
+                              </div>
                             ) : (
                               <input
                                 className="table-input"
