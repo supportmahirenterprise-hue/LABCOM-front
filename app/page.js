@@ -9,6 +9,146 @@ const BACKEND_URL = (
   process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
 ).replace(/\/+$/, "");
 
+// Clean SVG Vector Icons
+function FilePdfIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+      <polyline points="14 2 14 8 20 8" />
+    </svg>
+  );
+}
+
+function DownloadIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" x2="12" y1="15" y2="3" />
+    </svg>
+  );
+}
+
+function SortAscIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="12" x2="12" y1="19" y2="5" />
+      <polyline points="5 12 12 5 19 12" />
+    </svg>
+  );
+}
+
+function SortDescIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="12" x2="12" y1="5" y2="19" />
+      <polyline points="19 12 12 19 5 12" />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
+function AlertTriangleIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+      <line x1="12" x2="12" y1="9" y2="13" />
+      <line x1="12" x2="12.01" y1="17" y2="17" />
+    </svg>
+  );
+}
+
+function LocationIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 10c0 6-8 12-8 12s-8-6-8-10a8 8 0 0 1 16 0Z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  );
+}
+
+function StoreIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
+      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+      <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" />
+      <path d="M2 7h20" />
+    </svg>
+  );
+}
+
+function InstagramIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </svg>
+  );
+}
+
+function HeartIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+    </svg>
+  );
+}
+
+function PackageIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+      <path d="m3.3 7 8.7 5 8.7-5" />
+      <path d="M12 22V12" />
+    </svg>
+  );
+}
+
+function TagIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z" />
+      <path d="M7 7h.01" />
+    </svg>
+  );
+}
+
+function FlaskIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55A1 1 0 0 0 5.61 22h12.78a1 1 0 0 0 .89-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2" />
+      <path d="M8.5 2h7" />
+      <path d="M7 16h10" />
+    </svg>
+  );
+}
+
+function ZapIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </svg>
+  );
+}
+
+function CloudIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17.5 19x-13a4.5 4.5 0 0 1-.5-8.97A8 8 0 0 1 19.34 9 4.5 4.5 0 0 1 17.5 19z" />
+    </svg>
+  );
+}
+
+
 const FIELD_COLUMNS = [
   { key: "page", label: "Page", editable: false, width: "90px" },
   { key: "sku", label: "SKU", width: "160px" },
@@ -388,14 +528,14 @@ export default function Home() {
         setDuplicateOrderWarnings(allDuplicateOrderWarnings);
         setCurrentDuplicateIndex(0);
         setShowDuplicateModal(true);
-        showToast(`⚠️ Notice: Found ${allDuplicateOrderWarnings.length} order(s) already saved in database!`, "info");
+        showToast(`Notice: Found ${allDuplicateOrderWarnings.length} order(s) already saved in database!`, "info");
       }
 
       if (allReturnWarnings.length > 0) {
         setReturnWarnings(allReturnWarnings);
         setCurrentWarningIndex(0);
         setShowWarningModal(true);
-        showToast(`⚠️ Warning: Found ${allReturnWarnings.length} order(s) in this PDF with past return history!`, "error");
+        showToast(`Warning: Found ${allReturnWarnings.length} order(s) in this PDF with past return history!`, "error");
       }
 
       if (allDuplicateOrderWarnings.length === 0 && allReturnWarnings.length === 0) {
@@ -668,11 +808,11 @@ export default function Home() {
       }).catch((e) => console.error("Failed to log history to Node backend:", e));
 
       if (isSample) {
-        const msg = "🧪 Test Sample (Page 1) downloaded! Check QR alignment & print preview.";
+        const msg = "Test Sample (Page 1) downloaded! Check QR alignment & print preview.";
         setSuccessMsg(msg);
         showToast(msg, "success");
       } else {
-        const msg = "✅ Stamped PDF & Summary PNG Image generated, downloaded, and sent to WhatsApp (918140148878) successfully!";
+        const msg = "Stamped PDF & Summary PNG Image generated, downloaded, and sent to WhatsApp (918140148878) successfully!";
         setSuccessMsg(msg);
         showToast(msg, "success");
       }
@@ -713,7 +853,7 @@ export default function Home() {
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
-      showToast("📊 Summary PDF downloaded successfully!", "success");
+      showToast("Summary PDF downloaded successfully!", "success");
     } catch (err) {
       showToast(err.message || "Failed to download summary", "error");
     }
@@ -767,7 +907,9 @@ export default function Home() {
             animation: "fadeInDown 0.3s ease-out",
           }}
         >
-          <span>{toast.type === "error" ? "⚠️" : "🎉"}</span>
+          <span style={{ display: "flex", alignItems: "center" }}>
+            {toast.type === "error" ? <AlertTriangleIcon /> : <CheckIcon />}
+          </span>
           <span>{toast.message}</span>
           <button
             onClick={() => setToast(null)}
@@ -807,18 +949,19 @@ export default function Home() {
               <span
                 style={{
                   fontSize: "0.72rem",
-                  padding: "3px 8px",
+                  padding: "4px 10px",
                   borderRadius: "var(--radius-full)",
-                  background: savingSettings ? "rgba(79, 172, 254, 0.15)" : "rgba(255, 255, 255, 0.05)",
-                  color: savingSettings ? "var(--aurora-1)" : "var(--text-dim)",
-                  border: "1px solid var(--glass-border)",
+                  background: savingSettings ? "#EEF2FF" : "#F1F5F9",
+                  color: savingSettings ? "#4F46E5" : "#64748B",
+                  border: "1px solid #E2E8F0",
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: 4,
+                  gap: 6,
+                  fontWeight: 600,
                   transition: "all 0.2s ease",
                 }}
               >
-                {savingSettings ? "☁️ Syncing..." : "☁️ Saved to Account"}
+                <CloudIcon /> {savingSettings ? "Syncing..." : "Saved to Account"}
               </span>
             )}
           </div>
@@ -835,32 +978,40 @@ export default function Home() {
         {error && (
           <div
             style={{
-              background: "rgba(244, 63, 94, 0.1)",
-              border: "1px solid var(--accent-rose)",
-              color: "#fecdd3",
+              background: "#FEF2F2",
+              border: "1px solid #FCA5A5",
+              color: "#991B1B",
               padding: "10px 16px",
               borderRadius: "var(--radius-md)",
               marginBottom: 16,
               fontSize: "0.85rem",
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              fontWeight: 600,
             }}
           >
-            ⚠️ {error}
+            <AlertTriangleIcon /> {error}
           </div>
         )}
 
         {successMsg && (
           <div
             style={{
-              background: "rgba(16, 185, 129, 0.1)",
-              border: "1px solid var(--border-accent)",
-              color: "#a7f3d0",
+              background: "#ECFDF5",
+              border: "1px solid #6EE7B7",
+              color: "#065F46",
               padding: "10px 16px",
               borderRadius: "var(--radius-md)",
               marginBottom: 16,
               fontSize: "0.85rem",
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              fontWeight: 600,
             }}
           >
-            ✅ {successMsg}
+            <CheckIcon /> {successMsg}
           </div>
         )}
 
@@ -900,20 +1051,22 @@ export default function Home() {
                 }}
                 onClick={() => fileInputRef.current?.click()}
               >
-                <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>📄</div>
+                <div style={{ color: "#4F46E5", marginBottom: 12 }}>
+                  <FilePdfIcon />
+                </div>
                 {file ? (
                   <div style={{ textAlign: "center", wordBreak: "break-all" }}>
-                    <p style={{ fontWeight: 600, color: "var(--aurora-1)", fontSize: "0.95rem" }}>
+                    <p style={{ fontWeight: 600, color: "#4F46E5", fontSize: "0.95rem" }}>
                       {file.name}
                     </p>
-                    <p style={{ fontSize: "0.8rem", color: "var(--text-silver)", marginTop: 6 }}>
-                      {pages.length > 0 ? `✅ ${pages.length} Pages Extracted & Ready` : "Click to replace PDF file"}
+                    <p style={{ fontSize: "0.8rem", color: "var(--text-silver)", marginTop: 6, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                      {pages.length > 0 ? <><CheckIcon /> {pages.length} Pages Extracted & Ready</> : "Click to replace PDF file"}
                     </p>
                   </div>
                 ) : (
                   <div style={{ textAlign: "center" }}>
                     <p style={{ fontWeight: 600, color: "var(--text-pure)", fontSize: "0.95rem" }}>
-                      Drop PDF shipping label here or <span style={{ color: "var(--aurora-1)" }}>Browse</span>
+                      Drop PDF shipping label here or <span style={{ color: "#4F46E5" }}>Browse</span>
                     </p>
                     <p style={{ fontSize: "0.78rem", color: "var(--text-dim)", marginTop: 6 }}>
                       Supports Meesho, Xpressbees, and Delhivery label sheets
@@ -1154,13 +1307,15 @@ export default function Home() {
                       background: "rgba(0,0,0,0.02)",
                     }}
                   >
-                    🚫 QR Stamper Disabled (Sorting Only)
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                      <SlashIcon /> QR Stamper Disabled (Sorting Only)
+                    </span>
                   </div>
                 )}
               </div>
 
               {/* Preset Position Shortcuts */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
+              <div className="position-shortcuts-wrap" style={{ display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
                 <span style={{ fontSize: "0.78rem", color: "var(--text-silver)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>
                   Position Shortcuts
                 </span>
@@ -1177,7 +1332,7 @@ export default function Home() {
                       borderRadius: "var(--radius-sm)",
                     }}
                   >
-                    📍 {p.name}
+                    <LocationIcon /> {p.name}
                   </button>
                 ))}
               </div>
@@ -1288,7 +1443,7 @@ export default function Home() {
                   setActiveInput("qrText");
                 }}
               >
-                🏬 Default Meesho Store (themahirenterprise)
+                <StoreIcon /> Default Meesho Store (themahirenterprise)
               </button>
 
               <button
@@ -1300,7 +1455,7 @@ export default function Home() {
                   setActiveInput("qrText");
                 }}
               >
-                📸 Instagram Page (@mahir.enterprise_)
+                <InstagramIcon /> Instagram Page (@mahir.enterprise_)
               </button>
 
               <button
@@ -1312,7 +1467,7 @@ export default function Home() {
                   setActiveInput("qrText");
                 }}
               >
-                ❤️ State-Smart Regional Thank You
+                <HeartIcon /> State-Smart Regional Thank You
               </button>
             </div>
           </div>
@@ -1344,8 +1499,8 @@ export default function Home() {
                 onChange={(e) => setQrText(e.target.value)}
                 placeholder="https://www.meesho.com/themahirenterprise"
               />
-              <span style={{ fontSize: "0.75rem", color: "var(--text-dim)", marginTop: 6, display: "block" }}>
-                ✓ Valid URL: Scanning QR directly opens this web page.
+              <span style={{ fontSize: "0.75rem", color: "var(--text-dim)", marginTop: 6, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                <CheckIcon /> Valid URL: Scanning QR directly opens this web page.
               </span>
             </div>
 
@@ -1445,9 +1600,9 @@ export default function Home() {
             <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
               {analytics && (
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  <span className="tag-pill">📦 {analytics.totalPages} Total Labels</span>
-                  <span className="tag-pill">🏷️ {analytics.uniqueSkus} Unique SKUs</span>
-                  <span className="tag-pill">🔢 {analytics.totalQty} Total Items</span>
+                  <span className="tag-pill"><PackageIcon /> {analytics.totalPages} Total Labels</span>
+                  <span className="tag-pill"><TagIcon /> {analytics.uniqueSkus} Unique SKUs</span>
+                  <span className="tag-pill"><CheckIcon /> {analytics.totalQty} Total Items</span>
                 </div>
               )}
 
@@ -1473,8 +1628,8 @@ export default function Home() {
                   onChange={(e) => setDownloadSummary(e.target.checked)}
                   style={{ width: 16, height: 16, accentColor: "#10b981", cursor: isBusy ? "not-allowed" : "pointer" }}
                 />
-                <span style={{ fontSize: "0.82rem", fontWeight: 700, color: downloadSummary ? "#a7f3d0" : "var(--text-silver)" }}>
-                  📊 Download Summary
+                <span style={{ fontSize: "0.82rem", fontWeight: 700, color: downloadSummary ? "#059669" : "var(--text-silver)", display: "flex", alignItems: "center", gap: 6 }}>
+                  <DownloadIcon /> Download Summary
                 </span>
               </label>
             </div>
@@ -1512,10 +1667,11 @@ export default function Home() {
                     borderColor: sortOrder === "asc" ? "var(--aurora-2)" : "var(--glass-border)",
                     color: sortOrder === "asc" ? "var(--aurora-1)" : "var(--text-silver)",
                     padding: "10px",
+                    justifyContent: "center",
                   }}
                   onClick={() => setSortOrder("asc")}
                 >
-                  ⬆️ Ascending
+                  <SortAscIcon /> Ascending
                 </button>
                 <button
                   className="btn-secondary"
@@ -1525,10 +1681,11 @@ export default function Home() {
                     borderColor: sortOrder === "desc" ? "var(--aurora-2)" : "var(--glass-border)",
                     color: sortOrder === "desc" ? "var(--aurora-1)" : "var(--text-silver)",
                     padding: "10px",
+                    justifyContent: "center",
                   }}
                   onClick={() => setSortOrder("desc")}
                 >
-                  ⬇️ Descending
+                  <SortDescIcon /> Descending
                 </button>
               </div>
             </div>
@@ -1587,17 +1744,20 @@ export default function Home() {
                                     style={{
                                       background: "rgba(245, 158, 11, 0.18)",
                                       border: "1px solid rgba(245, 158, 11, 0.4)",
-                                      color: "#fbbf24",
+                                      color: "#d97706",
                                       borderRadius: "999px",
                                       padding: "2px 8px",
                                       fontSize: "0.68rem",
                                       fontWeight: 700,
                                       whiteSpace: "nowrap",
                                       cursor: "help",
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      gap: 4,
                                     }}
                                     title={`Buyer (${row.customerName || "Customer"}) has ${row.customerReturnAlert.returnCount} past return record(s) in DB.`}
                                   >
-                                    ⚠️ Buyer Return Risk ({row.customerReturnAlert.returnCount})
+                                    <AlertTriangleIcon /> Buyer Return Risk ({row.customerReturnAlert.returnCount})
                                   </span>
                                 )}
                               </div>
@@ -1633,7 +1793,7 @@ export default function Home() {
           </span>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div className="action-dock-buttons" style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <button
             className="btn-secondary"
             disabled={!file || isBusy}
@@ -1644,7 +1804,7 @@ export default function Home() {
             }}
             onClick={() => handleGenerate({ sampleOnly: true })}
           >
-            {loadingSample ? "⏳ Generating Sample..." : "🧪 Download Test Sample (Page 1)"}
+            {loadingSample ? "Generating Sample..." : <><FlaskIcon /> Download Test Sample (Page 1)</>}
           </button>
 
           <button
@@ -1658,9 +1818,9 @@ export default function Home() {
             onClick={() => handleGenerate({ sampleOnly: false })}
           >
             {loadingGenerate ? (
-              <>⏳ Processing All {pages.length} Pages...</>
+              <>Processing All {pages.length} Pages...</>
             ) : (
-              <>⚡ Generate Full PDF ({pages.length > 0 ? `${pages.length} Pages` : "Batch"})</>
+              <><ZapIcon /> Generate Full PDF ({pages.length > 0 ? `${pages.length} Pages` : "Batch"})</>
             )}
           </button>
         </div>
@@ -1703,7 +1863,7 @@ export default function Home() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, borderBottom: "1px solid var(--glass-border)", paddingBottom: 16 }}>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span style={{ fontSize: "1.4rem" }}>⚠️</span>
+                  <span style={{ color: "#f87171", display: "flex", alignItems: "center" }}><AlertTriangleIcon /></span>
                   <h2 className="heading-display" style={{ fontSize: "1.3rem", color: "#f87171", margin: 0 }}>
                     Past Return Warning Notice
                   </h2>
@@ -1734,22 +1894,21 @@ export default function Home() {
                   width: 34,
                   height: 34,
                   color: "#ffffff",
-                  fontSize: "1rem",
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                 }}
               >
-                ✕
+                <CloseIcon />
               </button>
             </div>
 
             {/* Current Label Details Card */}
             <div style={{ background: "rgba(239, 68, 68, 0.08)", padding: "16px 18px", borderRadius: "14px", border: "1px solid rgba(239, 68, 68, 0.3)", marginBottom: 20 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#f87171", textTransform: "uppercase" }}>
-                  📦 Uploaded Label Page #{returnWarnings[currentWarningIndex]?.page}
+                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#f87171", textTransform: "uppercase", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <PackageIcon /> Uploaded Label Page #{returnWarnings[currentWarningIndex]?.page}
                 </span>
                 <span style={{ fontSize: "0.78rem", color: "var(--aurora-1)", fontFamily: "var(--font-mono)", fontWeight: 700 }}>
                   Sub Order: {returnWarnings[currentWarningIndex]?.subOrderNo}
@@ -1763,11 +1922,11 @@ export default function Home() {
                   </div>
                   {returnWarnings[currentWarningIndex]?.customerMobile !== "N/A" && (
                     <div style={{ fontSize: "0.78rem", color: "var(--aurora-1)", fontFamily: "var(--font-mono)", marginTop: 2 }}>
-                      📞 Mobile: {returnWarnings[currentWarningIndex]?.customerMobile}
+                      Mobile: {returnWarnings[currentWarningIndex]?.customerMobile}
                     </div>
                   )}
-                  <div style={{ fontSize: "0.78rem", color: "var(--text-silver)", marginTop: 4 }}>
-                    📍 State: {returnWarnings[currentWarningIndex]?.state}
+                  <div style={{ fontSize: "0.78rem", color: "var(--text-silver)", marginTop: 4, display: "flex", alignItems: "center", gap: 4 }}>
+                    <LocationIcon /> State: {returnWarnings[currentWarningIndex]?.state}
                   </div>
                 </div>
 
@@ -1778,8 +1937,8 @@ export default function Home() {
                   <div style={{ fontSize: "0.78rem", color: "var(--text-silver)", marginTop: 2 }}>
                     Qty: <strong style={{ color: "#fff" }}>{returnWarnings[currentWarningIndex]?.qty}</strong>
                   </div>
-                  <div style={{ fontSize: "0.75rem", color: "var(--text-dim)", marginTop: 4, lineHeight: 1.35 }}>
-                    🏠 Address: {returnWarnings[currentWarningIndex]?.customerAddress}
+                  <div style={{ fontSize: "0.75rem", color: "var(--text-dim)", marginTop: 4, lineHeight: 1.35, display: "flex", alignItems: "flex-start", gap: 4 }}>
+                    <StoreIcon /> Address: {returnWarnings[currentWarningIndex]?.customerAddress}
                   </div>
                 </div>
               </div>
@@ -1788,8 +1947,8 @@ export default function Home() {
             {/* Prior Returns Breakdown */}
             <div style={{ marginBottom: 20 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#fbbf24" }}>
-                  ⚠️ Previous Return Records Found ({returnWarnings[currentWarningIndex]?.returnCount})
+                <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#fbbf24", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <AlertTriangleIcon /> Previous Return Records Found ({returnWarnings[currentWarningIndex]?.returnCount})
                 </span>
               </div>
 
@@ -1818,7 +1977,7 @@ export default function Home() {
                         {pr.returnType}
                       </span>
                       <span style={{ fontSize: "0.75rem", color: "var(--text-silver)", fontFamily: "var(--font-mono)" }}>
-                        📅 Return Date: {pr.deliveredDate}
+                        Return Date: {pr.deliveredDate}
                       </span>
                     </div>
 
@@ -1854,7 +2013,7 @@ export default function Home() {
                     cursor: currentWarningIndex === 0 ? "not-allowed" : "pointer",
                   }}
                 >
-                  ◀ Previous Order
+                  ← Previous Order
                 </button>
 
                 <button
@@ -1870,7 +2029,7 @@ export default function Home() {
                     color: "var(--aurora-1)",
                   }}
                 >
-                  Next Order ▶
+                  Next Order →
                 </button>
               </div>
 
@@ -1929,7 +2088,7 @@ export default function Home() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, borderBottom: "1px solid var(--glass-border)", paddingBottom: 16 }}>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span style={{ fontSize: "1.4rem" }}>📦</span>
+                  <span style={{ color: "#fbbf24", display: "flex", alignItems: "center" }}><PackageIcon /></span>
                   <h2 className="heading-display" style={{ fontSize: "1.3rem", color: "#fbbf24", margin: 0 }}>
                     Previously Saved Order Notice
                   </h2>
@@ -1960,22 +2119,21 @@ export default function Home() {
                   width: 34,
                   height: 34,
                   color: "#ffffff",
-                  fontSize: "1rem",
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                 }}
               >
-                ✕
+                <CloseIcon />
               </button>
             </div>
 
             {/* Current Label Details Card */}
             <div style={{ background: "rgba(245, 158, 11, 0.08)", padding: "16px 18px", borderRadius: "14px", border: "1px solid rgba(245, 158, 11, 0.3)", marginBottom: 16 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#fbbf24", textTransform: "uppercase" }}>
-                  🏷️ Current Uploaded Label (Page #{duplicateOrderWarnings[currentDuplicateIndex]?.page})
+                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#fbbf24", textTransform: "uppercase", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <TagIcon /> Current Uploaded Label (Page #{duplicateOrderWarnings[currentDuplicateIndex]?.page})
                 </span>
                 <span style={{ fontSize: "0.78rem", color: "var(--aurora-1)", fontFamily: "var(--font-mono)", fontWeight: 700 }}>
                   Sub Order: {duplicateOrderWarnings[currentDuplicateIndex]?.subOrderNo}
@@ -1989,11 +2147,11 @@ export default function Home() {
                   </div>
                   {duplicateOrderWarnings[currentDuplicateIndex]?.customerMobile !== "N/A" && (
                     <div style={{ fontSize: "0.78rem", color: "var(--aurora-1)", fontFamily: "var(--font-mono)", marginTop: 2 }}>
-                      📞 Mobile: {duplicateOrderWarnings[currentDuplicateIndex]?.customerMobile}
+                      Mobile: {duplicateOrderWarnings[currentDuplicateIndex]?.customerMobile}
                     </div>
                   )}
-                  <div style={{ fontSize: "0.78rem", color: "var(--text-silver)", marginTop: 4 }}>
-                    📍 State: {duplicateOrderWarnings[currentDuplicateIndex]?.state}
+                  <div style={{ fontSize: "0.78rem", color: "var(--text-silver)", marginTop: 4, display: "flex", alignItems: "center", gap: 4 }}>
+                    <LocationIcon /> State: {duplicateOrderWarnings[currentDuplicateIndex]?.state}
                   </div>
                 </div>
 
@@ -2004,8 +2162,8 @@ export default function Home() {
                   <div style={{ fontSize: "0.78rem", color: "var(--text-silver)", marginTop: 2 }}>
                     Qty: <strong style={{ color: "#fff" }}>{duplicateOrderWarnings[currentDuplicateIndex]?.qty}</strong>
                   </div>
-                  <div style={{ fontSize: "0.75rem", color: "var(--text-dim)", marginTop: 4, lineHeight: 1.35 }}>
-                    🏠 Address: {duplicateOrderWarnings[currentDuplicateIndex]?.customerAddress}
+                  <div style={{ fontSize: "0.75rem", color: "var(--text-dim)", marginTop: 4, lineHeight: 1.35, display: "flex", alignItems: "flex-start", gap: 4 }}>
+                    <StoreIcon /> Address: {duplicateOrderWarnings[currentDuplicateIndex]?.customerAddress}
                   </div>
                 </div>
               </div>
@@ -2014,8 +2172,8 @@ export default function Home() {
             {/* Previously Saved DB Order Record */}
             <div style={{ background: "rgba(0,0,0,0.4)", padding: "16px 18px", borderRadius: "14px", border: "1px solid var(--glass-border)", marginBottom: 20 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--aurora-1)", textTransform: "uppercase" }}>
-                  💾 Database Record (Already Saved)
+                <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--aurora-1)", textTransform: "uppercase", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <CloudIcon /> Database Record (Already Saved)
                 </span>
                 <span style={{ fontSize: "0.76rem", color: "#fbbf24", fontFamily: "var(--font-mono)", fontWeight: 700 }}>
                   Saved On: {duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.savedAt}
@@ -2032,7 +2190,7 @@ export default function Home() {
                   </div>
                   {duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.customerMobile !== "N/A" && (
                     <div style={{ fontSize: "0.76rem", color: "var(--aurora-1)", fontFamily: "var(--font-mono)", marginTop: 2 }}>
-                      📞 {duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.customerMobile}
+                      {duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.customerMobile}
                     </div>
                   )}
                 </div>
@@ -2065,7 +2223,7 @@ export default function Home() {
                     cursor: currentDuplicateIndex === 0 ? "not-allowed" : "pointer",
                   }}
                 >
-                  ◀ Previous Order
+                  ← Previous Order
                 </button>
 
                 <button
@@ -2081,7 +2239,7 @@ export default function Home() {
                     color: "#fbbf24",
                   }}
                 >
-                  Next Order ▶
+                  Next Order →
                 </button>
               </div>
 

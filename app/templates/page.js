@@ -9,6 +9,14 @@ const BACKEND_URL = (
   process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
 ).replace(/\/+$/, "");
 
+function ZapIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </svg>
+  );
+}
+
 export default function TemplatesPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -112,7 +120,7 @@ export default function TemplatesPage() {
 
       if (!res.ok) throw new Error("Failed to save template");
 
-      showToast("✅ New template saved successfully!", "success");
+      showToast("New template saved successfully!", "success");
       setShowModal(false);
       setName("");
       setDescription("");
@@ -178,7 +186,7 @@ export default function TemplatesPage() {
   if (status === "loading" || loading) {
     return (
       <div style={{ padding: "40px 0", color: "var(--text-silver)", fontSize: "0.9rem" }}>
-        ⏳ Loading templates...
+        Loading templates...
       </div>
     );
   }
@@ -304,9 +312,9 @@ export default function TemplatesPage() {
               <button
                 className="btn-primary"
                 onClick={() => handleApply(tpl)}
-                style={{ flex: 1, padding: "8px", fontSize: "0.82rem" }}
+                style={{ flex: 1, padding: "8px", fontSize: "0.82rem", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }}
               >
-                ⚡ Apply to Studio
+                <ZapIcon /> Apply to Studio
               </button>
               <button
                 className="btn-secondary"
@@ -347,9 +355,12 @@ export default function TemplatesPage() {
               </h3>
               <button
                 onClick={() => setShowModal(false)}
-                style={{ background: "transparent", border: "none", color: "var(--text-dim)", fontSize: "1.2rem", cursor: "pointer" }}
+                style={{ background: "transparent", border: "none", color: "var(--text-dim)", cursor: "pointer", display: "flex", alignItems: "center" }}
               >
-                ✕
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
             </div>
 

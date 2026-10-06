@@ -9,6 +9,85 @@ const BACKEND_URL = (
   process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
 ).replace(/\/+$/, "");
 
+// Vector SVG Icons
+function ZapIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </svg>
+  );
+}
+
+function SmartphoneIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
+      <path d="M12 18h.01" />
+    </svg>
+  );
+}
+
+function MonitorIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="20" height="14" x="2" y="3" rx="2" />
+      <line x1="8" x2="16" y1="21" y2="21" />
+      <line x1="12" x2="12" y1="17" y2="21" />
+    </svg>
+  );
+}
+
+function CalendarIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+      <line x1="16" x2="16" y1="2" y2="6" />
+      <line x1="8" x2="8" y1="2" y2="6" />
+      <line x1="3" x2="21" y1="10" y2="10" />
+    </svg>
+  );
+}
+
+function StoreIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
+      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+      <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" />
+      <path d="M2 7h20" />
+    </svg>
+  );
+}
+
+function TagIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z" />
+      <path d="M7 7h.01" />
+    </svg>
+  );
+}
+
+function TargetIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="6" />
+      <circle cx="12" cy="12" r="2" />
+    </svg>
+  );
+}
+
+function PackageIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+      <path d="m3.3 7 8.7 5 8.7-5" />
+      <path d="M12 22V12" />
+    </svg>
+  );
+}
+
 export default function AnalyticsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -95,7 +174,7 @@ export default function AnalyticsPage() {
 
       if (!res.ok) throw new Error("Simulation failed");
 
-      showToast(`⚡ Live QR Scan recorded for SKU: ${randomSku}!`, "success");
+      showToast(`Live QR Scan recorded for SKU: ${randomSku}!`, "success");
       fetchAnalytics();
     } catch (err) {
       showToast(err.message || "Failed to record scan", "error");
@@ -107,7 +186,7 @@ export default function AnalyticsPage() {
   if (status === "loading" || loading) {
     return (
       <div style={{ padding: "40px 0", color: "var(--text-silver)", fontSize: "0.9rem" }}>
-        ⏳ Aggregating QR scan analytics from MongoDB...
+        Aggregating QR scan analytics from MongoDB...
       </div>
     );
   }
@@ -161,9 +240,9 @@ export default function AnalyticsPage() {
             className="btn-secondary"
             onClick={handleSimulateScan}
             disabled={simulating}
-            style={{ fontSize: "0.85rem", padding: "10px 18px", borderColor: "var(--aurora-2)", color: "var(--aurora-1)" }}
+            style={{ fontSize: "0.85rem", padding: "10px 18px", borderColor: "var(--aurora-2)", color: "var(--aurora-1)", display: "inline-flex", alignItems: "center", gap: 8 }}
           >
-            {simulating ? "⚡ Recording..." : "📱 Test Simulate QR Scan"}
+            <SmartphoneIcon /> {simulating ? "Recording..." : "Test Simulate QR Scan"}
           </button>
           <Link href="/" className="btn-primary" style={{ textDecoration: "none", fontSize: "0.85rem", padding: "10px 22px" }}>
             ← Back to Studio
@@ -181,8 +260,8 @@ export default function AnalyticsPage() {
           <div style={{ fontSize: "2rem", fontWeight: 800, color: "var(--text-pure)", marginTop: 6, fontFamily: "var(--font-display)" }}>
             {data?.totalScans || 0}
           </div>
-          <span style={{ fontSize: "0.76rem", color: "var(--aurora-1)", marginTop: 4, display: "block" }}>
-            ⚡ All-time customer engagements
+          <span style={{ fontSize: "0.76rem", color: "var(--aurora-1)", marginTop: 4, display: "inline-flex", alignItems: "center", gap: 4 }}>
+            <ZapIcon /> All-time customer engagements
           </span>
         </div>
 
@@ -194,8 +273,8 @@ export default function AnalyticsPage() {
           <div style={{ fontSize: "2rem", fontWeight: 800, color: "var(--accent-emerald)", marginTop: 6, fontFamily: "var(--font-display)" }}>
             {data?.uniqueOrders || 0}
           </div>
-          <span style={{ fontSize: "0.76rem", color: "var(--text-dim)", marginTop: 4, display: "block" }}>
-            🛍️ Distinct customer parcel scans
+          <span style={{ fontSize: "0.76rem", color: "var(--text-dim)", marginTop: 4, display: "inline-flex", alignItems: "center", gap: 4 }}>
+            <PackageIcon /> Distinct customer parcel scans
           </span>
         </div>
 
@@ -207,8 +286,8 @@ export default function AnalyticsPage() {
           <div style={{ fontSize: "2rem", fontWeight: 800, color: "#38bdf8", marginTop: 6, fontFamily: "var(--font-display)" }}>
             {data?.todayScans || 0}
           </div>
-          <span style={{ fontSize: "0.76rem", color: "var(--text-dim)", marginTop: 4, display: "block" }}>
-            📅 Scanned in the last 24 hours
+          <span style={{ fontSize: "0.76rem", color: "var(--text-dim)", marginTop: 4, display: "inline-flex", alignItems: "center", gap: 4 }}>
+            <CalendarIcon /> Scanned in the last 24 hours
           </span>
         </div>
 
@@ -220,8 +299,8 @@ export default function AnalyticsPage() {
           <div style={{ fontSize: "1.3rem", fontWeight: 700, color: "var(--text-pure)", marginTop: 8, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             Meesho Store
           </div>
-          <span style={{ fontSize: "0.76rem", color: "var(--aurora-1)", marginTop: 6, display: "block" }}>
-            🏬 Highest customer repeat channel
+          <span style={{ fontSize: "0.76rem", color: "var(--aurora-1)", marginTop: 6, display: "inline-flex", alignItems: "center", gap: 4 }}>
+            <StoreIcon /> Highest customer repeat channel
           </span>
         </div>
       </div>
@@ -230,8 +309,8 @@ export default function AnalyticsPage() {
       <div className="premium-glass" style={{ marginBottom: 24, overflowX: "auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 10 }}>
           <div>
-            <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 4px 0" }}>
-              📅 Date-wise Scan Volume (Last 7 Days)
+            <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <CalendarIcon /> Date-wise Scan Volume (Last 7 Days)
             </h3>
             <p style={{ fontSize: "0.8rem", color: "var(--text-silver)", margin: 0 }}>
               Daily breakdown of how many buyers scanned parcel QR codes.
@@ -278,8 +357,8 @@ export default function AnalyticsPage() {
         <div className="premium-glass">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <div>
-              <h3 className="heading-display" style={{ fontSize: "1.1rem", color: "var(--text-pure)", margin: "0 0 4px 0" }}>
-                🏷️ Top Converting SKUs
+              <h3 className="heading-display" style={{ fontSize: "1.1rem", color: "var(--text-pure)", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
+                <TagIcon /> Top Converting SKUs
               </h3>
               <p style={{ fontSize: "0.8rem", color: "var(--text-silver)", margin: 0 }}>
                 Products that generate the most repeat QR scans.
@@ -326,8 +405,8 @@ export default function AnalyticsPage() {
         <div className="premium-glass">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <div>
-              <h3 className="heading-display" style={{ fontSize: "1.1rem", color: "var(--text-pure)", margin: "0 0 4px 0" }}>
-                🎯 Destination Channels
+              <h3 className="heading-display" style={{ fontSize: "1.1rem", color: "var(--text-pure)", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
+                <TargetIcon /> Destination Channels
               </h3>
               <p style={{ fontSize: "0.8rem", color: "var(--text-silver)", margin: 0 }}>
                 Distribution of where scanned customers are directed.
@@ -365,8 +444,8 @@ export default function AnalyticsPage() {
       {/* Live Realtime Scans Feed Table */}
       <div className="premium-glass" style={{ padding: 0, overflow: "hidden" }}>
         <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--glass-border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
-          <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text-pure)" }}>
-            ⚡ Realtime Scan Feed
+          <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text-pure)", display: "inline-flex", alignItems: "center", gap: 8 }}>
+            <ZapIcon /> Realtime Scan Feed
           </div>
           <span style={{ fontSize: "0.78rem", color: "var(--text-silver)" }}>
             Showing recent parcel scans logged in MongoDB
@@ -406,8 +485,8 @@ export default function AnalyticsPage() {
                           {s.sku}
                         </span>
                       </td>
-                      <td style={{ fontSize: "0.8rem", color: "var(--text-silver)" }}>
-                        {s.isMobile ? "📱 Mobile" : "💻 Desktop"}
+                      <td style={{ fontSize: "0.8rem", color: "var(--text-silver)", display: "flex", alignItems: "center", gap: 6 }}>
+                        {s.isMobile ? <><SmartphoneIcon /> Mobile</> : <><MonitorIcon /> Desktop</>}
                       </td>
                       <td style={{ fontSize: "0.78rem", color: "var(--aurora-1)", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {s.targetUrl}

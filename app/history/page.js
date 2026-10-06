@@ -5,6 +5,58 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+function FolderIcon({ size = 32 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+    </svg>
+  );
+}
+
+function FileTextIcon({ size = 15 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" y1="13" x2="8" y2="13" />
+      <line x1="16" y1="17" x2="8" y2="17" />
+    </svg>
+  );
+}
+
+function ZapIcon({ size = 14 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </svg>
+  );
+}
+
+function FlaskIcon({ size = 14 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 3h6M10 3v5.25L4.5 17.5a2 2 0 0 0 1.7 3h11.6a2 2 0 0 0 1.7-3L14 8.25V3" />
+    </svg>
+  );
+}
+
+function CheckIcon({ size = 13 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
+function SlashIcon({ size = 13 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+    </svg>
+  );
+}
+
 const BACKEND_URL = (
   process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
 ).replace(/\/+$/, "");
@@ -62,7 +114,7 @@ export default function HistoryPage() {
   if (status === "loading" || loading) {
     return (
       <div style={{ padding: "40px 0", color: "var(--text-silver)", fontSize: "0.9rem" }}>
-        ⏳ Loading your batch processing history...
+        Loading your batch processing history...
       </div>
     );
   }
@@ -109,7 +161,7 @@ export default function HistoryPage() {
         </div>
 
         <div>
-          <Link href="/" className="btn-secondary" style={{ textDecoration: "none", fontSize: "0.85rem", padding: "10px 18px" }}>
+          <Link href="/" className="btn-secondary" style={{ textDecoration: "none", fontSize: "0.85rem", padding: "10px 18px", display: "inline-flex", alignItems: "center", gap: 6 }}>
             ← Back to Studio
           </Link>
         </div>
@@ -128,15 +180,17 @@ export default function HistoryPage() {
 
         {history.length === 0 ? (
           <div style={{ padding: "60px 20px", textAlign: "center", color: "var(--text-silver)" }}>
-            <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>📂</div>
+            <div style={{ color: "var(--aurora-1)", marginBottom: 12, display: "flex", justifyContent: "center" }}>
+              <FolderIcon size={42} />
+            </div>
             <p style={{ fontWeight: 600, color: "var(--text-pure)", fontSize: "1rem", margin: 0 }}>
               No batch runs recorded yet
             </p>
             <p style={{ fontSize: "0.82rem", color: "var(--text-dim)", marginTop: 6 }}>
               Upload your shipping label PDF in the Studio and click Generate to log your first batch!
             </p>
-            <Link href="/" className="btn-primary" style={{ textDecoration: "none", display: "inline-flex", marginTop: 18 }}>
-              ⚡ Go to Studio
+            <Link href="/" className="btn-primary" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8, marginTop: 18 }}>
+              <ZapIcon size={14} /> Go to Studio
             </Link>
           </div>
         ) : (
@@ -161,8 +215,8 @@ export default function HistoryPage() {
                       <td style={{ color: "var(--text-silver)", fontSize: "0.8rem", fontFamily: "var(--font-mono)" }}>
                         {dateStr}
                       </td>
-                      <td style={{ fontWeight: 600, color: "var(--text-pure)" }}>
-                        📄 {item.fileName}
+                      <td style={{ fontWeight: 600, color: "var(--text-pure)", display: "flex", alignItems: "center", gap: 6 }}>
+                        <FileTextIcon size={14} /> {item.fileName}
                       </td>
                       <td>
                         <span
@@ -174,9 +228,12 @@ export default function HistoryPage() {
                             color: item.isSample ? "#fb923c" : "var(--aurora-1)",
                             border: `1px solid ${item.isSample ? "rgba(249, 115, 22, 0.3)" : "rgba(79, 172, 254, 0.3)"}`,
                             fontWeight: 600,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 4,
                           }}
                         >
-                          {item.isSample ? "🧪 Page 1 Test" : "⚡ Full Batch"}
+                          {item.isSample ? <><FlaskIcon size={11} /> Page 1 Test</> : <><ZapIcon size={11} /> Full Batch</>}
                         </span>
                       </td>
                       <td style={{ fontFamily: "var(--font-mono)", fontWeight: 700, color: "var(--aurora-1)" }}>
@@ -191,9 +248,12 @@ export default function HistoryPage() {
                             fontSize: "0.75rem",
                             color: item.enableQr ? "var(--accent-emerald)" : "var(--text-dim)",
                             fontWeight: 500,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 4,
                           }}
                         >
-                          {item.enableQr ? "✅ Enabled" : "🚫 Disabled"}
+                          {item.enableQr ? <><CheckIcon size={12} /> Enabled</> : <><SlashIcon size={12} /> Disabled</>}
                         </span>
                       </td>
                       <td>
@@ -222,3 +282,4 @@ export default function HistoryPage() {
     </div>
   );
 }
+

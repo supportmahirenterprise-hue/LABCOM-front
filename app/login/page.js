@@ -16,7 +16,7 @@ export default function LoginPage() {
 
   if (status === "loading") {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#09090b", color: "#fff" }}>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F8FAFC", color: "#0F172A" }}>
         <p>Loading...</p>
       </div>
     );
@@ -29,37 +29,37 @@ export default function LoginPage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "#09090b",
+        background: "#F8FAFC",
         padding: 24,
       }}
     >
-      <div className="premium-glass" style={{ maxWidth: 420, width: "100%", textAlign: "center", padding: "40px 28px", borderRadius: "24px", border: "1px solid rgba(255, 255, 255, 0.1)" }}>
+      <div className="premium-glass" style={{ maxWidth: 420, width: "100%", textAlign: "center", padding: "44px 32px", borderRadius: "24px", background: "#FFFFFF", border: "1px solid #E2E8F0", boxShadow: "0 10px 35px -5px rgba(15, 23, 42, 0.08)" }}>
         <div
           style={{
             width: 52,
             height: 52,
             borderRadius: "14px",
-            background: "linear-gradient(135deg, #6366F1 0%, #06B6D4 100%)",
-            color: "#000",
+            background: "linear-gradient(135deg, #4F46E5 0%, #0284C7 100%)",
+            color: "#FFFFFF",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             fontWeight: 800,
             fontSize: "1.6rem",
             margin: "0 auto 16px",
-            boxShadow: "0 0 25px rgba(99, 102, 241, 0.4)",
+            boxShadow: "0 4px 20px rgba(79, 70, 229, 0.3)",
           }}
         >
           L
         </div>
-        <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#fff", marginBottom: 8 }}>
+        <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#0F172A", marginBottom: 8 }}>
           Welcome to LabelPro.in
         </h1>
-        <p style={{ fontSize: "0.85rem", color: "#94A3B8", marginBottom: 28 }}>
+        <p style={{ fontSize: "0.85rem", color: "#64748B", marginBottom: 28 }}>
           Log in to access your intelligent shipping label engine.
         </p>
 
-        {/* 1-Click Quick Demo Login Button */}
+        {/* 1-Click Quick Demo Login Button (Disabled for Live Production)
         <button
           style={{
             width: "100%",
@@ -70,19 +70,23 @@ export default function LoginPage() {
             padding: "14px 18px",
             fontSize: "0.95rem",
             fontWeight: 700,
-            background: "linear-gradient(135deg, #6366F1 0%, #06B6D4 100%)",
+            background: "linear-gradient(135deg, #4F46E5 0%, #0284C7 100%)",
             color: "#FFFFFF",
             border: "none",
             borderRadius: "14px",
             cursor: "pointer",
             marginBottom: 14,
-            boxShadow: "0 4px 20px rgba(99, 102, 241, 0.35)",
+            boxShadow: "0 4px 18px rgba(79, 70, 229, 0.28)",
             transition: "all 0.2s ease",
           }}
           onClick={() => signIn("credentials", { callbackUrl: "/", email: "seller@labelpro.in" })}
         >
-          ⚡ 1-Click Quick Demo Login
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+          </svg>
+          1-Click Quick Demo Login
         </button>
+        */}
 
         {/* Google Login */}
         <button
@@ -95,9 +99,9 @@ export default function LoginPage() {
             padding: "12px 16px",
             fontSize: "0.9rem",
             fontWeight: 600,
-            background: "rgba(255, 255, 255, 0.05)",
-            color: "#F8FAFC",
-            border: "1px solid rgba(255, 255, 255, 0.12)",
+            background: "#FFFFFF",
+            color: "#0F172A",
+            border: "1px solid #CBD5E1",
             borderRadius: "14px",
             cursor: "pointer",
             transition: "all 0.2s ease",
@@ -128,4 +132,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
 

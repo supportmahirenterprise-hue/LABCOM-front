@@ -9,6 +9,83 @@ const BACKEND_URL = (
   process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
 ).replace(/\/+$/, "");
 
+// Vector SVG Icons
+function SortAscIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="12" x2="12" y1="19" y2="5" />
+      <polyline points="5 12 12 5 19 12" />
+    </svg>
+  );
+}
+
+function SortDescIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="12" x2="12" y1="5" y2="19" />
+      <polyline points="19 12 12 19 5 12" />
+    </svg>
+  );
+}
+
+function DownloadIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" x2="12" y1="15" y2="3" />
+    </svg>
+  );
+}
+
+function StoreIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
+      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+      <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" />
+      <path d="M2 7h20" />
+    </svg>
+  );
+}
+
+function CloudIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17.5 19x-13a4.5 4.5 0 0 1-.5-8.97A8 8 0 0 1 19.34 9 4.5 4.5 0 0 1 17.5 19z" />
+    </svg>
+  );
+}
+
+function SendIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="22" y1="2" x2="11" y2="13" />
+      <polygon points="22 2 15 22 11 13 2 9 22 2" />
+    </svg>
+  );
+}
+
+function EyeIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function EyeOffIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+      <path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+      <line x1="2" x2="22" y1="2" y2="22" />
+    </svg>
+  );
+}
+
 export default function SettingsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -161,7 +238,7 @@ export default function SettingsPage() {
         throw new Error("Failed to save settings");
       }
 
-      showToast("✅ Settings saved successfully to your cloud account!", "success");
+      showToast("Settings saved successfully to your cloud account!", "success");
     } catch (err) {
       showToast(err.message || "Failed to save settings", "error");
     } finally {
@@ -187,13 +264,13 @@ export default function SettingsPage() {
           fileData:
             "data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PC9UaXRsZSAoVGVzdCk+PgplbmRvYmoKMiAwIG9iagocPDAvUGFnZXMgMyAwIFJdPj4KZW5kb2JqCjMgMCBvYmoKPDwvQ291bnQgMTAvS2lkcyBbNCAwIFJdPj4KZW5kb2JqCjQgMCBvYmoKPDwvVHlwZSAvUGFnZT4+CmVuZG9iagp0cmFpbGVyCjw8L1Jvb3QgMiAwIFI+PgolJUVPRg==",
           fileName: "test_whatsapp_delivery.pdf",
-          caption: "📲 WhatsApp Settings Test Message",
+          caption: "WhatsApp Settings Test Message",
           typeName: "Test WhatsApp Message",
         }),
       });
 
       if (testRes.ok) {
-        showToast(`📲 Test WhatsApp message sent successfully to ${targetNum}!`, "success");
+        showToast(`Test WhatsApp message sent successfully to ${targetNum}!`, "success");
       } else {
         throw new Error("Failed to send test WhatsApp message");
       }
@@ -207,7 +284,7 @@ export default function SettingsPage() {
   if (status === "loading" || loading) {
     return (
       <div style={{ padding: "40px 0", color: "var(--text-silver)", fontSize: "0.9rem" }}>
-        ⏳ Loading your cloud preferences...
+        Loading your cloud preferences...
       </div>
     );
   }
@@ -247,8 +324,8 @@ export default function SettingsPage() {
             <h1 className="heading-display" style={{ fontSize: "1.6rem", color: "var(--text-pure)", margin: 0 }}>
               Account & Store Settings
             </h1>
-            <span className="tag-pill active" style={{ fontSize: "0.72rem" }}>
-              ☁️ Cloud Synchronized
+            <span className="tag-pill active" style={{ fontSize: "0.72rem", display: "inline-flex", alignItems: "center", gap: 4 }}>
+              <CloudIcon /> Cloud Synchronized
             </span>
           </div>
           <p style={{ fontSize: "0.85rem", color: "var(--text-silver)", marginTop: 6, marginBottom: 0 }}>
@@ -268,8 +345,8 @@ export default function SettingsPage() {
         <div className="premium-glass">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <div>
-              <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 4px 0" }}>
-                🏪 Seller & Store Profile
+              <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
+                <StoreIcon /> Seller & Store Profile
               </h3>
               <p style={{ fontSize: "0.8rem", color: "var(--text-silver)", margin: 0 }}>
                 These optional details help you identify your store and can be stamped onto package slips.
@@ -390,8 +467,8 @@ export default function SettingsPage() {
                 onChange={(e) => setDownloadSummary(e.target.checked)}
                 style={{ width: 16, height: 16, accentColor: "var(--border-accent)", cursor: saving ? "not-allowed" : "pointer" }}
               />
-              <span style={{ fontSize: "0.8rem", fontWeight: 600, color: downloadSummary ? "#a7f3d0" : "var(--text-silver)" }}>
-                {downloadSummary ? "📊 Download Summary PDF: Enabled by Default" : "📊 Download Summary PDF: Disabled"}
+              <span style={{ fontSize: "0.8rem", fontWeight: 600, color: downloadSummary ? "#059669" : "var(--text-silver)", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                <DownloadIcon /> {downloadSummary ? "Download Summary PDF: Enabled by Default" : "Download Summary PDF: Disabled"}
               </span>
             </label>
           </div>
@@ -429,10 +506,11 @@ export default function SettingsPage() {
                     borderColor: sortOrder === "asc" ? "var(--aurora-2)" : "var(--glass-border)",
                     color: sortOrder === "asc" ? "var(--aurora-1)" : "var(--text-silver)",
                     padding: "10px",
+                    justifyContent: "center",
                   }}
                   onClick={() => setSortOrder("asc")}
                 >
-                  ⬆️ Ascending
+                  <SortAscIcon /> Ascending
                 </button>
                 <button
                   type="button"
@@ -443,10 +521,11 @@ export default function SettingsPage() {
                     borderColor: sortOrder === "desc" ? "var(--aurora-2)" : "var(--glass-border)",
                     color: sortOrder === "desc" ? "var(--aurora-1)" : "var(--text-silver)",
                     padding: "10px",
+                    justifyContent: "center",
                   }}
                   onClick={() => setSortOrder("desc")}
                 >
-                  ⬇️ Descending
+                  <SortDescIcon /> Descending
                 </button>
               </div>
             </div>
@@ -457,8 +536,8 @@ export default function SettingsPage() {
         <div className="premium-glass" style={{ marginBottom: 24 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 10 }}>
             <div>
-              <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 4px 0" }}>
-                📲 WhatsApp Automatic Media Dispatcher
+              <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
+                <SendIcon /> WhatsApp Automatic Media Dispatcher
               </h3>
               <p style={{ fontSize: "0.82rem", color: "var(--text-silver)", margin: 0 }}>
                 Configure your personal WhatsApp API Key, Bearer Token, and Receiver Number for automatic media dispatch.
@@ -469,13 +548,10 @@ export default function SettingsPage() {
               className="btn-secondary"
               onClick={handleTestWhatsApp}
               disabled={testingWa}
-              style={{ fontSize: "0.82rem", padding: "8px 16px", borderColor: "var(--aurora-2)", color: "var(--aurora-1)", display: "flex", alignItems: "center", gap: 6 }}
+              style={{ fontSize: "0.82rem", padding: "8px 16px", borderColor: "var(--aurora-2)", color: "var(--aurora-1)", display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="22" y1="2" x2="11" y2="13" />
-                <polygon points="22 2 15 22 11 13 2 9 22 2" />
-              </svg>
-              {testingWa ? "Sending Test..." : "📲 Test WhatsApp Send"}
+              <SendIcon />
+              {testingWa ? "Sending Test..." : "Test WhatsApp Send"}
             </button>
           </div>
 
@@ -542,7 +618,7 @@ export default function SettingsPage() {
                   onClick={() => setShowApiKey(!showApiKey)}
                   style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--text-silver)", cursor: "pointer", fontSize: "0.9rem" }}
                 >
-                  {showApiKey ? "🙈" : "👁️"}
+                  {showApiKey ? <EyeOffIcon /> : <EyeIcon />}
                 </button>
               </div>
             </div>

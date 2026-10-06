@@ -5,6 +5,130 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+function PackageIcon({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="16.5" y1="9.4" x2="7.5" y2="4.21" />
+      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+      <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+      <line x1="12" y1="22.08" x2="12" y2="12" />
+    </svg>
+  );
+}
+
+function RefreshIcon({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="23 4 23 10 17 10" />
+      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+    </svg>
+  );
+}
+
+function TruckIcon({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="1" y="3" width="15" height="13" />
+      <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+      <circle cx="5.5" cy="18.5" r="2.5" />
+      <circle cx="18.5" cy="18.5" r="2.5" />
+    </svg>
+  );
+}
+
+function AlertTriangleIcon({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+      <line x1="12" y1="9" x2="12" y2="13" />
+      <line x1="12" y1="17" x2="12.01" y2="17" />
+    </svg>
+  );
+}
+
+function PhoneIcon({ size = 14 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+    </svg>
+  );
+}
+
+function LocationIcon({ size = 14 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  );
+}
+
+function HomeIcon({ size = 14 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <polyline points="9 22 9 12 15 12 15 22" />
+    </svg>
+  );
+}
+
+function FileTextIcon({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" y1="13" x2="8" y2="13" />
+      <line x1="16" y1="17" x2="8" y2="17" />
+      <polyline points="10 9 9 9 8 9" />
+    </svg>
+  );
+}
+
+function ExternalLinkIcon({ size = 14 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+      <polyline points="15 3 21 3 21 9" />
+      <line x1="10" y1="14" x2="21" y2="3" />
+    </svg>
+  );
+}
+
+function TrashIcon({ size = 14 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="3 6 5 6 21 6" />
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    </svg>
+  );
+}
+
+function CloseIcon({ size = 18 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  );
+}
+
+function UserIcon({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  );
+}
+
+function ZapIcon({ size = 14 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </svg>
+  );
+}
+
 const BACKEND_URL = (
   process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
 ).replace(/\/+$/, "");
@@ -193,7 +317,7 @@ export default function ReturnsPage() {
                 boxShadow: "0 0 20px rgba(245, 158, 11, 0.2)",
               }}
             >
-              <span style={{ fontSize: "1.3rem" }}>📦</span>
+              <PackageIcon size={22} />
             </div>
             <div>
               <h1 className="heading-display" style={{ fontSize: "1.65rem", color: "var(--text-pure)", margin: 0, letterSpacing: "-0.01em" }}>
@@ -260,7 +384,7 @@ export default function ReturnsPage() {
               Total Return Parcels
             </span>
             <div style={{ width: 28, height: 28, borderRadius: "8px", background: "rgba(245, 158, 11, 0.18)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ fontSize: "0.9rem" }}>📦</span>
+              <PackageIcon size={16} />
             </div>
           </div>
           <div style={{ fontSize: "2.1rem", fontWeight: 800, color: "#fbbf24", marginTop: 8, fontFamily: "var(--font-display)" }}>
@@ -285,7 +409,7 @@ export default function ReturnsPage() {
               Customer Returns
             </span>
             <div style={{ width: 28, height: 28, borderRadius: "8px", background: "rgba(239, 68, 68, 0.18)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ fontSize: "0.9rem" }}>🔄</span>
+              <RefreshIcon size={16} />
             </div>
           </div>
           <div style={{ fontSize: "2.1rem", fontWeight: 800, color: "#f87171", marginTop: 8, fontFamily: "var(--font-display)" }}>
@@ -310,7 +434,7 @@ export default function ReturnsPage() {
               Courier RTO (Undelivered)
             </span>
             <div style={{ width: 28, height: 28, borderRadius: "8px", background: "rgba(0, 242, 254, 0.18)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ fontSize: "0.9rem" }}>🚚</span>
+              <TruckIcon size={16} />
             </div>
           </div>
           <div style={{ fontSize: "2.1rem", fontWeight: 800, color: "var(--aurora-1)", marginTop: 8, fontFamily: "var(--font-display)" }}>
@@ -335,7 +459,7 @@ export default function ReturnsPage() {
               Top Returned SKU
             </span>
             <div style={{ width: 28, height: 28, borderRadius: "8px", background: "rgba(168, 85, 247, 0.18)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ fontSize: "0.9rem" }}>⚠️</span>
+              <AlertTriangleIcon size={16} />
             </div>
           </div>
           <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#c084fc", marginTop: 10, wordBreak: "break-all" }}>
@@ -476,7 +600,7 @@ export default function ReturnsPage() {
       <div className="premium-glass" style={{ padding: 0, overflow: "hidden" }}>
         <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--glass-border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: "1.1rem" }}>📦</span>
+            <PackageIcon size={18} />
             <span style={{ fontSize: "0.98rem", fontWeight: 700, color: "var(--text-pure)" }}>
               Return Shipments Directory
             </span>
@@ -552,7 +676,7 @@ export default function ReturnsPage() {
                             color: isRto ? "#f59e0b" : "#ef4444",
                           }}
                         >
-                          {isRto ? "🚚 Courier RTO" : "🔄 Customer Return"}
+                          {isRto ? <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><TruckIcon size={12} /> Courier RTO</span> : <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><RefreshIcon size={12} /> Customer Return</span>}
                         </span>
                       </td>
 
@@ -584,16 +708,16 @@ export default function ReturnsPage() {
                           {r.customerName}
                         </div>
                         {r.customerMobile !== "N/A" && (
-                          <div style={{ fontSize: "0.76rem", color: "var(--aurora-1)", fontFamily: "var(--font-mono)", marginTop: 2 }}>
-                            📞 {r.customerMobile}
+                          <div style={{ fontSize: "0.76rem", color: "var(--aurora-1)", fontFamily: "var(--font-mono)", marginTop: 2, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                            <PhoneIcon size={12} /> {r.customerMobile}
                           </div>
                         )}
                       </td>
 
                       {/* State */}
                       <td>
-                        <span className="tag-pill" style={{ fontSize: "0.75rem", padding: "3px 8px", background: "rgba(0, 242, 254, 0.08)", border: "1px solid rgba(0, 242, 254, 0.2)", color: "var(--aurora-1)", display: "inline-block", whiteSpace: "nowrap" }}>
-                          📍 {r.state}
+                        <span className="tag-pill" style={{ fontSize: "0.75rem", padding: "3px 8px", background: "rgba(0, 242, 254, 0.08)", border: "1px solid rgba(0, 242, 254, 0.2)", color: "var(--aurora-1)", display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
+                          <LocationIcon size={12} /> {r.state}
                         </span>
                       </td>
 
@@ -791,9 +915,9 @@ export default function ReturnsPage() {
               </div>
               <button
                 onClick={() => setShowUploadModal(false)}
-                style={{ background: "transparent", border: "none", color: "#fff", fontSize: "1.2rem", cursor: "pointer" }}
+                style={{ background: "transparent", border: "none", color: "#fff", cursor: "pointer" }}
               >
-                ✕
+                <CloseIcon />
               </button>
             </div>
 
@@ -814,7 +938,9 @@ export default function ReturnsPage() {
                   transition: "all 0.2s ease",
                 }}
               >
-                <span style={{ fontSize: "2.4rem", marginBottom: 10 }}>📄</span>
+                <div style={{ color: "#f59e0b", marginBottom: 10 }}>
+                  <FileTextIcon size={36} />
+                </div>
                 <span style={{ fontSize: "0.95rem", fontWeight: 700, color: "#fef08a" }}>
                   Click or drag Meesho Return CSV / Excel file here
                 </span>
@@ -835,7 +961,7 @@ export default function ReturnsPage() {
             </div>
 
             <div style={{ fontSize: "0.78rem", color: "var(--text-dim)", lineHeight: "1.5" }}>
-              <strong>⚡ Automatic Overwrite:</strong> Existing return records with the same Sub Order ID will be automatically updated with new tracking and delivery details.
+              <strong style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><ZapIcon size={13} /> Automatic Overwrite:</strong> Existing return records with the same Sub Order ID will be automatically updated with new tracking and delivery details.
             </div>
 
             <div style={{ marginTop: 24, textAlign: "right" }}>
@@ -919,14 +1045,13 @@ export default function ReturnsPage() {
                   width: 34,
                   height: 34,
                   color: "#ffffff",
-                  fontSize: "1rem",
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                 }}
               >
-                ✕
+                <CloseIcon size={16} />
               </button>
             </div>
 
@@ -968,29 +1093,29 @@ export default function ReturnsPage() {
 
             {/* Matched Customer Info */}
             <div style={{ background: "rgba(0,0,0,0.3)", padding: "16px 18px", borderRadius: "14px", border: "1px solid var(--glass-border)", marginBottom: 20 }}>
-              <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--aurora-1)", marginBottom: 8, textTransform: "uppercase" }}>
-                👤 Matched Buyer & Delivery Address (From DB)
+              <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--aurora-1)", marginBottom: 8, textTransform: "uppercase", display: "flex", alignItems: "center", gap: 6 }}>
+                <UserIcon size={14} /> Matched Buyer & Delivery Address (From DB)
               </div>
-              <div style={{ fontSize: "0.88rem", color: "#fff", fontWeight: 700 }}>
-                Buyer Name: {selectedReturn.customerName}
+              <div style={{ fontSize: "0.88rem", color: "#fff", fontWeight: 700, display: "flex", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+                <span>Buyer Name: {selectedReturn.customerName}</span>
                 {selectedReturn.customerMobile !== "N/A" && (
-                  <span style={{ marginLeft: 12, color: "var(--aurora-1)", fontFamily: "var(--font-mono)" }}>
-                    📞 {selectedReturn.customerMobile}
+                  <span style={{ color: "var(--aurora-1)", fontFamily: "var(--font-mono)", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    <PhoneIcon size={12} /> {selectedReturn.customerMobile}
                   </span>
                 )}
               </div>
-              <div style={{ fontSize: "0.82rem", color: "var(--text-silver)", marginTop: 6, lineHeight: 1.45 }}>
-                📍 State: {selectedReturn.state} | District: {selectedReturn.district}
+              <div style={{ fontSize: "0.82rem", color: "var(--text-silver)", marginTop: 6, display: "inline-flex", alignItems: "center", gap: 5 }}>
+                <LocationIcon size={13} /> State: {selectedReturn.state} | District: {selectedReturn.district}
               </div>
-              <div style={{ fontSize: "0.82rem", color: "var(--text-silver)", marginTop: 4, lineHeight: 1.45 }}>
-                🏠 Full Address: {selectedReturn.customerAddress}
+              <div style={{ fontSize: "0.82rem", color: "var(--text-silver)", marginTop: 4, display: "inline-flex", alignItems: "center", gap: 5 }}>
+                <HomeIcon size={13} /> Full Address: {selectedReturn.customerAddress}
               </div>
             </div>
 
             {/* Courier & Tracking Links */}
             <div style={{ background: "rgba(0,0,0,0.3)", padding: "16px 18px", borderRadius: "14px", border: "1px solid var(--glass-border)", marginBottom: 20 }}>
-              <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#38bdf8", marginBottom: 8, textTransform: "uppercase" }}>
-                🚚 Reverse Logistics & Courier Info
+              <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#38bdf8", marginBottom: 8, textTransform: "uppercase", display: "flex", alignItems: "center", gap: 6 }}>
+                <TruckIcon size={14} /> Reverse Logistics & Courier Info
               </div>
               <div style={{ fontSize: "0.84rem", color: "var(--text-silver)" }}>
                 Courier: <strong style={{ color: "#38bdf8" }}>{selectedReturn.courierPartner}</strong> | AWB: <strong style={{ color: "#fff", fontFamily: "var(--font-mono)" }}>{selectedReturn.awbNumber}</strong>
@@ -1007,9 +1132,9 @@ export default function ReturnsPage() {
                     target="_blank"
                     rel="noreferrer"
                     className="btn-secondary"
-                    style={{ fontSize: "0.78rem", padding: "6px 14px", color: "#38bdf8", borderColor: "#38bdf8" }}
+                    style={{ fontSize: "0.78rem", padding: "6px 14px", color: "#38bdf8", borderColor: "#38bdf8", display: "inline-flex", alignItems: "center", gap: 6 }}
                   >
-                    🔗 Track Courier Shipment
+                    <ExternalLinkIcon size={13} /> Track Courier Shipment
                   </a>
                 )}
                 {selectedReturn.proofOfDelivery && (
@@ -1018,9 +1143,9 @@ export default function ReturnsPage() {
                     target="_blank"
                     rel="noreferrer"
                     className="btn-secondary"
-                    style={{ fontSize: "0.78rem", padding: "6px 14px", color: "#10b981", borderColor: "#10b981" }}
+                    style={{ fontSize: "0.78rem", padding: "6px 14px", color: "#10b981", borderColor: "#10b981", display: "inline-flex", alignItems: "center", gap: 6 }}
                   >
-                    📄 View Proof of Delivery (POD)
+                    <FileTextIcon size={13} /> View Proof of Delivery (POD)
                   </a>
                 )}
               </div>
@@ -1039,9 +1164,12 @@ export default function ReturnsPage() {
                   fontSize: "0.82rem",
                   cursor: "pointer",
                   fontWeight: 600,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
                 }}
               >
-                🗑️ Delete Entry
+                <TrashIcon size={14} /> Delete Entry
               </button>
 
               <button
