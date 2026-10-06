@@ -121,9 +121,6 @@ export default function SettingsPage() {
   // WhatsApp Dispatcher Configuration
   const [enableWhatsApp, setEnableWhatsApp] = useState(true);
   const [waApiKey, setWaApiKey] = useState("wa_c6854599bd4b7a54cad78edbdd6ace51");
-  const [waBearerToken, setWaBearerToken] = useState(
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YTVkZjQ3MzBjOWQwZTA0Nzg2OTBkMDkiLCJ1c2VybmFtZSI6IlZpc2hhbCIsImlhdCI6MTc4ODc4Mjg2MSwiZXhwIjoxNzkxMzc0ODYxfQ.mfXOSRinxqUpVpXBpaLQ4wHwaz0i9_Ni7RTxOi19k-4"
-  );
   const [waReceiverNumber, setWaReceiverNumber] = useState("918140148878");
   const [showApiKey, setShowApiKey] = useState(false);
   const [testingWa, setTestingWa] = useState(false);
@@ -179,7 +176,6 @@ export default function SettingsPage() {
 
             if (s.enableWhatsApp !== undefined) setEnableWhatsApp(s.enableWhatsApp);
             if (s.waApiKey !== undefined) setWaApiKey(s.waApiKey);
-            if (s.waBearerToken !== undefined) setWaBearerToken(s.waBearerToken);
             if (s.waReceiverNumber !== undefined) setWaReceiverNumber(s.waReceiverNumber);
           }
         }
@@ -229,7 +225,6 @@ export default function SettingsPage() {
           downloadSummary,
           enableWhatsApp,
           waApiKey,
-          waBearerToken,
           waReceiverNumber,
         }),
       });
@@ -540,7 +535,7 @@ export default function SettingsPage() {
                 <SendIcon /> WhatsApp Automatic Media Dispatcher
               </h3>
               <p style={{ fontSize: "0.82rem", color: "var(--text-silver)", margin: 0 }}>
-                Configure your personal WhatsApp API Key, Bearer Token, and Receiver Number for automatic media dispatch.
+                Configure your personal WhatsApp API Key and Receiver Number for automatic media dispatch.
               </p>
             </div>
             <button
@@ -621,21 +616,6 @@ export default function SettingsPage() {
                   {showApiKey ? <EyeOffIcon /> : <EyeIcon />}
                 </button>
               </div>
-            </div>
-
-            {/* Bearer Authorization Token */}
-            <div style={{ gridColumn: "1 / -1" }}>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
-                Authorization Bearer Token (JWT Token)
-              </label>
-              <textarea
-                className="input-field"
-                rows={2}
-                placeholder="Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                value={waBearerToken}
-                onChange={(e) => setWaBearerToken(e.target.value)}
-                style={{ fontFamily: "var(--font-mono)", fontSize: "0.78rem" }}
-              />
             </div>
           </div>
         </div>
