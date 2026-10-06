@@ -33,20 +33,21 @@ export default function LoginPage() {
         padding: 24,
       }}
     >
-      <div className="glass-card" style={{ maxWidth: 400, width: "100%", textAlign: "center", padding: "40px 24px" }}>
+      <div className="premium-glass" style={{ maxWidth: 420, width: "100%", textAlign: "center", padding: "40px 28px", borderRadius: "24px", border: "1px solid rgba(255, 255, 255, 0.1)" }}>
         <div
           style={{
-            width: 48,
-            height: 48,
-            borderRadius: "var(--radius-md)",
-            background: "#fafafa",
-            color: "#09090b",
+            width: 52,
+            height: 52,
+            borderRadius: "14px",
+            background: "linear-gradient(135deg, #6366F1 0%, #06B6D4 100%)",
+            color: "#000",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             fontWeight: 800,
-            fontSize: "1.5rem",
+            fontSize: "1.6rem",
             margin: "0 auto 16px",
+            boxShadow: "0 0 25px rgba(99, 102, 241, 0.4)",
           }}
         >
           L
@@ -54,9 +55,34 @@ export default function LoginPage() {
         <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#fff", marginBottom: 8 }}>
           Welcome to LabelPro.in
         </h1>
-        <p style={{ fontSize: "0.85rem", color: "var(--text-dim)", marginBottom: 28 }}>
+        <p style={{ fontSize: "0.85rem", color: "#94A3B8", marginBottom: 28 }}>
           Log in to access your intelligent shipping label engine.
         </p>
+
+        {/* 1-Click Quick Demo Login Button */}
+        <button
+          style={{
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 10,
+            padding: "14px 18px",
+            fontSize: "0.95rem",
+            fontWeight: 700,
+            background: "linear-gradient(135deg, #6366F1 0%, #06B6D4 100%)",
+            color: "#FFFFFF",
+            border: "none",
+            borderRadius: "14px",
+            cursor: "pointer",
+            marginBottom: 14,
+            boxShadow: "0 4px 20px rgba(99, 102, 241, 0.35)",
+            transition: "all 0.2s ease",
+          }}
+          onClick={() => signIn("credentials", { callbackUrl: "/", email: "seller@labelpro.in" })}
+        >
+          ⚡ 1-Click Quick Demo Login
+        </button>
 
         {/* Google Login */}
         <button
@@ -67,13 +93,14 @@ export default function LoginPage() {
             justifyContent: "center",
             gap: 12,
             padding: "12px 16px",
-            fontSize: "0.95rem",
+            fontSize: "0.9rem",
             fontWeight: 600,
-            background: "#ffffff",
-            color: "#000000",
-            border: "1px solid #e4e4e7",
-            borderRadius: "var(--radius-md)",
+            background: "rgba(255, 255, 255, 0.05)",
+            color: "#F8FAFC",
+            border: "1px solid rgba(255, 255, 255, 0.12)",
+            borderRadius: "14px",
             cursor: "pointer",
+            transition: "all 0.2s ease",
           }}
           onClick={() => signIn("google", { callbackUrl: "/" })}
         >
@@ -101,3 +128,4 @@ export default function LoginPage() {
     </div>
   );
 }
+
