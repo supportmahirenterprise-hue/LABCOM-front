@@ -266,14 +266,10 @@ export default function TemplatesPage() {
                   {tpl.name}
                 </h3>
                 <span
+                  className={tpl.enableQr ? "tag-pill badge-emerald" : "tag-pill badge-slate"}
                   style={{
                     fontSize: "0.72rem",
                     padding: "3px 10px",
-                    borderRadius: "var(--radius-full)",
-                    background: tpl.enableQr ? "rgba(16, 185, 129, 0.15)" : "rgba(255, 255, 255, 0.05)",
-                    color: tpl.enableQr ? "var(--accent-emerald)" : "var(--text-dim)",
-                    border: "1px solid var(--glass-border)",
-                    fontWeight: 600,
                     whiteSpace: "nowrap",
                     flexShrink: 0,
                     display: "inline-flex",
@@ -284,31 +280,31 @@ export default function TemplatesPage() {
                 </span>
               </div>
 
-              <p style={{ fontSize: "0.82rem", color: "var(--text-silver)", marginBottom: 16, lineHeight: 1.4 }}>
+              <p style={{ fontSize: "0.82rem", color: "#475569", marginBottom: 16, lineHeight: 1.4 }}>
                 {tpl.description || "No description provided."}
               </p>
 
-              <div style={{ background: "rgba(0,0,0,0.25)", borderRadius: "10px", padding: "12px 14px", marginBottom: 16, border: "1px solid rgba(255,255,255,0.04)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.76rem", color: "var(--text-dim)", marginBottom: 6 }}>
+              <div className="code-preview-box" style={{ marginBottom: 16 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.76rem", color: "#64748B", marginBottom: 6 }}>
                   <span>QR Destination:</span>
-                  <span style={{ color: "var(--aurora-1)", fontFamily: "var(--font-mono)", maxWidth: 170, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <span style={{ color: "#0284C7", fontFamily: "var(--font-mono)", fontWeight: 600, maxWidth: 170, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {tpl.qrText || "N/A"}
                   </span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.76rem", color: "var(--text-dim)", marginBottom: 6 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.76rem", color: "#64748B", marginBottom: 6 }}>
                   <span>Position:</span>
-                  <span style={{ color: "var(--text-pure)" }}>X: {tpl.qrX}pt | Y: {tpl.qrY}pt | Size: {tpl.qrSize}pt</span>
+                  <span style={{ color: "#0F172A", fontWeight: 600 }}>X: {tpl.qrX}pt | Y: {tpl.qrY}pt | Size: {tpl.qrSize}pt</span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.76rem", color: "var(--text-dim)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.76rem", color: "#64748B" }}>
                   <span>Sorting:</span>
-                  <span style={{ color: "var(--text-pure)", textTransform: "capitalize" }}>
+                  <span style={{ color: "#0F172A", fontWeight: 600, textTransform: "capitalize" }}>
                     {tpl.sortBy === "sku" ? "SKU (High Qty First)" : tpl.sortBy} ({tpl.sortOrder})
                   </span>
                 </div>
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: 10, paddingTop: 14, borderTop: "1px solid var(--glass-border)" }}>
+            <div style={{ display: "flex", gap: 10, paddingTop: 14, borderTop: "1px solid #E2E8F0" }}>
               <button
                 className="btn-primary"
                 onClick={() => handleApply(tpl)}
@@ -319,7 +315,7 @@ export default function TemplatesPage() {
               <button
                 className="btn-secondary"
                 onClick={() => handleDelete(tpl._id)}
-                style={{ padding: "8px 14px", fontSize: "0.82rem", color: "var(--accent-rose)", borderColor: "rgba(244,63,94,0.3)" }}
+                style={{ padding: "8px 14px", fontSize: "0.82rem", color: "#DC2626", borderColor: "#FCA5A5", background: "#FEF2F2" }}
               >
                 Delete
               </button>
@@ -331,33 +327,23 @@ export default function TemplatesPage() {
       {/* New Template Modal */}
       {showModal && (
         <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.8)",
-            backdropFilter: "blur(8px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-            padding: 20,
-          }}
+          className="modal-backdrop-light"
           onClick={() => setShowModal(false)}
         >
           <div
-            className="premium-glass"
-            style={{ width: "100%", maxWidth: 560, maxHeight: "90vh", overflowY: "auto" }}
+            className="modal-card-light"
+            style={{ width: "100%", maxWidth: 560, maxHeight: "90vh", overflowY: "auto", padding: "26px 30px" }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-              <h3 className="heading-display" style={{ fontSize: "1.2rem", color: "var(--text-pure)", margin: 0 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, borderBottom: "1px solid #E2E8F0", paddingBottom: 14 }}>
+              <h3 className="heading-display" style={{ fontSize: "1.2rem", color: "#0F172A", margin: 0 }}>
                 Create Custom Template
               </h3>
               <button
                 onClick={() => setShowModal(false)}
-                style={{ background: "transparent", border: "none", color: "var(--text-dim)", cursor: "pointer", display: "flex", alignItems: "center" }}
+                style={{ background: "#F1F5F9", border: "1px solid #E2E8F0", borderRadius: "50%", width: 32, height: 32, color: "#475569", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>

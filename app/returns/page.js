@@ -370,102 +370,74 @@ export default function ReturnsPage() {
 
       {/* 4 Premium Stat KPI Cards */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 210px), 1fr))", gap: 16, marginBottom: 24 }}>
-        {/* Total Returns Logged */}
-        <div
-          className="premium-glass"
-          style={{
-            padding: "22px 20px",
-            borderTop: "2px solid #f59e0b",
-            background: "linear-gradient(180deg, rgba(245, 158, 11, 0.05) 0%, rgba(255,255,255,0.01) 100%)",
-          }}
-        >
+        {/* Total Returns Count */}
+        <div className="premium-glass" style={{ padding: "22px 20px", borderTop: "3px solid #D97706", background: "#FFFFFF" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-silver)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>
               Total Return Parcels
             </span>
-            <div style={{ width: 28, height: 28, borderRadius: "8px", background: "rgba(245, 158, 11, 0.18)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ width: 32, height: 32, borderRadius: "10px", background: "#FEF3C7", border: "1px solid #FDE68A", display: "flex", alignItems: "center", justifyContent: "center", color: "#D97706" }}>
               <PackageIcon size={16} />
             </div>
           </div>
-          <div style={{ fontSize: "2.1rem", fontWeight: 800, color: "#fbbf24", marginTop: 8, fontFamily: "var(--font-display)" }}>
+          <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#D97706", marginTop: 8, fontFamily: "var(--font-display)" }}>
             {summary.totalReturns || 0}
           </div>
-          <span style={{ fontSize: "0.76rem", color: "#fbbf24", marginTop: 6, display: "block" }}>
+          <span style={{ fontSize: "0.76rem", color: "#B45309", fontWeight: 600, marginTop: 4, display: "block" }}>
             Total reverse logistics parcels stored
           </span>
         </div>
 
         {/* Customer Returns (First Return) */}
-        <div
-          className="premium-glass"
-          style={{
-            padding: "22px 20px",
-            borderTop: "2px solid #ef4444",
-            background: "linear-gradient(180deg, rgba(239, 68, 68, 0.05) 0%, rgba(255,255,255,0.01) 100%)",
-          }}
-        >
+        <div className="premium-glass" style={{ padding: "22px 20px", borderTop: "3px solid #DC2626", background: "#FFFFFF" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-silver)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>
               Customer Returns
             </span>
-            <div style={{ width: 28, height: 28, borderRadius: "8px", background: "rgba(239, 68, 68, 0.18)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ width: 32, height: 32, borderRadius: "10px", background: "#FEE2E2", border: "1px solid #FCA5A5", display: "flex", alignItems: "center", justifyContent: "center", color: "#DC2626" }}>
               <RefreshIcon size={16} />
             </div>
           </div>
-          <div style={{ fontSize: "2.1rem", fontWeight: 800, color: "#f87171", marginTop: 8, fontFamily: "var(--font-display)" }}>
+          <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#DC2626", marginTop: 8, fontFamily: "var(--font-display)" }}>
             {summary.customerReturnsCount || 0}
           </div>
-          <span style={{ fontSize: "0.76rem", color: "#f87171", marginTop: 6, display: "block" }}>
+          <span style={{ fontSize: "0.76rem", color: "#B91C1C", fontWeight: 600, marginTop: 4, display: "block" }}>
             Buyer initiated customer returns
           </span>
         </div>
 
         {/* Courier Returns (RTO) */}
-        <div
-          className="premium-glass"
-          style={{
-            padding: "22px 20px",
-            borderTop: "2px solid var(--aurora-1)",
-            background: "linear-gradient(180deg, rgba(0, 242, 254, 0.05) 0%, rgba(255,255,255,0.01) 100%)",
-          }}
-        >
+        <div className="premium-glass" style={{ padding: "22px 20px", borderTop: "3px solid #0284C7", background: "#FFFFFF" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-silver)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>
               Courier RTO (Undelivered)
             </span>
-            <div style={{ width: 28, height: 28, borderRadius: "8px", background: "rgba(0, 242, 254, 0.18)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ width: 32, height: 32, borderRadius: "10px", background: "#E0F2FE", border: "1px solid #BAE6FD", display: "flex", alignItems: "center", justifyContent: "center", color: "#0284C7" }}>
               <TruckIcon size={16} />
             </div>
           </div>
-          <div style={{ fontSize: "2.1rem", fontWeight: 800, color: "var(--aurora-1)", marginTop: 8, fontFamily: "var(--font-display)" }}>
+          <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#0284C7", marginTop: 8, fontFamily: "var(--font-display)" }}>
             {summary.rtoCount || 0}
           </div>
-          <span style={{ fontSize: "0.76rem", color: "var(--aurora-1)", marginTop: 6, display: "block" }}>
+          <span style={{ fontSize: "0.76rem", color: "#0369A1", fontWeight: 600, marginTop: 4, display: "block" }}>
             Undelivered courier RTO returns
           </span>
         </div>
 
         {/* Top Returned SKU */}
-        <div
-          className="premium-glass"
-          style={{
-            padding: "22px 20px",
-            borderTop: "2px solid #a855f7",
-            background: "linear-gradient(180deg, rgba(168, 85, 247, 0.05) 0%, rgba(255,255,255,0.01) 100%)",
-          }}
-        >
+        <div className="premium-glass" style={{ padding: "22px 20px", borderTop: "3px solid #7C3AED", background: "#FFFFFF" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-silver)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>
               Top Returned SKU
             </span>
-            <div style={{ width: 28, height: 28, borderRadius: "8px", background: "rgba(168, 85, 247, 0.18)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ width: 32, height: 32, borderRadius: "10px", background: "#F3E8FF", border: "1px solid #E9D5FF", display: "flex", alignItems: "center", justifyContent: "center", color: "#7C3AED" }}>
               <AlertTriangleIcon size={16} />
             </div>
           </div>
-          <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#c084fc", marginTop: 10, wordBreak: "break-all" }}>
+          <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#7C3AED", marginTop: 10, wordBreak: "break-all" }}>
             {summary.topReturnedSku?.name || "N/A"}
           </div>
-          <span style={{ fontSize: "0.76rem", color: "var(--text-dim)", marginTop: 4, display: "block" }}>
+          <span style={{ fontSize: "0.76rem", color: "#6D28D9", fontWeight: 600, marginTop: 4, display: "block" }}>
             {summary.topReturnedSku ? `${summary.topReturnedSku.count} returns logged` : "No returns data"}
           </span>
         </div>
@@ -477,7 +449,7 @@ export default function ReturnsPage() {
           {/* Search Form */}
           <form onSubmit={handleSearchSubmit} style={{ display: "flex", gap: 10, flex: 1, minWidth: 260 }}>
             <div style={{ position: "relative", flex: 1, display: "flex", alignItems: "center" }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" strokeWidth="2" style={{ position: "absolute", left: 14, pointerEvents: "none" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2" style={{ position: "absolute", left: 14, pointerEvents: "none" }}>
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
@@ -489,10 +461,10 @@ export default function ReturnsPage() {
                 style={{
                   width: "100%",
                   padding: "10px 16px 10px 40px",
-                  background: "rgba(0, 0, 0, 0.35)",
-                  border: "1px solid var(--glass-border)",
+                  background: "#FFFFFF",
+                  border: "1px solid #CBD5E1",
                   borderRadius: "var(--radius-md)",
-                  color: "#ffffff",
+                  color: "#0F172A",
                   fontSize: "0.85rem",
                   outline: "none",
                 }}
@@ -509,52 +481,22 @@ export default function ReturnsPage() {
 
           {/* Type Filter Buttons */}
           <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-            <div style={{ display: "flex", gap: 6, background: "rgba(0,0,0,0.3)", padding: "4px", borderRadius: "var(--radius-md)", border: "1px solid var(--glass-border)" }}>
+            <div className="segmented-control">
               <button
+                className={`segmented-tab ${selectedType === "ALL" ? "active" : ""}`}
                 onClick={() => { setSelectedType("ALL"); setCurrentPage(1); }}
-                style={{
-                  padding: "6px 14px",
-                  borderRadius: "var(--radius-sm)",
-                  border: "none",
-                  background: selectedType === "ALL" ? "rgba(0, 242, 254, 0.15)" : "transparent",
-                  color: selectedType === "ALL" ? "var(--aurora-1)" : "var(--text-silver)",
-                  fontSize: "0.8rem",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  transition: "all 0.2s ease",
-                }}
               >
                 All Returns ({summary.totalReturns || 0})
               </button>
               <button
+                className={`segmented-tab ${selectedType === "Customer Return" ? "active" : ""}`}
                 onClick={() => { setSelectedType("Customer Return"); setCurrentPage(1); }}
-                style={{
-                  padding: "6px 14px",
-                  borderRadius: "var(--radius-sm)",
-                  border: "none",
-                  background: selectedType === "Customer Return" ? "rgba(239, 68, 68, 0.2)" : "transparent",
-                  color: selectedType === "Customer Return" ? "#f87171" : "var(--text-silver)",
-                  fontSize: "0.8rem",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  transition: "all 0.2s ease",
-                }}
               >
                 Customer Returns ({summary.customerReturnsCount || 0})
               </button>
               <button
+                className={`segmented-tab ${selectedType === "RTO" ? "active" : ""}`}
                 onClick={() => { setSelectedType("RTO"); setCurrentPage(1); }}
-                style={{
-                  padding: "6px 14px",
-                  borderRadius: "var(--radius-sm)",
-                  border: "none",
-                  background: selectedType === "RTO" ? "rgba(245, 158, 11, 0.2)" : "transparent",
-                  color: selectedType === "RTO" ? "#fbbf24" : "var(--text-silver)",
-                  fontSize: "0.8rem",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  transition: "all 0.2s ease",
-                }}
               >
                 Courier RTO ({summary.rtoCount || 0})
               </button>
@@ -563,6 +505,7 @@ export default function ReturnsPage() {
             {/* SKU Dropdown Filter */}
             <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
               <select
+                className="select-light"
                 value={selectedSku}
                 onChange={(e) => {
                   setSelectedSku(e.target.value);
@@ -570,23 +513,16 @@ export default function ReturnsPage() {
                 }}
                 style={{
                   padding: "8px 16px",
-                  borderRadius: "var(--radius-md)",
-                  border: selectedSku !== "ALL" ? "1px solid var(--aurora-1)" : "1px solid var(--glass-border)",
-                  background: "rgba(15, 23, 42, 0.85)",
-                  color: selectedSku !== "ALL" ? "var(--aurora-1)" : "var(--text-pure)",
                   fontSize: "0.82rem",
-                  fontWeight: 600,
                   cursor: "pointer",
-                  outline: "none",
                   maxWidth: "280px",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
                 }}
               >
-                <option value="ALL" style={{ background: "#0f172a", color: "#fff" }}>
+                <option value="ALL">
                   All SKUs ({summary.totalReturns || 0})
                 </option>
                 {(summary.allSkusWithCounts || []).map((s) => (
-                  <option key={s.name} value={s.name} style={{ background: "#0f172a", color: "#fff" }}>
+                  <option key={s.name} value={s.name}>
                     {s.label || `${s.name} (${s.count})`}
                   </option>
                 ))}
@@ -664,39 +600,37 @@ export default function ReturnsPage() {
                       {/* Return Type Badge */}
                       <td>
                         <span
-                          className="tag-pill"
+                          className={isRto ? "tag-pill badge-amber" : "tag-pill badge-rose"}
                           style={{
-                            fontSize: "0.74rem",
-                            padding: "4px 8px",
-                            fontWeight: 700,
-                            display: "inline-block",
+                            fontSize: "0.75rem",
+                            padding: "3px 10px",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 4,
                             whiteSpace: "nowrap",
-                            background: isRto ? "rgba(245, 158, 11, 0.15)" : "rgba(239, 68, 68, 0.15)",
-                            border: isRto ? "1px solid rgba(245, 158, 11, 0.4)" : "1px solid rgba(239, 68, 68, 0.4)",
-                            color: isRto ? "#f59e0b" : "#ef4444",
                           }}
                         >
-                          {isRto ? <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><TruckIcon size={12} /> Courier RTO</span> : <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><RefreshIcon size={12} /> Customer Return</span>}
+                          {isRto ? <><TruckIcon size={12} /> Courier RTO</> : <><RefreshIcon size={12} /> Customer Return</>}
                         </span>
                       </td>
 
                       {/* SKU */}
                       <td>
-                        <span className="tag-pill" style={{ fontSize: "0.78rem", padding: "3px 8px", background: "rgba(255, 255, 255, 0.06)", fontWeight: 700, display: "inline-block", maxWidth: "160px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        <span className="tag-pill badge-slate" style={{ fontSize: "0.78rem", padding: "3px 8px", fontWeight: 700, display: "inline-block", maxWidth: "160px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {r.sku}
                         </span>
                       </td>
 
                       {/* Qty */}
-                      <td style={{ textAlign: "center", fontWeight: 700, color: "var(--text-pure)" }}>
+                      <td style={{ textAlign: "center", fontWeight: 700, color: "#0F172A" }}>
                         {r.qty}
                       </td>
 
                       {/* Return Reason */}
-                      <td style={{ fontSize: "0.82rem", color: "var(--text-silver)", whiteSpace: "normal", wordBreak: "break-word" }}>
-                        <div style={{ fontWeight: 600, color: "#fff" }}>{r.returnReason}</div>
+                      <td style={{ fontSize: "0.82rem", color: "#475569", whiteSpace: "normal", wordBreak: "break-word" }}>
+                        <div style={{ fontWeight: 600, color: "#0F172A" }}>{r.returnReason}</div>
                         {r.detailedReturnReason && r.detailedReturnReason !== r.returnReason && (
-                          <div style={{ fontSize: "0.75rem", color: "var(--text-dim)", marginTop: 2 }}>
+                          <div style={{ fontSize: "0.75rem", color: "#64748B", marginTop: 2 }}>
                             {r.detailedReturnReason}
                           </div>
                         )}
@@ -704,11 +638,11 @@ export default function ReturnsPage() {
 
                       {/* Customer Info */}
                       <td style={{ whiteSpace: "normal", wordBreak: "break-word" }}>
-                        <div style={{ fontWeight: 600, color: "var(--text-pure)", fontSize: "0.84rem" }}>
+                        <div style={{ fontWeight: 600, color: "#0F172A", fontSize: "0.84rem" }}>
                           {r.customerName}
                         </div>
                         {r.customerMobile !== "N/A" && (
-                          <div style={{ fontSize: "0.76rem", color: "var(--aurora-1)", fontFamily: "var(--font-mono)", marginTop: 2, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                          <div style={{ fontSize: "0.76rem", color: "#0284C7", fontFamily: "var(--font-mono)", fontWeight: 600, marginTop: 2, display: "inline-flex", alignItems: "center", gap: 4 }}>
                             <PhoneIcon size={12} /> {r.customerMobile}
                           </div>
                         )}
@@ -716,25 +650,25 @@ export default function ReturnsPage() {
 
                       {/* State */}
                       <td>
-                        <span className="tag-pill" style={{ fontSize: "0.75rem", padding: "3px 8px", background: "rgba(0, 242, 254, 0.08)", border: "1px solid rgba(0, 242, 254, 0.2)", color: "var(--aurora-1)", display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
+                        <span className="tag-pill badge-sky" style={{ fontSize: "0.75rem", padding: "3px 10px", display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
                           <LocationIcon size={12} /> {r.state}
                         </span>
                       </td>
 
                       {/* Courier & AWB */}
                       <td>
-                        <div style={{ fontSize: "0.82rem", color: "#38bdf8", fontWeight: 600 }}>
+                        <div style={{ fontSize: "0.82rem", color: "#0284C7", fontWeight: 600 }}>
                           {r.courierPartner}
                         </div>
                         {r.awbNumber !== "N/A" && (
-                          <div style={{ fontSize: "0.75rem", color: "var(--text-silver)", fontFamily: "var(--font-mono)", marginTop: 2 }}>
+                          <div style={{ fontSize: "0.75rem", color: "#64748B", fontFamily: "var(--font-mono)", marginTop: 2 }}>
                             AWB: {r.awbNumber}
                           </div>
                         )}
                       </td>
 
                       {/* Return Date */}
-                      <td style={{ fontSize: "0.8rem", color: "var(--text-silver)", fontFamily: "var(--font-mono)", whiteSpace: "nowrap", paddingRight: "18px" }}>
+                      <td style={{ fontSize: "0.8rem", color: "#64748B", fontFamily: "var(--font-mono)", whiteSpace: "nowrap", paddingRight: "18px" }}>
                         {r.deliveredDate || r.returnCreatedDate || "N/A"}
                       </td>
                     </tr>
@@ -875,47 +809,29 @@ export default function ReturnsPage() {
 
       {/* CSV Upload Modal */}
       {showUploadModal && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0, 0, 0, 0.85)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 99999,
-            padding: 20,
-          }}
-        >
+        <div className="modal-backdrop-light">
           <div
-            className="premium-glass"
+            className="modal-card-light"
             style={{
               width: "100%",
-              maxWidth: 540,
-              padding: "28px 30px",
-              borderRadius: "22px",
-              boxShadow: "0 25px 70px rgba(0,0,0,0.95), 0 0 35px rgba(245,158,11,0.2)",
-              border: "1px solid rgba(245, 158, 11, 0.3)",
-              background: "rgba(18, 18, 24, 0.98)",
+              maxWidth: 560,
+              maxHeight: "90vh",
+              overflowY: "auto",
+              padding: "26px 30px",
             }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, borderBottom: "1px solid var(--glass-border)", paddingBottom: 16 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, borderBottom: "1px solid #E2E8F0", paddingBottom: 16 }}>
               <div>
-                <h3 className="heading-display" style={{ fontSize: "1.25rem", color: "#fff", margin: 0 }}>
+                <h3 className="heading-display" style={{ fontSize: "1.25rem", color: "#0F172A", margin: 0 }}>
                   Upload Return CSV Report
                 </h3>
-                <p style={{ fontSize: "0.78rem", color: "var(--text-silver)", margin: "4px 0 0 0" }}>
+                <p style={{ fontSize: "0.78rem", color: "#64748B", margin: "4px 0 0 0" }}>
                   Imports Meesho / Valmo / Shadowfax / Xpressbees return reports and updates DB.
                 </p>
               </div>
               <button
                 onClick={() => setShowUploadModal(false)}
-                style={{ background: "transparent", border: "none", color: "#fff", cursor: "pointer" }}
+                style={{ background: "#F1F5F9", border: "1px solid #E2E8F0", borderRadius: "50%", width: 34, height: 34, color: "#475569", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
               >
                 <CloseIcon />
               </button>
@@ -930,21 +846,21 @@ export default function ReturnsPage() {
                   alignItems: "center",
                   justifyContent: "center",
                   padding: "36px 20px",
-                  border: "2px dashed rgba(245, 158, 11, 0.5)",
+                  border: "2px dashed #CBD5E1",
                   borderRadius: "16px",
-                  background: "rgba(245, 158, 11, 0.05)",
+                  background: "#F8FAFC",
                   cursor: "pointer",
                   textAlign: "center",
                   transition: "all 0.2s ease",
                 }}
               >
-                <div style={{ color: "#f59e0b", marginBottom: 10 }}>
+                <div style={{ color: "#D97706", marginBottom: 10 }}>
                   <FileTextIcon size={36} />
                 </div>
-                <span style={{ fontSize: "0.95rem", fontWeight: 700, color: "#fef08a" }}>
+                <span style={{ fontSize: "0.95rem", fontWeight: 700, color: "#0F172A" }}>
                   Click or drag Meesho Return CSV / Excel file here
                 </span>
-                <span style={{ fontSize: "0.78rem", color: "var(--text-silver)", marginTop: 6 }}>
+                <span style={{ fontSize: "0.78rem", color: "#64748B", marginTop: 6 }}>
                   Supports CSV reports containing Sub Order IDs, Return Reasons, and Tracking Links
                 </span>
                 <input
@@ -960,8 +876,8 @@ export default function ReturnsPage() {
               </label>
             </div>
 
-            <div style={{ fontSize: "0.78rem", color: "var(--text-dim)", lineHeight: "1.5" }}>
-              <strong style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><ZapIcon size={13} /> Automatic Overwrite:</strong> Existing return records with the same Sub Order ID will be automatically updated with new tracking and delivery details.
+            <div style={{ fontSize: "0.78rem", color: "#475569", lineHeight: "1.5" }}>
+              <strong style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#4F46E5" }}><ZapIcon size={13} /> Automatic Overwrite:</strong> Existing return records with the same Sub Order ID will be automatically updated with new tracking and delivery details.
             </div>
 
             <div style={{ marginTop: 24, textAlign: "right" }}>
@@ -980,71 +896,48 @@ export default function ReturnsPage() {
 
       {/* Return Record Details Modal */}
       {selectedReturn && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0, 0, 0, 0.85)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 99999,
-            padding: 20,
-          }}
-        >
+        <div className="modal-backdrop-light">
           <div
-            className="premium-glass"
+            className="modal-card-light"
             style={{
               width: "100%",
               maxWidth: 680,
               maxHeight: "90vh",
               overflowY: "auto",
               padding: "26px 30px",
-              borderRadius: "22px",
-              boxShadow: "0 25px 70px rgba(0,0,0,0.95), 0 0 35px rgba(0,242,254,0.2)",
-              border: "1px solid var(--glass-border-hover)",
-              background: "rgba(18, 18, 24, 0.98)",
             }}
           >
             {/* Modal Header */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, borderBottom: "1px solid var(--glass-border)", paddingBottom: 16 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, borderBottom: "1px solid #E2E8F0", paddingBottom: 16 }}>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <h2 className="heading-display" style={{ fontSize: "1.3rem", color: "var(--text-pure)", margin: 0 }}>
+                  <h2 className="heading-display" style={{ fontSize: "1.3rem", color: "#0F172A", margin: 0 }}>
                     Return Parcel Log Details
                   </h2>
                   <span
+                    className={/RTO|Courier/i.test(selectedReturn.returnType) ? "badge-amber" : "badge-rose"}
                     style={{
                       padding: "4px 12px",
                       borderRadius: "var(--radius-full)",
-                      background: /RTO|Courier/i.test(selectedReturn.returnType) ? "rgba(245, 158, 11, 0.2)" : "rgba(239, 68, 68, 0.2)",
-                      color: /RTO|Courier/i.test(selectedReturn.returnType) ? "#f59e0b" : "#ef4444",
-                      border: "1px solid var(--glass-border)",
                       fontSize: "0.78rem",
-                      fontWeight: 700,
                     }}
                   >
                     {selectedReturn.returnType}
                   </span>
                 </div>
-                <div style={{ fontSize: "0.85rem", color: "var(--aurora-1)", marginTop: 6, fontFamily: "var(--font-mono)" }}>
+                <div style={{ fontSize: "0.85rem", color: "#0284C7", marginTop: 6, fontFamily: "var(--font-mono)", fontWeight: 600 }}>
                   Sub Order ID: <strong>{selectedReturn.subOrderNo}</strong>
                 </div>
               </div>
               <button
                 onClick={() => setSelectedReturn(null)}
                 style={{
-                  background: "rgba(255, 255, 255, 0.08)",
-                  border: "1px solid var(--glass-border)",
+                  background: "#F1F5F9",
+                  border: "1px solid #E2E8F0",
                   borderRadius: "50%",
                   width: 34,
                   height: 34,
-                  color: "#ffffff",
+                  color: "#475569",
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
@@ -1058,33 +951,33 @@ export default function ReturnsPage() {
             {/* Modal Content Body */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
               {/* Product Info */}
-              <div style={{ background: "rgba(0,0,0,0.3)", padding: "14px 16px", borderRadius: "12px", border: "1px solid var(--glass-border)" }}>
-                <span style={{ fontSize: "0.72rem", color: "var(--text-dim)", textTransform: "uppercase", fontWeight: 700 }}>
+              <div style={{ background: "#F8FAFC", padding: "14px 16px", borderRadius: "12px", border: "1px solid #E2E8F0" }}>
+                <span style={{ fontSize: "0.72rem", color: "#64748B", textTransform: "uppercase", fontWeight: 700 }}>
                   Product / SKU Info
                 </span>
-                <div style={{ fontSize: "0.92rem", fontWeight: 700, color: "var(--aurora-1)", marginTop: 4 }}>
+                <div style={{ fontSize: "0.92rem", fontWeight: 700, color: "#4F46E5", marginTop: 4 }}>
                   {selectedReturn.sku}
                 </div>
-                <div style={{ fontSize: "0.78rem", color: "var(--text-silver)", marginTop: 4 }}>
+                <div style={{ fontSize: "0.78rem", color: "#475569", marginTop: 4 }}>
                   Qty: <strong>{selectedReturn.qty}</strong>
                 </div>
                 {selectedReturn.productName && (
-                  <div style={{ fontSize: "0.76rem", color: "var(--text-dim)", marginTop: 4 }}>
+                  <div style={{ fontSize: "0.76rem", color: "#64748B", marginTop: 4 }}>
                     {selectedReturn.productName}
                   </div>
                 )}
               </div>
 
               {/* Return Reason */}
-              <div style={{ background: "rgba(0,0,0,0.3)", padding: "14px 16px", borderRadius: "12px", border: "1px solid var(--glass-border)" }}>
-                <span style={{ fontSize: "0.72rem", color: "var(--text-dim)", textTransform: "uppercase", fontWeight: 700 }}>
+              <div style={{ background: "#FEE2E2", padding: "14px 16px", borderRadius: "12px", border: "1px solid #FCA5A5" }}>
+                <span style={{ fontSize: "0.72rem", color: "#991B1B", textTransform: "uppercase", fontWeight: 700 }}>
                   Return Reason
                 </span>
-                <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "#f87171", marginTop: 4 }}>
+                <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "#B91C1C", marginTop: 4 }}>
                   {selectedReturn.returnReason}
                 </div>
                 {selectedReturn.detailedReturnReason && (
-                  <div style={{ fontSize: "0.78rem", color: "var(--text-silver)", marginTop: 4 }}>
+                  <div style={{ fontSize: "0.78rem", color: "#7F1D1D", marginTop: 4 }}>
                     {selectedReturn.detailedReturnReason}
                   </div>
                 )}
@@ -1092,35 +985,35 @@ export default function ReturnsPage() {
             </div>
 
             {/* Matched Customer Info */}
-            <div style={{ background: "rgba(0,0,0,0.3)", padding: "16px 18px", borderRadius: "14px", border: "1px solid var(--glass-border)", marginBottom: 20 }}>
-              <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--aurora-1)", marginBottom: 8, textTransform: "uppercase", display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ background: "#F8FAFC", padding: "16px 18px", borderRadius: "14px", border: "1px solid #E2E8F0", marginBottom: 20 }}>
+              <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#4F46E5", marginBottom: 8, textTransform: "uppercase", display: "flex", alignItems: "center", gap: 6 }}>
                 <UserIcon size={14} /> Matched Buyer & Delivery Address (From DB)
               </div>
-              <div style={{ fontSize: "0.88rem", color: "#fff", fontWeight: 700, display: "flex", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+              <div style={{ fontSize: "0.88rem", color: "#0F172A", fontWeight: 700, display: "flex", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
                 <span>Buyer Name: {selectedReturn.customerName}</span>
                 {selectedReturn.customerMobile !== "N/A" && (
-                  <span style={{ color: "var(--aurora-1)", fontFamily: "var(--font-mono)", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  <span style={{ color: "#0284C7", fontFamily: "var(--font-mono)", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
                     <PhoneIcon size={12} /> {selectedReturn.customerMobile}
                   </span>
                 )}
               </div>
-              <div style={{ fontSize: "0.82rem", color: "var(--text-silver)", marginTop: 6, display: "inline-flex", alignItems: "center", gap: 5 }}>
+              <div style={{ fontSize: "0.82rem", color: "#475569", marginTop: 6, display: "inline-flex", alignItems: "center", gap: 5 }}>
                 <LocationIcon size={13} /> State: {selectedReturn.state} | District: {selectedReturn.district}
               </div>
-              <div style={{ fontSize: "0.82rem", color: "var(--text-silver)", marginTop: 4, display: "inline-flex", alignItems: "center", gap: 5 }}>
+              <div style={{ fontSize: "0.82rem", color: "#475569", marginTop: 4, display: "inline-flex", alignItems: "center", gap: 5 }}>
                 <HomeIcon size={13} /> Full Address: {selectedReturn.customerAddress}
               </div>
             </div>
 
             {/* Courier & Tracking Links */}
-            <div style={{ background: "rgba(0,0,0,0.3)", padding: "16px 18px", borderRadius: "14px", border: "1px solid var(--glass-border)", marginBottom: 20 }}>
-              <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#38bdf8", marginBottom: 8, textTransform: "uppercase", display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ background: "#F8FAFC", padding: "16px 18px", borderRadius: "14px", border: "1px solid #E2E8F0", marginBottom: 20 }}>
+              <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#0284C7", marginBottom: 8, textTransform: "uppercase", display: "flex", alignItems: "center", gap: 6 }}>
                 <TruckIcon size={14} /> Reverse Logistics & Courier Info
               </div>
-              <div style={{ fontSize: "0.84rem", color: "var(--text-silver)" }}>
-                Courier: <strong style={{ color: "#38bdf8" }}>{selectedReturn.courierPartner}</strong> | AWB: <strong style={{ color: "#fff", fontFamily: "var(--font-mono)" }}>{selectedReturn.awbNumber}</strong>
+              <div style={{ fontSize: "0.84rem", color: "#475569" }}>
+                Courier: <strong style={{ color: "#0284C7" }}>{selectedReturn.courierPartner}</strong> | AWB: <strong style={{ color: "#0F172A", fontFamily: "var(--font-mono)" }}>{selectedReturn.awbNumber}</strong>
               </div>
-              <div style={{ fontSize: "0.78rem", color: "var(--text-dim)", marginTop: 4 }}>
+              <div style={{ fontSize: "0.78rem", color: "#64748B", marginTop: 4 }}>
                 Return Delivered Date: {selectedReturn.deliveredDate || selectedReturn.returnCreatedDate || "N/A"}
               </div>
 
@@ -1132,7 +1025,7 @@ export default function ReturnsPage() {
                     target="_blank"
                     rel="noreferrer"
                     className="btn-secondary"
-                    style={{ fontSize: "0.78rem", padding: "6px 14px", color: "#38bdf8", borderColor: "#38bdf8", display: "inline-flex", alignItems: "center", gap: 6 }}
+                    style={{ fontSize: "0.78rem", padding: "6px 14px", color: "#0284C7", borderColor: "#BAE6FD", display: "inline-flex", alignItems: "center", gap: 6 }}
                   >
                     <ExternalLinkIcon size={13} /> Track Courier Shipment
                   </a>
@@ -1143,7 +1036,7 @@ export default function ReturnsPage() {
                     target="_blank"
                     rel="noreferrer"
                     className="btn-secondary"
-                    style={{ fontSize: "0.78rem", padding: "6px 14px", color: "#10b981", borderColor: "#10b981", display: "inline-flex", alignItems: "center", gap: 6 }}
+                    style={{ fontSize: "0.78rem", padding: "6px 14px", color: "#059669", borderColor: "#A7F3D0", display: "inline-flex", alignItems: "center", gap: 6 }}
                   >
                     <FileTextIcon size={13} /> View Proof of Delivery (POD)
                   </a>
@@ -1156,9 +1049,9 @@ export default function ReturnsPage() {
               <button
                 onClick={() => handleDeleteReturn(selectedReturn.id)}
                 style={{
-                  background: "rgba(239, 68, 68, 0.15)",
-                  border: "1px solid rgba(239, 68, 68, 0.4)",
-                  color: "#f87171",
+                  background: "#FEE2E2",
+                  border: "1px solid #FCA5A5",
+                  color: "#DC2626",
                   padding: "8px 16px",
                   borderRadius: "var(--radius-md)",
                   fontSize: "0.82rem",

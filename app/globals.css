@@ -521,5 +521,150 @@ input, textarea, select, [contenteditable="true"] {
   -webkit-user-select: auto;
 }
 
+/* Light Theme High-Contrast Design System Utilities */
+.select-light {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+  border: 1px solid #CBD5E1 !important;
+  border-radius: var(--radius-md) !important;
+  font-weight: 600 !important;
+  outline: none !important;
+  transition: all 0.2s ease !important;
+}
+
+.select-light:focus {
+  border-color: #4F46E5 !important;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+}
+
+.select-light option {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+}
+
+/* Filter Segmented Controls */
+.segmented-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  padding: 4px;
+  border-radius: var(--radius-md);
+}
+
+.segmented-tab {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #64748B;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.segmented-tab:hover:not(.active) {
+  color: #0F172A;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.segmented-tab.active {
+  background: #FFFFFF;
+  color: #4F46E5;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+}
+
+/* High Contrast Pill Badges */
+.badge-amber {
+  background: #FEF3C7;
+  border: 1px solid #FDE68A;
+  color: #92400E;
+  font-weight: 600;
+}
+
+.badge-emerald {
+  background: #D1FAE5;
+  border: 1px solid #A7F3D0;
+  color: #065F46;
+  font-weight: 600;
+}
+
+.badge-sky {
+  background: #E0F2FE;
+  border: 1px solid #BAE6FD;
+  color: #0369A1;
+  font-weight: 600;
+}
+
+.badge-teal {
+  background: #F0FDFA;
+  border: 1px solid #99F6E4;
+  color: #0F766E;
+  font-weight: 600;
+}
+
+.badge-rose {
+  background: #FEE2E2;
+  border: 1px solid #FCA5A5;
+  color: #991B1B;
+  font-weight: 600;
+}
+
+.badge-purple {
+  background: #F3E8FF;
+  border: 1px solid #E9D5FF;
+  color: #6B21A8;
+  font-weight: 600;
+}
+
+.badge-indigo {
+  background: #EEF2FF;
+  border: 1px solid #C7D2FE;
+  color: #3730A3;
+  font-weight: 600;
+}
+
+.badge-slate {
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  color: #334155;
+  font-weight: 600;
+}
+
+/* Code & Details Preview Surfaces */
+.code-preview-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+/* Light Theme Modal Overlay & Dialog */
+.modal-backdrop-light {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.modal-card-light {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+  color: #0F172A;
+  overflow: hidden;
+}
+
+
 
 

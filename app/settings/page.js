@@ -424,10 +424,11 @@ export default function SettingsPage() {
                 gap: 8,
                 cursor: "pointer",
                 userSelect: "none",
-                background: enableQr ? "rgba(79, 172, 254, 0.12)" : "rgba(255, 255, 255, 0.04)",
-                border: `1px solid ${enableQr ? "var(--aurora-2)" : "var(--glass-border)"}`,
-                padding: "8px 14px",
+                background: enableQr ? "#EEF2FF" : "#F8FAFC",
+                border: `1px solid ${enableQr ? "#C7D2FE" : "#E2E8F0"}`,
+                padding: "10px 14px",
                 borderRadius: "var(--radius-md)",
+                transition: "all 0.2s ease",
               }}
             >
               <input
@@ -435,9 +436,9 @@ export default function SettingsPage() {
                 disabled={saving}
                 checked={enableQr}
                 onChange={(e) => setEnableQr(e.target.checked)}
-                style={{ width: 16, height: 16, accentColor: "var(--aurora-1)", cursor: saving ? "not-allowed" : "pointer" }}
+                style={{ width: 16, height: 16, accentColor: "#4F46E5", cursor: saving ? "not-allowed" : "pointer" }}
               />
-              <span style={{ fontSize: "0.8rem", fontWeight: 600, color: enableQr ? "var(--aurora-1)" : "var(--text-silver)" }}>
+              <span style={{ fontSize: "0.8rem", fontWeight: 600, color: enableQr ? "#3730A3" : "#475569" }}>
                 {enableQr ? "QR Stamper: Enabled by Default" : "QR Stamper: Disabled by Default"}
               </span>
             </label>
@@ -449,10 +450,11 @@ export default function SettingsPage() {
                 gap: 8,
                 cursor: "pointer",
                 userSelect: "none",
-                background: downloadSummary ? "rgba(16, 185, 129, 0.12)" : "rgba(255, 255, 255, 0.04)",
-                border: `1px solid ${downloadSummary ? "rgba(16, 185, 129, 0.4)" : "var(--glass-border)"}`,
-                padding: "8px 14px",
+                background: downloadSummary ? "#D1FAE5" : "#F8FAFC",
+                border: `1px solid ${downloadSummary ? "#A7F3D0" : "#E2E8F0"}`,
+                padding: "10px 14px",
                 borderRadius: "var(--radius-md)",
+                transition: "all 0.2s ease",
               }}
             >
               <input
@@ -460,9 +462,9 @@ export default function SettingsPage() {
                 disabled={saving}
                 checked={downloadSummary}
                 onChange={(e) => setDownloadSummary(e.target.checked)}
-                style={{ width: 16, height: 16, accentColor: "var(--border-accent)", cursor: saving ? "not-allowed" : "pointer" }}
+                style={{ width: 16, height: 16, accentColor: "#059669", cursor: saving ? "not-allowed" : "pointer" }}
               />
-              <span style={{ fontSize: "0.8rem", fontWeight: 600, color: downloadSummary ? "#059669" : "var(--text-silver)", display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: "0.8rem", fontWeight: 600, color: downloadSummary ? "#065F46" : "#475569", display: "inline-flex", alignItems: "center", gap: 6 }}>
                 <DownloadIcon /> {downloadSummary ? "Download Summary PDF: Enabled by Default" : "Download Summary PDF: Disabled"}
               </span>
             </label>
@@ -470,7 +472,7 @@ export default function SettingsPage() {
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))", gap: 16, marginTop: 16 }}>
             <div>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "#475569", marginBottom: 8 }}>
                 Default Sort Rule
               </label>
               <select
@@ -488,7 +490,7 @@ export default function SettingsPage() {
             </div>
 
             <div>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "#475569", marginBottom: 8 }}>
                 Default Sort Direction
               </label>
               <div style={{ display: "flex", gap: 10 }}>
@@ -497,9 +499,10 @@ export default function SettingsPage() {
                   className="btn-secondary"
                   style={{
                     flex: 1,
-                    background: sortOrder === "asc" ? "rgba(79, 172, 254, 0.15)" : "rgba(255, 255, 255, 0.03)",
-                    borderColor: sortOrder === "asc" ? "var(--aurora-2)" : "var(--glass-border)",
-                    color: sortOrder === "asc" ? "var(--aurora-1)" : "var(--text-silver)",
+                    background: sortOrder === "asc" ? "#EEF2FF" : "#FFFFFF",
+                    borderColor: sortOrder === "asc" ? "#C7D2FE" : "#CBD5E1",
+                    color: sortOrder === "asc" ? "#4F46E5" : "#475569",
+                    fontWeight: sortOrder === "asc" ? 700 : 500,
                     padding: "10px",
                     justifyContent: "center",
                   }}
@@ -512,9 +515,10 @@ export default function SettingsPage() {
                   className="btn-secondary"
                   style={{
                     flex: 1,
-                    background: sortOrder === "desc" ? "rgba(79, 172, 254, 0.15)" : "rgba(255, 255, 255, 0.03)",
-                    borderColor: sortOrder === "desc" ? "var(--aurora-2)" : "var(--glass-border)",
-                    color: sortOrder === "desc" ? "var(--aurora-1)" : "var(--text-silver)",
+                    background: sortOrder === "desc" ? "#EEF2FF" : "#FFFFFF",
+                    borderColor: sortOrder === "desc" ? "#C7D2FE" : "#CBD5E1",
+                    color: sortOrder === "desc" ? "#4F46E5" : "#475569",
+                    fontWeight: sortOrder === "desc" ? 700 : 500,
                     padding: "10px",
                     justifyContent: "center",
                   }}
@@ -531,10 +535,10 @@ export default function SettingsPage() {
         <div className="premium-glass" style={{ marginBottom: 24 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 10 }}>
             <div>
-              <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "#0F172A", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
                 <SendIcon /> WhatsApp Automatic Media Dispatcher
               </h3>
-              <p style={{ fontSize: "0.82rem", color: "var(--text-silver)", margin: 0 }}>
+              <p style={{ fontSize: "0.82rem", color: "#64748B", margin: 0 }}>
                 Configure your personal WhatsApp API Key and Receiver Number for automatic media dispatch.
               </p>
             </div>
@@ -543,7 +547,7 @@ export default function SettingsPage() {
               className="btn-secondary"
               onClick={handleTestWhatsApp}
               disabled={testingWa}
-              style={{ fontSize: "0.82rem", padding: "8px 16px", borderColor: "var(--aurora-2)", color: "var(--aurora-1)", display: "inline-flex", alignItems: "center", gap: 6 }}
+              style={{ fontSize: "0.82rem", padding: "8px 16px", borderColor: "#C7D2FE", color: "#4F46E5", display: "inline-flex", alignItems: "center", gap: 6 }}
             >
               <SendIcon />
               {testingWa ? "Sending Test..." : "Test WhatsApp Send"}
@@ -559,11 +563,12 @@ export default function SettingsPage() {
                 gap: 8,
                 cursor: "pointer",
                 userSelect: "none",
-                background: enableWhatsApp ? "rgba(16, 185, 129, 0.12)" : "rgba(255, 255, 255, 0.04)",
-                border: `1px solid ${enableWhatsApp ? "rgba(16, 185, 129, 0.4)" : "var(--glass-border)"}`,
+                background: enableWhatsApp ? "#D1FAE5" : "#F8FAFC",
+                border: `1px solid ${enableWhatsApp ? "#A7F3D0" : "#E2E8F0"}`,
                 padding: "10px 14px",
                 borderRadius: "var(--radius-md)",
                 gridColumn: "1 / -1",
+                transition: "all 0.2s ease",
               }}
             >
               <input
@@ -571,9 +576,9 @@ export default function SettingsPage() {
                 disabled={saving}
                 checked={enableWhatsApp}
                 onChange={(e) => setEnableWhatsApp(e.target.checked)}
-                style={{ width: 16, height: 16, accentColor: "#10b981", cursor: saving ? "not-allowed" : "pointer" }}
+                style={{ width: 16, height: 16, accentColor: "#059669", cursor: saving ? "not-allowed" : "pointer" }}
               />
-              <span style={{ fontSize: "0.84rem", fontWeight: 600, color: enableWhatsApp ? "#a7f3d0" : "var(--text-silver)" }}>
+              <span style={{ fontSize: "0.84rem", fontWeight: 600, color: enableWhatsApp ? "#065F46" : "#475569" }}>
                 {enableWhatsApp ? "WhatsApp Auto-Dispatch: Enabled" : "WhatsApp Auto-Dispatch: Disabled"}
               </span>
             </label>
