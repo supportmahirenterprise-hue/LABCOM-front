@@ -874,44 +874,47 @@ export default function CustomerAnalysisPage() {
                 </button>
 
                 {/* Page Buttons List */}
-                {Array.from({ length: Math.ceil(data.customers.length / pageSize) }, (_, i) => i + 1)
-                  .filter((p) => p === 1 || p === Math.ceil(data.customers.length / pageSize) || Math.abs(p - currentPage) <= 1)
-                  .map((p, idx, arr) => {
-                    const prevPage = arr[idx - 1];
-                    const showEllipsis = prevPage && p - prevPage > 1;
-                    return (
-                      <span key={p} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                        {showEllipsis && <span style={{ color: "var(--text-dim)", padding: "0 2px" }}>...</span>}
-                        <button
-                          onClick={() => setCurrentPage(p)}
-                          style={{
-                            padding: "5px 10px",
-                            borderRadius: "var(--radius-sm)",
-                            border: p === currentPage ? "1px solid var(--aurora-1)" : "1px solid var(--glass-border)",
-                            background: p === currentPage ? "rgba(0, 242, 254, 0.2)" : "rgba(255, 255, 255, 0.03)",
-                            color: p === currentPage ? "var(--aurora-1)" : "var(--text-silver)",
-                            fontWeight: p === currentPage ? 700 : 500,
-                            cursor: "pointer",
-                            fontSize: "0.8rem",
-                            minWidth: "32px",
-                          }}
-                        >
-                          {p}
-                        </button>
-                      </span>
-                    );
-                  })}
+                {(() => {
+                  const totalPagesCount = Math.max(1, Math.ceil((data?.customers?.length || 0) / (pageSize || 25)));
+                  return Array.from({ length: totalPagesCount }, (_, i) => i + 1)
+                    .filter((p) => p === 1 || p === totalPagesCount || Math.abs(p - currentPage) <= 1)
+                    .map((p, idx, arr) => {
+                      const prevPage = arr[idx - 1];
+                      const showEllipsis = prevPage && p - prevPage > 1;
+                      return (
+                        <span key={p} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                          {showEllipsis && <span style={{ color: "var(--text-dim)", padding: "0 2px" }}>...</span>}
+                          <button
+                            onClick={() => setCurrentPage(p)}
+                            style={{
+                              padding: "5px 10px",
+                              borderRadius: "var(--radius-sm)",
+                              border: p === currentPage ? "1px solid var(--aurora-1)" : "1px solid var(--glass-border)",
+                              background: p === currentPage ? "rgba(0, 242, 254, 0.2)" : "rgba(255, 255, 255, 0.03)",
+                              color: p === currentPage ? "var(--aurora-1)" : "var(--text-silver)",
+                              fontWeight: p === currentPage ? 700 : 500,
+                              cursor: "pointer",
+                              fontSize: "0.8rem",
+                              minWidth: "32px",
+                            }}
+                          >
+                            {p}
+                          </button>
+                        </span>
+                      );
+                    });
+                })()}
 
                 <button
-                  disabled={currentPage >= Math.ceil(data.customers.length / pageSize)}
-                  onClick={() => setCurrentPage((prev) => Math.min(Math.ceil(data.customers.length / pageSize), prev + 1))}
+                  disabled={currentPage >= Math.max(1, Math.ceil((data?.customers?.length || 0) / (pageSize || 25)))}
+                  onClick={() => setCurrentPage((prev) => Math.min(Math.max(1, Math.ceil((data?.customers?.length || 0) / (pageSize || 25))), prev + 1))}
                   style={{
                     padding: "5px 12px",
                     borderRadius: "var(--radius-sm)",
                     border: "1px solid var(--glass-border)",
-                    background: currentPage >= Math.ceil(data.customers.length / pageSize) ? "transparent" : "rgba(255, 255, 255, 0.05)",
-                    color: currentPage >= Math.ceil(data.customers.length / pageSize) ? "var(--text-dim)" : "var(--text-pure)",
-                    cursor: currentPage >= Math.ceil(data.customers.length / pageSize) ? "not-allowed" : "pointer",
+                    background: currentPage >= Math.max(1, Math.ceil((data?.customers?.length || 0) / (pageSize || 25))) ? "transparent" : "rgba(255, 255, 255, 0.05)",
+                    color: currentPage >= Math.max(1, Math.ceil((data?.customers?.length || 0) / (pageSize || 25))) ? "var(--text-dim)" : "var(--text-pure)",
+                    cursor: currentPage >= Math.max(1, Math.ceil((data?.customers?.length || 0) / (pageSize || 25))) ? "not-allowed" : "pointer",
                     fontSize: "0.8rem",
                     fontWeight: 600,
                   }}
@@ -919,15 +922,15 @@ export default function CustomerAnalysisPage() {
                   Next
                 </button>
                 <button
-                  disabled={currentPage >= Math.ceil(data.customers.length / pageSize)}
-                  onClick={() => setCurrentPage(Math.ceil(data.customers.length / pageSize))}
+                  disabled={currentPage >= Math.max(1, Math.ceil((data?.customers?.length || 0) / (pageSize || 25)))}
+                  onClick={() => setCurrentPage(Math.max(1, Math.ceil((data?.customers?.length || 0) / (pageSize || 25))))}
                   style={{
                     padding: "5px 10px",
                     borderRadius: "var(--radius-sm)",
                     border: "1px solid var(--glass-border)",
-                    background: currentPage >= Math.ceil(data.customers.length / pageSize) ? "transparent" : "rgba(255, 255, 255, 0.05)",
-                    color: currentPage >= Math.ceil(data.customers.length / pageSize) ? "var(--text-dim)" : "var(--text-pure)",
-                    cursor: currentPage >= Math.ceil(data.customers.length / pageSize) ? "not-allowed" : "pointer",
+                    background: currentPage >= Math.max(1, Math.ceil((data?.customers?.length || 0) / (pageSize || 25))) ? "transparent" : "rgba(255, 255, 255, 0.05)",
+                    color: currentPage >= Math.max(1, Math.ceil((data?.customers?.length || 0) / (pageSize || 25))) ? "var(--text-dim)" : "var(--text-pure)",
+                    cursor: currentPage >= Math.max(1, Math.ceil((data?.customers?.length || 0) / (pageSize || 25))) ? "not-allowed" : "pointer",
                     fontSize: "0.8rem",
                   }}
                 >

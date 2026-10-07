@@ -386,12 +386,13 @@ export default function Home() {
 
   // Filtered & Sorted preview row indices
   const filteredAndSortedIndexes = useMemo(() => {
+    if (!pages || !Array.isArray(pages)) return [];
     let idx = pages.map((_, i) => i);
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       idx = idx.filter((i) => {
-        const p = pages[i];
+        const p = pages[i] || {};
         return (
           (p.orderNo || "").toLowerCase().includes(q) ||
           (p.sku || "").toLowerCase().includes(q) ||
@@ -403,8 +404,8 @@ export default function Home() {
 
     if (sortBy !== "none") {
       idx.sort((a, b) => {
-        const itemA = pages[a];
-        const itemB = pages[b];
+        const itemA = pages[a] || {};
+        const itemB = pages[b] || {};
 
         if (sortBy === "sku") {
           const skuA = (itemA.sku || "").toString().toLowerCase();
@@ -440,10 +441,10 @@ export default function Home() {
 
   // Analytics
   const analytics = useMemo(() => {
-    if (!pages.length) return null;
+    if (!pages || !Array.isArray(pages) || !pages.length) return null;
     const totalPages = pages.length;
-    const uniqueSkus = new Set(pages.map((p) => p.sku).filter(Boolean)).size;
-    const totalQty = pages.reduce((acc, p) => acc + (parseInt(p.qty, 10) || 1), 0);
+    const uniqueSkus = new Set(pages.map((p) => p?.sku).filter(Boolean)).size;
+    const totalQty = pages.reduce((acc, p) => acc + (parseInt(p?.qty, 10) || 1), 0);
     return { totalPages, uniqueSkus, totalQty };
   }, [pages]);
 
