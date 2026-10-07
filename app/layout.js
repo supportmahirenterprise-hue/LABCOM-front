@@ -20,7 +20,7 @@ export default function RootLayout({ children }) {
         <Providers>
           <div className="layout-wrapper">
             <Sidebar />
-            <div style={{ flex: 1, minWidth: 0, width: "100%", maxWidth: "100%", display: "flex", flexDirection: "column", minHeight: "100%", position: "relative", zIndex: 1 }}>
+            <div className="page-transition" style={{ flex: 1, minWidth: 0, width: "100%", maxWidth: "100%", display: "flex", flexDirection: "column", minHeight: "100%", position: "relative", zIndex: 1 }}>
               {children}
             </div>
           </div>

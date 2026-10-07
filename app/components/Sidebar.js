@@ -158,6 +158,7 @@ export function Sidebar() {
             <Link
               key={item.label}
               href={item.href}
+              prefetch={true}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -165,12 +166,13 @@ export function Sidebar() {
                 padding: "10px 14px",
                 borderRadius: "12px",
                 color: isActive ? "#4F46E5" : "#64748B",
-                background: isActive ? "#F1F5F9" : "transparent",
-                border: isActive ? "1px solid #E2E8F0" : "1px solid transparent",
+                background: isActive ? "#EEF2FF" : "transparent",
+                border: isActive ? "1px solid #C7D2FE" : "1px solid transparent",
                 textDecoration: "none",
                 fontWeight: isActive ? 600 : 500,
                 fontSize: "0.88rem",
-                transition: "all 0.15s ease",
+                boxShadow: isActive ? "0 2px 8px rgba(79, 70, 229, 0.08)" : "none",
+                transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
               }}
             >
               <span style={{ display: "flex", alignItems: "center", justifyContent: "center", color: isActive ? "#4F46E5" : "#94A3B8" }}>
