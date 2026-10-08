@@ -1039,7 +1039,7 @@ export default function CustomerAnalysisPage() {
             className="modal-card-light"
             style={{
               width: "100%",
-              maxWidth: 780,
+              maxWidth: 920,
               maxHeight: "90vh",
               overflowY: "auto",
               padding: "26px 30px",
@@ -1062,6 +1062,18 @@ export default function CustomerAnalysisPage() {
                   >
                     {selectedCustomer.ordersCountText}
                   </span>
+                  {selectedCustomer.postDeliveryReturnCount > 0 && (
+                    <span
+                      className="tag-pill badge-rose"
+                      style={{
+                        padding: "4px 10px",
+                        fontSize: "0.75rem",
+                        fontWeight: 700,
+                      }}
+                    >
+                      🛑 {selectedCustomer.postDeliveryReturnCount} Return{selectedCustomer.postDeliveryReturnCount > 1 ? "s" : ""} After Delivery
+                    </span>
+                  )}
                 </div>
                 <div style={{ fontSize: "0.85rem", color: "#475569", marginTop: 6, display: "flex", alignItems: "center", flexWrap: "wrap", gap: 14 }}>
                   <span>Buyer Name: <strong style={{ color: "#0F172A" }}>{selectedCustomer.name}</strong></span>
@@ -1111,11 +1123,12 @@ export default function CustomerAnalysisPage() {
                   <thead>
                     <tr>
                       <th style={{ width: "40px" }}>#</th>
-                      <th style={{ width: "190px" }}>SUB ORDER ID / ORDER NO</th>
-                      <th style={{ width: "110px" }}>PAYMENT</th>
-                      <th style={{ width: "110px" }}>ORDER DATE</th>
-                      <th style={{ width: "160px" }}>SKU CODE</th>
-                      <th style={{ width: "50px" }}>QTY</th>
+                      <th style={{ width: "180px" }}>SUB ORDER ID / ORDER NO</th>
+                      <th style={{ width: "100px" }}>PAYMENT</th>
+                      <th style={{ width: "100px" }}>ORDER DATE</th>
+                      <th style={{ width: "150px" }}>SKU CODE</th>
+                      <th style={{ width: "45px" }}>QTY</th>
+                      <th style={{ width: "180px" }}>STATUS / RETURN</th>
                       <th style={{ width: "110px" }}>DESTINATION</th>
                     </tr>
                   </thead>
@@ -1152,6 +1165,65 @@ export default function CustomerAnalysisPage() {
                         </td>
                         <td style={{ fontWeight: 700, color: ord.qty > 1 ? "#D97706" : "#059669" }}>
                           {ord.qty || 1}
+                        </td>
+                        <td>
+                          {ord.isPostDeliveryReturn ? (
+                            <div>
+                              <span
+                                className="tag-pill badge-rose"
+                                style={{
+                                  fontSize: "0.74rem",
+                                  padding: "3px 8px",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 4,
+                                  fontWeight: 700,
+                                }}
+                              >
+                                🛑 Customer Return (Post-Delivery)
+                              </span>
+                              {ord.returnReason && ord.returnReason !== "N/A" && (
+                                <div style={{ fontSize: "0.72rem", color: "#E11D48", marginTop: 3 }}>
+                                  Reason: {ord.returnReason}
+                                </div>
+                              )}
+                            </div>
+                          ) : ord.hasReturn ? (
+                            <div>
+                              <span
+                                className="tag-pill badge-amber"
+                                style={{
+                                  fontSize: "0.74rem",
+                                  padding: "3px 8px",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 4,
+                                  fontWeight: 700,
+                                }}
+                              >
+                                ⚠️ Courier RTO
+                              </span>
+                              {ord.returnReason && ord.returnReason !== "N/A" && (
+                                <div style={{ fontSize: "0.72rem", color: "#D97706", marginTop: 3 }}>
+                                  {ord.returnReason}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <span
+                              className="tag-pill badge-emerald"
+                              style={{
+                                fontSize: "0.74rem",
+                                padding: "3px 8px",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 4,
+                                fontWeight: 600,
+                              }}
+                            >
+                              ✅ Delivered
+                            </span>
+                          )}
                         </td>
                         <td style={{ fontSize: "0.8rem", color: "#475569" }}>
                           {ord.state || selectedCustomer.state}
