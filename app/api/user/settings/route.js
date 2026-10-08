@@ -45,6 +45,7 @@ export async function POST(req) {
       instagramHandle,
       customNote,
       enableQr,
+      useNativeScript,
       qrText,
       detailText,
       qrX,

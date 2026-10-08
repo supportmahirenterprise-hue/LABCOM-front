@@ -179,12 +179,14 @@ const TAG_PLACEHOLDERS = [
   "{invoiceNo}",
 ];
 
+/*
 const POSITION_PRESETS = [
   { name: "Bottom Left Blank Area", x: 30, y: 30, size: 90, font: 8 },
   { name: "Bottom Right Corner", x: 180, y: 30, size: 85, font: 8 },
   { name: "Bottom Center", x: 95, y: 30, size: 85, font: 8 },
   { name: "Compact Corner", x: 20, y: 20, size: 70, font: 7 },
 ];
+*/
 
 const MOCK_PAGES = [
   {
@@ -610,12 +612,14 @@ export default function Home() {
     }
   }
 
+/*
   function applyPreset(p) {
     setQrX(p.x);
     setQrY(p.y);
     setQrSize(p.size);
     setFontSize(p.font);
   }
+*/
 
   async function handleGenerate(options = {}) {
     if (isBusy) return;
@@ -1370,7 +1374,8 @@ export default function Home() {
                 )}
               </div>
 
-              {/* Preset Position Shortcuts */}
+              {/* Commented out Position Shortcuts as requested */}
+              {/*
               <div className="position-shortcuts-wrap" style={{ display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
                 <span style={{ fontSize: "0.78rem", color: "var(--text-silver)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>
                   Position Shortcuts
@@ -1391,6 +1396,74 @@ export default function Home() {
                     <LocationIcon /> {p.name}
                   </button>
                 ))}
+              </div>
+              */}
+
+              {/* Position & Size Adjustment Sliders directly next to Live Stamp Preview */}
+              <div className="stamp-sliders-wrap" style={{ display: "flex", flexDirection: "column", gap: 12, flex: 1, minWidth: 240 }}>
+                <span style={{ fontSize: "0.78rem", color: "var(--text-silver)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>
+                  Stamp Position & Size Setup
+                </span>
+
+                <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--glass-border)", borderRadius: "12px", padding: "10px 14px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                    <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-silver)" }}>X Offset (Left)</span>
+                    <span style={{ background: "rgba(0, 242, 254, 0.1)", border: "1px solid rgba(0, 242, 254, 0.25)", color: "var(--aurora-1)", padding: "2px 8px", borderRadius: "6px", fontSize: "0.75rem", fontFamily: "var(--font-mono)", fontWeight: 700 }}>{qrX} pt</span>
+                  </div>
+                  <input
+                    type="range"
+                    className="range-slider"
+                    min="0"
+                    max="300"
+                    value={qrX}
+                    onChange={(e) => setQrX(Number(e.target.value))}
+                  />
+                </div>
+
+                <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--glass-border)", borderRadius: "12px", padding: "10px 14px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                    <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-silver)" }}>Y Offset (Bottom)</span>
+                    <span style={{ background: "rgba(0, 242, 254, 0.1)", border: "1px solid rgba(0, 242, 254, 0.25)", color: "var(--aurora-1)", padding: "2px 8px", borderRadius: "6px", fontSize: "0.75rem", fontFamily: "var(--font-mono)", fontWeight: 700 }}>{qrY} pt</span>
+                  </div>
+                  <input
+                    type="range"
+                    className="range-slider"
+                    min="0"
+                    max="500"
+                    value={qrY}
+                    onChange={(e) => setQrY(Number(e.target.value))}
+                  />
+                </div>
+
+                <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--glass-border)", borderRadius: "12px", padding: "10px 14px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                    <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-silver)" }}>QR Size</span>
+                    <span style={{ background: "rgba(0, 242, 254, 0.1)", border: "1px solid rgba(0, 242, 254, 0.25)", color: "var(--aurora-1)", padding: "2px 8px", borderRadius: "6px", fontSize: "0.75rem", fontFamily: "var(--font-mono)", fontWeight: 700 }}>{qrSize} pt</span>
+                  </div>
+                  <input
+                    type="range"
+                    className="range-slider"
+                    min="30"
+                    max="180"
+                    value={qrSize}
+                    onChange={(e) => setQrSize(Number(e.target.value))}
+                  />
+                </div>
+
+                <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--glass-border)", borderRadius: "12px", padding: "10px 14px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                    <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-silver)" }}>Font Size</span>
+                    <span style={{ background: "rgba(0, 242, 254, 0.1)", border: "1px solid rgba(0, 242, 254, 0.25)", color: "var(--aurora-1)", padding: "2px 8px", borderRadius: "6px", fontSize: "0.75rem", fontFamily: "var(--font-mono)", fontWeight: 700 }}>{fontSize} pt</span>
+                  </div>
+                  <input
+                    type="range"
+                    className="range-slider"
+                    min="4"
+                    max="72"
+                    value={fontSize}
+                    onChange={(e) => setFontSize(Number(e.target.value))}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -1576,68 +1649,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Interactive Range Sliders */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))", gap: 16, paddingTop: 20, borderTop: "1px solid var(--glass-border)" }}>
-            <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--glass-border)", borderRadius: "12px", padding: "12px 14px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-silver)" }}>X Offset (Left)</span>
-                <span style={{ background: "rgba(0, 242, 254, 0.1)", border: "1px solid rgba(0, 242, 254, 0.25)", color: "var(--aurora-1)", padding: "2px 8px", borderRadius: "6px", fontSize: "0.75rem", fontFamily: "var(--font-mono)", fontWeight: 700 }}>{qrX} pt</span>
-              </div>
-              <input
-                type="range"
-                className="range-slider"
-                min="0"
-                max="300"
-                value={qrX}
-                onChange={(e) => setQrX(Number(e.target.value))}
-              />
-            </div>
 
-            <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--glass-border)", borderRadius: "12px", padding: "12px 14px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-silver)" }}>Y Offset (Bottom)</span>
-                <span style={{ background: "rgba(0, 242, 254, 0.1)", border: "1px solid rgba(0, 242, 254, 0.25)", color: "var(--aurora-1)", padding: "2px 8px", borderRadius: "6px", fontSize: "0.75rem", fontFamily: "var(--font-mono)", fontWeight: 700 }}>{qrY} pt</span>
-              </div>
-              <input
-                type="range"
-                className="range-slider"
-                min="0"
-                max="500"
-                value={qrY}
-                onChange={(e) => setQrY(Number(e.target.value))}
-              />
-            </div>
-
-            <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--glass-border)", borderRadius: "12px", padding: "12px 14px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-silver)" }}>QR Size</span>
-                <span style={{ background: "rgba(0, 242, 254, 0.1)", border: "1px solid rgba(0, 242, 254, 0.25)", color: "var(--aurora-1)", padding: "2px 8px", borderRadius: "6px", fontSize: "0.75rem", fontFamily: "var(--font-mono)", fontWeight: 700 }}>{qrSize} pt</span>
-              </div>
-              <input
-                type="range"
-                className="range-slider"
-                min="30"
-                max="180"
-                value={qrSize}
-                onChange={(e) => setQrSize(Number(e.target.value))}
-              />
-            </div>
-
-            <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--glass-border)", borderRadius: "12px", padding: "12px 14px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-silver)" }}>Font Size</span>
-                <span style={{ background: "rgba(0, 242, 254, 0.1)", border: "1px solid rgba(0, 242, 254, 0.25)", color: "var(--aurora-1)", padding: "2px 8px", borderRadius: "6px", fontSize: "0.75rem", fontFamily: "var(--font-mono)", fontWeight: 700 }}>{fontSize} pt</span>
-              </div>
-              <input
-                type="range"
-                className="range-slider"
-                min="4"
-                max="72"
-                value={fontSize}
-                onChange={(e) => setFontSize(Number(e.target.value))}
-              />
-            </div>
-          </div>
         </div>
       </div>
 
