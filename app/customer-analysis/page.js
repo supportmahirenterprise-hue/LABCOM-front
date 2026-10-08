@@ -210,6 +210,17 @@ export default function CustomerAnalysisPage() {
     }
   }, [status, session?.user?.email, repeatOnly, selectedState, selectedDistrict]);
 
+  useEffect(() => {
+    if (selectedCustomer) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [selectedCustomer]);
+
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     fetchCustomerAnalysis();
@@ -499,16 +510,20 @@ export default function CustomerAnalysisPage() {
                         background: item.shouldPause ? "#FFF5F5" : "transparent",
                       }}
                     >
-                      <td style={{ padding: "14px 16px", fontWeight: 700, color: "#0F172A" }}>
+                      <td style={{ padding: "12px 14px", fontWeight: 700, color: "#0F172A", wordBreak: "break-word", verticalAlign: "middle" }}>
                         {item.sku}
                       </td>
-                      <td style={{ padding: "14px 16px", fontWeight: 700, color: "#0284C7" }}>
-                        <div>{item.totalOrders} units</div>
-                        {item.totalReturns > 0 && (
-                          <span style={{ fontSize: "0.72rem", color: "#059669", fontWeight: 600 }}>
-                            ({item.netDeliveredOrders || Math.max(0, item.totalOrders - item.totalReturns)} net delivered)
+                      <td style={{ padding: "12px 14px", verticalAlign: "middle" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 3, lineHeight: 1.35 }}>
+                          <span style={{ fontWeight: 700, color: "#0284C7", fontSize: "0.85rem" }}>
+                            {item.totalOrders} units
                           </span>
-                        )}
+                          {item.totalReturns > 0 && (
+                            <span style={{ fontSize: "0.72rem", color: "#059669", fontWeight: 600, display: "block", marginTop: 1 }}>
+                              ({item.netDeliveredOrders || Math.max(0, item.totalOrders - item.totalReturns)} net delivered)
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td style={{ padding: "14px 16px", color: "#475569" }}>
                         {item.customerReturnCount}
@@ -819,15 +834,15 @@ export default function CustomerAnalysisPage() {
                       <td style={{ fontSize: "0.8rem", color: c.mobileNumber !== "N/A" ? "var(--aurora-1)" : "var(--text-dim)", fontFamily: "var(--font-mono)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {c.mobileNumber !== "N/A" ? c.mobileNumber : "N/A"}
                       </td>
-                      <td style={{ overflow: "hidden" }}>
-                        <span className="tag-pill badge-sky" style={{ fontSize: "0.72rem", padding: "2px 7px", display: "inline-flex", alignItems: "center", gap: 3, whiteSpace: "nowrap" }}>
+                      <td style={{ verticalAlign: "middle" }}>
+                        <span className="tag-pill badge-sky" style={{ fontSize: "0.72rem", padding: "3px 8px", display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "normal", wordBreak: "break-word", lineHeight: 1.3 }}>
                           <LocationIcon size={11} /> {c.state}
                         </span>
                       </td>
 
                       {/* Dedicated District Column */}
-                      <td style={{ overflow: "hidden" }}>
-                        <span className="tag-pill badge-teal" style={{ fontSize: "0.72rem", padding: "2px 7px", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 3, whiteSpace: "nowrap" }}>
+                      <td style={{ verticalAlign: "middle" }}>
+                        <span className="tag-pill badge-teal" style={{ fontSize: "0.72rem", padding: "3px 8px", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "normal", wordBreak: "break-word", lineHeight: 1.3 }}>
                           <BuildingIcon size={11} /> {c.district || "Central"}
                         </span>
                       </td>

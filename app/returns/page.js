@@ -275,6 +275,17 @@ export default function ReturnsPage() {
   const summary = data?.summary || {};
   const pagination = data?.pagination || {};
 
+  useEffect(() => {
+    if (showUploadModal || selectedReturn) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [showUploadModal, selectedReturn]);
+
   return (
     <div style={{ minHeight: "100vh", paddingBottom: 60, position: "relative", width: "100%", maxWidth: "100%" }}>
       {/* Toast Notification */}
@@ -649,8 +660,8 @@ export default function ReturnsPage() {
                       </td>
 
                       {/* State */}
-                      <td style={{ overflow: "hidden" }}>
-                        <span className="tag-pill badge-sky" style={{ fontSize: "0.72rem", padding: "2px 7px", display: "inline-flex", alignItems: "center", gap: 3, whiteSpace: "nowrap" }}>
+                      <td style={{ verticalAlign: "middle" }}>
+                        <span className="tag-pill badge-sky" style={{ fontSize: "0.72rem", padding: "3px 8px", display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "normal", wordBreak: "break-word", lineHeight: 1.3 }}>
                           <LocationIcon size={11} /> {r.state}
                         </span>
                       </td>

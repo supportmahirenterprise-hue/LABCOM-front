@@ -433,6 +433,17 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, [enableQr, useNativeScript, qrText, detailText, qrX, qrY, qrSize, fontSize, sortBy, sortOrder, downloadSummary, status, session]);
 
+  useEffect(() => {
+    if (showWarningModal || showDuplicateModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [showWarningModal, showDuplicateModal]);
+
   // Filtered & Sorted preview row indices
   const filteredAndSortedIndexes = useMemo(() => {
     if (!pages || !Array.isArray(pages)) return [];

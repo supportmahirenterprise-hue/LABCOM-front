@@ -652,27 +652,56 @@ input, textarea, select, [contenteditable="true"] {
   padding: 14px 16px;
 }
 
-/* Light Theme Modal Overlay & Dialog */
+/* Light Theme Modal Overlay & Dialog - Always Dead-Centered in Viewport */
 .modal-backdrop-light {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.5);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  padding: 20px;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(15, 23, 42, 0.65) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 999999 !important;
+  padding: 20px !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
 }
 
 .modal-card-light {
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  border-radius: 24px;
-  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
-  color: #0F172A;
-  overflow: hidden;
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 24px !important;
+  box-shadow: 0 25px 60px -12px rgba(15, 23, 42, 0.35) !important;
+  color: #0F172A !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  margin: auto !important;
+  position: relative !important;
+}
+
+/* Global Table Rules to Prevent Horizontal Scrollbars & Text Clipping */
+.table-responsive-container {
+  width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+.table-responsive-container table {
+  width: 100% !important;
+  table-layout: auto !important;
+  border-collapse: collapse !important;
+}
+
+.table-responsive-container td,
+.table-responsive-container th {
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  vertical-align: middle !important;
 }
 
 
