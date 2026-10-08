@@ -503,7 +503,12 @@ export default function CustomerAnalysisPage() {
                         {item.sku}
                       </td>
                       <td style={{ padding: "14px 16px", fontWeight: 700, color: "#0284C7" }}>
-                        {item.totalOrders} units
+                        <div>{item.totalOrders} units</div>
+                        {item.totalReturns > 0 && (
+                          <span style={{ fontSize: "0.72rem", color: "#059669", fontWeight: 600 }}>
+                            ({item.netDeliveredOrders || Math.max(0, item.totalOrders - item.totalReturns)} net delivered)
+                          </span>
+                        )}
                       </td>
                       <td style={{ padding: "14px 16px", color: "#475569" }}>
                         {item.customerReturnCount}
@@ -511,7 +516,7 @@ export default function CustomerAnalysisPage() {
                       <td style={{ padding: "14px 16px", color: "#475569" }}>
                         {item.rtoCount}
                       </td>
-                      <td style={{ padding: "14px 16px", fontWeight: 800, color: item.returnRate >= 20 ? "#DC2626" : "#059669" }}>
+                      <td style={{ padding: "14px 16px", fontWeight: 800, color: (item.returnRate > 10 || item.shouldPause) ? "#DC2626" : "#059669" }}>
                         {item.returnRate}%
                       </td>
                       <td style={{ padding: "14px 16px" }}>
