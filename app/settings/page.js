@@ -122,6 +122,8 @@ export default function SettingsPage() {
   const [enableWhatsApp, setEnableWhatsApp] = useState(true);
   const [waApiKey, setWaApiKey] = useState("wa_c6854599bd4b7a54cad78edbdd6ace51");
   const [waReceiverNumber, setWaReceiverNumber] = useState("918140148878");
+  const [pdfReceiverNumber, setPdfReceiverNumber] = useState("918140148878");
+  const [imageReceiverNumber, setImageReceiverNumber] = useState("918140148878");
   const [showApiKey, setShowApiKey] = useState(false);
   const [testingWa, setTestingWa] = useState(false);
 
@@ -177,6 +179,12 @@ export default function SettingsPage() {
             if (s.enableWhatsApp !== undefined) setEnableWhatsApp(s.enableWhatsApp);
             if (s.waApiKey !== undefined) setWaApiKey(s.waApiKey);
             if (s.waReceiverNumber !== undefined) setWaReceiverNumber(s.waReceiverNumber);
+
+            if (s.pdfReceiverNumber !== undefined) setPdfReceiverNumber(s.pdfReceiverNumber);
+            else if (s.waReceiverNumber !== undefined) setPdfReceiverNumber(s.waReceiverNumber);
+
+            if (s.imageReceiverNumber !== undefined) setImageReceiverNumber(s.imageReceiverNumber);
+            else if (s.waReceiverNumber !== undefined) setImageReceiverNumber(s.waReceiverNumber);
           }
         }
       } catch (err) {
@@ -225,7 +233,9 @@ export default function SettingsPage() {
           downloadSummary,
           enableWhatsApp,
           waApiKey,
-          waReceiverNumber,
+          waReceiverNumber: pdfReceiverNumber || waReceiverNumber,
+          pdfReceiverNumber,
+          imageReceiverNumber,
         }),
       });
 
@@ -583,19 +593,35 @@ export default function SettingsPage() {
               </span>
             </label>
 
-            {/* Receiver Phone Number */}
+            {/* PDF Receiver Phone Number */}
             <div>
               <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
-                Default Receiver WhatsApp Number (with Country Code)
+                📄 Stamped Label PDF Receiver WhatsApp Number (with Country Code)
               </label>
               <input
                 className="input-field"
                 placeholder="e.g. 918140148878"
-                value={waReceiverNumber}
-                onChange={(e) => setWaReceiverNumber(e.target.value)}
+                value={pdfReceiverNumber}
+                onChange={(e) => setPdfReceiverNumber(e.target.value)}
               />
               <span style={{ fontSize: "0.74rem", color: "var(--text-dim)", marginTop: 4, display: "block" }}>
-                Target phone number where PDFs and Summary images are delivered (Default: 918140148878)
+                Target phone number where generated Stamped Label PDFs are dispatched.
+              </span>
+            </div>
+
+            {/* Image Receiver Phone Number */}
+            <div>
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
+                🖼️ Summary Report Image Receiver WhatsApp Number (with Country Code)
+              </label>
+              <input
+                className="input-field"
+                placeholder="e.g. 918140148878"
+                value={imageReceiverNumber}
+                onChange={(e) => setImageReceiverNumber(e.target.value)}
+              />
+              <span style={{ fontSize: "0.74rem", color: "var(--text-dim)", marginTop: 4, display: "block" }}>
+                Target phone number where Summary Canvas PNG report images are dispatched (Enter same number to receive both on single phone).
               </span>
             </div>
 

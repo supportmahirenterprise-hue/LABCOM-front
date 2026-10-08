@@ -54,7 +54,11 @@ export async function POST(req) {
       sortBy,
       sortOrder,
       downloadSummary,
-      useNativeScript,
+      enableWhatsApp,
+      waApiKey,
+      waReceiverNumber,
+      pdfReceiverNumber,
+      imageReceiverNumber,
     } = body;
 
     const db = await getDb();
@@ -81,6 +85,11 @@ export async function POST(req) {
     if (sortBy !== undefined) updateDoc.sortBy = sortBy;
     if (sortOrder !== undefined) updateDoc.sortOrder = sortOrder;
     if (downloadSummary !== undefined) updateDoc.downloadSummary = downloadSummary;
+    if (enableWhatsApp !== undefined) updateDoc.enableWhatsApp = enableWhatsApp;
+    if (waApiKey !== undefined) updateDoc.waApiKey = waApiKey;
+    if (waReceiverNumber !== undefined) updateDoc.waReceiverNumber = waReceiverNumber;
+    if (pdfReceiverNumber !== undefined) updateDoc.pdfReceiverNumber = pdfReceiverNumber;
+    if (imageReceiverNumber !== undefined) updateDoc.imageReceiverNumber = imageReceiverNumber;
 
     await db.collection("user_settings").updateOne(
       { email: cleanEmail },
