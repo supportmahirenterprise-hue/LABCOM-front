@@ -305,8 +305,27 @@ export default function Home() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  // Load user settings from Node.js backend on login
+  // Load user settings from Node.js backend on login (with instant localStorage fallback)
   useEffect(() => {
+    // 1. Instant local cache read to eliminate initial flicker
+    try {
+      const cachedStr = typeof window !== "undefined" ? localStorage.getItem("user_stamp_settings") : null;
+      if (cachedStr) {
+        const s = JSON.parse(cachedStr);
+        if (s.enableQr !== undefined) setEnableQr(s.enableQr);
+        if (s.useNativeScript !== undefined) setUseNativeScript(s.useNativeScript);
+        if (s.qrText !== undefined) setQrText(s.qrText);
+        if (s.detailText !== undefined) setDetailText(s.detailText);
+        if (s.qrX !== undefined) setQrX(s.qrX);
+        if (s.qrY !== undefined) setQrY(s.qrY);
+        if (s.qrSize !== undefined) setQrSize(s.qrSize);
+        if (s.fontSize !== undefined) setFontSize(s.fontSize);
+        if (s.sortBy !== undefined) setSortBy(s.sortBy);
+        if (s.sortOrder !== undefined) setSortOrder(s.sortOrder);
+        if (s.downloadSummary !== undefined) setDownloadSummary(s.downloadSummary);
+      }
+    } catch (e) {}
+
     if (status !== "authenticated" || !session?.user?.email) return;
 
     async function loadSettings() {
@@ -333,6 +352,10 @@ export default function Home() {
             if (s.sortBy !== undefined) setSortBy(s.sortBy);
             if (s.sortOrder !== undefined) setSortOrder(s.sortOrder);
             if (s.downloadSummary !== undefined) setDownloadSummary(s.downloadSummary);
+
+            try {
+              localStorage.setItem("user_stamp_settings", JSON.stringify(s));
+            } catch (e) {}
           }
         }
       } catch (err) {
@@ -1249,16 +1272,17 @@ export default function Home() {
                       position: "absolute",
                       left: simQrX,
                       top: simQrY,
-                      maxWidth: canvasW - simQrX,
-                      maxHeight: canvasH - simQrY,
-                      background: "rgba(249, 115, 22, 0.15)",
+                      width: "fit-content",
+                      maxWidth: Math.max(40, canvasW - simQrX - 8),
+                      maxHeight: Math.max(40, canvasH - simQrY - 8),
+                      background: "rgba(249, 115, 22, 0.12)",
                       border: "1.5px solid #F97316",
-                      borderRadius: 3,
+                      borderRadius: 4,
                       display: "flex",
                       flexDirection: "row",
                       alignItems: "center",
                       transition: "all 0.1s ease-out",
-                      padding: 4,
+                      padding: "3px 6px",
                       gap: 6,
                       zIndex: 20,
                       overflow: "hidden",
@@ -1278,16 +1302,16 @@ export default function Home() {
                     {/* Text Details next to QR */}
                     <div
                       style={{
-                        fontSize: Math.max(5, fontSize * scale),
-                        transform: "scale(0.85)",
-                        transformOrigin: "left center",
+                        fontSize: Math.min(7.5, Math.max(4.5, fontSize * scale * 0.8)),
                         fontFamily: "'Nirmala UI', 'Noto Sans', 'Segoe UI', system-ui, sans-serif",
                         fontStyle: "italic",
                         color: "#C2410C",
                         fontWeight: 700,
                         whiteSpace: "pre-wrap",
                         wordBreak: "break-word",
-                        lineHeight: 1.1,
+                        lineHeight: 1.15,
+                        maxHeight: Math.max(20, canvasH - simQrY - 12),
+                        overflow: "hidden",
                       }}
                     >
                       {previewText}
