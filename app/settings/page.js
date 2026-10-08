@@ -110,10 +110,10 @@ export default function SettingsPage() {
   const [detailText, setDetailText] = useState(
     "Scan to Follow Meesho Store!\nOrder: {orderNo}\nSKU: {sku}"
   );
-  const [qrX, setQrX] = useState(30);
-  const [qrY, setQrY] = useState(30);
-  const [qrSize, setQrSize] = useState(90);
-  const [fontSize, setFontSize] = useState(8);
+  const [qrX, setQrX] = useState(12);
+  const [qrY, setQrY] = useState(10);
+  const [qrSize, setQrSize] = useState(142);
+  const [fontSize, setFontSize] = useState(29);
   const [sortBy, setSortBy] = useState("sku");
   const [sortOrder, setSortOrder] = useState("asc");
   const [downloadSummary, setDownloadSummary] = useState(false);

@@ -168,6 +168,22 @@ const SORT_OPTIONS = [
   { value: "customerName", label: "Customer Name" },
 ];
 
+const DEFAULT_STAMP_SETTINGS = {
+  qrX: 12,
+  qrY: 10,
+  qrSize: 142,
+  fontSize: 29,
+};
+
+function ResetIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+      <path d="M3 3v5h5" />
+    </svg>
+  );
+}
+
 const TAG_PLACEHOLDERS = [
   "{regionalThankYou}",
   "{orderNo}",
@@ -270,10 +286,18 @@ export default function Home() {
   const [detailText, setDetailText] = useState(
     "Thank You for Shopping with Us!\n{regionalThankYou}\nOrder: {orderNo} | SKU: {sku}"
   );
-  const [qrX, setQrX] = useState(30);
-  const [qrY, setQrY] = useState(30);
-  const [qrSize, setQrSize] = useState(90);
-  const [fontSize, setFontSize] = useState(8);
+  const [qrX, setQrX] = useState(DEFAULT_STAMP_SETTINGS.qrX);
+  const [qrY, setQrY] = useState(DEFAULT_STAMP_SETTINGS.qrY);
+  const [qrSize, setQrSize] = useState(DEFAULT_STAMP_SETTINGS.qrSize);
+  const [fontSize, setFontSize] = useState(DEFAULT_STAMP_SETTINGS.fontSize);
+
+  function handleResetDefaults() {
+    setQrX(DEFAULT_STAMP_SETTINGS.qrX);
+    setQrY(DEFAULT_STAMP_SETTINGS.qrY);
+    setQrSize(DEFAULT_STAMP_SETTINGS.qrSize);
+    setFontSize(DEFAULT_STAMP_SETTINGS.fontSize);
+    showToast("Stamp position & size reset to default (12pt, 10pt, 142pt, 29pt)", "success");
+  }
 
   // Sorting & Filtering (Default: Sort by SKU with highest Qty first)
   const [sortBy, setSortBy] = useState("sku");
@@ -1163,10 +1187,32 @@ export default function Home() {
               <h3 className="heading-display" style={{ fontSize: "1.1rem", color: "var(--text-pure)", margin: 0 }}>
                 Live Stamp Preview
               </h3>
-              <span className="tag-pill active" style={{ fontSize: "0.72rem", padding: "4px 10px" }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--aurora-1)", boxShadow: "var(--shadow-glow)" }} />
-                4" × 6" Thermal Canvas
-              </span>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <span className="tag-pill active" style={{ fontSize: "0.72rem", padding: "4px 10px" }}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--aurora-1)", boxShadow: "var(--shadow-glow)" }} />
+                  4" × 6" Thermal Canvas
+                </span>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={handleResetDefaults}
+                  title="Reset stamp position & font size to default settings (12pt, 10pt, 142pt, 29pt)"
+                  style={{
+                    padding: "4px 12px",
+                    fontSize: "0.72rem",
+                    borderRadius: "var(--radius-full)",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 5,
+                    borderColor: "rgba(255, 255, 255, 0.18)",
+                    color: "var(--text-silver)",
+                    cursor: "pointer",
+                    background: "rgba(255, 255, 255, 0.05)",
+                  }}
+                >
+                  <ResetIcon /> Reset Default
+                </button>
+              </div>
             </div>
 
             <div className="simulator-layout-wrap" style={{ display: "flex", gap: 20, alignItems: "flex-start", justifyContent: "space-between" }}>
