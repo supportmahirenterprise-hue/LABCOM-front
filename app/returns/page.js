@@ -555,20 +555,20 @@ export default function ReturnsPage() {
             No return records found matching the criteria. Click "Upload Return CSV / Excel" above to import return data.
           </div>
         ) : (
-          <div style={{ overflowX: "auto", width: "100%", maxWidth: "100%", borderRadius: "0 0 16px 16px", WebkitOverflowScrolling: "touch" }}>
-            <table className="custom-table" style={{ width: "100%", minWidth: "1050px", tableLayout: "auto" }}>
+          <div className="table-responsive-container" style={{ borderRadius: "0 0 16px 16px" }}>
+            <table className="custom-table">
               <thead>
                 <tr>
-                  <th style={{ width: "40px", minWidth: "40px", paddingLeft: "18px" }}>#</th>
-                  <th style={{ minWidth: "150px" }}>SUB ORDER ID / ORDER NO</th>
-                  <th style={{ minWidth: "125px" }}>RETURN TYPE</th>
-                  <th style={{ minWidth: "130px" }}>SKU / PRODUCT</th>
-                  <th style={{ minWidth: "45px", textAlign: "center" }}>QTY</th>
+                  <th style={{ width: "40px", paddingLeft: "16px" }}>#</th>
+                  <th>SUB ORDER ID / ORDER NO</th>
+                  <th>RETURN TYPE</th>
+                  <th>SKU / PRODUCT</th>
+                  <th style={{ textAlign: "center" }}>QTY</th>
                   <th style={{ minWidth: "160px" }}>RETURN REASON</th>
-                  <th style={{ minWidth: "140px" }}>CUSTOMER NAME & MOBILE</th>
-                  <th style={{ minWidth: "115px" }}>STATE / DISTRICT</th>
-                  <th style={{ minWidth: "130px" }}>COURIER & AWB</th>
-                  <th style={{ minWidth: "110px", whiteSpace: "nowrap", paddingRight: "18px" }}>RETURN DATE</th>
+                  <th>CUSTOMER NAME & MOBILE</th>
+                  <th>STATE</th>
+                  <th>COURIER & AWB</th>
+                  <th style={{ paddingRight: "16px" }}>DATE</th>
                 </tr>
               </thead>
               <tbody>
@@ -581,17 +581,17 @@ export default function ReturnsPage() {
                       onClick={() => setSelectedReturn(r)}
                       style={{ cursor: "pointer" }}
                     >
-                      <td style={{ color: "var(--text-dim)", fontSize: "0.8rem", fontFamily: "var(--font-mono)", paddingLeft: "18px" }}>
+                      <td style={{ color: "var(--text-dim)", fontSize: "0.78rem", fontFamily: "var(--font-mono)", paddingLeft: "12px", paddingRight: "4px" }}>
                         {globalIdx}
                       </td>
 
                       {/* Sub Order ID */}
-                      <td>
-                        <div style={{ fontWeight: 700, color: "var(--aurora-1)", fontSize: "0.85rem", fontFamily: "var(--font-mono)", wordBreak: "break-all" }}>
+                      <td style={{ overflow: "hidden" }}>
+                        <div style={{ fontWeight: 700, color: "var(--aurora-1)", fontSize: "0.82rem", fontFamily: "var(--font-mono)", wordBreak: "break-all" }}>
                           {r.subOrderNo}
                         </div>
                         {r.orderNo !== r.subOrderNo && (
-                          <div style={{ fontSize: "0.74rem", color: "var(--text-dim)", marginTop: 2 }}>
+                          <div style={{ fontSize: "0.72rem", color: "var(--text-dim)", marginTop: 2, wordBreak: "break-all" }}>
                             Order: {r.orderNo}
                           </div>
                         )}
@@ -602,73 +602,73 @@ export default function ReturnsPage() {
                         <span
                           className={isRto ? "tag-pill badge-amber" : "tag-pill badge-rose"}
                           style={{
-                            fontSize: "0.75rem",
-                            padding: "3px 10px",
+                            fontSize: "0.72rem",
+                            padding: "2px 8px",
                             display: "inline-flex",
                             alignItems: "center",
-                            gap: 4,
+                            gap: 3,
                             whiteSpace: "nowrap",
                           }}
                         >
-                          {isRto ? <><TruckIcon size={12} /> Courier RTO</> : <><RefreshIcon size={12} /> Customer Return</>}
+                          {isRto ? <><TruckIcon size={11} /> Courier RTO</> : <><RefreshIcon size={11} /> Customer Return</>}
                         </span>
                       </td>
 
                       {/* SKU */}
-                      <td>
-                        <span className="tag-pill badge-slate" style={{ fontSize: "0.78rem", padding: "3px 8px", fontWeight: 700, display: "inline-block", maxWidth: "160px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <td style={{ overflow: "hidden" }}>
+                        <span className="tag-pill badge-slate" style={{ fontSize: "0.75rem", padding: "2px 7px", fontWeight: 700, display: "inline-block", maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {r.sku}
                         </span>
                       </td>
 
                       {/* Qty */}
-                      <td style={{ textAlign: "center", fontWeight: 700, color: "#0F172A" }}>
+                      <td style={{ textAlign: "center", fontWeight: 700, color: "#0F172A", paddingLeft: "2px", paddingRight: "2px", fontSize: "0.82rem" }}>
                         {r.qty}
                       </td>
 
                       {/* Return Reason */}
-                      <td style={{ fontSize: "0.82rem", color: "#475569", whiteSpace: "normal", wordBreak: "break-word" }}>
-                        <div style={{ fontWeight: 600, color: "#0F172A" }}>{r.returnReason}</div>
+                      <td style={{ fontSize: "0.78rem", color: "#475569", whiteSpace: "normal", wordBreak: "break-word", overflow: "hidden" }}>
+                        <div style={{ fontWeight: 600, color: "#0F172A", lineHeight: 1.2 }}>{r.returnReason}</div>
                         {r.detailedReturnReason && r.detailedReturnReason !== r.returnReason && (
-                          <div style={{ fontSize: "0.75rem", color: "#64748B", marginTop: 2 }}>
+                          <div style={{ fontSize: "0.72rem", color: "#64748B", marginTop: 2, lineHeight: 1.2 }}>
                             {r.detailedReturnReason}
                           </div>
                         )}
                       </td>
 
                       {/* Customer Info */}
-                      <td style={{ whiteSpace: "normal", wordBreak: "break-word" }}>
-                        <div style={{ fontWeight: 600, color: "#0F172A", fontSize: "0.84rem" }}>
+                      <td style={{ whiteSpace: "normal", wordBreak: "break-word", overflow: "hidden" }}>
+                        <div style={{ fontWeight: 600, color: "#0F172A", fontSize: "0.8rem", lineHeight: 1.2 }}>
                           {r.customerName}
                         </div>
                         {r.customerMobile !== "N/A" && (
-                          <div style={{ fontSize: "0.76rem", color: "#0284C7", fontFamily: "var(--font-mono)", fontWeight: 600, marginTop: 2, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                            <PhoneIcon size={12} /> {r.customerMobile}
+                          <div style={{ fontSize: "0.74rem", color: "#0284C7", fontFamily: "var(--font-mono)", fontWeight: 600, marginTop: 2, display: "inline-flex", alignItems: "center", gap: 3 }}>
+                            <PhoneIcon size={11} /> {r.customerMobile}
                           </div>
                         )}
                       </td>
 
                       {/* State */}
-                      <td>
-                        <span className="tag-pill badge-sky" style={{ fontSize: "0.75rem", padding: "3px 10px", display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
-                          <LocationIcon size={12} /> {r.state}
+                      <td style={{ overflow: "hidden" }}>
+                        <span className="tag-pill badge-sky" style={{ fontSize: "0.72rem", padding: "2px 7px", display: "inline-flex", alignItems: "center", gap: 3, whiteSpace: "nowrap" }}>
+                          <LocationIcon size={11} /> {r.state}
                         </span>
                       </td>
 
                       {/* Courier & AWB */}
-                      <td>
-                        <div style={{ fontSize: "0.82rem", color: "#0284C7", fontWeight: 600 }}>
+                      <td style={{ overflow: "hidden" }}>
+                        <div style={{ fontSize: "0.78rem", color: "#0284C7", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {r.courierPartner}
                         </div>
                         {r.awbNumber !== "N/A" && (
-                          <div style={{ fontSize: "0.75rem", color: "#64748B", fontFamily: "var(--font-mono)", marginTop: 2 }}>
+                          <div style={{ fontSize: "0.72rem", color: "#64748B", fontFamily: "var(--font-mono)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                             AWB: {r.awbNumber}
                           </div>
                         )}
                       </td>
 
                       {/* Return Date */}
-                      <td style={{ fontSize: "0.8rem", color: "#64748B", fontFamily: "var(--font-mono)", whiteSpace: "nowrap", paddingRight: "18px" }}>
+                      <td style={{ fontSize: "0.76rem", color: "#64748B", fontFamily: "var(--font-mono)", whiteSpace: "nowrap", paddingRight: "12px", overflow: "hidden" }}>
                         {r.deliveredDate || r.returnCreatedDate || "N/A"}
                       </td>
                     </tr>

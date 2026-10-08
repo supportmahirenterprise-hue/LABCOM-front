@@ -317,25 +317,35 @@ select.input-field option {
   transform: scale(1.2);
 }
 
-/* Custom Table Styles */
+/* Custom Table Styles - Maximum Legibility & Clean Layout */
+.table-responsive-container {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 16px;
+  overflow-x: auto;
+  background: #FFFFFF;
+}
+
 .custom-table {
   width: 100%;
+  max-width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   color: #0F172A;
+  table-layout: auto;
 }
 
 .custom-table th {
   background: #F1F5F9;
   color: #334155;
   font-family: var(--font-sans);
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   padding: 12px 14px;
-  border-bottom: 1px solid #E2E8F0;
+  border-bottom: 1px solid #CBD5E1;
   white-space: nowrap;
   text-align: left;
   position: sticky;
@@ -345,14 +355,14 @@ select.input-field option {
 
 .custom-table th:last-child,
 .custom-table td:last-child {
-  padding-right: 24px;
+  padding-right: 18px;
 }
 
 .custom-table td {
-  padding: 7px 10px;
+  padding: 10px 14px;
   border-bottom: 1px solid #F1F5F9;
   vertical-align: middle;
-  white-space: nowrap;
+  line-height: 1.4;
 }
 
 .custom-table tbody tr {

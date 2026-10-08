@@ -470,17 +470,17 @@ export default function CustomerAnalysisPage() {
           </div>
 
           {/* Table Container */}
-          <div style={{ overflowX: "auto", borderRadius: "12px", border: "1px solid #E2E8F0" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "0.85rem" }}>
+          <div style={{ width: "100%", borderRadius: "12px", border: "1px solid #E2E8F0", overflow: "hidden" }}>
+            <table style={{ width: "100%", tableLayout: "fixed", borderCollapse: "collapse", textAlign: "left", fontSize: "0.82rem" }}>
               <thead>
                 <tr style={{ background: "#F8FAFC", borderBottom: "1px solid #E2E8F0", color: "#475569", fontWeight: 700 }}>
-                  <th style={{ padding: "12px 16px" }}>PRODUCT / SKU NAME</th>
-                  <th style={{ padding: "12px 16px" }}>ORDERS LOGGED</th>
-                  <th style={{ padding: "12px 16px" }}>CUSTOMER RETURNS</th>
-                  <th style={{ padding: "12px 16px" }}>COURIER RTOs</th>
-                  <th style={{ padding: "12px 16px" }}>RETURN RATE %</th>
-                  <th style={{ padding: "12px 16px" }}>DECISION STATUS</th>
-                  <th style={{ padding: "12px 16px" }}>SELLER RECOMMENDATION</th>
+                  <th style={{ padding: "10px 12px", width: "16%" }}>PRODUCT / SKU NAME</th>
+                  <th style={{ padding: "10px 12px", width: "14%" }}>ORDERS LOGGED</th>
+                  <th style={{ padding: "10px 12px", width: "10%" }}>RETURNS</th>
+                  <th style={{ padding: "10px 12px", width: "10%" }}>COURIER RTOs</th>
+                  <th style={{ padding: "10px 12px", width: "11%" }}>RETURN RATE %</th>
+                  <th style={{ padding: "10px 12px", width: "14%" }}>DECISION STATUS</th>
+                  <th style={{ padding: "10px 12px", width: "25%" }}>SELLER RECOMMENDATION</th>
                 </tr>
               </thead>
               <tbody>
@@ -791,18 +791,18 @@ export default function CustomerAnalysisPage() {
             No customer records matching the filter criteria.
           </div>
         ) : (
-          <div style={{ overflowX: "auto", width: "100%", maxWidth: "100%", borderRadius: "0 0 16px 16px" }}>
-            <table className="custom-table" style={{ width: "100%", minWidth: "1180px" }}>
+          <div style={{ width: "100%", maxWidth: "100%", borderRadius: "0 0 16px 16px", overflow: "hidden" }}>
+            <table className="custom-table" style={{ width: "100%", tableLayout: "fixed" }}>
               <thead>
                 <tr>
-                  <th style={{ width: "45px", minWidth: "45px" }}>#</th>
-                  <th style={{ minWidth: "150px" }}>CUSTOMER NAME</th>
-                  <th style={{ minWidth: "125px" }}>MOBILE NUMBER</th>
-                  <th style={{ minWidth: "115px" }}>STATE</th>
-                  <th style={{ minWidth: "130px" }}>DISTRICT</th>
-                  <th style={{ minWidth: "240px" }}>DELIVERY ADDRESS</th>
-                  <th style={{ minWidth: "180px", textAlign: "center" }}>ORDERS COUNT (CLICK TO VIEW)</th>
-                  <th style={{ minWidth: "140px", whiteSpace: "nowrap", paddingRight: "24px" }}>LAST ORDER DATE</th>
+                  <th style={{ width: "35px", paddingLeft: "12px", paddingRight: "4px" }}>#</th>
+                  <th style={{ width: "15%" }}>CUSTOMER NAME</th>
+                  <th style={{ width: "11%" }}>MOBILE NUMBER</th>
+                  <th style={{ width: "10%" }}>STATE</th>
+                  <th style={{ width: "10%" }}>DISTRICT</th>
+                  <th style={{ width: "25%" }}>DELIVERY ADDRESS</th>
+                  <th style={{ width: "18%", textAlign: "center" }}>ORDERS COUNT</th>
+                  <th style={{ width: "10%", paddingRight: "12px" }}>LAST ORDER</th>
                 </tr>
               </thead>
               <tbody>
@@ -810,24 +810,25 @@ export default function CustomerAnalysisPage() {
                   const globalIdx = (currentPage - 1) * pageSize + idx + 1;
                   return (
                     <tr key={c.id || idx}>
-                      <td style={{ color: "var(--text-dim)", fontSize: "0.8rem", fontFamily: "var(--font-mono)" }}>
+                      <td style={{ color: "var(--text-dim)", fontSize: "0.78rem", fontFamily: "var(--font-mono)", paddingLeft: "12px", paddingRight: "4px" }}>
                         {globalIdx} 
                       </td>
-                      <td style={{ fontWeight: 700, color: "var(--text-pure)", fontSize: "0.88rem" }}>
+                      <td style={{ fontWeight: 700, color: "var(--text-pure)", fontSize: "0.85rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {c.name}
                       </td>
-                      <td style={{ fontSize: "0.82rem", color: c.mobileNumber !== "N/A" ? "var(--aurora-1)" : "var(--text-dim)", fontFamily: "var(--font-mono)" }}>
+                      <td style={{ fontSize: "0.8rem", color: c.mobileNumber !== "N/A" ? "var(--aurora-1)" : "var(--text-dim)", fontFamily: "var(--font-mono)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {c.mobileNumber !== "N/A" ? c.mobileNumber : "N/A"}
-                      </td>                      <td>
-                        <span className="tag-pill badge-sky" style={{ fontSize: "0.75rem", padding: "3px 10px", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                          <LocationIcon size={12} /> {c.state}
+                      </td>
+                      <td style={{ overflow: "hidden" }}>
+                        <span className="tag-pill badge-sky" style={{ fontSize: "0.72rem", padding: "2px 7px", display: "inline-flex", alignItems: "center", gap: 3, whiteSpace: "nowrap" }}>
+                          <LocationIcon size={11} /> {c.state}
                         </span>
                       </td>
 
                       {/* Dedicated District Column */}
-                      <td>
-                        <span className="tag-pill badge-teal" style={{ fontSize: "0.78rem", padding: "3px 10px", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                          <BuildingIcon size={12} /> {c.district || "Central"}
+                      <td style={{ overflow: "hidden" }}>
+                        <span className="tag-pill badge-teal" style={{ fontSize: "0.72rem", padding: "2px 7px", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 3, whiteSpace: "nowrap" }}>
+                          <BuildingIcon size={11} /> {c.district || "Central"}
                         </span>
                       </td>
 

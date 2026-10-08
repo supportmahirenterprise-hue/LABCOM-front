@@ -194,17 +194,17 @@ export default function HistoryPage() {
             </Link>
           </div>
         ) : (
-          <div style={{ overflowX: "auto", width: "100%", maxWidth: "100%" }}>
-            <table className="custom-table">
+          <div style={{ width: "100%", maxWidth: "100%", overflow: "hidden" }}>
+            <table className="custom-table" style={{ width: "100%", tableLayout: "fixed" }}>
               <thead>
                 <tr>
-                  <th style={{ width: "160px" }}>Date & Time</th>
-                  <th style={{ width: "240px" }}>File Name</th>
-                  <th style={{ width: "110px" }}>Type</th>
-                  <th style={{ width: "100px" }}>Pages</th>
-                  <th style={{ width: "150px" }}>Sort Rule</th>
-                  <th style={{ width: "140px" }}>QR Stamper</th>
-                  <th style={{ width: "110px" }}>Status</th>
+                  <th style={{ width: "18%" }}>Date & Time</th>
+                  <th style={{ width: "30%" }}>File Name</th>
+                  <th style={{ width: "10%" }}>Type</th>
+                  <th style={{ width: "8%" }}>Pages</th>
+                  <th style={{ width: "14%" }}>Sort Rule</th>
+                  <th style={{ width: "10%" }}>QR Stamper</th>
+                  <th style={{ width: "10%" }}>Status</th>
                 </tr>
               </thead>
               <tbody>
