@@ -104,6 +104,8 @@ export default function CustomerAnalysisPage() {
   const router = useRouter();
 
   const [data, setData] = useState(null);
+  const [insightsData, setInsightsData] = useState(null);
+  const [skuFilter, setSkuFilter] = useState("ALL");
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [repeatOnly, setRepeatOnly] = useState(false);
@@ -121,6 +123,20 @@ export default function CustomerAnalysisPage() {
     const start = (currentPage - 1) * pageSize;
     return data.customers.slice(start, start + pageSize);
   }, [data?.customers, currentPage, pageSize]);
+
+  const filteredSkuMatrix = useMemo(() => {
+    if (!insightsData?.skuPerformanceMatrix) return [];
+    if (skuFilter === "PAUSE") {
+      return insightsData.skuPerformanceMatrix.filter((item) => item.shouldPause);
+    }
+    if (skuFilter === "WINNER") {
+      return insightsData.skuPerformanceMatrix.filter((item) => item.isWinner);
+    }
+    if (skuFilter === "RTO") {
+      return insightsData.skuPerformanceMatrix.filter((item) => item.rtoRate >= 15);
+    }
+    return insightsData.skuPerformanceMatrix;
+  }, [insightsData?.skuPerformanceMatrix, skuFilter]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -160,18 +176,25 @@ export default function CustomerAnalysisPage() {
         district: selectedDistrict,
       });
 
-      const res = await fetch(
-        `${BACKEND_URL}/api/customer-analysis?${queryParams.toString()}`,
-        {
+      const [resCustomer, resInsights] = await Promise.all([
+        fetch(`${BACKEND_URL}/api/customer-analysis?${queryParams.toString()}`, {
           headers: { "x-user-email": userEmail },
-        }
-      );
+        }),
+        fetch(`${BACKEND_URL}/api/insights/dashboard`, {
+          headers: { "x-user-email": userEmail },
+        }).catch(() => null),
+      ]);
 
-      if (res.ok) {
-        const json = await res.json();
+      if (resCustomer && resCustomer.ok) {
+        const json = await resCustomer.json();
         setData(json);
       } else {
         showToast("Failed to load customer analysis data", "error");
+      }
+
+      if (resInsights && resInsights.ok) {
+        const insightsJson = await resInsights.json();
+        setInsightsData(insightsJson);
       }
     } catch (err) {
       console.error("Failed to fetch customer analysis:", err);
@@ -359,6 +382,152 @@ export default function CustomerAnalysisPage() {
           <span style={{ fontSize: "0.76rem", color: "#0369A1", fontWeight: 600, marginTop: 4, display: "block" }}>
             Total shipping parcels logged in DB
           </span>
+        </div>
+      </div>
+
+      {/* EXECUTIVE SMART ACTION HUB & PRODUCT PAUSE DECISION MATRIX */}
+      <div className="premium-glass" style={{ padding: "24px 26px", borderRadius: "20px", background: "#FFFFFF", border: "1px solid #E2E8F0", marginBottom: 28, boxShadow: "0 10px 25px -5px rgba(15, 23, 42, 0.05)" }}>
+        {/* Header */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <h2 style={{ fontSize: "1.25rem", color: "#0F172A", margin: 0, fontWeight: 700, display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#4F46E5", display: "inline-block" }}></span>
+              🎯 Executive Action Hub & SKU Pause Matrix
+            </h2>
+            <p style={{ fontSize: "0.82rem", color: "#64748B", marginTop: 4, marginBottom: 0 }}>
+              Automated seller decision intelligence: Products to pause, top winner SKUs, and high-growth potential districts.
+            </p>
+          </div>
+        </div>
+
+        {/* Smart Executive Action Cards Grid */}
+        {insightsData?.actionCards && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: 16, marginBottom: 26 }}>
+            {insightsData.actionCards.map((card) => (
+              <div
+                key={card.id}
+                style={{
+                  padding: "18px 20px",
+                  borderRadius: "16px",
+                  background: card.type === "critical" ? "#FEF2F2" : card.type === "growth" ? "#F0FDF4" : "#F0F9FF",
+                  border: card.type === "critical" ? "1px solid #FCA5A5" : card.type === "growth" ? "1px solid #86EFAC" : "1px solid #BAE6FD",
+                }}
+              >
+                <div style={{ fontSize: "0.78rem", fontWeight: 800, color: card.type === "critical" ? "#DC2626" : card.type === "growth" ? "#166534" : "#0369A1", marginBottom: 6 }}>
+                  {card.title}
+                </div>
+                <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "#0F172A", marginBottom: 8, lineHeight: 1.3 }}>
+                  {card.headline}
+                </div>
+                <div style={{ fontSize: "0.82rem", color: "#475569", lineHeight: 1.45 }}>
+                  💡 <strong>Advice:</strong> {card.advice}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* SKU Performance & Pause Table */}
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
+            <div>
+              <h3 style={{ fontSize: "1.05rem", fontWeight: 700, color: "#0F172A", margin: 0 }}>
+                📦 Product Demand & Return Matrix (SKU-Wise)
+              </h3>
+              <p style={{ fontSize: "0.78rem", color: "#64748B", margin: "2px 0 0 0" }}>
+                Filter products to immediately see which SKUs need pausing or ad scaling.
+              </p>
+            </div>
+
+            {/* Segmented Filter Control */}
+            <div className="segmented-control" style={{ background: "#F1F5F9", padding: "4px", borderRadius: "10px", display: "inline-flex", gap: 4 }}>
+              {[
+                { id: "ALL", label: "All Products" },
+                { id: "PAUSE", label: "🛑 Need Pause" },
+                { id: "WINNER", label: "🚀 Winners" },
+                { id: "RTO", label: "⚠️ High RTO" },
+              ].map((f) => (
+                <button
+                  key={f.id}
+                  onClick={() => setSkuFilter(f.id)}
+                  style={{
+                    padding: "6px 14px",
+                    borderRadius: "8px",
+                    border: "none",
+                    background: skuFilter === f.id ? "#FFFFFF" : "transparent",
+                    color: skuFilter === f.id ? "#4F46E5" : "#64748B",
+                    fontWeight: skuFilter === f.id ? 700 : 500,
+                    fontSize: "0.78rem",
+                    cursor: "pointer",
+                    boxShadow: skuFilter === f.id ? "0 2px 6px rgba(0,0,0,0.06)" : "none",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Table Container */}
+          <div style={{ overflowX: "auto", borderRadius: "12px", border: "1px solid #E2E8F0" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "0.85rem" }}>
+              <thead>
+                <tr style={{ background: "#F8FAFC", borderBottom: "1px solid #E2E8F0", color: "#475569", fontWeight: 700 }}>
+                  <th style={{ padding: "12px 16px" }}>PRODUCT / SKU NAME</th>
+                  <th style={{ padding: "12px 16px" }}>ORDERS LOGGED</th>
+                  <th style={{ padding: "12px 16px" }}>CUSTOMER RETURNS</th>
+                  <th style={{ padding: "12px 16px" }}>COURIER RTOs</th>
+                  <th style={{ padding: "12px 16px" }}>RETURN RATE %</th>
+                  <th style={{ padding: "12px 16px" }}>DECISION STATUS</th>
+                  <th style={{ padding: "12px 16px" }}>SELLER RECOMMENDATION</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredSkuMatrix.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} style={{ padding: "24px", textAlign: "center", color: "#64748B" }}>
+                      No matching products found for selected filter.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredSkuMatrix.map((item, idx) => (
+                    <tr
+                      key={idx}
+                      style={{
+                        borderBottom: "1px solid #F1F5F9",
+                        background: item.shouldPause ? "#FFF5F5" : "transparent",
+                      }}
+                    >
+                      <td style={{ padding: "14px 16px", fontWeight: 700, color: "#0F172A" }}>
+                        {item.sku}
+                      </td>
+                      <td style={{ padding: "14px 16px", fontWeight: 700, color: "#0284C7" }}>
+                        {item.totalOrders} units
+                      </td>
+                      <td style={{ padding: "14px 16px", color: "#475569" }}>
+                        {item.customerReturnCount}
+                      </td>
+                      <td style={{ padding: "14px 16px", color: "#475569" }}>
+                        {item.rtoCount}
+                      </td>
+                      <td style={{ padding: "14px 16px", fontWeight: 800, color: item.returnRate >= 20 ? "#DC2626" : "#059669" }}>
+                        {item.returnRate}%
+                      </td>
+                      <td style={{ padding: "14px 16px" }}>
+                        <span className={`badge ${item.badgeStyle}`}>
+                          {item.actionBadge}
+                        </span>
+                      </td>
+                      <td style={{ padding: "14px 16px", color: "#334155", fontSize: "0.8rem", maxWidth: 300, lineHeight: 1.4 }}>
+                        {item.adviceText}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
