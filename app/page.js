@@ -901,9 +901,30 @@ export default function Home() {
     return text;
   }, [detailText, pages]);
 
-  const simQrSize = Math.max(20, Math.min(140, qrSize * scale));
-  const simQrX = Math.max(0, Math.min(canvasW - simQrSize, qrX * scale));
-  const simQrY = Math.max(0, Math.min(canvasH - simQrSize, canvasH - (qrY * scale) - simQrSize));
+  const numQrX = parseFloat(qrX) || 0;
+  const numQrY = parseFloat(qrY) || 0;
+  const numQrSize = parseFloat(qrSize) || 90;
+  const numFontSize = parseFloat(fontSize) || 8;
+
+  const simQrSize = Math.max(16, numQrSize * scale);
+  const simQrX = Math.max(0, Math.min(canvasW - simQrSize, numQrX * scale));
+  const simQrY = Math.max(0, Math.min(canvasH - simQrSize, canvasH - (numQrY * scale) - simQrSize));
+
+  const numTextX = numQrX + numQrSize + 10;
+  const simTextX = numTextX * scale;
+  const simTextMaxWidth = Math.max(20, (412 - numTextX - 15) * scale);
+  const simFontSize = numFontSize * scale;
+  const simLineHeight = (numFontSize + 3) * scale;
+
+  const previewLines = useMemo(() => {
+    if (!previewText) return ["QR Stamp"];
+    return previewText.split("\n");
+  }, [previewText]);
+
+  const totalTextHeightPt = (previewLines.length - 1) * (numFontSize + 3) + numFontSize;
+  const qrCenterYPt = numQrY + numQrSize / 2;
+  const startYPt = qrCenterYPt + totalTextHeightPt / 2 - numFontSize * 0.85;
+  const simTextTop = Math.max(0, Math.min(canvasH - simFontSize, canvasH - (startYPt * scale) - simFontSize));
 
   return (
     <div style={{ minHeight: "100vh", paddingBottom: 40, position: "relative", width: "100%", maxWidth: "100%", overflowX: "hidden" }}>
@@ -1265,58 +1286,68 @@ export default function Home() {
                   -- Blank Stamp Area --
                 </div>
 
-                {/* DYNAMIC QR STAMP OVERLAY */}
+                {/* DYNAMIC QR STAMP OVERLAY - 1:1 PDF Output Matching */}
                 {enableQr ? (
-                  <div
-                    style={{
-                      position: "absolute",
-                      left: simQrX,
-                      top: simQrY,
-                      width: "fit-content",
-                      maxWidth: Math.max(40, canvasW - simQrX - 8),
-                      maxHeight: Math.max(40, canvasH - simQrY - 8),
-                      background: "rgba(249, 115, 22, 0.12)",
-                      border: "1.5px solid #F97316",
-                      borderRadius: 4,
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                      transition: "all 0.1s ease-out",
-                      padding: "3px 6px",
-                      gap: 6,
-                      zIndex: 20,
-                      overflow: "hidden",
-                      boxSizing: "border-box",
-                    }}
-                  >
+                  <>
+                    {/* Outer Stamp Zone Boundary Indicator */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: Math.max(0, simQrX - 3),
+                        top: Math.max(0, Math.min(simQrY, simTextTop) - 3),
+                        width: Math.min(canvasW - simQrX, simQrSize + 8 + simTextMaxWidth + 6),
+                        height: Math.max(simQrSize + 6, (previewLines.length * simLineHeight) + 6),
+                        background: "rgba(249, 115, 22, 0.08)",
+                        border: "1.5px dashed #F97316",
+                        borderRadius: 3,
+                        pointerEvents: "none",
+                        zIndex: 19,
+                      }}
+                    />
+
                     {/* QR Code Graphic */}
                     <div
                       style={{
+                        position: "absolute",
+                        left: simQrX,
+                        top: simQrY,
                         width: simQrSize,
                         height: simQrSize,
                         background: "repeating-conic-gradient(#EA580C 0% 25%, #FFF7ED 0% 50%) 50% / 6px 6px",
+                        border: "1px solid #EA580C",
                         borderRadius: 1,
-                        flexShrink: 0,
+                        boxSizing: "border-box",
+                        zIndex: 20,
+                        transition: "all 0.1s ease-out",
                       }}
                     />
-                    {/* Text Details next to QR */}
+
+                    {/* Text Details next to QR - Centered vertically relative to QR code */}
                     <div
                       style={{
-                        fontSize: Math.min(7.5, Math.max(4.5, fontSize * scale * 0.8)),
-                        fontFamily: "'Nirmala UI', 'Noto Sans', 'Segoe UI', system-ui, sans-serif",
+                        position: "absolute",
+                        left: simTextX,
+                        top: simTextTop,
+                        width: simTextMaxWidth,
+                        fontSize: simFontSize,
+                        lineHeight: `${simLineHeight}px`,
+                        fontFamily: "'Times New Roman', Times, 'Nirmala UI', serif",
                         fontStyle: "italic",
                         color: "#C2410C",
                         fontWeight: 700,
                         whiteSpace: "pre-wrap",
                         wordBreak: "break-word",
-                        lineHeight: 1.15,
-                        maxHeight: Math.max(20, canvasH - simQrY - 12),
-                        overflow: "hidden",
+                        zIndex: 20,
+                        transition: "all 0.1s ease-out",
                       }}
                     >
-                      {previewText}
+                      {previewLines.map((line, i) => (
+                        <div key={i} style={{ height: `${simLineHeight}px`, overflow: "hidden" }}>
+                          {line}
+                        </div>
+                      ))}
                     </div>
-                  </div>
+                  </>
                 ) : (
                   <div
                     style={{
