@@ -1,0 +1,15 @@
+# LabelPro Engine — Intelligent Shipping Label & Order Analytics Platform
+
+LabelPro Engine is a high-performance operating software designed for e-commerce sellers (Meesho, Amazon, Flipkart, Direct Sellers).
+
+## Core Capabilities
+1. **Shipping Label Processing & Vector QR Stamping**: Parses multi-page PDF shipping labels, embeds custom dynamic QR codes (WhatsApp tracking, Instagram boosters, custom landing pages), and stamps custom notes.
+2. **1-Click Smart Batch Sorting**: Reorders shipping label pages by SKU (Highest Quantity First), Order Date, or Delivery Location for fast warehouse packing.
+3. **District Demand & Customer Intelligence**: Identifies high-volume vs low-volume states & districts (*jile*), calculates customer repeat retention rate, and highlights high growth potential regions.
+4. **Reverse Logistics & Return Management**: Auto-matches customer returns vs undelivered Courier RTO parcels from CSV/Excel uploads.
+5. **Executive SKU Pause Matrix**: Automatically flags products with >20% return rates and advises sellers to pause ads and manufacturing to prevent delivery losses.
+
+## Technical Architecture
+- **Frontend**: Next.js 14 App Router, React 18, Vanilla CSS Design System.
+- **Backend**: Node.js, Express, PDF-Lib vector engine, MongoDB Atlas.
+- **API Standard**: REST API endpoints for PDF preview (`/api/preview`), batch generation (`/api/generate`), analytics (`/api/analytics`), and insights (`/api/insights/dashboard`).
