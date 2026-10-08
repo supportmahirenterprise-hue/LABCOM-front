@@ -648,7 +648,7 @@ export default function CustomerAnalysisPage() {
               </svg>
               <input
                 type="text"
-                placeholder="Search Customer, Mobile, Address, District, State, or Order No..."
+                placeholder="Search Order No, Sub Order ID, Customer Name, Mobile, Address, State, District..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 style={{
