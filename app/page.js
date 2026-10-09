@@ -85,6 +85,105 @@ function LocationIcon() {
   );
 }
 
+function StorefrontIcon({ size = 32 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" stroke="#000000" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M7 5h18l3.5 7H3.5L7 5z" fill="#000000" fillOpacity="0.04" />
+      <path d="M3.5 12c1.4 1.8 3.6 1.8 5 0 1.4 1.8 3.6 1.8 5 0 1.4 1.8 3.6 1.8 5 0 1.4 1.8 3.6 1.8 5 0" />
+      <path d="M5 14v13h22V14" />
+      <path d="M3 27h26" />
+      <path d="M8 27v-8a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v8" />
+      <rect x="18" y="17" width="6" height="6" rx="1" />
+    </svg>
+  );
+}
+
+function drawShopIconCanvas(ctx, x, y, size) {
+  ctx.save();
+  ctx.fillStyle = "#000000";
+  ctx.strokeStyle = "#000000";
+  ctx.lineWidth = Math.max(2, size * 0.075);
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  const w = size;
+  const h = size;
+
+  // Awning Roof Trapezoid
+  const roofTopY = y + h * 0.05;
+  const roofBotY = y + h * 0.38;
+  const roofLeftTop = x + w * 0.22;
+  const roofRightTop = x + w * 0.78;
+  const roofLeftBot = x + w * 0.08;
+  const roofRightBot = x + w * 0.92;
+
+  ctx.beginPath();
+  ctx.moveTo(roofLeftTop, roofTopY);
+  ctx.lineTo(roofRightTop, roofTopY);
+  ctx.lineTo(roofRightBot, roofBotY);
+  ctx.lineTo(roofLeftBot, roofBotY);
+  ctx.closePath();
+  ctx.stroke();
+
+  // Awning Scallops
+  const numScallops = 4;
+  const scallopW = (roofRightBot - roofLeftBot) / numScallops;
+  ctx.beginPath();
+  for (let i = 0; i < numScallops; i++) {
+    const sx = roofLeftBot + i * scallopW;
+    const mx = sx + scallopW / 2;
+    ctx.arc(mx, roofBotY, scallopW / 2, Math.PI, 0, true);
+  }
+  ctx.stroke();
+
+  // Shop Walls and Bottom Platform
+  const wallLeft = x + w * 0.12;
+  const wallRight = x + w * 0.88;
+  const wallTop = roofBotY + scallopW * 0.25;
+  const wallBot = y + h * 0.92;
+
+  // Bottom Platform / Floor
+  ctx.beginPath();
+  ctx.moveTo(x + w * 0.05, wallBot);
+  ctx.lineTo(x + w * 0.95, wallBot);
+  ctx.stroke();
+
+  // Left & Right Walls
+  ctx.beginPath();
+  ctx.moveTo(wallLeft, wallTop);
+  ctx.lineTo(wallLeft, wallBot);
+  ctx.moveTo(wallRight, wallTop);
+  ctx.lineTo(wallRight, wallBot);
+  ctx.stroke();
+
+  // Left Door (with rounded top)
+  const doorLeft = wallLeft + w * 0.1;
+  const doorWidth = w * 0.26;
+  const doorHeight = h * 0.36;
+  const doorTop = wallBot - doorHeight;
+  const doorRadius = doorWidth * 0.3;
+
+  ctx.beginPath();
+  ctx.moveTo(doorLeft, wallBot);
+  ctx.lineTo(doorLeft, doorTop + doorRadius);
+  ctx.arcTo(doorLeft, doorTop, doorLeft + doorRadius, doorTop, doorRadius);
+  ctx.arcTo(doorLeft + doorWidth, doorTop, doorLeft + doorWidth, doorTop + doorRadius, doorRadius);
+  ctx.lineTo(doorLeft + doorWidth, wallBot);
+  ctx.stroke();
+
+  // Right Window
+  const winLeft = wallRight - w * 0.36;
+  const winWidth = w * 0.26;
+  const winHeight = h * 0.26;
+  const winTop = doorTop + (doorHeight - winHeight) / 2;
+
+  ctx.beginPath();
+  ctx.rect(winLeft, winTop, winWidth, winHeight);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
 function StoreIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -306,6 +405,19 @@ export default function Home() {
   // Stamp Design Style Config (Badge vs Classic)
   const [stampStyle, setStampStyle] = useState("badge"); // "badge", "classic"
   const [storeName, setStoreName] = useState("VISHAL");
+  const [previewQrDataUrl, setPreviewQrDataUrl] = useState("");
+
+  useEffect(() => {
+    let isMounted = true;
+    QRCode.toDataURL(qrText || "https://www.meesho.com", { margin: 0, width: 140 })
+      .then((url) => {
+        if (isMounted) setPreviewQrDataUrl(url);
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, [qrText]);
 
   // PDF Crop Config & Modal State (Matching Mayur.dev 1:1)
   const [showCropModal, setShowCropModal] = useState(false);
@@ -417,6 +529,8 @@ export default function Home() {
         const s = JSON.parse(cachedStr);
         if (s.enableQr !== undefined) setEnableQr(s.enableQr);
         if (s.useNativeScript !== undefined) setUseNativeScript(s.useNativeScript);
+        if (s.storeName !== undefined) setStoreName(s.storeName);
+        if (s.stampStyle !== undefined) setStampStyle(s.stampStyle);
         if (s.qrText !== undefined) setQrText(s.qrText);
         if (s.detailText !== undefined) setDetailText(s.detailText);
         if (s.qrX !== undefined) setQrX(s.qrX);
@@ -446,6 +560,8 @@ export default function Home() {
             const s = data.settings;
             if (s.enableQr !== undefined) setEnableQr(s.enableQr);
             if (s.useNativeScript !== undefined) setUseNativeScript(s.useNativeScript);
+            if (s.storeName !== undefined) setStoreName(s.storeName);
+            if (s.stampStyle !== undefined) setStampStyle(s.stampStyle);
             if (s.qrText !== undefined) setQrText(s.qrText);
             if (s.detailText !== undefined) setDetailText(s.detailText);
             if (s.qrX !== undefined) setQrX(s.qrX);
@@ -489,6 +605,8 @@ export default function Home() {
             email: userEmail,
             enableQr,
             useNativeScript,
+            storeName,
+            stampStyle,
             qrText,
             detailText,
             qrX,
@@ -508,7 +626,7 @@ export default function Home() {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [enableQr, useNativeScript, qrText, detailText, qrX, qrY, qrSize, fontSize, sortBy, sortOrder, downloadSummary, status, session]);
+  }, [enableQr, useNativeScript, storeName, stampStyle, qrText, detailText, qrX, qrY, qrSize, fontSize, sortBy, sortOrder, downloadSummary, status, session]);
 
   useEffect(() => {
     if (showWarningModal || showDuplicateModal) {
@@ -911,153 +1029,140 @@ export default function Home() {
       const fields = pages && pages.length ? pages : [];
 
       if (enableQr) {
-        const font = await srcDoc.embedFont(StandardFonts.Helvetica);
-        const boldFont = await srcDoc.embedFont(StandardFonts.HelveticaBold);
         const x = parseFloat(qrX) || 0;
         const y = parseFloat(qrY) || 0;
-        const size = parseFloat(qrSize) || 70;
-        const fSize = parseFloat(fontSize) || 8;
-        const isBadgeMode = stampStyle === "badge";
-        const cleanStoreName = (storeName || "STORE").trim().toUpperCase();
+        const size = parseFloat(qrSize) || 65;
+        const fSize = parseFloat(fontSize) || 9;
+        const cleanStoreName = (storeName || "VISHAL").trim().toUpperCase();
 
-        const qrImageCache = new Map();
-        const unicodeCanvasCache = new Map();
+        const badgeImageCache = new Map();
 
-        // Helper to safely render Indic/Unicode (e.g. Gujarati 'અ') or WinAnsi text on PDF without crashes
-        const drawSafeTextOnPdf = async (pdfDoc, pageObj, textStr, textX, textY, fontSizeVal, fontObj, isBold = false) => {
-          if (!textStr || !textStr.trim()) return 0;
-          const isUnicode = /[^\x00-\x7F]/.test(textStr);
+        const renderStampBadgeCanvas = async (storeNameStr, qrContentStr, detailTextStr, qrSizeVal, fontSizeVal) => {
+          const scale = 4; // 300+ High DPI for thermal printing
+          const cleanStore = (storeNameStr || "STORE").trim().toUpperCase();
 
-          if (isUnicode) {
-            try {
-              const cacheKey = `${textStr}_${fontSizeVal}_${isBold}`;
-              let cachedImg = unicodeCanvasCache.get(cacheKey);
+          const tempCanvas = document.createElement("canvas");
+          const tempCtx = tempCanvas.getContext("2d");
 
-              if (!cachedImg) {
-                const canvas = document.createElement("canvas");
-                const ctx = canvas.getContext("2d");
-                const scaleFactor = 3.5;
-                const fontSizePx = Math.round(fontSizeVal * scaleFactor);
-                const fontCss = `${isBold ? "bold" : "normal"} ${fontSizePx}px "Nirmala UI", "Segoe UI", Arial, sans-serif`;
+          const storeFontSizePx = Math.round(Math.max(12, fontSizeVal * 1.5) * scale);
+          const storeFontCss = `bold ${storeFontSizePx}px "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
+          tempCtx.font = storeFontCss;
+          const storeTextWidth = tempCtx.measureText(cleanStore).width;
 
-                ctx.font = fontCss;
-                const metrics = ctx.measureText(textStr);
-                const canvasW = Math.max(20, Math.ceil(metrics.width + 8 * scaleFactor));
-                const canvasH = Math.max(16, Math.ceil(fontSizePx * 1.35 + 4 * scaleFactor));
+          const detailFontSizePx = Math.round(fontSizeVal * scale);
+          const detailFontCss = `bold ${detailFontSizePx}px "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
+          tempCtx.font = detailFontCss;
 
-                canvas.width = canvasW;
-                canvas.height = canvasH;
+          const rawLines = (detailTextStr || "Follow\nour page").split("\n");
+          let maxDetailLineWidth = 0;
+          rawLines.forEach((line) => {
+            const w = tempCtx.measureText(line).width;
+            if (w > maxDetailLineWidth) maxDetailLineWidth = w;
+          });
 
-                ctx.font = fontCss;
-                ctx.fillStyle = "#000000";
-                ctx.textBaseline = "middle";
-                ctx.fillText(textStr, 2 * scaleFactor, canvasH / 2);
+          const padX = Math.round(16 * scale);
+          const padY = Math.round(10 * scale);
+          const iconSize = Math.round(Math.max(26, qrSizeVal * 0.48) * scale);
+          const iconTextGap = Math.round(12 * scale);
+          const dividerGap = Math.round(16 * scale);
+          const qrScaledSize = Math.round(Math.max(28, qrSizeVal * 0.52) * scale);
+          const qrTextGap = Math.round(12 * scale);
 
-                const dataUrl = canvas.toDataURL("image/png");
-                const pngBytes = await fetch(dataUrl).then((r) => r.arrayBuffer());
-                const embeddedPng = await pdfDoc.embedPng(pngBytes);
+          const leftSectionWidth = iconSize + iconTextGap + storeTextWidth;
+          const rightSectionWidth = qrScaledSize + qrTextGap + maxDetailLineWidth;
+          const totalWidth = padX + leftSectionWidth + dividerGap + Math.round(2 * scale) + dividerGap + rightSectionWidth + padX;
 
-                cachedImg = {
-                  image: embeddedPng,
-                  width: canvasW / scaleFactor,
-                  height: canvasH / scaleFactor,
-                };
-                unicodeCanvasCache.set(cacheKey, cachedImg);
-              }
+          const detailBlockHeight = rawLines.length * (detailFontSizePx * 1.25);
+          const contentHeight = Math.max(iconSize, qrScaledSize, detailBlockHeight, storeFontSizePx);
+          const totalHeight = padY + contentHeight + padY;
 
-              pageObj.drawImage(cachedImg.image, {
-                x: textX,
-                y: textY - (fontSizeVal * 0.25),
-                width: cachedImg.width,
-                height: cachedImg.height,
-              });
+          const canvas = document.createElement("canvas");
+          canvas.width = totalWidth;
+          canvas.height = totalHeight;
+          const ctx = canvas.getContext("2d");
 
-              return cachedImg.width;
-            } catch (e) {
-              console.error("Canvas unicode text draw error:", e);
-              textStr = textStr.replace(/[^\x00-\x7F]/g, "");
-            }
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "high";
+
+          // 1. White Background with Rounded Outer Border (Exact Match)
+          const borderRadius = Math.round(12 * scale);
+          const borderWidth = Math.round(2.5 * scale);
+          ctx.fillStyle = "#FFFFFF";
+          ctx.strokeStyle = "#000000";
+          ctx.lineWidth = borderWidth;
+
+          ctx.beginPath();
+          if (ctx.roundRect) {
+            ctx.roundRect(borderWidth / 2, borderWidth / 2, totalWidth - borderWidth, totalHeight - borderWidth, borderRadius);
+          } else {
+            ctx.rect(borderWidth / 2, borderWidth / 2, totalWidth - borderWidth, totalHeight - borderWidth);
           }
+          ctx.fill();
+          ctx.stroke();
 
-          if (textStr.trim()) {
-            try {
-              pageObj.drawText(textStr, {
-                x: textX,
-                y: textY,
-                size: fontSizeVal,
-                font: fontObj,
-                color: rgb(0, 0, 0),
-              });
-              return fontObj.widthOfTextAtSize(textStr, fontSizeVal);
-            } catch (err) {
-              const safeAscii = textStr.replace(/[^\x00-\x7F]/g, "");
-              if (safeAscii.trim()) {
-                try {
-                  pageObj.drawText(safeAscii, {
-                    x: textX,
-                    y: textY,
-                    size: fontSizeVal,
-                    font: fontObj,
-                    color: rgb(0, 0, 0),
-                  });
-                  return fontObj.widthOfTextAtSize(safeAscii, fontSizeVal);
-                } catch (e) {}
-              }
-            }
-          }
-          return 0;
-        };
+          const centerY = totalHeight / 2;
 
-        const measureTextWidth = (str, fontObj, fontSz, isBold = false) => {
-          if (!str) return 0;
-          if (/[^\x00-\x7F]/.test(str)) {
-            if (typeof document !== "undefined") {
-              try {
-                const canvas = document.createElement("canvas");
-                const ctx = canvas.getContext("2d");
-                ctx.font = `${isBold ? "bold" : "normal"} ${Math.round(fontSz * 3.5)}px "Nirmala UI", "Segoe UI", Arial, sans-serif`;
-                return (ctx.measureText(str).width / 3.5) + 4;
-              } catch (e) {}
-            }
-            return str.length * fontSz * 0.7;
-          }
-          try {
-            return fontObj.widthOfTextAtSize(str, fontSz);
-          } catch (e) {
-            return str.length * fontSz * 0.65;
-          }
-        };
+          // 2. Storefront Icon
+          let curX = padX;
+          const iconY = centerY - iconSize / 2;
+          drawShopIconCanvas(ctx, curX, iconY, iconSize);
 
-        const wrapLinesForWidth = (rawText, maxWidth, fontObj, fontSz) => {
-          if (!rawText) return [];
-          const initialLines = rawText.split("\n");
-          const result = [];
-          for (const rawLine of initialLines) {
-            if (!rawLine.trim()) {
-              result.push("");
-              continue;
-            }
-            const words = rawLine.split(/\s+/);
-            let cur = "";
-            for (const word of words) {
-              const test = cur ? `${cur} ${word}` : word;
-              const testW = measureTextWidth(test, fontObj, fontSz, false);
-              if (testW > maxWidth && cur) {
-                result.push(cur);
-                cur = word;
-              } else {
-                cur = test;
-              }
-            }
-            if (cur) result.push(cur);
-          }
-          return result;
+          // 3. Store Name (Bold Uppercase)
+          curX += iconSize + iconTextGap;
+          ctx.font = storeFontCss;
+          ctx.fillStyle = "#000000";
+          ctx.textBaseline = "middle";
+          ctx.fillText(cleanStore, curX, centerY);
+
+          // 4. Vertical Divider Line
+          curX += storeTextWidth + dividerGap;
+          ctx.beginPath();
+          ctx.moveTo(curX, padY + Math.round(2 * scale));
+          ctx.lineTo(curX, totalHeight - padY - Math.round(2 * scale));
+          ctx.strokeStyle = "#000000";
+          ctx.lineWidth = Math.round(2 * scale);
+          ctx.stroke();
+
+          // 5. QR Code
+          curX += dividerGap;
+          const qrPngDataUrl = await QRCode.toDataURL(qrContentStr || "https://www.meesho.com", {
+            margin: 0,
+            width: qrScaledSize,
+            errorCorrectionLevel: "M",
+          });
+          const qrImg = new Image();
+          await new Promise((resolve) => {
+            qrImg.onload = resolve;
+            qrImg.src = qrPngDataUrl;
+          });
+          const qrYPos = centerY - qrScaledSize / 2;
+          ctx.drawImage(qrImg, curX, qrYPos, qrScaledSize, qrScaledSize);
+
+          // 6. Text beside QR
+          curX += qrScaledSize + qrTextGap;
+          ctx.font = detailFontCss;
+          ctx.fillStyle = "#000000";
+          ctx.textBaseline = "top";
+          const textLineHeight = detailFontSizePx * 1.25;
+          const textStartY = centerY - (rawLines.length * textLineHeight) / 2;
+
+          rawLines.forEach((line, idx) => {
+            ctx.fillText(line, curX, textStartY + idx * textLineHeight);
+          });
+
+          const pngDataUrl = canvas.toDataURL("image/png");
+          const pngBytes = await fetch(pngDataUrl).then((r) => r.arrayBuffer());
+
+          return {
+            pngBytes,
+            widthPt: totalWidth / scale,
+            heightPt: totalHeight / scale,
+          };
         };
 
         for (let i = 0; i < numPagesToProcess; i++) {
           const page = srcDoc.getPage(i);
           const data = fields[i] || {};
-          const pageWidth = page.getWidth();
 
           let qrContent = qrText || "{orderNo}";
           TAG_PLACEHOLDERS.forEach((tag) => {
@@ -1066,185 +1171,38 @@ export default function Home() {
           });
           qrContent = qrContent.trim() || `Page-${i + 1}`;
 
-          let qrImage = qrImageCache.get(qrContent);
-          if (!qrImage) {
-            const qrPngDataUrl = await QRCode.toDataURL(qrContent, { margin: 1, width: 300 });
-            const qrPngBytes = await fetch(qrPngDataUrl).then((res) => res.arrayBuffer());
-            qrImage = await srcDoc.embedPng(qrPngBytes);
-            qrImageCache.set(qrContent, qrImage);
-          }
-
-          let detailFilled = detailText || "";
+          let detailFilled = detailText || "Follow\nour page";
           TAG_PLACEHOLDERS.forEach((tag) => {
             const key = tag.replace(/[{}]/g, "");
             detailFilled = detailFilled.replace(new RegExp(tag, "g"), data[key] || "");
           });
 
-          const padX = 8;
-          const padY = 6;
-          const gapQrText = 8;
-          const dividerGap = 6;
-          const storeFontSize = Math.max(8, Math.min(14, fSize * 1.05));
-          const actualQrSize = size;
+          const cacheKey = `${cleanStoreName}__${qrContent}__${detailFilled}__${size}__${fSize}`;
+          let badgeObj = badgeImageCache.get(cacheKey);
 
-          if (isBadgeMode) {
-            const storeTextWidth = measureTextWidth(cleanStoreName, boldFont, storeFontSize, true);
-            const prefixWidth = padX + storeTextWidth + dividerGap + 1.2 + dividerGap + actualQrSize + gapQrText;
-            const maxAllowedTextWidth = Math.max(60, pageWidth - x - prefixWidth - padX - 8);
-
-            const wrappedLines = wrapLinesForWidth(detailFilled, maxAllowedTextWidth, font, fSize);
-
-            let maxLineWidth = 0;
-            for (let li = 0; li < wrappedLines.length; li++) {
-              const line = wrappedLines[li];
-              const isHeader = li === 0;
-              const w = measureTextWidth(line, isHeader ? boldFont : font, fSize, isHeader);
-              if (w > maxLineWidth) maxLineWidth = w;
-            }
-            if (maxLineWidth < 30 && wrappedLines.length > 0) maxLineWidth = 30;
-
-            const lineHeight = fSize + 3;
-            const totalTextHeight = wrappedLines.length > 0 ? ((wrappedLines.length - 1) * lineHeight + fSize) : 0;
-            const contentHeight = Math.max(actualQrSize, totalTextHeight, storeFontSize + 4);
-            const boxHeight = contentHeight + padY * 2;
-            const boxWidth = prefixWidth + maxLineWidth + padX;
-
-            const boxX = x;
-            const boxY = y;
-            const centerY = boxY + (boxHeight / 2);
-
-            // 1. Draw Badge Background Card
-            page.drawRectangle({
-              x: boxX,
-              y: boxY,
-              width: boxWidth,
-              height: boxHeight,
-              color: rgb(1, 1, 1),
-              borderColor: rgb(0, 0, 0),
-              borderWidth: 1.2,
-            });
-
-            // 2. Draw Store Name on left
-            const storeX = boxX + padX;
-            const storeY = centerY - (storeFontSize * 0.35);
-            await drawSafeTextOnPdf(
-              srcDoc,
-              page,
+          if (!badgeObj) {
+            const { pngBytes, widthPt, heightPt } = await renderStampBadgeCanvas(
               cleanStoreName,
-              storeX,
-              storeY,
-              storeFontSize,
-              boldFont,
-              true
+              qrContent,
+              detailFilled,
+              size,
+              fSize
             );
-
-            // 3. Draw Vertical Divider
-            const divX = storeX + storeTextWidth + dividerGap;
-            page.drawLine({
-              start: { x: divX, y: boxY + 4 },
-              end: { x: divX, y: boxY + boxHeight - 4 },
-              thickness: 1.0,
-              color: rgb(0, 0, 0),
-            });
-
-            // 4. Draw QR Code
-            const qrXPos = divX + dividerGap;
-            const qrYPos = centerY - (actualQrSize / 2);
-            page.drawImage(qrImage, {
-              x: qrXPos,
-              y: qrYPos,
-              width: actualQrSize,
-              height: actualQrSize,
-            });
-
-            // 5. Draw Text Lines
-            const textXPos = qrXPos + actualQrSize + gapQrText;
-            const textBlockStartY = centerY + (totalTextHeight / 2) - (fSize * 0.75);
-
-            for (let li = 0; li < wrappedLines.length; li++) {
-              const line = wrappedLines[li];
-              if (line && line.trim()) {
-                const curTextY = textBlockStartY - (li * lineHeight);
-                if (curTextY >= boxY) {
-                  await drawSafeTextOnPdf(
-                    srcDoc,
-                    page,
-                    line,
-                    textXPos,
-                    curTextY,
-                    fSize,
-                    li === 0 ? boldFont : font,
-                    li === 0
-                  );
-                }
-              }
-            }
-          } else {
-            // Classic Minimal Mode with Clean White Protective Box
-            const prefixWidth = padX + actualQrSize + gapQrText;
-            const maxAllowedTextWidth = Math.max(60, pageWidth - x - prefixWidth - padX - 8);
-            const wrappedLines = wrapLinesForWidth(detailFilled, maxAllowedTextWidth, font, fSize);
-
-            let maxLineWidth = 0;
-            for (let li = 0; li < wrappedLines.length; li++) {
-              const line = wrappedLines[li];
-              const isHeader = li === 0;
-              const w = measureTextWidth(line, isHeader ? boldFont : font, fSize, isHeader);
-              if (w > maxLineWidth) maxLineWidth = w;
-            }
-            if (maxLineWidth < 30 && wrappedLines.length > 0) maxLineWidth = 30;
-
-            const lineHeight = fSize + 3;
-            const totalTextHeight = wrappedLines.length > 0 ? ((wrappedLines.length - 1) * lineHeight + fSize) : 0;
-            const contentHeight = Math.max(actualQrSize, totalTextHeight);
-            const boxHeight = contentHeight + padY * 2;
-            const boxWidth = prefixWidth + maxLineWidth + padX;
-
-            const boxX = x;
-            const boxY = y;
-            const centerY = boxY + (boxHeight / 2);
-
-            page.drawRectangle({
-              x: boxX,
-              y: boxY,
-              width: boxWidth,
-              height: boxHeight,
-              color: rgb(1, 1, 1),
-              borderColor: rgb(0, 0, 0),
-              borderWidth: 1.0,
-            });
-
-            const qrXPos = boxX + padX;
-            const qrYPos = centerY - (actualQrSize / 2);
-            page.drawImage(qrImage, {
-              x: qrXPos,
-              y: qrYPos,
-              width: actualQrSize,
-              height: actualQrSize,
-            });
-
-            const textXPos = qrXPos + actualQrSize + gapQrText;
-            const textBlockStartY = centerY + (totalTextHeight / 2) - (fSize * 0.75);
-
-            for (let li = 0; li < wrappedLines.length; li++) {
-              const line = wrappedLines[li];
-              if (line && line.trim()) {
-                const curTextY = textBlockStartY - (li * lineHeight);
-                if (curTextY >= boxY) {
-                  await drawSafeTextOnPdf(
-                    srcDoc,
-                    page,
-                    line,
-                    textXPos,
-                    curTextY,
-                    fSize,
-                    li === 0 ? boldFont : font,
-                    li === 0
-                  );
-                }
-              }
-            }
+            const embeddedImg = await srcDoc.embedPng(pngBytes);
+            badgeObj = {
+              image: embeddedImg,
+              widthPt,
+              heightPt,
+            };
+            badgeImageCache.set(cacheKey, badgeObj);
           }
+
+          page.drawImage(badgeObj.image, {
+            x: x,
+            y: y,
+            width: badgeObj.widthPt,
+            height: badgeObj.heightPt,
+          });
         }
       }
 
@@ -2388,11 +2346,73 @@ export default function Home() {
                 value={detailText}
                 onFocus={() => setActiveInput("detailText")}
                 onChange={(e) => setDetailText(e.target.value)}
-                placeholder="Scan to Follow!\nSKU: {sku}\nOrder: {orderNo}"
+                placeholder="Follow\nour page"
               />
             </div>
           </div>
 
+          {/* Live Real-Time Stamp Design Preview (Exact 1:1 Matching User Screenshot) */}
+          <div style={{ background: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: "16px", padding: "20px 24px", marginTop: 10 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: "1.1rem" }}>🏷️</span>
+                <span style={{ fontSize: "0.88rem", fontWeight: 800, color: "#0F172A" }}>
+                  Live Real-Time Stamp Preview (Client-Side Stamp Engine)
+                </span>
+                <span style={{ fontSize: "0.72rem", background: "#EEF2FF", color: "#4F46E5", padding: "2px 8px", borderRadius: "9999px", fontWeight: 700 }}>
+                  0ms Client-Side
+                </span>
+              </div>
+              <span style={{ fontSize: "0.75rem", color: "#64748B", fontFamily: "var(--font-mono)", fontWeight: 600 }}>
+                Offset: ({qrX}pt, {qrY}pt) • Size: {qrSize}pt • Font: {fontSize}pt
+              </span>
+            </div>
+
+            {/* Visual Badge Card matching screenshot */}
+            <div style={{ display: "flex", justifyContent: "center", padding: "14px 0 6px" }}>
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  background: "#FFFFFF",
+                  border: "2px solid #000000",
+                  borderRadius: "12px",
+                  padding: "10px 18px",
+                  boxShadow: "0 6px 16px rgba(0,0,0,0.06)",
+                  gap: 0,
+                }}
+              >
+                {/* Left: Storefront Icon + Store Name */}
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <StorefrontIcon size={32} />
+                  <span style={{ fontSize: "1.25rem", fontWeight: 900, color: "#000000", letterSpacing: "0.02em" }}>
+                    {(storeName || "VISHAL").trim().toUpperCase()}
+                  </span>
+                </div>
+
+                {/* Middle: Vertical Divider */}
+                <div style={{ width: 2, height: 38, background: "#000000", margin: "0 18px" }} />
+
+                {/* Right: QR Code + Text */}
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  {previewQrDataUrl ? (
+                    <img src={previewQrDataUrl} alt="QR" style={{ width: 36, height: 36, objectFit: "contain" }} />
+                  ) : (
+                    <div style={{ width: 36, height: 36, background: "#000000", borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", color: "#FFF", fontSize: 10, fontWeight: 700 }}>
+                      QR
+                    </div>
+                  )}
+                  <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                    {(detailText || "Follow\nour page").split("\n").map((line, idx) => (
+                      <span key={idx} style={{ fontSize: "0.92rem", fontWeight: 800, color: "#000000", lineHeight: 1.25 }}>
+                        {line || " "}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
         </div>
       </div>
