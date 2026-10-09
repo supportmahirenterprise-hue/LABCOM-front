@@ -3,7 +3,8 @@
 import { useMemo, useState, useRef, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { PDFDocument } from "pdf-lib";
+import QRCode from "qrcode";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import Modal from "./components/Modal";
 
 const BACKEND_URL = (
@@ -742,130 +743,279 @@ export default function Home() {
     }
 
     try {
-      let totalPagesInPdf = pages?.length || 1;
-      try {
-        const fileBuffer = await file.arrayBuffer();
-        const loadedPdf = await PDFDocument.load(fileBuffer, { ignoreEncryption: true });
-        totalPagesInPdf = loadedPdf.getPageCount();
-      } catch (e) {}
+      showToast("Generating labels in browser (0ms instant speed)...", "info");
+      const fileBuffer = await file.arrayBuffer();
+      const srcDoc = await PDFDocument.load(fileBuffer, { ignoreEncryption: true });
+      const totalPdfPages = srcDoc.getPageCount();
 
-      const CHUNK_SIZE = 150;
-      let finalPdfBlob = null;
+      const numPagesToProcess = isSample ? 1 : totalPdfPages;
+      const fields = pages && pages.length ? pages : [];
 
-      if (isSample || totalPagesInPdf <= CHUNK_SIZE) {
-        const fd = new FormData();
-        fd.append("pdf", file);
-        fd.append("enableQr", enableQr ? "true" : "false");
-        fd.append("useNativeScript", useNativeScript ? "true" : "false");
-        fd.append("qrText", qrText);
-        fd.append("detailText", detailText);
-        fd.append("sortBy", sortBy);
-        fd.append("sortOrder", sortOrder);
-        fd.append("qrX", String(qrX));
-        fd.append("qrY", String(qrY));
-        fd.append("qrSize", String(qrSize));
-        fd.append("fontSize", String(fontSize));
-        fd.append("cropMode", cropEnabled ? cropMode : "none");
-        fd.append("cropTop", String(cropTop));
-        fd.append("cropBottom", String(cropBottom));
-        fd.append("cropLeft", String(cropLeft));
-        fd.append("cropRight", String(cropRight));
-        fd.append("stampStyle", stampStyle);
-        fd.append("storeName", storeName);
-        const modifiedPages = pages.filter((p) => p && p._modified);
-        fd.append("overrides", JSON.stringify(modifiedPages));
-        fd.append("sampleOnly", String(isSample));
+      if (enableQr) {
+        const font = await srcDoc.embedFont(StandardFonts.Helvetica);
+        const boldFont = await srcDoc.embedFont(StandardFonts.HelveticaBold);
+        const x = parseFloat(qrX) || 0;
+        const y = parseFloat(qrY) || 0;
+        const size = parseFloat(qrSize) || 90;
+        const fSize = parseFloat(fontSize) || 8;
+        const isBadgeMode = stampStyle === "badge";
+        const cleanStoreName = (storeName || "STORE").trim().toUpperCase();
 
-        const res = await fetch(`${BACKEND_URL}/api/generate`, {
-          method: "POST",
-          body: fd,
-        });
+        const qrImageCache = new Map();
+        const unicodeCanvasCache = new Map();
 
-        if (!res.ok) {
-          const ct = res.headers.get("content-type") || "";
-          if (ct.includes("application/json")) {
-            throw new Error((await res.json()).error || "Generation failed");
+        // Helper to safely render Indic/Unicode (e.g. Gujarati 'અ') or WinAnsi text on PDF without crashes
+        const drawSafeTextOnPdf = async (pdfDoc, pageObj, textStr, textX, textY, fontSizeVal, fontObj, isBold = false) => {
+          if (!textStr || !textStr.trim()) return 0;
+          const isUnicode = /[^\x00-\x7F]/.test(textStr);
+
+          if (isUnicode) {
+            try {
+              const cacheKey = `${textStr}_${fontSizeVal}_${isBold}`;
+              let cachedImg = unicodeCanvasCache.get(cacheKey);
+
+              if (!cachedImg) {
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+                const scaleFactor = 3.5;
+                const fontSizePx = Math.round(fontSizeVal * scaleFactor);
+                const fontCss = `${isBold ? "bold" : "normal"} ${fontSizePx}px "Nirmala UI", "Segoe UI", Arial, sans-serif`;
+
+                ctx.font = fontCss;
+                const metrics = ctx.measureText(textStr);
+                const canvasW = Math.max(20, Math.ceil(metrics.width + 12 * scaleFactor));
+                const canvasH = Math.max(16, Math.ceil(fontSizePx * 1.4 + 4 * scaleFactor));
+
+                canvas.width = canvasW;
+                canvas.height = canvasH;
+
+                ctx.font = fontCss;
+                ctx.fillStyle = "#000000";
+                ctx.textBaseline = "middle";
+                ctx.fillText(textStr, 4 * scaleFactor, canvasH / 2);
+
+                const dataUrl = canvas.toDataURL("image/png");
+                const pngBytes = await fetch(dataUrl).then((r) => r.arrayBuffer());
+                const embeddedPng = await pdfDoc.embedPng(pngBytes);
+
+                cachedImg = {
+                  image: embeddedPng,
+                  width: canvasW / scaleFactor,
+                  height: canvasH / scaleFactor,
+                };
+                unicodeCanvasCache.set(cacheKey, cachedImg);
+              }
+
+              pageObj.drawImage(cachedImg.image, {
+                x: textX,
+                y: textY - 2,
+                width: cachedImg.width,
+                height: cachedImg.height,
+              });
+
+              return cachedImg.width;
+            } catch (e) {
+              console.error("Canvas unicode text draw error:", e);
+              textStr = textStr.replace(/[^\x00-\x7F]/g, "");
+            }
           }
-          throw new Error("PDF processing failed on server");
-        }
 
-        finalPdfBlob = await res.blob();
-      } else {
-        const totalChunks = Math.ceil(totalPagesInPdf / CHUNK_SIZE);
-        showToast(`Processing ${totalPagesInPdf} pages in ${totalChunks} fast chunks to prevent timeout...`, "info");
+          if (textStr.trim()) {
+            try {
+              pageObj.drawText(textStr, {
+                x: textX,
+                y: textY,
+                size: fontSizeVal,
+                font: fontObj,
+                color: rgb(0, 0, 0),
+              });
+              return fontObj.widthOfTextAtSize(textStr, fontSizeVal);
+            } catch (err) {
+              const safeAscii = textStr.replace(/[^\x00-\x7F]/g, "");
+              if (safeAscii.trim()) {
+                try {
+                  pageObj.drawText(safeAscii, {
+                    x: textX,
+                    y: textY,
+                    size: fontSizeVal,
+                    font: fontObj,
+                    color: rgb(0, 0, 0),
+                  });
+                  return fontObj.widthOfTextAtSize(safeAscii, fontSizeVal);
+                } catch (e) {}
+              }
+            }
+          }
+          return 0;
+        };
 
-        const mergedPdfDoc = await PDFDocument.create();
-        const modifiedPages = pages.filter((p) => p && p._modified);
+        const getSafeStoreWidth = (str, fontObj, fontSz) => {
+          if (!str) return 0;
+          if (/[^\x00-\x7F]/.test(str)) {
+            return str.length * fontSz * 0.7;
+          }
+          try {
+            return fontObj.widthOfTextAtSize(str, fontSz);
+          } catch (e) {
+            return str.length * fontSz * 0.7;
+          }
+        };
 
-        for (let c = 0; c < totalChunks; c++) {
-          const startP = c * CHUNK_SIZE + 1;
-          const endP = Math.min(totalPagesInPdf, (c + 1) * CHUNK_SIZE);
-          showToast(`Stamping chunk ${c + 1}/${totalChunks} (pages ${startP}-${endP})...`, "info");
+        for (let i = 0; i < numPagesToProcess; i++) {
+          const page = srcDoc.getPage(i);
+          const data = fields[i] || {};
 
-          const fd = new FormData();
-          fd.append("pdf", file);
-          fd.append("enableQr", enableQr ? "true" : "false");
-          fd.append("useNativeScript", useNativeScript ? "true" : "false");
-          fd.append("qrText", qrText);
-          fd.append("detailText", detailText);
-          fd.append("sortBy", sortBy);
-          fd.append("sortOrder", sortOrder);
-          fd.append("qrX", String(qrX));
-          fd.append("qrY", String(qrY));
-          fd.append("qrSize", String(qrSize));
-          fd.append("fontSize", String(fontSize));
-          fd.append("cropMode", cropEnabled ? cropMode : "none");
-          fd.append("cropTop", String(cropTop));
-          fd.append("cropBottom", String(cropBottom));
-          fd.append("cropLeft", String(cropLeft));
-          fd.append("cropRight", String(cropRight));
-          fd.append("stampStyle", stampStyle);
-          fd.append("storeName", storeName);
-          fd.append("overrides", JSON.stringify(modifiedPages));
-          fd.append("sampleOnly", "false");
-          fd.append("startPage", String(startP));
-          fd.append("endPage", String(endP));
-          fd.append("skipWhatsApp", "true");
+          let qrContent = qrText || "{orderNo}";
+          TAG_PLACEHOLDERS.forEach((tag) => {
+            const key = tag.replace(/[{}]/g, "");
+            qrContent = qrContent.replace(new RegExp(tag, "g"), data[key] || "");
+          });
+          qrContent = qrContent.trim() || `Page-${i + 1}`;
 
-          const res = await fetch(`${BACKEND_URL}/api/generate`, {
-            method: "POST",
-            body: fd,
+          let qrImage = qrImageCache.get(qrContent);
+          if (!qrImage) {
+            const qrPngDataUrl = await QRCode.toDataURL(qrContent, { margin: 1, width: 300 });
+            const qrPngBytes = await fetch(qrPngDataUrl).then((res) => res.arrayBuffer());
+            qrImage = await srcDoc.embedPng(qrPngBytes);
+            qrImageCache.set(qrContent, qrImage);
+          }
+
+          let actualQrX = x;
+          let actualTextX = x + size + 10;
+
+          if (isBadgeMode) {
+            const storeWidth = getSafeStoreWidth(cleanStoreName, boldFont, Math.max(9, fSize * 0.9));
+            const boxHeight = Math.max(size + 10, fSize * 2.2 + 14);
+            const textMaxWidthCalc = 120;
+            const boxWidth = 14 + storeWidth + 12 + 1 + 10 + size + 8 + textMaxWidthCalc + 12;
+
+            page.drawRectangle({
+              x: x - 4,
+              y: y - 4,
+              width: boxWidth,
+              height: boxHeight,
+              color: rgb(1, 1, 1),
+              borderColor: rgb(0, 0, 0),
+              borderWidth: 1.5,
+            });
+
+            await drawSafeTextOnPdf(
+              srcDoc,
+              page,
+              cleanStoreName,
+              x + 6,
+              y + boxHeight / 2 - fSize * 0.45,
+              Math.max(9, fSize * 0.9),
+              boldFont,
+              true
+            );
+
+            const divX = x + 6 + storeWidth + 10;
+            page.drawLine({
+              start: { x: divX, y: y - 1 },
+              end: { x: divX, y: y + boxHeight - 7 },
+              thickness: 1.2,
+              color: rgb(0, 0, 0),
+            });
+
+            actualQrX = divX + 10;
+            actualTextX = actualQrX + size + 8;
+          }
+
+          page.drawImage(qrImage, { x: actualQrX, y, width: size, height: size });
+
+          let detailFilled = detailText || "";
+          TAG_PLACEHOLDERS.forEach((tag) => {
+            const key = tag.replace(/[{}]/g, "");
+            detailFilled = detailFilled.replace(new RegExp(tag, "g"), data[key] || "");
           });
 
-          if (!res.ok) {
-            const ct = res.headers.get("content-type") || "";
-            if (ct.includes("application/json")) {
-              throw new Error((await res.json()).error || `Chunk ${c + 1} generation failed`);
+          if (detailFilled.trim()) {
+            const lines = detailFilled.split("\n");
+            const lineHeight = fSize + 3;
+            const totalTextHeight = (lines.length - 1) * lineHeight + fSize;
+            const qrCenterY = y + size / 2;
+            const startY = qrCenterY + totalTextHeight / 2 - fSize * 0.85;
+
+            for (let li = 0; li < lines.length; li++) {
+              const line = lines[li];
+              if (line && line.trim()) {
+                const textY = startY - li * lineHeight;
+                if (textY >= 0) {
+                  await drawSafeTextOnPdf(srcDoc, page, line, actualTextX, textY, fSize, font, false);
+                }
+              }
             }
-            throw new Error(`PDF chunk ${c + 1} processing failed`);
-          }
-
-          const chunkArrayBuffer = await res.arrayBuffer();
-          const chunkPdfDoc = await PDFDocument.load(chunkArrayBuffer);
-          const copiedPages = await mergedPdfDoc.copyPages(chunkPdfDoc, chunkPdfDoc.getPageIndices());
-          copiedPages.forEach((p) => mergedPdfDoc.addPage(p));
-        }
-
-        const mergedPdfBytes = await mergedPdfDoc.save();
-        finalPdfBlob = new Blob([mergedPdfBytes], { type: "application/pdf" });
-
-        // Dispatch 1 single final Stamped PDF & 1 single final Summary Image to WhatsApp for large batch
-        if (!isSample && finalPdfBlob) {
-          try {
-            const dispatchFd = new FormData();
-            dispatchFd.append("pdf", finalPdfBlob, file.name);
-            dispatchFd.append("pages", JSON.stringify(pages));
-            dispatchFd.append("fileName", file.name);
-            fetch(`${BACKEND_URL}/api/whatsapp/dispatch-final`, {
-              method: "POST",
-              body: dispatchFd,
-            }).catch((e) => console.error("WhatsApp final dispatch error:", e));
-          } catch (e) {
-            console.error("WhatsApp final dispatch error:", e);
           }
         }
       }
 
+      // Sort Page Order Client-Side
+      let order = Array.from({ length: numPagesToProcess }, (_, i) => i);
+      if (!isSample && sortBy && sortBy !== "none") {
+        order.sort((a, b) => {
+          const itemA = fields[a] || {};
+          const itemB = fields[b] || {};
+
+          if (sortBy === "sku") {
+            const skuA = (itemA.sku || "").toString().toLowerCase();
+            const skuB = (itemB.sku || "").toString().toLowerCase();
+            if (skuA < skuB) return sortOrder === "asc" ? -1 : 1;
+            if (skuA > skuB) return sortOrder === "asc" ? 1 : -1;
+            const qtyA = parseFloat(itemA.qty) || 0;
+            const qtyB = parseFloat(itemB.qty) || 0;
+            return qtyB - qtyA;
+          }
+
+          let va = itemA[sortBy] ?? "";
+          let vb = itemB[sortBy] ?? "";
+          if (sortBy === "qty") {
+            va = parseFloat(va) || 0;
+            vb = parseFloat(vb) || 0;
+          } else {
+            va = va.toString().toLowerCase();
+            vb = vb.toString().toLowerCase();
+          }
+          if (va < vb) return sortOrder === "asc" ? -1 : 1;
+          if (va > vb) return sortOrder === "asc" ? 1 : -1;
+          return 0;
+        });
+      }
+
+      // Create Output Document Client-Side
+      const outDoc = await PDFDocument.create();
+      const copiedPages = await outDoc.copyPages(srcDoc, order);
+
+      // Apply PDF Crop Box Client-Side if cropEnabled
+      if (cropEnabled && cropMode !== "none") {
+        copiedPages.forEach((p) => {
+          const { width, height } = p.getSize();
+          let cropX = 0, cropY = 0, cropW = width, cropH = height;
+          if (cropMode === "top50") {
+            cropY = height / 2;
+            cropH = height / 2;
+          } else if (cropMode === "bottom50") {
+            cropY = 0;
+            cropH = height / 2;
+          } else if (cropMode === "custom") {
+            const topPct = (parseFloat(cropTop) || 0) / 100;
+            const botPct = (parseFloat(cropBottom) || 0) / 100;
+            const leftPct = (parseFloat(cropLeft) || 0) / 100;
+            const rightPct = (parseFloat(cropRight) || 0) / 100;
+            cropX = width * leftPct;
+            cropW = width * Math.max(0.05, 1 - leftPct - rightPct);
+            cropY = height * botPct;
+            cropH = height * Math.max(0.05, 1 - topPct - botPct);
+          }
+          p.setCropBox(cropX, cropY, cropW, cropH);
+        });
+      }
+
+      copiedPages.forEach((p) => outDoc.addPage(p));
+      const outBytes = await outDoc.save();
+      const finalPdfBlob = new Blob([outBytes], { type: "application/pdf" });
+
+      // Trigger Instant Browser Download
       const url = URL.createObjectURL(finalPdfBlob);
       const a = document.createElement("a");
       a.href = url;
@@ -877,87 +1027,26 @@ export default function Home() {
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
-      
-      // Download Summary PDF if enabled
-      if (downloadSummary) {
-        try {
-          let summaryPages = pages;
-          if (!summaryPages || summaryPages.length === 0) {
-            const previewFd = new FormData();
-            previewFd.append("pdf", file);
-            const prevRes = await fetch(`${BACKEND_URL}/api/preview`, {
-              method: "POST",
-              body: previewFd,
-            });
-            if (prevRes.ok) {
-              const prevData = await prevRes.json();
-              summaryPages = prevData.pages || [];
-            }
-          }
 
-          if (isSample && summaryPages && summaryPages.length > 0) {
-            summaryPages = summaryPages.slice(0, 1);
-          }
-
-          if (summaryPages && summaryPages.length > 0) {
-            await new Promise((resolve) => setTimeout(resolve, 400));
-            const summaryRes = await fetch(`/api/generate-summary`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                pages: summaryPages,
-                fileName: file.name,
-              }),
-            });
-            if (summaryRes.ok) {
-              const summaryBlob = await summaryRes.blob();
-              const summaryUrl = URL.createObjectURL(summaryBlob);
-              const summaryA = document.createElement("a");
-              summaryA.href = summaryUrl;
-              const sCount = isSample ? 1 : summaryPages.length;
-              summaryA.download = isSample ? `1_${dateStr}_sample_summary.pdf` : `${sCount}_${dateStr}_summary.pdf`;
-              document.body.appendChild(summaryA);
-              summaryA.click();
-              summaryA.remove();
-              URL.revokeObjectURL(summaryUrl);
-            }
-          }
-        } catch (err) {
-          console.error("Summary PDF generation failed:", err);
-        }
-      }
-
-      // Log generation run to Node.js Backend History
+      // Async Background Server Sync (Zero delay on download speed)
       const userEmail = session?.user?.email || "";
       fetch(`${BACKEND_URL}/api/history`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-user-email": userEmail,
-        },
-        body: JSON.stringify({
-          email: userEmail,
-          fileName: file.name,
-          pageCount: isSample ? 1 : pages.length,
-          isSample,
-          sortBy,
-          sortOrder,
-          enableQr,
-          qrText,
-        }),
-      }).catch((e) => console.error("Failed to log history to Node backend:", e));
+        headers: { "Content-Type": "application/json", "x-user-email": userEmail },
+        body: JSON.stringify({ email: userEmail, fileName: file.name, pageCount: isSample ? 1 : pages.length, isSample, sortBy, sortOrder, enableQr, qrText }),
+      }).catch((e) => console.error("Async history save error:", e));
 
       if (isSample) {
         const msg = "Test Sample (Page 1) downloaded! Check QR alignment & print preview.";
         setSuccessMsg(msg);
         showToast(msg, "success");
       } else {
-        const msg = "Stamped PDF & Summary PNG Image generated, downloaded, and sent to WhatsApp (918140148878) successfully!";
+        const msg = "Stamped & Cropped PDF generated instantly in browser and downloaded!";
         setSuccessMsg(msg);
         showToast(msg, "success");
       }
     } catch (err) {
-      const msg = err.message || "Failed to generate PDF";
+      const msg = err.message || "Failed to generate PDF client-side";
       setError(msg);
       showToast(msg, "error");
     } finally {
@@ -968,6 +1057,7 @@ export default function Home() {
       }
     }
   }
+
 
   async function handleDownloadSummaryOnly() {
     if (!file || pages.length === 0) {
