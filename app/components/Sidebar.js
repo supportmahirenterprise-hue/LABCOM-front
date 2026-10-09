@@ -65,6 +65,55 @@ function SettingsIcon() {
   );
 }
 
+function InfoIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" x2="12" y1="16" y2="12" />
+      <line x1="12" x2="12.01" y1="8" y2="8" />
+    </svg>
+  );
+}
+
+function ContactIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+  );
+}
+
+function ShieldIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    </svg>
+  );
+}
+
+function FileTextIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" x2="8" y1="13" y2="13" />
+      <line x1="16" x2="8" y1="17" y2="17" />
+    </svg>
+  );
+}
+
+function ScaleIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+      <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+      <path d="M7 21h10" />
+      <path d="M12 3v18" />
+      <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" />
+    </svg>
+  );
+}
+
 function ZapIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -86,6 +135,14 @@ export function Sidebar() {
     { label: "Returns Entry", href: "/returns", icon: ReturnsIcon },
     { label: "Templates", href: "/templates", icon: TemplatesIcon },
     { label: "Settings", href: "/settings", icon: SettingsIcon },
+  ];
+
+  const LEGAL_ITEMS = [
+    { label: "About Us", href: "/about", icon: InfoIcon },
+    { label: "Contact Support", href: "/contact", icon: ContactIcon },
+    { label: "Privacy Policy", href: "/privacy", icon: ShieldIcon },
+    { label: "Terms of Service", href: "/terms", icon: FileTextIcon },
+    { label: "Legal Disclaimer", href: "/disclaimer", icon: ScaleIcon },
   ];
 
   return (
@@ -110,13 +167,15 @@ export function Sidebar() {
       }}
     >
       {/* Brand Header */}
-      <div
+      <Link
+        href="/"
         style={{
-          padding: "22px 20px",
+          padding: "20px 18px",
           display: "flex",
           alignItems: "center",
           gap: 12,
           borderBottom: "1px solid #F1F5F9",
+          textDecoration: "none",
         }}
       >
         <div
@@ -144,12 +203,12 @@ export function Sidebar() {
             Print Engine
           </p>
         </div>
-      </div>
+      </Link>
 
       {/* Navigation Links */}
-      <nav style={{ flex: 1, padding: "20px 12px", display: "flex", flexDirection: "column", gap: 4, overflowY: "auto" }}>
-        <div style={{ fontSize: "0.64rem", fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.12em", paddingLeft: 12, marginBottom: 8 }}>
-          Navigation
+      <nav style={{ flex: 1, padding: "16px 12px", display: "flex", flexDirection: "column", gap: 3, overflowY: "auto" }}>
+        <div style={{ fontSize: "0.62rem", fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.12em", paddingLeft: 10, marginBottom: 6 }}>
+          Operations
         </div>
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href;
@@ -162,17 +221,51 @@ export function Sidebar() {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 12,
-                padding: "10px 14px",
-                borderRadius: "12px",
+                gap: 10,
+                padding: "8px 12px",
+                borderRadius: "10px",
                 color: isActive ? "#4F46E5" : "#64748B",
                 background: isActive ? "#EEF2FF" : "transparent",
                 border: isActive ? "1px solid #C7D2FE" : "1px solid transparent",
                 textDecoration: "none",
                 fontWeight: isActive ? 600 : 500,
-                fontSize: "0.88rem",
+                fontSize: "0.85rem",
                 boxShadow: isActive ? "0 2px 8px rgba(79, 70, 229, 0.08)" : "none",
-                transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+                transition: "all 0.15s ease",
+              }}
+            >
+              <span style={{ display: "flex", alignItems: "center", justifyContent: "center", color: isActive ? "#4F46E5" : "#94A3B8" }}>
+                <IconComponent />
+              </span>
+              {item.label}
+            </Link>
+          );
+        })}
+
+        <div style={{ fontSize: "0.62rem", fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.12em", paddingLeft: 10, marginTop: 14, marginBottom: 6 }}>
+          Company &amp; Legal
+        </div>
+        {LEGAL_ITEMS.map((item) => {
+          const isActive = pathname === item.href;
+          const IconComponent = item.icon;
+          return (
+            <Link
+              key={item.label}
+              href={item.href}
+              prefetch={true}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "7px 12px",
+                borderRadius: "10px",
+                color: isActive ? "#4F46E5" : "#64748B",
+                background: isActive ? "#EEF2FF" : "transparent",
+                border: isActive ? "1px solid #C7D2FE" : "1px solid transparent",
+                textDecoration: "none",
+                fontWeight: isActive ? 600 : 500,
+                fontSize: "0.82rem",
+                transition: "all 0.15s ease",
               }}
             >
               <span style={{ display: "flex", alignItems: "center", justifyContent: "center", color: isActive ? "#4F46E5" : "#94A3B8" }}>
@@ -185,22 +278,22 @@ export function Sidebar() {
       </nav>
 
       {/* User Profile / Demo Login Section */}
-      <div style={{ padding: "16px 18px", borderTop: "1px solid #F1F5F9", background: "#F8FAFC" }}>
+      <div style={{ padding: "14px 16px", borderTop: "1px solid #F1F5F9", background: "#F8FAFC" }}>
         {session ? (
           <>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               {session.user?.image ? (
-                <img src={session.user.image} alt="User" style={{ width: 34, height: 34, borderRadius: "50%", border: "2px solid #E2E8F0" }} />
+                <img src={session.user.image} alt="User" style={{ width: 32, height: 32, borderRadius: "50%", border: "2px solid #E2E8F0" }} />
               ) : (
-                <div style={{ width: 34, height: 34, borderRadius: "50%", background: "#EEF2FF", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #C7D2FE", color: "#4F46E5", fontSize: "0.85rem", fontWeight: 700 }}>
+                <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#EEF2FF", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #C7D2FE", color: "#4F46E5", fontSize: "0.82rem", fontWeight: 700 }}>
                   {(session.user?.name || "S")[0]}
                 </div>
               )}
               <div style={{ flex: 1, overflow: "hidden" }}>
-                <div style={{ fontSize: "0.82rem", color: "#0F172A", fontWeight: 600, whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>
+                <div style={{ fontSize: "0.8rem", color: "#0F172A", fontWeight: 600, whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>
                   {session.user?.name || "Seller"}
                 </div>
-                <div style={{ fontSize: "0.7rem", color: "#64748B", whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>
+                <div style={{ fontSize: "0.68rem", color: "#64748B", whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>
                   {session.user?.email || "Seller Account"}
                 </div>
               </div>
@@ -209,13 +302,13 @@ export function Sidebar() {
               onClick={() => signOut({ callbackUrl: "/login" })}
               style={{
                 width: "100%",
-                marginTop: 12,
-                padding: "8px 12px",
+                marginTop: 10,
+                padding: "6px 12px",
                 background: "#FEF2F2",
                 border: "1px solid #FCA5A5",
                 borderRadius: "8px",
                 color: "#DC2626",
-                fontSize: "0.78rem",
+                fontSize: "0.75rem",
                 fontWeight: 600,
                 cursor: "pointer",
                 transition: "all 0.2s ease",
@@ -229,18 +322,18 @@ export function Sidebar() {
             onClick={() => signIn("credentials", { callbackUrl: "/", email: "seller@labelpro.in" })}
             style={{
               width: "100%",
-              padding: "10px 14px",
+              padding: "9px 12px",
               background: "linear-gradient(135deg, #4F46E5 0%, #0284C7 100%)",
               border: "none",
               borderRadius: "10px",
               color: "#FFFFFF",
-              fontSize: "0.82rem",
+              fontSize: "0.8rem",
               fontWeight: 600,
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              gap: 8,
+              gap: 6,
               boxShadow: "0 4px 14px rgba(79, 70, 229, 0.25)",
               transition: "all 0.2s ease",
             }}
@@ -252,6 +345,3 @@ export function Sidebar() {
     </aside>
   );
 }
-
-
-
