@@ -115,6 +115,7 @@ export default function AnalyticsPage() {
 
   async function fetchAnalytics() {
     if (!session?.user?.email) return;
+    if (!data) setLoading(true);
     try {
       const userEmail = session.user.email;
       const res = await fetch(
@@ -138,7 +139,7 @@ export default function AnalyticsPage() {
     if (status === "authenticated" && session?.user?.email) {
       fetchAnalytics();
     }
-  }, [status, session]);
+  }, [status, session?.user?.email]);
 
   async function handleSimulateScan() {
     if (!session?.user?.email) {

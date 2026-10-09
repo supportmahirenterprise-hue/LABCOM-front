@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Modal from "../components/Modal";
 
 function PackageIcon({ size = 16 }) {
   return (
@@ -170,7 +171,7 @@ export default function ReturnsPage() {
 
   async function fetchReturnsData() {
     if (!session?.user?.email) return;
-    setLoading(true);
+    if (!data) setLoading(true);
     try {
       const userEmail = session.user.email;
       const queryParams = new URLSearchParams({
@@ -208,7 +209,7 @@ export default function ReturnsPage() {
     if (status === "authenticated" && session?.user?.email) {
       fetchReturnsData();
     }
-  }, [status, session, selectedType, selectedState, selectedSku, currentPage, pageSize]);
+  }, [status, session?.user?.email, selectedType, selectedState, selectedSku, currentPage, pageSize]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -819,105 +820,93 @@ export default function ReturnsPage() {
       </div>
 
       {/* CSV Upload Modal */}
-      {showUploadModal && (
-        <div className="modal-backdrop-light">
-          <div
-            className="modal-card-light"
+      <Modal
+        isOpen={showUploadModal}
+        onClose={() => setShowUploadModal(false)}
+        maxWidth={560}
+        style={{ padding: "26px 30px" }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, borderBottom: "1px solid #E2E8F0", paddingBottom: 16 }}>
+          <div>
+            <h3 className="heading-display" style={{ fontSize: "1.25rem", color: "#0F172A", margin: 0 }}>
+              Upload Return CSV Report
+            </h3>
+            <p style={{ fontSize: "0.78rem", color: "#64748B", margin: "4px 0 0 0" }}>
+              Imports Meesho / Valmo / Shadowfax / Xpressbees return reports and updates DB.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowUploadModal(false)}
+            style={{ background: "#F1F5F9", border: "1px solid #E2E8F0", borderRadius: "50%", width: 34, height: 34, color: "#475569", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+          >
+            <CloseIcon />
+          </button>
+        </div>
+
+        <div style={{ marginBottom: 24 }}>
+          <label
+            htmlFor="csvFileInput"
             style={{
-              width: "100%",
-              maxWidth: 560,
-              maxHeight: "90vh",
-              overflowY: "auto",
-              padding: "26px 30px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "36px 20px",
+              border: "2px dashed #CBD5E1",
+              borderRadius: "16px",
+              background: "#F8FAFC",
+              cursor: "pointer",
+              textAlign: "center",
+              transition: "all 0.2s ease",
             }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, borderBottom: "1px solid #E2E8F0", paddingBottom: 16 }}>
-              <div>
-                <h3 className="heading-display" style={{ fontSize: "1.25rem", color: "#0F172A", margin: 0 }}>
-                  Upload Return CSV Report
-                </h3>
-                <p style={{ fontSize: "0.78rem", color: "#64748B", margin: "4px 0 0 0" }}>
-                  Imports Meesho / Valmo / Shadowfax / Xpressbees return reports and updates DB.
-                </p>
-              </div>
-              <button
-                onClick={() => setShowUploadModal(false)}
-                style={{ background: "#F1F5F9", border: "1px solid #E2E8F0", borderRadius: "50%", width: 34, height: 34, color: "#475569", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-              >
-                <CloseIcon />
-              </button>
+            <div style={{ color: "#D97706", marginBottom: 10 }}>
+              <FileTextIcon size={36} />
             </div>
-
-            <div style={{ marginBottom: 24 }}>
-              <label
-                htmlFor="csvFileInput"
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: "36px 20px",
-                  border: "2px dashed #CBD5E1",
-                  borderRadius: "16px",
-                  background: "#F8FAFC",
-                  cursor: "pointer",
-                  textAlign: "center",
-                  transition: "all 0.2s ease",
-                }}
-              >
-                <div style={{ color: "#D97706", marginBottom: 10 }}>
-                  <FileTextIcon size={36} />
-                </div>
-                <span style={{ fontSize: "0.95rem", fontWeight: 700, color: "#0F172A" }}>
-                  Click or drag Meesho Return CSV / Excel file here
-                </span>
-                <span style={{ fontSize: "0.78rem", color: "#64748B", marginTop: 6 }}>
-                  Supports CSV reports containing Sub Order IDs, Return Reasons, and Tracking Links
-                </span>
-                <input
-                  id="csvFileInput"
-                  type="file"
-                  accept=".csv,.xlsx,.xls"
-                  style={{ display: "none" }}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handleFileUpload(file);
-                  }}
-                />
-              </label>
-            </div>
-
-            <div style={{ fontSize: "0.78rem", color: "#475569", lineHeight: "1.5" }}>
-              <strong style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#4F46E5" }}><ZapIcon size={13} /> Automatic Overwrite:</strong> Existing return records with the same Sub Order ID will be automatically updated with new tracking and delivery details.
-            </div>
-
-            <div style={{ marginTop: 24, textAlign: "right" }}>
-              <button
-                className="btn-secondary"
-                onClick={() => setShowUploadModal(false)}
-                disabled={uploading}
-                style={{ padding: "8px 20px" }}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
+            <span style={{ fontSize: "0.95rem", fontWeight: 700, color: "#0F172A" }}>
+              Click or drag Meesho Return CSV / Excel file here
+            </span>
+            <span style={{ fontSize: "0.78rem", color: "#64748B", marginTop: 6 }}>
+              Supports CSV reports containing Sub Order IDs, Return Reasons, and Tracking Links
+            </span>
+            <input
+              id="csvFileInput"
+              type="file"
+              accept=".csv,.xlsx,.xls"
+              style={{ display: "none" }}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleFileUpload(file);
+              }}
+            />
+          </label>
         </div>
-      )}
+
+        <div style={{ fontSize: "0.78rem", color: "#475569", lineHeight: "1.5" }}>
+          <strong style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#4F46E5" }}><ZapIcon size={13} /> Automatic Overwrite:</strong> Existing return records with the same Sub Order ID will be automatically updated with new tracking and delivery details.
+        </div>
+
+        <div style={{ marginTop: 24, textAlign: "right" }}>
+          <button
+            className="btn-secondary"
+            onClick={() => setShowUploadModal(false)}
+            disabled={uploading}
+            style={{ padding: "8px 20px" }}
+          >
+            Cancel
+          </button>
+        </div>
+      </Modal>
 
       {/* Return Record Details Modal */}
-      {selectedReturn && (
-        <div className="modal-backdrop-light">
-          <div
-            className="modal-card-light"
-            style={{
-              width: "100%",
-              maxWidth: 680,
-              maxHeight: "90vh",
-              overflowY: "auto",
-              padding: "26px 30px",
-            }}
-          >
+      <Modal
+        isOpen={Boolean(selectedReturn)}
+        onClose={() => setSelectedReturn(null)}
+        maxWidth={680}
+        style={{ padding: "26px 30px" }}
+      >
+        {selectedReturn && (
+          <>
             {/* Modal Header */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, borderBottom: "1px solid #E2E8F0", paddingBottom: 16 }}>
               <div>
@@ -1084,9 +1073,9 @@ export default function ReturnsPage() {
                 Close Details
               </button>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
     </div>
   );
 }

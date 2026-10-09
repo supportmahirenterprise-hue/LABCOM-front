@@ -109,7 +109,7 @@ export default function HistoryPage() {
     }
 
     fetchHistory();
-  }, [status, session]);
+  }, [status, session?.user?.email]);
 
   if (status === "loading" || loading) {
     return (

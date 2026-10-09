@@ -4,6 +4,7 @@ import { useMemo, useState, useRef, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { PDFDocument } from "pdf-lib";
+import Modal from "./components/Modal";
 
 const BACKEND_URL = (
   process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
@@ -392,7 +393,7 @@ export default function Home() {
     }
 
     loadSettings();
-  }, [status, session]);
+  }, [status, session?.user?.email]);
 
   // Debounced auto-save settings to Node.js backend
   useEffect(() => {
@@ -1952,38 +1953,21 @@ export default function Home() {
       </footer>
 
       {/* Return Warning Notice Modal Popup */}
-      {showWarningModal && returnWarnings.length > 0 && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0, 0, 0, 0.88)",
-            backdropFilter: "blur(14px)",
-            WebkitBackdropFilter: "blur(14px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 999999,
-            padding: 20,
-          }}
-        >
-          <div
-            className="premium-glass"
-            style={{
-              width: "100%",
-              maxWidth: 720,
-              maxHeight: "90vh",
-              overflowY: "auto",
-              padding: "26px 30px",
-              borderRadius: "22px",
-              boxShadow: "0 25px 70px rgba(0,0,0,0.95), 0 0 40px rgba(239, 68, 68, 0.3)",
-              border: "1px solid rgba(239, 68, 68, 0.4)",
-              background: "rgba(18, 18, 24, 0.98)",
-            }}
-          >
+      <Modal
+        isOpen={showWarningModal && returnWarnings.length > 0}
+        onClose={() => setShowWarningModal(false)}
+        maxWidth={720}
+        style={{
+          borderRadius: "22px",
+          boxShadow: "0 25px 70px rgba(0,0,0,0.95), 0 0 40px rgba(239, 68, 68, 0.3)",
+          border: "1px solid rgba(239, 68, 68, 0.4)",
+          background: "rgba(18, 18, 24, 0.98)",
+          color: "#fff",
+          padding: "26px 30px",
+        }}
+      >
+        {showWarningModal && returnWarnings.length > 0 && (
+          <>
             {/* Modal Header */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, borderBottom: "1px solid var(--glass-border)", paddingBottom: 16 }}>
               <div>
@@ -2172,43 +2156,26 @@ export default function Home() {
                 Dismiss & Continue
               </button>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
 
       {/* Duplicate Saved Order Warning Notice Modal Popup */}
-      {showDuplicateModal && duplicateOrderWarnings.length > 0 && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0, 0, 0, 0.88)",
-            backdropFilter: "blur(14px)",
-            WebkitBackdropFilter: "blur(14px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 999999,
-            padding: 20,
-          }}
-        >
-          <div
-            className="premium-glass"
-            style={{
-              width: "100%",
-              maxWidth: 720,
-              maxHeight: "90vh",
-              overflowY: "auto",
-              padding: "26px 30px",
-              borderRadius: "22px",
-              boxShadow: "0 25px 70px rgba(0,0,0,0.95), 0 0 40px rgba(245, 158, 11, 0.3)",
-              border: "1px solid rgba(245, 158, 11, 0.4)",
-              background: "rgba(18, 18, 24, 0.98)",
-            }}
-          >
+      <Modal
+        isOpen={showDuplicateModal && duplicateOrderWarnings.length > 0}
+        onClose={() => setShowDuplicateModal(false)}
+        maxWidth={720}
+        style={{
+          borderRadius: "22px",
+          boxShadow: "0 25px 70px rgba(0,0,0,0.95), 0 0 40px rgba(245, 158, 11, 0.3)",
+          border: "1px solid rgba(245, 158, 11, 0.4)",
+          background: "rgba(18, 18, 24, 0.98)",
+          color: "#fff",
+          padding: "26px 30px",
+        }}
+      >
+        {showDuplicateModal && duplicateOrderWarnings.length > 0 && (
+          <>
             {/* Modal Header */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, borderBottom: "1px solid var(--glass-border)", paddingBottom: 16 }}>
               <div>
@@ -2382,9 +2349,9 @@ export default function Home() {
                 Dismiss & Continue
               </button>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
     </div>
   );
 }

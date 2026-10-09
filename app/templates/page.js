@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Modal from "../components/Modal";
 
 const BACKEND_URL = (
   process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
@@ -81,7 +82,7 @@ export default function TemplatesPage() {
     if (status === "authenticated" && session?.user?.email) {
       fetchTemplates();
     }
-  }, [status, session]);
+  }, [status, session?.user?.email]);
 
   async function handleCreate(e) {
     e.preventDefault();
@@ -325,138 +326,132 @@ export default function TemplatesPage() {
       </div>
 
       {/* New Template Modal */}
-      {showModal && (
-        <div
-          className="modal-backdrop-light"
-          onClick={() => setShowModal(false)}
-        >
-          <div
-            className="modal-card-light"
-            style={{ width: "100%", maxWidth: 560, maxHeight: "90vh", overflowY: "auto", padding: "26px 30px" }}
-            onClick={(e) => e.stopPropagation()}
+      <Modal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        maxWidth={560}
+        style={{ padding: "26px 30px" }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, borderBottom: "1px solid #E2E8F0", paddingBottom: 14 }}>
+          <h3 className="heading-display" style={{ fontSize: "1.2rem", color: "#0F172A", margin: 0 }}>
+            Create Custom Template
+          </h3>
+          <button
+            onClick={() => setShowModal(false)}
+            style={{ background: "#F1F5F9", border: "1px solid #E2E8F0", borderRadius: "50%", width: 32, height: 32, color: "#475569", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, borderBottom: "1px solid #E2E8F0", paddingBottom: 14 }}>
-              <h3 className="heading-display" style={{ fontSize: "1.2rem", color: "#0F172A", margin: 0 }}>
-                Create Custom Template
-              </h3>
-              <button
-                onClick={() => setShowModal(false)}
-                style={{ background: "#F1F5F9", border: "1px solid #E2E8F0", borderRadius: "50%", width: 32, height: 32, color: "#475569", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
-            </div>
-
-            <form onSubmit={handleCreate} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div>
-                <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 6 }}>
-                  Template Name *
-                </label>
-                <input
-                  className="input-field"
-                  placeholder="e.g. Diwali Mega Sale QR Template"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div>
-                <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 6 }}>
-                  Description
-                </label>
-                <input
-                  className="input-field"
-                  placeholder="e.g. For festival orders with promo discount text"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
-              </div>
-
-              <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0" }}>
-                <input
-                  type="checkbox"
-                  id="modal-enableQr"
-                  checked={enableQr}
-                  onChange={(e) => setEnableQr(e.target.checked)}
-                  style={{ width: 16, height: 16, accentColor: "var(--aurora-1)", cursor: "pointer" }}
-                />
-                <label htmlFor="modal-enableQr" style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-pure)" }}>
-                  Enable QR Stamper in this template
-                </label>
-              </div>
-
-              <div>
-                <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 6 }}>
-                  QR Code URL / Target
-                </label>
-                <input
-                  className="input-field input-field-mono"
-                  value={qrText}
-                  onChange={(e) => setQrText(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 6 }}>
-                  Printed Text Lines (Next to QR)
-                </label>
-                <textarea
-                  className="input-field input-field-mono"
-                  style={{ height: 60 }}
-                  value={detailText}
-                  onChange={(e) => setDetailText(e.target.value)}
-                />
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 14 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-silver)", marginBottom: 4 }}>
-                    X Offset (pt)
-                  </label>
-                  <input
-                    type="number"
-                    className="input-field"
-                    value={qrX}
-                    onChange={(e) => setQrX(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-silver)", marginBottom: 4 }}>
-                    Y Offset (pt)
-                  </label>
-                  <input
-                    type="number"
-                    className="input-field"
-                    value={qrY}
-                    onChange={(e) => setQrY(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 14 }}>
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  onClick={() => setShowModal(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  disabled={creating}
-                >
-                  {creating ? "Saving..." : "Save Template"}
-                </button>
-              </div>
-            </form>
-          </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
         </div>
-      )}
+
+        <form onSubmit={handleCreate} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div>
+            <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 6 }}>
+              Template Name *
+            </label>
+            <input
+              className="input-field"
+              placeholder="e.g. Diwali Mega Sale QR Template"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+
+          <div>
+            <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 6 }}>
+              Description
+            </label>
+            <input
+              className="input-field"
+              placeholder="e.g. For festival orders with promo discount text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0" }}>
+            <input
+              type="checkbox"
+              id="modal-enableQr"
+              checked={enableQr}
+              onChange={(e) => setEnableQr(e.target.checked)}
+              style={{ width: 16, height: 16, accentColor: "var(--aurora-1)", cursor: "pointer" }}
+            />
+            <label htmlFor="modal-enableQr" style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-pure)" }}>
+              Enable QR Stamper in this template
+            </label>
+          </div>
+
+          <div>
+            <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 6 }}>
+              QR Code URL / Target
+            </label>
+            <input
+              className="input-field input-field-mono"
+              value={qrText}
+              onChange={(e) => setQrText(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 6 }}>
+              Printed Text Lines (Next to QR)
+            </label>
+            <textarea
+              className="input-field input-field-mono"
+              style={{ height: 60 }}
+              value={detailText}
+              onChange={(e) => setDetailText(e.target.value)}
+            />
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 14 }}>
+            <div>
+              <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-silver)", marginBottom: 4 }}>
+                X Offset (pt)
+              </label>
+              <input
+                type="number"
+                className="input-field"
+                value={qrX}
+                onChange={(e) => setQrX(e.target.value)}
+              />
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-silver)", marginBottom: 4 }}>
+                Y Offset (pt)
+              </label>
+              <input
+                type="number"
+                className="input-field"
+                value={qrY}
+                onChange={(e) => setQrY(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 14 }}>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => setShowModal(false)}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={creating}
+            >
+              {creating ? "Saving..." : "Save Template"}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

@@ -195,7 +195,7 @@ export default function SettingsPage() {
     }
 
     load();
-  }, [status, session]);
+  }, [status, session?.user?.email]);
 
   // Save Settings Handler
   async function handleSave(e) {

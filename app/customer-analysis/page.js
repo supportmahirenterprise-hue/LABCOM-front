@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Modal from "../components/Modal";
 
 function MapIcon() {
   return (
@@ -165,7 +166,7 @@ export default function CustomerAnalysisPage() {
 
   async function fetchCustomerAnalysis() {
     if (!session?.user?.email) return;
-    setLoading(true);
+    if (!data) setLoading(true);
     try {
       const userEmail = session.user.email;
       const queryParams = new URLSearchParams({
@@ -1049,18 +1050,14 @@ export default function CustomerAnalysisPage() {
       </div>
 
       {/* Order History Modal Popup */}
-      {selectedCustomer && (
-        <div className="modal-backdrop-light">
-          <div
-            className="modal-card-light"
-            style={{
-              width: "100%",
-              maxWidth: 920,
-              maxHeight: "90vh",
-              overflowY: "auto",
-              padding: "26px 30px",
-            }}
-          >
+      <Modal
+        isOpen={Boolean(selectedCustomer)}
+        onClose={() => setSelectedCustomer(null)}
+        maxWidth={920}
+        style={{ padding: "26px 30px" }}
+      >
+        {selectedCustomer && (
+          <>
             {/* Modal Header */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, borderBottom: "1px solid #E2E8F0", paddingBottom: 18 }}>
               <div>
@@ -1261,9 +1258,9 @@ export default function CustomerAnalysisPage() {
                 Close History
               </button>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
     </div>
   );
 }
