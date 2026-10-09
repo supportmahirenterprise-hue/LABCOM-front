@@ -321,6 +321,7 @@ export default function Home() {
 
   function handleSelectCropPreset(preset) {
     setCropPreset(preset);
+    setCropEnabled(true);
     if (preset === "label_only") {
       setCropTop(0);
       setCropBottom(50);
@@ -338,6 +339,19 @@ export default function Home() {
     }
   }
 
+  function toggleCropEnabled() {
+    if (cropEnabled) {
+      setCropEnabled(false);
+      showToast("PDF Cropping turned OFF. Labels will download as full-size sheets.", "info");
+    } else {
+      setCropEnabled(true);
+      if (cropMode === "none") {
+        setCropMode("top50");
+      }
+      showToast("PDF Cropping turned ON! Generated labels will be cropped.", "success");
+    }
+  }
+
   function handleSaveCrop() {
     setCropEnabled(true);
     if (cropPreset === "label_only") {
@@ -351,9 +365,7 @@ export default function Home() {
 
   function handleDisableCrop() {
     setCropEnabled(false);
-    setCropMode("none");
-    setShowCropModal(false);
-    showToast("Label cropping disabled.", "info");
+    showToast("Label cropping turned OFF.", "info");
   }
 
   function handleResetDefaults() {
@@ -572,6 +584,46 @@ export default function Home() {
     const totalQty = pages.reduce((acc, p) => acc + (parseInt(p?.qty, 10) || 1), 0);
     return { totalPages, uniqueSkus, totalQty };
   }, [pages]);
+
+  // Interactive Drag-to-Crop Handler for Mouse & Touch
+  const handleCropDragStart = (e, dragTarget = "bottom") => {
+    e.preventDefault();
+    setCropPreset("manual");
+    setCropMode("custom");
+
+    const stageEl = e.currentTarget.closest(".crop-stage-container") || e.currentTarget.parentElement;
+    const rect = stageEl ? stageEl.getBoundingClientRect() : { height: 470 };
+    const containerHeight = rect.height || 470;
+    const startY = e.clientY || (e.touches && e.touches[0]?.clientY) || 0;
+    const initialBottom = cropBottom;
+    const initialTop = cropTop;
+
+    const onMove = (moveEvent) => {
+      const currentY = moveEvent.clientY || (moveEvent.touches && moveEvent.touches[0]?.clientY) || startY;
+      const deltaY = currentY - startY;
+      const deltaPct = Math.round((deltaY / containerHeight) * 100);
+
+      if (dragTarget === "bottom") {
+        const newBottom = Math.max(0, Math.min(85, initialBottom - deltaPct));
+        setCropBottom(newBottom);
+      } else if (dragTarget === "top") {
+        const newTop = Math.max(0, Math.min(85, initialTop + deltaPct));
+        setCropTop(newTop);
+      }
+    };
+
+    const onEnd = () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onEnd);
+      window.removeEventListener("touchmove", onMove);
+      window.removeEventListener("touchend", onEnd);
+    };
+
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onEnd);
+    window.addEventListener("touchmove", onMove);
+    window.addEventListener("touchend", onEnd);
+  };
 
   async function renderPdfPage1ToDataUrl(fileObj) {
     if (!fileObj || typeof window === "undefined") return null;
@@ -1027,18 +1079,20 @@ export default function Home() {
       const outDoc = await PDFDocument.create();
       const copiedPages = await outDoc.copyPages(srcDoc, order);
 
-      // Apply PDF Crop Box Client-Side if cropEnabled
-      if (cropEnabled && cropMode !== "none") {
+      // Apply PDF Crop Box & Media Box Client-Side if cropEnabled
+      if (cropEnabled) {
         copiedPages.forEach((p) => {
           const { width, height } = p.getSize();
           let cropX = 0, cropY = 0, cropW = width, cropH = height;
-          if (cropMode === "top50") {
+          const activeCropMode = cropMode === "none" ? "top50" : cropMode;
+
+          if (activeCropMode === "top50") {
             cropY = height / 2;
             cropH = height / 2;
-          } else if (cropMode === "bottom50") {
+          } else if (activeCropMode === "bottom50") {
             cropY = 0;
             cropH = height / 2;
-          } else if (cropMode === "custom") {
+          } else {
             const topPct = (parseFloat(cropTop) || 0) / 100;
             const botPct = (parseFloat(cropBottom) || 0) / 100;
             const leftPct = (parseFloat(cropLeft) || 0) / 100;
@@ -1049,6 +1103,7 @@ export default function Home() {
             cropH = height * Math.max(0.05, 1 - topPct - botPct);
           }
           p.setCropBox(cropX, cropY, cropW, cropH);
+          p.setMediaBox(cropX, cropY, cropW, cropH);
         });
       }
 
@@ -1781,13 +1836,7 @@ export default function Home() {
               {/* Toggle Badge OFF/ON */}
               <button
                 type="button"
-                onClick={() => {
-                  if (cropEnabled) {
-                    handleDisableCrop();
-                  } else {
-                    setShowCropModal(true);
-                  }
-                }}
+                onClick={toggleCropEnabled}
                 style={{
                   background: cropEnabled ? "rgba(16, 185, 129, 0.2)" : "rgba(255, 255, 255, 0.08)",
                   border: `1px solid ${cropEnabled ? "#10B981" : "var(--glass-border)"}`,
@@ -2876,11 +2925,11 @@ export default function Home() {
             style={{
               position: "relative",
               width: "100%",
-              maxHeight: 380,
+              maxHeight: 480,
               overflow: "auto",
               background: "#090d16",
               borderRadius: 14,
-              padding: 24,
+              padding: 20,
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
@@ -2891,17 +2940,20 @@ export default function Home() {
             {/* Actual Uploaded Shipping Label Sheet or Fallback Mock */}
             <div
               style={{
-                width: 310 * (zoomLevel / 100),
-                height: 450 * (zoomLevel / 100),
+                width: 330 * (zoomLevel / 100),
+                height: 470 * (zoomLevel / 100),
                 position: "relative",
                 background: "#ffffff",
-                borderRadius: 4,
+                borderRadius: 6,
                 boxShadow: "0 10px 30px rgba(0,0,0,0.6)",
                 overflow: "hidden",
                 userSelect: "none",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              {/* Real Uploaded PDF Page 1 Image Preview */}
+              {/* Real Uploaded PDF Page 1 Image Preview with Natural Aspect Ratio */}
               {pdfPage1DataUrl ? (
                 <img
                   src={pdfPage1DataUrl}
@@ -2909,7 +2961,7 @@ export default function Home() {
                   style={{
                     width: "100%",
                     height: "100%",
-                    objectFit: "fill",
+                    objectFit: "contain",
                     background: "#ffffff",
                     display: "block",
                   }}
@@ -2973,46 +3025,85 @@ export default function Home() {
                       zIndex: 10,
                     }}
                   >
-                    {/* Corner Handles */}
+                    {/* Interactive Top Border Drag Zone */}
                     <div
-                      onMouseDown={() => setCropPreset("manual")}
-                      style={{ position: "absolute", top: -7, left: -7, width: 14, height: 14, borderRadius: "50%", background: "#ffffff", border: "2.5px solid #10B981", cursor: "nwse-resize", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}
-                    />
-                    <div
-                      onMouseDown={() => setCropPreset("manual")}
-                      style={{ position: "absolute", top: -7, right: -7, width: 14, height: 14, borderRadius: "50%", background: "#ffffff", border: "2.5px solid #10B981", cursor: "nesw-resize", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}
-                    />
-                    <div
-                      onMouseDown={() => setCropPreset("manual")}
-                      style={{ position: "absolute", bottom: -7, left: -7, width: 14, height: 14, borderRadius: "50%", background: "#ffffff", border: "2.5px solid #10B981", cursor: "nesw-resize", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}
-                    />
-                    <div
-                      onMouseDown={() => setCropPreset("manual")}
-                      style={{ position: "absolute", bottom: -7, right: -7, width: 14, height: 14, borderRadius: "50%", background: "#ffffff", border: "2.5px solid #10B981", cursor: "nwse-resize", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}
+                      onMouseDown={(e) => handleCropDragStart(e, "top")}
+                      onTouchStart={(e) => handleCropDragStart(e, "top")}
+                      style={{
+                        position: "absolute",
+                        top: -8,
+                        left: 0,
+                        right: 0,
+                        height: 16,
+                        cursor: "ns-resize",
+                        zIndex: 25,
+                      }}
                     />
 
-                    {/* Dimensions Badge */}
+                    {/* Interactive Bottom Border Drag Zone */}
                     <div
+                      onMouseDown={(e) => handleCropDragStart(e, "bottom")}
+                      onTouchStart={(e) => handleCropDragStart(e, "bottom")}
+                      style={{
+                        position: "absolute",
+                        bottom: -8,
+                        left: 0,
+                        right: 0,
+                        height: 16,
+                        cursor: "ns-resize",
+                        zIndex: 25,
+                      }}
+                    />
+
+                    {/* Corner Drag Handles */}
+                    <div
+                      onMouseDown={(e) => handleCropDragStart(e, "top")}
+                      onTouchStart={(e) => handleCropDragStart(e, "top")}
+                      style={{ position: "absolute", top: -8, left: -8, width: 16, height: 16, borderRadius: "50%", background: "#ffffff", border: "3px solid #10B981", cursor: "ns-resize", boxShadow: "0 2px 8px rgba(0,0,0,0.4)", zIndex: 30 }}
+                    />
+                    <div
+                      onMouseDown={(e) => handleCropDragStart(e, "top")}
+                      onTouchStart={(e) => handleCropDragStart(e, "top")}
+                      style={{ position: "absolute", top: -8, right: -8, width: 16, height: 16, borderRadius: "50%", background: "#ffffff", border: "3px solid #10B981", cursor: "ns-resize", boxShadow: "0 2px 8px rgba(0,0,0,0.4)", zIndex: 30 }}
+                    />
+                    <div
+                      onMouseDown={(e) => handleCropDragStart(e, "bottom")}
+                      onTouchStart={(e) => handleCropDragStart(e, "bottom")}
+                      style={{ position: "absolute", bottom: -8, left: -8, width: 16, height: 16, borderRadius: "50%", background: "#ffffff", border: "3px solid #10B981", cursor: "ns-resize", boxShadow: "0 2px 8px rgba(0,0,0,0.4)", zIndex: 30 }}
+                    />
+                    <div
+                      onMouseDown={(e) => handleCropDragStart(e, "bottom")}
+                      onTouchStart={(e) => handleCropDragStart(e, "bottom")}
+                      style={{ position: "absolute", bottom: -8, right: -8, width: 16, height: 16, borderRadius: "50%", background: "#ffffff", border: "3px solid #10B981", cursor: "ns-resize", boxShadow: "0 2px 8px rgba(0,0,0,0.4)", zIndex: 30 }}
+                    />
+
+                    {/* Interactive Dimensions Badge (Drag Handle) */}
+                    <div
+                      onMouseDown={(e) => handleCropDragStart(e, "bottom")}
+                      onTouchStart={(e) => handleCropDragStart(e, "bottom")}
                       style={{
                         position: "absolute",
                         left: "50%",
-                        bottom: -12,
+                        bottom: -14,
                         transform: "translateX(-50%)",
                         background: "#10B981",
                         color: "#ffffff",
                         fontSize: 10,
                         fontWeight: 800,
-                        padding: "2px 10px",
+                        padding: "3px 12px",
                         borderRadius: "var(--radius-full)",
                         whiteSpace: "nowrap",
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+                        boxShadow: "0 4px 12px rgba(16,185,129,0.5)",
+                        cursor: "ns-resize",
+                        zIndex: 35,
+                        userSelect: "none",
                       }}
                     >
                       {cropPreset === "label_only"
-                        ? "Label Only (Top 50%)"
+                        ? "Label Only (Top 50%) — Drag to Adjust"
                         : cropPreset === "trim_white"
-                        ? "Trim White Edges"
-                        : `Custom Crop: Top ${cropTop}% | Bottom ${cropBottom}%`}
+                        ? "Trim White Edges — Drag to Adjust"
+                        : `Custom Crop: Top ${cropTop}% | Bottom ${cropBottom}% (Drag Handle)`}
                     </div>
                   </div>
                 </>
