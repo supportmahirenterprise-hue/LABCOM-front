@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayersIcon,
+  CopyIcon,
   QrCodeIcon,
   UsersIcon,
   TruckIcon,
@@ -26,6 +27,7 @@ export function Sidebar() {
 
   const NAV_ITEMS = [
     { label: "Studio", href: "/", icon: LayersIcon },
+    { label: "Remove Duplicate", href: "/remove-duplicate", icon: CopyIcon },
     { label: "Customer Analysis", href: "/customer-analysis", icon: UsersIcon },
     { label: "Returns Entry", href: "/returns", icon: TruckIcon },
     { label: "QR Scans", href: "/analytics", icon: QrCodeIcon },

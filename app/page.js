@@ -7,6 +7,7 @@ import Link from "next/link";
 import QRCode from "qrcode";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import Modal from "./components/Modal";
+import { getPendingStudioPdf, clearPendingStudioPdf } from "../lib/pdfTransfer";
 
 const BACKEND_URL = (
   process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
@@ -953,6 +954,25 @@ export default function Home() {
       setUploadProgress(0);
     }
   }
+
+  // Auto-load transferred PDF from Remove Duplicate or other tools
+  useEffect(() => {
+    async function checkPendingTransfer() {
+      try {
+        const pending = await getPendingStudioPdf();
+        if (pending && pending.blob) {
+          const fileObj = new File([pending.blob], pending.name || "unique_labels_cleaned.pdf", { type: "application/pdf" });
+          handleFileSelect([fileObj]);
+          showToast(`Cleaned unique PDF (${pending.name}) auto-loaded into Studio!`, "success");
+          clearPendingStudioPdf();
+        }
+      } catch (err) {
+        console.warn("Studio auto-load check error:", err);
+      }
+    }
+    const t = setTimeout(checkPendingTransfer, 250);
+    return () => clearTimeout(t);
+  }, []);
 
   function handleNativeScriptToggle(val) {
     setUseNativeScript(val);

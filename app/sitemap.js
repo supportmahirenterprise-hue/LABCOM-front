@@ -10,6 +10,12 @@ export default async function sitemap() {
       priority: 1.0,
     },
     {
+      url: `${baseUrl}/remove-duplicate`,
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.95,
+    },
+    {
       url: `${baseUrl}/customer-analysis`,
       lastModified: now,
       changeFrequency: "daily",
