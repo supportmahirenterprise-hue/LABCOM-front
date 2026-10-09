@@ -272,7 +272,22 @@ export default function ReturnsPage() {
     }
   }
 
-  const returnsList = data?.returns || [];
+  const returnsList = useMemo(() => {
+    let list = data?.returns || [];
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      list = list.filter(
+        (r) =>
+          (r.subOrderNo && r.subOrderNo.toLowerCase().includes(q)) ||
+          (r.sku && r.sku.toLowerCase().includes(q)) ||
+          (r.customerName && r.customerName.toLowerCase().includes(q)) ||
+          (r.customerAddress && r.customerAddress.toLowerCase().includes(q)) ||
+          (r.awbNumber && r.awbNumber.toLowerCase().includes(q))
+      );
+    }
+    return list;
+  }, [data?.returns, search]);
+
   const summary = data?.summary || {};
   const pagination = data?.pagination || {};
 

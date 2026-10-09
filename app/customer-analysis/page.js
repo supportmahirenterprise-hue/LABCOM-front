@@ -120,10 +120,21 @@ export default function CustomerAnalysisPage() {
   const [pageSize, setPageSize] = useState(25);
 
   const paginatedCustomers = useMemo(() => {
-    if (!data?.customers) return [];
+    let list = data?.customers || [];
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      list = list.filter(
+        (c) =>
+          (c.name && c.name.toLowerCase().includes(q)) ||
+          (c.mobileNumber && c.mobileNumber.toLowerCase().includes(q)) ||
+          (c.address && c.address.toLowerCase().includes(q)) ||
+          (c.state && c.state.toLowerCase().includes(q)) ||
+          (c.district && c.district.toLowerCase().includes(q))
+      );
+    }
     const start = (currentPage - 1) * pageSize;
-    return data.customers.slice(start, start + pageSize);
-  }, [data?.customers, currentPage, pageSize]);
+    return list.slice(start, start + pageSize);
+  }, [data?.customers, search, currentPage, pageSize]);
 
   const filteredSkuMatrix = useMemo(() => {
     if (!insightsData?.skuPerformanceMatrix) return [];
@@ -226,6 +237,8 @@ export default function CustomerAnalysisPage() {
     e.preventDefault();
     fetchCustomerAnalysis();
   };
+
+
 
   return (
     <div style={{ minHeight: "100vh", paddingBottom: 60, position: "relative", width: "100%", maxWidth: "100%" }}>
