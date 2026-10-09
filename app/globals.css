@@ -42,7 +42,6 @@ html, body {
   min-height: 100vh;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  overflow-x: clip;
   scroll-behavior: smooth;
 }
 
@@ -72,11 +71,27 @@ html, body {
   position: relative;
 }
 
+.sidebar-desktop {
+  position: sticky !important;
+  top: 24px !important;
+  align-self: flex-start !important;
+  flex-shrink: 0 !important;
+  height: calc(100vh - 48px) !important;
+  max-height: calc(100vh - 48px) !important;
+  z-index: 500 !important;
+}
+
 @media (max-width: 1024px) {
   .layout-wrapper {
     padding: 16px;
     gap: 16px;
     flex-direction: column;
+  }
+  .sidebar-desktop {
+    width: 100% !important;
+    height: auto !important;
+    position: relative !important;
+    top: 0 !important;
   }
 }
 

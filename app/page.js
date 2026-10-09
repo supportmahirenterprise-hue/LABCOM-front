@@ -280,6 +280,7 @@ export default function Home() {
   }, [status, router]);
 
   const [file, setFile] = useState(null);
+  const [pdfPage1DataUrl, setPdfPage1DataUrl] = useState(null);
   const [pages, setPages] = useState([]);
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -572,15 +573,55 @@ export default function Home() {
     return { totalPages, uniqueSkus, totalQty };
   }, [pages]);
 
+  async function renderPdfPage1ToDataUrl(fileObj) {
+    if (!fileObj || typeof window === "undefined") return null;
+    try {
+      if (!window.pdfjsLib) {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement("script");
+          script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+          script.onload = () => {
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+            resolve();
+          };
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      }
+
+      const arrayBuffer = await fileObj.arrayBuffer();
+      const pdfDoc = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const page = await pdfDoc.getPage(1);
+      const viewport = page.getViewport({ scale: 2.0 });
+
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+
+      await page.render({ canvasContext: ctx, viewport }).promise;
+      return canvas.toDataURL("image/png");
+    } catch (err) {
+      console.error("Failed to render PDF page 1 for crop preview:", err);
+      return null;
+    }
+  }
+
   async function handleFileSelect(f, nativeOverride) {
     if (!f || isBusy) return;
     const isNative = nativeOverride !== undefined ? nativeOverride : useNativeScript;
     setFile(f);
     setPages([]);
+    setPdfPage1DataUrl(null);
     setError("");
     setSuccessMsg("");
     setLoadingPreview(true);
     setUploadProgress(0);
+
+    // Asynchronously render Page 1 image of uploaded PDF for Crop Modal preview
+    renderPdfPage1ToDataUrl(f).then((dataUrl) => {
+      if (dataUrl) setPdfPage1DataUrl(dataUrl);
+    });
     try {
       let totalPagesInPdf = 1;
       try {
@@ -2847,7 +2888,7 @@ export default function Home() {
               border: "1px solid var(--glass-border)",
             }}
           >
-            {/* Simulated Shipping Label Sheet */}
+            {/* Actual Uploaded Shipping Label Sheet or Fallback Mock */}
             <div
               style={{
                 width: 310 * (zoomLevel / 100),
@@ -2860,37 +2901,52 @@ export default function Home() {
                 userSelect: "none",
               }}
             >
-              {/* Label Content Mock (Delhivery / Meesho Shipping Label Header + Invoice) */}
-              <div style={{ padding: 10, fontSize: 8, fontFamily: "Arial, sans-serif", color: "#000", height: "100%" }}>
-                <div style={{ borderBottom: "2px solid #000", paddingBottom: 6, display: "flex", justifyContent: "space-between" }}>
-                  <div>
-                    <div style={{ fontWeight: 900, fontSize: 12 }}>Delhivery</div>
-                    <div style={{ fontSize: 7, fontWeight: 700 }}>Prepaid: Do not collect cash</div>
-                    <div style={{ fontSize: 7, marginTop: 4 }}><b>Destination:</b> Amreli, Gujarat</div>
+              {/* Real Uploaded PDF Page 1 Image Preview */}
+              {pdfPage1DataUrl ? (
+                <img
+                  src={pdfPage1DataUrl}
+                  alt="Uploaded Label Page 1"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "fill",
+                    background: "#ffffff",
+                    display: "block",
+                  }}
+                />
+              ) : (
+                /* Fallback Mock Label Content */
+                <div style={{ padding: 10, fontSize: 8, fontFamily: "Arial, sans-serif", color: "#000", height: "100%" }}>
+                  <div style={{ borderBottom: "2px solid #000", paddingBottom: 6, display: "flex", justifyContent: "space-between" }}>
+                    <div>
+                      <div style={{ fontWeight: 900, fontSize: 12 }}>Delhivery</div>
+                      <div style={{ fontSize: 7, fontWeight: 700 }}>Prepaid: Do not collect cash</div>
+                      <div style={{ fontSize: 7, marginTop: 4 }}><b>Destination:</b> Amreli, Gujarat</div>
+                    </div>
+                    <div style={{ width: 40, height: 40, border: "1px solid #000", background: "repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 50% / 4px 4px" }} />
                   </div>
-                  <div style={{ width: 40, height: 40, border: "1px solid #000", background: "repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 50% / 4px 4px" }} />
-                </div>
 
-                <div style={{ marginTop: 8, textAlign: "center" }}>
-                  <div style={{ height: 24, background: "repeating-linear-gradient(90deg, #000 0px, #000 2px, #fff 2px, #fff 4px)" }} />
-                  <div style={{ fontWeight: 800, fontSize: 8, marginTop: 2 }}>1490842209153146</div>
-                </div>
+                  <div style={{ marginTop: 8, textAlign: "center" }}>
+                    <div style={{ height: 24, background: "repeating-linear-gradient(90deg, #000 0px, #000 2px, #fff 2px, #fff 4px)" }} />
+                    <div style={{ fontWeight: 800, fontSize: 8, marginTop: 2 }}>1490842209153146</div>
+                  </div>
 
-                <div style={{ marginTop: 10, borderTop: "1px solid #000", paddingTop: 4, display: "grid", gridTemplateColumns: "2fr 1fr 1fr 2fr", fontSize: 7, fontWeight: 700 }}>
-                  <span>SKU: UvgvFO2z</span>
-                  <span>Size: Free</span>
-                  <span>Qty: 1</span>
-                  <span>Order: 33903404040000304_1</span>
-                </div>
+                  <div style={{ marginTop: 10, borderTop: "1px solid #000", paddingTop: 4, display: "grid", gridTemplateColumns: "2fr 1fr 1fr 2fr", fontSize: 7, fontWeight: 700 }}>
+                    <span>SKU: UvgvFO2z</span>
+                    <span>Size: Free</span>
+                    <span>Qty: 1</span>
+                    <span>Order: 33903404040000304_1</span>
+                  </div>
 
-                <div style={{ marginTop: 14, borderTop: "2px dashed #666", paddingTop: 8, background: "#f8fafc" }}>
-                  <div style={{ fontWeight: 800, fontSize: 8, color: "#333" }}>TAX INVOICE (Original For Recipient)</div>
-                  <div style={{ fontSize: 6.5, color: "#666", marginTop: 4, lineHeight: 1.3 }}>
-                    Sold by: The Mahir Enterprise | Inv: INV-9876543<br />
-                    Description: Cotton Printed Saree | Amount: Rs 120.00
+                  <div style={{ marginTop: 14, borderTop: "2px dashed #666", paddingTop: 8, background: "#f8fafc" }}>
+                    <div style={{ fontWeight: 800, fontSize: 8, color: "#333" }}>TAX INVOICE (Original For Recipient)</div>
+                    <div style={{ fontSize: 6.5, color: "#666", marginTop: 4, lineHeight: 1.3 }}>
+                      Sold by: The Mahir Enterprise | Inv: INV-9876543<br />
+                      Description: Cotton Printed Saree | Amount: Rs 120.00
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               {/* OVERLAY: GREEN RESIZABLE CROP BOX (Visible when previewMode === "after") */}
               {previewMode === "after" && (
