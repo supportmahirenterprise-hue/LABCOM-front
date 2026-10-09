@@ -16,12 +16,11 @@ export default function ContactUsPage() {
 
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [openFaq, setOpenFaq] = useState(null);
 
   const FAQS = [
     {
       q: "Is my label and customer address data safe when using LabelPro?",
-      a: "Yes, 100%. LabelPro uses a client-side in-memory engine. When you upload your shipping label PDF, it is processed locally inside your web browser. No customer personal identification information (PII) is permanently cataloged or sold.",
+      a: "Yes, 100%. LabelPro uses a client-side in-memory engine developed by Mahir Enterprise. When you upload your shipping label PDF, it is processed locally inside your web browser. No customer personal identification information (PII) is permanently cataloged or sold.",
     },
     {
       q: "Which marketplaces and thermal printers are compatible?",
@@ -60,13 +59,13 @@ export default function ContactUsPage() {
 
         <div className="premium-glass" style={{ padding: "32px 36px", borderRadius: "20px", background: "linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%)", border: "1px solid #E2E8F0" }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(5, 150, 105, 0.08)", border: "1px solid rgba(5, 150, 105, 0.2)", padding: "4px 12px", borderRadius: "9999px", color: "#059669", fontSize: "0.75rem", fontWeight: 700, marginBottom: 14 }}>
-            ⚡ Live Support Desk Online • Avg. Response: &lt; 15 Mins
+            ⚡ Live Support Desk Online • Mahir Enterprise
           </div>
           <h1 className="heading-display" style={{ fontSize: "2.1rem", color: "#0F172A", margin: "0 0 10px 0", fontWeight: 800, letterSpacing: "-0.02em" }}>
             Get in Touch with LabelPro Support
           </h1>
           <p style={{ fontSize: "0.92rem", color: "#475569", margin: 0, maxWidth: 850, lineHeight: 1.6 }}>
-            Have questions regarding custom label templates, high-volume enterprise sorting, WhatsApp API configuration, or technical assistance? Our engineering and support team is here to assist.
+            Have questions regarding custom label templates, high-volume enterprise sorting, WhatsApp API configuration, or technical assistance? Our support team at Mahir Enterprise is here to assist.
           </p>
         </div>
       </div>
@@ -87,7 +86,7 @@ export default function ContactUsPage() {
                 Inquiry Received!
               </h3>
               <p style={{ fontSize: "0.86rem", color: "#15803D", margin: "0 0 16px 0" }}>
-                Thank you for contacting us. A member of our technical support team will reply to <b>{formData.email || "your email"}</b> shortly.
+                Thank you for contacting Mahir Enterprise. A member of our support team will reply to <b>{formData.email || "your email"}</b> shortly.
               </p>
               <button
                 type="button"
@@ -114,7 +113,7 @@ export default function ContactUsPage() {
                     className="input-field"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g. Rahul Sharma"
+                    placeholder="e.g. Mahir"
                     style={{ fontSize: "0.85rem", padding: "10px 12px" }}
                   />
                 </div>
@@ -128,7 +127,7 @@ export default function ContactUsPage() {
                     className="input-field"
                     value={formData.storeName}
                     onChange={(e) => setFormData({ ...formData, storeName: e.target.value })}
-                    placeholder="e.g. Sharma Enterprises"
+                    placeholder="e.g. Mahir Enterprise"
                     style={{ fontSize: "0.85rem", padding: "10px 12px" }}
                   />
                 </div>
@@ -145,7 +144,7 @@ export default function ContactUsPage() {
                     className="input-field"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="name@example.com"
+                    placeholder="support.mahirenterprise@gmail.com"
                     style={{ fontSize: "0.85rem", padding: "10px 12px" }}
                   />
                 </div>
@@ -160,7 +159,7 @@ export default function ContactUsPage() {
                     className="input-field"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="+91 98765 43210"
+                    placeholder="+91 96647 20473"
                     style={{ fontSize: "0.85rem", padding: "10px 12px" }}
                   />
                 </div>
@@ -248,12 +247,12 @@ export default function ContactUsPage() {
                   Instant WhatsApp Live Chat
                 </h3>
                 <p style={{ fontSize: "0.78rem", color: "#15803D", margin: 0 }}>
-                  Get real-time assistance directly from our support engineers.
+                  Get real-time assistance directly on WhatsApp (+91 96647 20473).
                 </p>
               </div>
             </div>
             <a
-              href="https://wa.me/918140148878?text=Hello%20LabelPro%20Support,%20I%20need%20assistance%20with%20shipping%20label%20setup"
+              href="https://wa.me/919664720473?text=Hello%20LabelPro%20Support,%20I%20need%20assistance%20with%20shipping%20label%20setup"
               target="_blank"
               rel="noopener noreferrer"
               style={{
@@ -282,17 +281,17 @@ export default function ContactUsPage() {
                 <div style={{ fontSize: "0.75rem", color: "#64748B", fontWeight: 600, textTransform: "uppercase" }}>
                   Official Support Email
                 </div>
-                <div style={{ fontSize: "1rem", color: "#4F46E5", fontWeight: 700, marginTop: 2 }}>
-                  support@labelpro.in
+                <div style={{ fontSize: "0.95rem", color: "#4F46E5", fontWeight: 700, marginTop: 2 }}>
+                  support.mahirenterprise@gmail.com
                 </div>
               </div>
 
               <div>
                 <div style={{ fontSize: "0.75rem", color: "#64748B", fontWeight: 600, textTransform: "uppercase" }}>
-                  Operational Headquarters
+                  Operational Headquarters &amp; Entity
                 </div>
                 <div style={{ fontSize: "0.92rem", color: "#0F172A", fontWeight: 600, marginTop: 2 }}>
-                  Textile Market Area, Ring Road, Surat, Gujarat, India - 395002
+                  Mahir Enterprise, Ratanvav, Gujarat, India - 360575
                 </div>
               </div>
 
@@ -301,7 +300,7 @@ export default function ContactUsPage() {
                   Working Hours
                 </div>
                 <div style={{ fontSize: "0.92rem", color: "#0F172A", fontWeight: 600, marginTop: 2 }}>
-                  Monday – Saturday: 9:00 AM – 7:00 PM IST
+                  Monday – Saturday: 9:00 AM – 8:00 PM IST
                 </div>
               </div>
             </div>
@@ -310,57 +309,59 @@ export default function ContactUsPage() {
         </div>
       </div>
 
-      {/* Frequently Asked Questions Accordion */}
+      {/* Frequently Asked Questions Grid */}
       <div className="premium-glass" style={{ padding: "32px", borderRadius: "20px", background: "#FFFFFF", border: "1px solid #E2E8F0" }}>
-        <h2 style={{ fontSize: "1.3rem", color: "#0F172A", fontWeight: 800, margin: "0 0 16px 0" }}>
-          Frequently Asked Questions (FAQ)
-        </h2>
+        <div style={{ marginBottom: 20 }}>
+          <h2 style={{ fontSize: "1.3rem", color: "#0F172A", fontWeight: 800, margin: "0 0 6px 0" }}>
+            Frequently Asked Questions (FAQ)
+          </h2>
+          <p style={{ fontSize: "0.86rem", color: "#64748B", margin: 0 }}>
+            Instant answers to common questions about LabelPro and Mahir Enterprise services.
+          </p>
+        </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {FAQS.map((faq, idx) => {
-            const isOpen = openFaq === idx;
-            return (
-              <div
-                key={idx}
-                style={{
-                  border: `1px solid ${isOpen ? "#C7D2FE" : "#E2E8F0"}`,
-                  borderRadius: "12px",
-                  overflow: "hidden",
-                  background: isOpen ? "#F8FAFC" : "#FFFFFF",
-                  transition: "all 0.2s ease",
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={() => setOpenFaq(isOpen ? null : idx)}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 480px), 1fr))", gap: 16 }}>
+          {FAQS.map((faq, idx) => (
+            <div
+              key={idx}
+              style={{
+                border: "1px solid #E2E8F0",
+                borderRadius: "14px",
+                padding: "20px 22px",
+                background: "#F8FAFC",
+                display: "flex",
+                flexDirection: "column",
+                gap: 8,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                <span
                   style={{
-                    width: "100%",
-                    padding: "14px 18px",
-                    display: "flex",
-                    justifyContent: "space-between",
+                    display: "inline-flex",
                     alignItems: "center",
-                    background: "transparent",
-                    border: "none",
-                    textAlign: "left",
-                    cursor: "pointer",
-                    fontSize: "0.92rem",
-                    fontWeight: 700,
-                    color: "#0F172A",
+                    justifyContent: "center",
+                    width: 22,
+                    height: 22,
+                    borderRadius: "50%",
+                    background: "#EEF2FF",
+                    color: "#4F46E5",
+                    fontSize: "0.75rem",
+                    fontWeight: 800,
+                    flexShrink: 0,
+                    marginTop: 1,
                   }}
                 >
-                  <span>{faq.q}</span>
-                  <span style={{ fontSize: "1.2rem", color: "#64748B", marginLeft: 12 }}>
-                    {isOpen ? "−" : "+"}
-                  </span>
-                </button>
-                {isOpen && (
-                  <div style={{ padding: "0 18px 16px", fontSize: "0.86rem", color: "#475569", lineHeight: 1.65 }}>
-                    {faq.a}
-                  </div>
-                )}
+                  Q
+                </span>
+                <h3 style={{ fontSize: "0.92rem", fontWeight: 700, color: "#0F172A", margin: 0, lineHeight: 1.45 }}>
+                  {faq.q}
+                </h3>
               </div>
-            );
-          })}
+              <div style={{ paddingLeft: 32, fontSize: "0.85rem", color: "#475569", lineHeight: 1.65 }}>
+                {faq.a}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

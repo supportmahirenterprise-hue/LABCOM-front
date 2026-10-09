@@ -19,16 +19,16 @@ export default function TermsOfServicePage() {
 
         <div className="premium-glass" style={{ padding: "32px 36px", borderRadius: "20px", background: "linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%)", border: "1px solid #E2E8F0" }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(15, 23, 42, 0.06)", border: "1px solid rgba(15, 23, 42, 0.12)", padding: "4px 12px", borderRadius: "9999px", color: "#0F172A", fontSize: "0.75rem", fontWeight: 700, marginBottom: 14 }}>
-            📜 Legally Binding Agreement
+            📜 Legally Binding Agreement • Mahir Enterprise
           </div>
           <h1 className="heading-display" style={{ fontSize: "2.1rem", color: "#0F172A", margin: "0 0 10px 0", fontWeight: 800, letterSpacing: "-0.02em" }}>
             Terms &amp; Conditions of Service
           </h1>
           <p style={{ fontSize: "0.92rem", color: "#475569", margin: 0, maxWidth: 850, lineHeight: 1.6 }}>
-            Please read these Terms carefully before accessing or using LabelPro. By accessing our platform, generating PDF documents, using QR stamping, or processing logistics manifests, you agree to be unconditionally bound by these Terms and our full limitation of liability.
+            Please read these Terms carefully before accessing or using LabelPro Print Engine (operated by <b>Mahir Enterprise</b>). By accessing our platform, generating PDF documents, using QR stamping, or processing logistics manifests, you agree to be unconditionally bound by these Terms and our full limitation of liability.
           </p>
           <div style={{ marginTop: 16, fontSize: "0.78rem", color: "#94A3B8", fontWeight: 600 }}>
-            Effective Date: <b>{lastUpdated}</b> • Jurisdiction: <b>Surat, Gujarat, India</b>
+            Effective Date: <b>{lastUpdated}</b> • Entity: <b>Mahir Enterprise</b> • Jurisdiction: <b>Ratanvav / Porbandar, Gujarat, India</b>
           </div>
         </div>
       </div>
@@ -47,7 +47,7 @@ export default function TermsOfServicePage() {
               THE PLATFORM, SOFTWARE ENGINES, AND ALL ACCOMPANYING DOCUMENTATION ARE PROVIDED STRICTLY ON AN <b>&quot;AS-IS&quot;</b> AND <b>&quot;AS-AVAILABLE&quot;</b> BASIS WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, COMPATIBILITY WITH THIRD-PARTY THERMAL PRINTER HARDWARE, NON-INFRINGEMENT, OR UNINTERRUPTED ACCURACY.
             </p>
             <p>
-              LabelPro does not warrant that the software will be completely error-free or that document parsing will remain compatible with future unilateral updates made by third-party e-commerce marketplaces (such as Meesho, Flipkart, or Amazon).
+              Mahir Enterprise does not warrant that the software will be completely error-free or that document parsing will remain compatible with future unilateral updates made by third-party e-commerce marketplaces (such as Meesho, Flipkart, or Amazon).
             </p>
           </div>
         </section>
@@ -60,7 +60,7 @@ export default function TermsOfServicePage() {
           </h2>
           <div style={{ fontSize: "0.88rem", color: "#334155", lineHeight: 1.7, display: "flex", flexDirection: "column", gap: 12 }}>
             <p>
-              TO THE MAXIMUM EXTENT PERMITTED BY INDIAN LAW, IN NO EVENT SHALL LABELPRO, ITS DIRECTORS, EMPLOYEES, CONTRACTORS, LICENSORS, OR AFFILIATES BE LIABLE FOR:
+              TO THE MAXIMUM EXTENT PERMITTED BY INDIAN LAW, IN NO EVENT SHALL MAHIR ENTERPRISE, LABELPRO, ITS PROPRIETORS, EMPLOYEES, CONTRACTORS, LICENSORS, OR AFFILIATES BE LIABLE FOR:
             </p>
             <ul style={{ paddingLeft: 22, display: "flex", flexDirection: "column", gap: 8 }}>
               <li>
@@ -77,7 +77,7 @@ export default function TermsOfServicePage() {
               </li>
             </ul>
             <p>
-              In any event, our total aggregate liability arising out of or related to your use of the platform shall not exceed the total amount actually paid by you to LabelPro in the thirty (30) days preceding the incident, or INR ₹500, whichever is less.
+              In any event, our total aggregate liability arising out of or related to your use of the platform shall not exceed the total amount actually paid by you to Mahir Enterprise in the thirty (30) days preceding the incident, or INR ₹500, whichever is less.
             </p>
           </div>
         </section>
@@ -114,10 +114,10 @@ export default function TermsOfServicePage() {
           </h2>
           <div style={{ fontSize: "0.88rem", color: "#334155", lineHeight: 1.7, display: "flex", flexDirection: "column", gap: 12 }}>
             <p>
-              All software source code, client-side PDF sorting algorithms, UI components, vector icons, stylesheets, and documentation are the exclusive intellectual property of LabelPro.
+              All software source code, client-side PDF sorting algorithms, UI components, vector icons, stylesheets, and documentation are the exclusive intellectual property of Mahir Enterprise.
             </p>
             <p>
-              You agree not to modify, reverse-engineer, decompile, duplicate, distribute, sell, or create derivative works of any part of this software without explicit prior written authorization.
+              You agree not to modify, reverse-engineer, decompile, duplicate, distribute, sell, or create derivative works of any part of this software without explicit prior written authorization from Mahir Enterprise.
             </p>
           </div>
         </section>
@@ -133,7 +133,7 @@ export default function TermsOfServicePage() {
               These Terms shall be governed by and construed in accordance with the laws of the <b>Republic of India</b>.
             </p>
             <p>
-              Any disputes, controversies, or claims arising out of or in connection with these Terms or the use of LabelPro shall be subject to the exclusive jurisdiction of the competent courts situated in <b>Surat, Gujarat, India</b>.
+              Any disputes, controversies, or claims arising out of or in connection with these Terms or the use of LabelPro Print Engine shall be subject to the exclusive jurisdiction of the competent courts situated in <b>Ratanvav / Porbandar, Gujarat, India</b>.
             </p>
           </div>
         </section>

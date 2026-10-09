@@ -66,7 +66,7 @@ export default function AboutUsPage() {
           }}
         >
           <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "linear-gradient(135deg, rgba(79, 70, 229, 0.12) 0%, rgba(2, 132, 199, 0.12) 100%)", border: "1px solid #C7D2FE", padding: "5px 14px", borderRadius: "9999px", color: "#4F46E5", fontSize: "0.78rem", fontWeight: 700, marginBottom: 16 }}>
-            🚀 Next-Generation Print &amp; Logistics Intelligence Engine
+            🚀 Mahir Enterprise • LabelPro Print Engine
           </div>
 
           <h1 className="heading-display" style={{ fontSize: "2.4rem", color: "#0F172A", margin: "0 0 14px 0", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.2 }}>
@@ -74,7 +74,7 @@ export default function AboutUsPage() {
           </h1>
 
           <p style={{ fontSize: "1.05rem", color: "#475569", margin: "0 0 24px 0", maxWidth: 880, lineHeight: 1.65 }}>
-            LabelPro was engineered to solve the most painful bottleneck faced by high-volume e-commerce sellers across India: slow, clunky shipping label formatting, unorganized batch sorting, and missed customer retention opportunities.
+            Developed by <b>Mahir Enterprise</b> (Ratanvav, Gujarat), LabelPro was engineered to solve the most painful bottlenecks faced by high-volume e-commerce sellers across India: slow, clunky shipping label formatting, unorganized batch sorting, and missed customer retention opportunities.
           </p>
 
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
@@ -199,6 +199,7 @@ export default function AboutUsPage() {
           Your business data, customer addresses, order lists, and proprietary SKUs remain completely confidential. All PDF manipulation runs on-device inside your browser without permanent cloud data recording.
         </p>
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: "0.82rem", color: "#94A3B8" }}>
+          <span>✓ Mahir Enterprise (Ratanvav, Gujarat)</span>
           <span>✓ 100% Client-Side In-Memory Engine</span>
           <span>✓ Zero Third-Party Data Sharing</span>
           <span>✓ Full DPDP Act 2023 &amp; IT Act 2000 Compliance</span>

@@ -97,11 +97,11 @@ export default function SettingsPage() {
   }, [status, router]);
 
   // Store Profile (Optional)
-  const [storeName, setStoreName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [supportEmail, setSupportEmail] = useState("");
-  const [storeUrl, setStoreUrl] = useState("");
-  const [instagramHandle, setInstagramHandle] = useState("");
+  const [storeName, setStoreName] = useState("MAHIR ENTERPRISE");
+  const [phone, setPhone] = useState("+91 96647 20473");
+  const [supportEmail, setSupportEmail] = useState("support.mahirenterprise@gmail.com");
+  const [storeUrl, setStoreUrl] = useState("https://www.meesho.com/themahirenterprise");
+  const [instagramHandle, setInstagramHandle] = useState("@mahir.enterprise_");
   const [customNote, setCustomNote] = useState("");
 
   // Default Stamping & Sorting Preferences
@@ -121,9 +121,9 @@ export default function SettingsPage() {
   // WhatsApp Dispatcher Configuration
   const [enableWhatsApp, setEnableWhatsApp] = useState(true);
   const [waApiKey, setWaApiKey] = useState("wa_c6854599bd4b7a54cad78edbdd6ace51");
-  const [waReceiverNumber, setWaReceiverNumber] = useState("918140148878");
-  const [pdfReceiverNumber, setPdfReceiverNumber] = useState("918140148878");
-  const [imageReceiverNumber, setImageReceiverNumber] = useState("918140148878");
+  const [waReceiverNumber, setWaReceiverNumber] = useState("919664720473");
+  const [pdfReceiverNumber, setPdfReceiverNumber] = useState("919664720473");
+  const [imageReceiverNumber, setImageReceiverNumber] = useState("919664720473");
   const [showApiKey, setShowApiKey] = useState(false);
   const [testingWa, setTestingWa] = useState(false);
 
@@ -256,7 +256,7 @@ export default function SettingsPage() {
     setTestingWa(true);
     try {
       const userEmail = session?.user?.email || "";
-      const targetNum = waReceiverNumber || "918140148878";
+      const targetNum = waReceiverNumber || "919664720473";
       const testRes = await fetch(`${BACKEND_URL}/api/whatsapp/send-media`, {
         method: "POST",
         headers: {
@@ -600,7 +600,7 @@ export default function SettingsPage() {
               </label>
               <input
                 className="input-field"
-                placeholder="e.g. 918140148878"
+                placeholder="e.g. 919664720473"
                 value={pdfReceiverNumber}
                 onChange={(e) => setPdfReceiverNumber(e.target.value)}
               />
@@ -616,7 +616,7 @@ export default function SettingsPage() {
               </label>
               <input
                 className="input-field"
-                placeholder="e.g. 918140148878"
+                placeholder="e.g. 919664720473"
                 value={imageReceiverNumber}
                 onChange={(e) => setImageReceiverNumber(e.target.value)}
               />

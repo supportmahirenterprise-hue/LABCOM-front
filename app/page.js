@@ -1779,9 +1779,9 @@ export default function Home() {
                     </div>
                     <div style={{ borderTop: "1px solid #000", paddingTop: 2 }}>
                       <div style={{ fontWeight: 700, fontSize: 6 }}>If undelivered, return to:</div>
-                      <div style={{ fontWeight: 700, fontSize: 6.5 }}>Sample Seller Enterprise</div>
+                      <div style={{ fontWeight: 700, fontSize: 6.5 }}>{storeName || "Mahir Enterprise"}</div>
                       <div style={{ fontSize: 5.5, color: "#333", lineHeight: 1.1 }}>
-                        Plot 45, Sample Industrial Estate, City, State, 395001
+                        Ratanvav, Gujarat, India - 360575
                       </div>
                     </div>
                   </div>
@@ -1853,7 +1853,7 @@ export default function Home() {
                       {pages[0]?.customerName || "Sample Customer"} - City, 500001
                     </div>
                     <div style={{ width: "50%", paddingLeft: 2 }}>
-                      <b>Sold by:</b> Sample Seller Enterprise<br />
+                      <b>Sold by:</b> {storeName || "Mahir Enterprise"}<br />
                       <b>Invoice No:</b> {pages[0]?.invoiceNo || "INV-9876541"} | <b>Date:</b> {pages[0]?.orderDate || "24.08.2026"}
                     </div>
                   </div>

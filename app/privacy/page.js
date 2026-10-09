@@ -19,16 +19,16 @@ export default function PrivacyPolicyPage() {
 
         <div className="premium-glass" style={{ padding: "32px 36px", borderRadius: "20px", background: "linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%)", border: "1px solid #E2E8F0" }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(79, 70, 229, 0.08)", border: "1px solid rgba(79, 70, 229, 0.2)", padding: "4px 12px", borderRadius: "9999px", color: "#4F46E5", fontSize: "0.75rem", fontWeight: 700, marginBottom: 14 }}>
-            🛡️ Safe Harbor & DPDP Act 2023 Compliant
+            🛡️ Safe Harbor & DPDP Act 2023 Compliant • Mahir Enterprise
           </div>
           <h1 className="heading-display" style={{ fontSize: "2.1rem", color: "#0F172A", margin: "0 0 10px 0", fontWeight: 800, letterSpacing: "-0.02em" }}>
             Privacy Policy & Data Protection Governance
           </h1>
           <p style={{ fontSize: "0.92rem", color: "#475569", margin: 0, maxWidth: 850, lineHeight: 1.6 }}>
-            LabelPro (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) operates with a zero-retention, client-side first architecture. This policy details our absolute commitment to seller privacy, ephemeral document processing, and the complete limitation of liability regarding third-party logistics and marketplace data.
+            LabelPro Print Engine (operated by <b>Mahir Enterprise</b>, Ratanvav, Gujarat, India) operates with a strict zero-retention, client-side first architecture. This policy details our absolute commitment to seller privacy, ephemeral document processing, and the complete limitation of liability regarding third-party logistics and marketplace data.
           </p>
           <div style={{ marginTop: 16, fontSize: "0.78rem", color: "#94A3B8", fontWeight: 600 }}>
-            Effective Date: <b>{lastUpdated}</b> • Version: <b>4.2 (Zero-PII Storage Standard)</b>
+            Effective Date: <b>{lastUpdated}</b> • Version: <b>4.2 (Zero-PII Storage Standard)</b> • Entity: <b>Mahir Enterprise</b>
           </div>
         </div>
       </div>
@@ -44,14 +44,14 @@ export default function PrivacyPolicyPage() {
           </h2>
           <div style={{ fontSize: "0.88rem", color: "#334155", lineHeight: 1.7, display: "flex", flexDirection: "column", gap: 12 }}>
             <p>
-              LabelPro operates predominantly as an in-browser client-side engine. When you upload PDF shipping labels, manifests, or courier invoices:
+              LabelPro Print Engine operates predominantly as an in-browser client-side engine. When you upload PDF shipping labels, manifests, or courier invoices:
             </p>
             <ul style={{ paddingLeft: 22, display: "flex", flexDirection: "column", gap: 8 }}>
               <li>
                 <b>Zero Permanent PII Storage:</b> Document parsing, barcode extraction, cropping, and QR stamping occur in the volatile memory of your local web browser via WebAssembly and JavaScript engines.
               </li>
               <li>
-                <b>No Sale or Monetization of Buyer Data:</b> We do not collect, catalog, sell, lease, or monetize customer names, delivery addresses, telephone numbers, or cart items extracted from shipping documents.
+                <b>No Sale or Monetization of Buyer Data:</b> Mahir Enterprise does not collect, catalog, sell, lease, or monetize customer names, delivery addresses, telephone numbers, or cart items extracted from shipping documents.
               </li>
               <li>
                 <b>Auto-Purge Lifecycle:</b> Any temporary buffers transmitted to our secure servers for auxiliary processing (such as automated WhatsApp document dispatch or analytical summary generation) are strictly held in volatile memory and permanently purged immediately upon task fulfillment or within a maximum retention window of 24 hours.
@@ -68,7 +68,7 @@ export default function PrivacyPolicyPage() {
           </h2>
           <div style={{ fontSize: "0.88rem", color: "#334155", lineHeight: 1.7, display: "flex", flexDirection: "column", gap: 12 }}>
             <p>
-              <b>Independent Software Utility:</b> LabelPro is an independent productivity tool designed for e-commerce warehouse operational efficiency. We are <b>NOT affiliated with, sponsored by, authorized by, maintained by, or endorsed by Meesho (Fashnear Technologies Private Limited), Flipkart, Amazon India, Delhivery, Xpressbees, Shadowfax, Ecom Express, or any of their parent corporations or subsidiaries.</b>
+              <b>Independent Software Utility:</b> LabelPro Print Engine is an independent productivity software utility developed by Mahir Enterprise for e-commerce warehouse operational efficiency. We are <b>NOT affiliated with, sponsored by, authorized by, maintained by, or endorsed by Meesho (Fashnear Technologies Private Limited), Flipkart, Amazon India, Delhivery, Xpressbees, Shadowfax, Ecom Express, or any of their parent corporations or subsidiaries.</b>
             </p>
             <p>
               All product names, logos, trademarks, and registered trademarks displayed or referenced within the software are the property of their respective owners. Their mention does not imply any affiliation, sponsorship, endorsement, or recommendation.
@@ -87,7 +87,7 @@ export default function PrivacyPolicyPage() {
               <b>User Discretion & Verification Obligation:</b> The seller (User) assumes sole and absolute responsibility for verifying the physical readability, barcode scan accuracy, cropping boundaries, QR placement, and recipient details of all generated labels prior to handing parcels over to 3PL logistics carriers.
             </p>
             <p>
-              <b>No Liability for Lost Sales, Fines, or RTO Charges:</b> To the maximum extent permitted by applicable law, LabelPro, its founders, developers, contractors, and affiliates shall <b>NOT be liable for any direct, indirect, incidental, punitive, special, or consequential damages</b>, including but not limited to:
+              <b>No Liability for Lost Sales, Fines, or RTO Charges:</b> To the maximum extent permitted by applicable law, Mahir Enterprise, LabelPro, its proprietors, developers, contractors, and affiliates shall <b>NOT be liable for any direct, indirect, incidental, punitive, special, or consequential damages</b>, including but not limited to:
             </p>
             <ul style={{ paddingLeft: 22, display: "flex", flexDirection: "column", gap: 6 }}>
               <li>Courier return-to-origin (RTO) penalty charges or logistics weight discrepancies.</li>
@@ -96,7 +96,7 @@ export default function PrivacyPolicyPage() {
               <li>Undelivered or misrouted parcels resulting from user configuration or marketplace format alterations.</li>
             </ul>
             <p>
-              By using this service, you explicitly agree to indemnify, defend, and hold harmless LabelPro from any claims, liabilities, damages, losses, or expenses arising from your usage of the platform.
+              By using this service, you explicitly agree to indemnify, defend, and hold harmless Mahir Enterprise and LabelPro from any claims, liabilities, damages, losses, or expenses arising from your usage of the platform.
             </p>
           </div>
         </section>
@@ -113,7 +113,7 @@ export default function PrivacyPolicyPage() {
             </p>
             <ul style={{ paddingLeft: 22, display: "flex", flexDirection: "column", gap: 8 }}>
               <li>
-                <b>User-Controlled API Keys:</b> WhatsApp dispatches are routed through user-provided API credentials or authorized gateway webhooks. LabelPro acts solely as a technical conduit.
+                <b>User-Controlled API Keys:</b> WhatsApp dispatches are routed through user-provided API credentials or authorized gateway webhooks. Mahir Enterprise acts solely as a technical conduit.
               </li>
               <li>
                 <b>Compliance with Meta Policies:</b> The User is strictly responsible for ensuring that all WhatsApp notifications, customer messages, or order summaries comply with Meta&apos;s WhatsApp Business Messaging Policies and applicable anti-spam legislation.
@@ -153,18 +153,18 @@ export default function PrivacyPolicyPage() {
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
             <div style={{ background: "#FFFFFF", border: "1px solid #E2E8F0", padding: "16px 20px", borderRadius: "12px" }}>
-              <div style={{ fontSize: "0.75rem", color: "#64748B", fontWeight: 600, textTransform: "uppercase" }}>Email Support</div>
-              <div style={{ fontSize: "0.95rem", color: "#4F46E5", fontWeight: 700, marginTop: 4 }}>support@labelpro.in</div>
+              <div style={{ fontSize: "0.75rem", color: "#64748B", fontWeight: 600, textTransform: "uppercase" }}>Official Email</div>
+              <div style={{ fontSize: "0.92rem", color: "#4F46E5", fontWeight: 700, marginTop: 4 }}>support.mahirenterprise@gmail.com</div>
             </div>
 
             <div style={{ background: "#FFFFFF", border: "1px solid #E2E8F0", padding: "16px 20px", borderRadius: "12px" }}>
-              <div style={{ fontSize: "0.75rem", color: "#64748B", fontWeight: 600, textTransform: "uppercase" }}>Legal Jurisdiction</div>
-              <div style={{ fontSize: "0.95rem", color: "#0F172A", fontWeight: 700, marginTop: 4 }}>Surat, Gujarat, India</div>
+              <div style={{ fontSize: "0.75rem", color: "#64748B", fontWeight: 600, textTransform: "uppercase" }}>Legal Entity &amp; Jurisdiction</div>
+              <div style={{ fontSize: "0.92rem", color: "#0F172A", fontWeight: 700, marginTop: 4 }}>Mahir Enterprise, Ratanvav, Gujarat, India</div>
             </div>
 
             <div style={{ background: "#FFFFFF", border: "1px solid #E2E8F0", padding: "16px 20px", borderRadius: "12px" }}>
-              <div style={{ fontSize: "0.75rem", color: "#64748B", fontWeight: 600, textTransform: "uppercase" }}>Response Time</div>
-              <div style={{ fontSize: "0.95rem", color: "#059669", fontWeight: 700, marginTop: 4 }}>Within 24 Business Hours</div>
+              <div style={{ fontSize: "0.75rem", color: "#64748B", fontWeight: 600, textTransform: "uppercase" }}>Direct Helpline / WhatsApp</div>
+              <div style={{ fontSize: "0.92rem", color: "#059669", fontWeight: 700, marginTop: 4 }}>+91 96647 20473</div>
             </div>
           </div>
         </section>
