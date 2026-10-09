@@ -184,6 +184,40 @@ function drawShopIconCanvas(ctx, x, y, size) {
   ctx.restore();
 }
 
+/**
+ * Robust word wrapper for Canvas text rendering
+ */
+function wrapCanvasText(ctx, text, maxLineWidth) {
+  if (!text) return [];
+  const paragraphs = String(text).split("\n");
+  const lines = [];
+
+  for (const para of paragraphs) {
+    if (!para.trim()) {
+      continue;
+    }
+    const words = para.trim().split(/\s+/);
+    let curLine = "";
+
+    for (const word of words) {
+      const testLine = curLine ? `${curLine} ${word}` : word;
+      const testWidth = ctx.measureText(testLine).width;
+
+      if (testWidth > maxLineWidth && curLine) {
+        lines.push(curLine);
+        curLine = word;
+      } else {
+        curLine = testLine;
+      }
+    }
+    if (curLine) {
+      lines.push(curLine);
+    }
+  }
+
+  return lines.length > 0 ? lines : [" "];
+}
+
 function StoreIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1037,97 +1071,132 @@ export default function Home() {
 
         const badgeImageCache = new Map();
 
-        const renderStampBadgeCanvas = async (storeNameStr, qrContentStr, detailTextStr, qrSizeVal, fontSizeVal) => {
-          const scale = 4; // 300+ High DPI for thermal printing
+        const renderStampBadgeCanvas = async (storeNameStr, qrContentStr, detailTextStr, qrSizeVal, fontSizeVal, maxAllowedWidthPt = 260) => {
+          const scale = 4; // High DPI (300+ DPI for crisp thermal printing)
           const cleanStore = (storeNameStr || "STORE").trim().toUpperCase();
 
-          const tempCanvas = document.createElement("canvas");
-          const tempCtx = tempCanvas.getContext("2d");
+          const maxTotalWidthPx = Math.round(maxAllowedWidthPt * scale);
 
-          const storeFontSizePx = Math.round(Math.max(12, fontSizeVal * 1.5) * scale);
-          const storeFontCss = `bold ${storeFontSizePx}px "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
-          tempCtx.font = storeFontCss;
-          const storeTextWidth = tempCtx.measureText(cleanStore).width;
+          // Setup measuring canvas
+          const measureCanvas = document.createElement("canvas");
+          const mCtx = measureCanvas.getContext("2d");
 
-          const detailFontSizePx = Math.round(fontSizeVal * scale);
-          const detailFontCss = `bold ${detailFontSizePx}px "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
-          tempCtx.font = detailFontCss;
+          // Determine Store Font Size
+          let storeFontSizePt = Math.max(11, Math.min(14, fontSizeVal * 1.3));
+          let storeFontCss = `bold ${Math.round(storeFontSizePt * scale)}px "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
+          mCtx.font = storeFontCss;
+          let storeTextWidth = mCtx.measureText(cleanStore).width;
 
-          const rawLines = (detailTextStr || "Follow\nour page").split("\n");
-          let maxDetailLineWidth = 0;
-          rawLines.forEach((line) => {
-            const w = tempCtx.measureText(line).width;
-            if (w > maxDetailLineWidth) maxDetailLineWidth = w;
-          });
+          // Auto-shrink store name if it is very long (e.g. "MAHIR ENTERPRISE GUJARAT")
+          const maxStoreWidthPx = Math.round(85 * scale);
+          while (storeTextWidth > maxStoreWidthPx && storeFontSizePt > 8.5) {
+            storeFontSizePt -= 0.5;
+            storeFontCss = `bold ${Math.round(storeFontSizePt * scale)}px "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
+            mCtx.font = storeFontCss;
+            storeTextWidth = mCtx.measureText(cleanStore).width;
+          }
 
-          const padX = Math.round(16 * scale);
-          const padY = Math.round(10 * scale);
-          const iconSize = Math.round(Math.max(26, qrSizeVal * 0.48) * scale);
-          const iconTextGap = Math.round(12 * scale);
-          const dividerGap = Math.round(16 * scale);
-          const qrScaledSize = Math.round(Math.max(28, qrSizeVal * 0.52) * scale);
-          const qrTextGap = Math.round(12 * scale);
+          // Layout spacing
+          const padXPx = Math.round(10 * scale);
+          const padYPx = Math.round(6 * scale);
+          const iconSizePx = Math.round(22 * scale);
+          const iconTextGapPx = Math.round(8 * scale);
+          const dividerGapPx = Math.round(10 * scale);
+          const dividerWidthPx = Math.round(1.5 * scale);
+          const qrScaledSizePx = Math.round(Math.max(26, Math.min(34, qrSizeVal * 0.45)) * scale);
+          const qrTextGapPx = Math.round(8 * scale);
 
-          const leftSectionWidth = iconSize + iconTextGap + storeTextWidth;
-          const rightSectionWidth = qrScaledSize + qrTextGap + maxDetailLineWidth;
-          const totalWidth = padX + leftSectionWidth + dividerGap + Math.round(2 * scale) + dividerGap + rightSectionWidth + padX;
+          const leftSectionWidthPx = iconSizePx + iconTextGapPx + storeTextWidth;
 
-          const detailBlockHeight = rawLines.length * (detailFontSizePx * 1.25);
-          const contentHeight = Math.max(iconSize, qrScaledSize, detailBlockHeight, storeFontSizePx);
-          const totalHeight = padY + contentHeight + padY;
+          // Calculate available width for text column
+          const fixedWidthPx = padXPx + leftSectionWidthPx + dividerGapPx + dividerWidthPx + dividerGapPx + qrScaledSizePx + qrTextGapPx + padXPx;
+          const maxAvailableTextWidthPx = Math.max(Math.round(60 * scale), maxTotalWidthPx - fixedWidthPx);
 
+          // Auto-fit detail text
+          let detailFontSizePt = Math.max(7, Math.min(10, fontSizeVal));
+          let detailFontCss = `bold ${Math.round(detailFontSizePt * scale)}px "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
+          mCtx.font = detailFontCss;
+
+          let wrappedLines = wrapCanvasText(mCtx, detailTextStr || "Follow\nour page", maxAvailableTextWidthPx);
+
+          // If text creates more than 3 lines, shrink font size to fit cleanly
+          while (wrappedLines.length > 3 && detailFontSizePt > 6.5) {
+            detailFontSizePt -= 0.5;
+            detailFontCss = `bold ${Math.round(detailFontSizePt * scale)}px "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
+            mCtx.font = detailFontCss;
+            wrappedLines = wrapCanvasText(mCtx, detailTextStr || "Follow\nour page", maxAvailableTextWidthPx);
+          }
+
+          // Max line width
+          let maxDetailLineWidthPx = 0;
+          for (const line of wrappedLines) {
+            const w = mCtx.measureText(line).width;
+            if (w > maxDetailLineWidthPx) maxDetailLineWidthPx = w;
+          }
+
+          // Total dimensions
+          const totalWidthPx = padXPx + leftSectionWidthPx + dividerGapPx + dividerWidthPx + dividerGapPx + qrScaledSizePx + qrTextGapPx + maxDetailLineWidthPx + padXPx;
+
+          const detailFontSizePx = Math.round(detailFontSizePt * scale);
+          const textLineHeightPx = Math.round(detailFontSizePx * 1.25);
+          const totalTextHeightPx = wrappedLines.length * textLineHeightPx;
+          const contentHeightPx = Math.max(iconSizePx, qrScaledSizePx, totalTextHeightPx, Math.round(storeFontSizePt * scale));
+          const totalHeightPx = padYPx + contentHeightPx + padYPx;
+
+          // Draw on Canvas
           const canvas = document.createElement("canvas");
-          canvas.width = totalWidth;
-          canvas.height = totalHeight;
+          canvas.width = totalWidthPx;
+          canvas.height = totalHeightPx;
           const ctx = canvas.getContext("2d");
 
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = "high";
 
           // 1. White Background with Rounded Outer Border (Exact Match)
-          const borderRadius = Math.round(12 * scale);
-          const borderWidth = Math.round(2.5 * scale);
+          const borderRadiusPx = Math.round(10 * scale);
+          const borderWidthPx = Math.round(2 * scale);
+
           ctx.fillStyle = "#FFFFFF";
           ctx.strokeStyle = "#000000";
-          ctx.lineWidth = borderWidth;
+          ctx.lineWidth = borderWidthPx;
 
           ctx.beginPath();
           if (ctx.roundRect) {
-            ctx.roundRect(borderWidth / 2, borderWidth / 2, totalWidth - borderWidth, totalHeight - borderWidth, borderRadius);
+            ctx.roundRect(borderWidthPx / 2, borderWidthPx / 2, totalWidthPx - borderWidthPx, totalHeightPx - borderWidthPx, borderRadiusPx);
           } else {
-            ctx.rect(borderWidth / 2, borderWidth / 2, totalWidth - borderWidth, totalHeight - borderWidth);
+            ctx.rect(borderWidthPx / 2, borderWidthPx / 2, totalWidthPx - borderWidthPx, totalHeightPx - borderWidthPx);
           }
           ctx.fill();
           ctx.stroke();
 
-          const centerY = totalHeight / 2;
+          const centerYPx = totalHeightPx / 2;
 
-          // 2. Storefront Icon
-          let curX = padX;
-          const iconY = centerY - iconSize / 2;
-          drawShopIconCanvas(ctx, curX, iconY, iconSize);
+          // 2. Draw Store Icon
+          let curXPx = padXPx;
+          const iconYPx = centerYPx - iconSizePx / 2;
+          drawShopIconCanvas(ctx, curXPx, iconYPx, iconSizePx);
 
-          // 3. Store Name (Bold Uppercase)
-          curX += iconSize + iconTextGap;
+          // 3. Draw Store Name
+          curXPx += iconSizePx + iconTextGapPx;
           ctx.font = storeFontCss;
           ctx.fillStyle = "#000000";
           ctx.textBaseline = "middle";
-          ctx.fillText(cleanStore, curX, centerY);
+          ctx.fillText(cleanStore, curXPx, centerYPx);
 
-          // 4. Vertical Divider Line
-          curX += storeTextWidth + dividerGap;
+          // 4. Draw Vertical Divider Line
+          curXPx += storeTextWidth + dividerGapPx;
           ctx.beginPath();
-          ctx.moveTo(curX, padY + Math.round(2 * scale));
-          ctx.lineTo(curX, totalHeight - padY - Math.round(2 * scale));
+          ctx.moveTo(curXPx, padYPx + Math.round(2 * scale));
+          ctx.lineTo(curXPx, totalHeightPx - padYPx - Math.round(2 * scale));
           ctx.strokeStyle = "#000000";
-          ctx.lineWidth = Math.round(2 * scale);
+          ctx.lineWidth = dividerWidthPx;
           ctx.stroke();
 
-          // 5. QR Code
-          curX += dividerGap;
+          // 5. Draw QR Code
+          curXPx += dividerGapPx;
           const qrPngDataUrl = await QRCode.toDataURL(qrContentStr || "https://www.meesho.com", {
             margin: 0,
-            width: qrScaledSize,
+            width: qrScaledSizePx,
             errorCorrectionLevel: "M",
           });
           const qrImg = new Image();
@@ -1135,19 +1204,18 @@ export default function Home() {
             qrImg.onload = resolve;
             qrImg.src = qrPngDataUrl;
           });
-          const qrYPos = centerY - qrScaledSize / 2;
-          ctx.drawImage(qrImg, curX, qrYPos, qrScaledSize, qrScaledSize);
+          const qrYPx = centerYPx - qrScaledSizePx / 2;
+          ctx.drawImage(qrImg, curXPx, qrYPx, qrScaledSizePx, qrScaledSizePx);
 
-          // 6. Text beside QR
-          curX += qrScaledSize + qrTextGap;
+          // 6. Draw Wrapped Detail Text beside QR
+          curXPx += qrScaledSizePx + qrTextGapPx;
           ctx.font = detailFontCss;
           ctx.fillStyle = "#000000";
           ctx.textBaseline = "top";
-          const textLineHeight = detailFontSizePx * 1.25;
-          const textStartY = centerY - (rawLines.length * textLineHeight) / 2;
+          const textStartYPx = centerYPx - (wrappedLines.length * textLineHeightPx) / 2;
 
-          rawLines.forEach((line, idx) => {
-            ctx.fillText(line, curX, textStartY + idx * textLineHeight);
+          wrappedLines.forEach((line, idx) => {
+            ctx.fillText(line, curXPx, textStartYPx + idx * textLineHeightPx);
           });
 
           const pngDataUrl = canvas.toDataURL("image/png");
@@ -1155,8 +1223,8 @@ export default function Home() {
 
           return {
             pngBytes,
-            widthPt: totalWidth / scale,
-            heightPt: totalHeight / scale,
+            widthPt: totalWidthPx / scale,
+            heightPt: totalHeightPx / scale,
           };
         };
 
@@ -2369,7 +2437,7 @@ export default function Home() {
             </div>
 
             {/* Visual Badge Card matching screenshot */}
-            <div style={{ display: "flex", justifyContent: "center", padding: "14px 0 6px" }}>
+            <div style={{ display: "flex", justifyContent: "center", padding: "14px 0 6px", overflowX: "auto" }}>
               <div
                 style={{
                   display: "inline-flex",
@@ -2377,34 +2445,57 @@ export default function Home() {
                   background: "#FFFFFF",
                   border: "2px solid #000000",
                   borderRadius: "12px",
-                  padding: "10px 18px",
+                  padding: "10px 16px",
                   boxShadow: "0 6px 16px rgba(0,0,0,0.06)",
                   gap: 0,
+                  maxWidth: "100%",
                 }}
               >
                 {/* Left: Storefront Icon + Store Name */}
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <StorefrontIcon size={32} />
-                  <span style={{ fontSize: "1.25rem", fontWeight: 900, color: "#000000", letterSpacing: "0.02em" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+                  <StorefrontIcon size={28} />
+                  <span
+                    style={{
+                      fontSize: (storeName || "").length > 14 ? "1.05rem" : "1.2rem",
+                      fontWeight: 900,
+                      color: "#000000",
+                      letterSpacing: "0.02em",
+                      maxWidth: 160,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                    title={(storeName || "VISHAL").trim().toUpperCase()}
+                  >
                     {(storeName || "VISHAL").trim().toUpperCase()}
                   </span>
                 </div>
 
                 {/* Middle: Vertical Divider */}
-                <div style={{ width: 2, height: 38, background: "#000000", margin: "0 18px" }} />
+                <div style={{ width: 2, height: 38, background: "#000000", margin: "0 14px", flexShrink: 0 }} />
 
                 {/* Right: QR Code + Text */}
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   {previewQrDataUrl ? (
-                    <img src={previewQrDataUrl} alt="QR" style={{ width: 36, height: 36, objectFit: "contain" }} />
+                    <img src={previewQrDataUrl} alt="QR" style={{ width: 34, height: 34, objectFit: "contain", flexShrink: 0 }} />
                   ) : (
-                    <div style={{ width: 36, height: 36, background: "#000000", borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", color: "#FFF", fontSize: 10, fontWeight: 700 }}>
+                    <div style={{ width: 34, height: 34, background: "#000000", borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", color: "#FFF", fontSize: 10, fontWeight: 700, flexShrink: 0 }}>
                       QR
                     </div>
                   )}
-                  <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                  <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", maxWidth: 180 }}>
                     {(detailText || "Follow\nour page").split("\n").map((line, idx) => (
-                      <span key={idx} style={{ fontSize: "0.92rem", fontWeight: 800, color: "#000000", lineHeight: 1.25 }}>
+                      <span
+                        key={idx}
+                        style={{
+                          fontSize: (detailText || "").length > 30 ? "0.8rem" : "0.88rem",
+                          fontWeight: 800,
+                          color: "#000000",
+                          lineHeight: 1.22,
+                          wordBreak: "break-word",
+                          whiteSpace: "pre-wrap",
+                        }}
+                      >
                         {line || " "}
                       </span>
                     ))}
