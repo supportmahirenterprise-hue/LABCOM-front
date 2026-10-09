@@ -578,24 +578,24 @@ export default function ReturnsPage() {
             ⏳ Loading return shipment records...
           </div>
         ) : returnsList.length === 0 ? (
-          <div style={{ padding: "50px 20px", textAlign: "center", color: "var(--text-dim)", fontSize: "0.88rem" }}>
+          <div style={{ padding: "50px 20px", textAlign: "center", color: "#64748B", fontSize: "0.88rem" }}>
             No return records found matching the criteria. Click "Upload Return CSV / Excel" above to import return data.
           </div>
         ) : (
-          <div className="table-responsive-container" style={{ borderRadius: "0 0 16px 16px" }}>
-            <table className="custom-table">
+          <div className="table-responsive-container" style={{ borderRadius: "0 0 16px 16px", border: "none" }}>
+            <table className="custom-table" style={{ minWidth: "1100px" }}>
               <thead>
                 <tr>
-                  <th style={{ width: "40px", paddingLeft: "16px" }}>#</th>
-                  <th>SUB ORDER ID / ORDER NO</th>
-                  <th>RETURN TYPE</th>
-                  <th>SKU / PRODUCT</th>
-                  <th style={{ textAlign: "center" }}>QTY</th>
-                  <th style={{ minWidth: "160px" }}>RETURN REASON</th>
-                  <th>CUSTOMER NAME & MOBILE</th>
-                  <th>STATE</th>
-                  <th>COURIER & AWB</th>
-                  <th style={{ paddingRight: "16px" }}>DATE</th>
+                  <th style={{ width: "45px", paddingLeft: "16px" }}>#</th>
+                  <th style={{ width: "18%" }}>SUB ORDER ID / ORDER NO</th>
+                  <th style={{ width: "13%" }}>RETURN TYPE</th>
+                  <th style={{ width: "14%" }}>SKU / PRODUCT</th>
+                  <th style={{ width: "6%", textAlign: "center" }}>QTY</th>
+                  <th style={{ width: "18%" }}>RETURN REASON</th>
+                  <th style={{ width: "15%" }}>CUSTOMER NAME & MOBILE</th>
+                  <th style={{ width: "10%" }}>STATE</th>
+                  <th style={{ width: "12%" }}>COURIER & AWB</th>
+                  <th style={{ width: "10%", paddingRight: "16px" }}>DATE</th>
                 </tr>
               </thead>
               <tbody>
@@ -608,17 +608,17 @@ export default function ReturnsPage() {
                       onClick={() => setSelectedReturn(r)}
                       style={{ cursor: "pointer" }}
                     >
-                      <td style={{ color: "var(--text-dim)", fontSize: "0.78rem", fontFamily: "var(--font-mono)", paddingLeft: "12px", paddingRight: "4px" }}>
+                      <td style={{ color: "#94A3B8", fontSize: "0.8rem", fontFamily: "var(--font-mono)", paddingLeft: "16px" }}>
                         {globalIdx}
                       </td>
 
                       {/* Sub Order ID */}
-                      <td style={{ overflow: "hidden" }}>
-                        <div style={{ fontWeight: 700, color: "var(--aurora-1)", fontSize: "0.82rem", fontFamily: "var(--font-mono)", wordBreak: "break-all" }}>
+                      <td>
+                        <div style={{ fontWeight: 700, color: "#4F46E5", fontSize: "0.84rem", fontFamily: "var(--font-mono)", wordBreak: "break-all" }}>
                           {r.subOrderNo}
                         </div>
                         {r.orderNo !== r.subOrderNo && (
-                          <div style={{ fontSize: "0.72rem", color: "var(--text-dim)", marginTop: 2, wordBreak: "break-all" }}>
+                          <div style={{ fontSize: "0.72rem", color: "#64748B", marginTop: 2, wordBreak: "break-all" }}>
                             Order: {r.orderNo}
                           </div>
                         )}
@@ -627,75 +627,74 @@ export default function ReturnsPage() {
                       {/* Return Type Badge */}
                       <td>
                         <span
-                          className={isRto ? "tag-pill badge-amber" : "tag-pill badge-rose"}
+                          className={`tag-pill ${isRto ? "badge-amber" : "badge-rose"}`}
                           style={{
-                            fontSize: "0.72rem",
-                            padding: "2px 8px",
+                            fontSize: "0.74rem",
+                            padding: "3px 9px",
                             display: "inline-flex",
                             alignItems: "center",
-                            gap: 3,
-                            whiteSpace: "nowrap",
+                            gap: 4,
                           }}
                         >
-                          {isRto ? <><TruckIcon size={11} /> Courier RTO</> : <><RefreshIcon size={11} /> Customer Return</>}
+                          {isRto ? <><TruckIcon size={12} /> Courier RTO</> : <><RefreshIcon size={12} /> Customer Return</>}
                         </span>
                       </td>
 
                       {/* SKU */}
-                      <td style={{ overflow: "hidden" }}>
-                        <span className="tag-pill badge-slate" style={{ fontSize: "0.75rem", padding: "2px 7px", fontWeight: 700, display: "inline-block", maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <td>
+                        <span className="tag-pill badge-slate" style={{ fontSize: "0.75rem", padding: "3px 8px", fontWeight: 700 }}>
                           {r.sku}
                         </span>
                       </td>
 
                       {/* Qty */}
-                      <td style={{ textAlign: "center", fontWeight: 700, color: "#0F172A", paddingLeft: "2px", paddingRight: "2px", fontSize: "0.82rem" }}>
+                      <td style={{ textAlign: "center", fontWeight: 700, color: "#0F172A", fontSize: "0.85rem" }}>
                         {r.qty}
                       </td>
 
                       {/* Return Reason */}
-                      <td style={{ fontSize: "0.78rem", color: "#475569", whiteSpace: "normal", wordBreak: "break-word", overflow: "hidden" }}>
-                        <div style={{ fontWeight: 600, color: "#0F172A", lineHeight: 1.2 }}>{r.returnReason}</div>
+                      <td style={{ fontSize: "0.82rem", color: "#475569", lineHeight: 1.4, wordBreak: "break-word" }}>
+                        <div style={{ fontWeight: 600, color: "#0F172A" }}>{r.returnReason}</div>
                         {r.detailedReturnReason && r.detailedReturnReason !== r.returnReason && (
-                          <div style={{ fontSize: "0.72rem", color: "#64748B", marginTop: 2, lineHeight: 1.2 }}>
+                          <div style={{ fontSize: "0.74rem", color: "#64748B", marginTop: 2 }}>
                             {r.detailedReturnReason}
                           </div>
                         )}
                       </td>
 
                       {/* Customer Info */}
-                      <td style={{ whiteSpace: "normal", wordBreak: "break-word", overflow: "hidden" }}>
-                        <div style={{ fontWeight: 600, color: "#0F172A", fontSize: "0.8rem", lineHeight: 1.2 }}>
+                      <td>
+                        <div style={{ fontWeight: 600, color: "#0F172A", fontSize: "0.84rem" }}>
                           {r.customerName}
                         </div>
                         {r.customerMobile !== "N/A" && (
-                          <div style={{ fontSize: "0.74rem", color: "#0284C7", fontFamily: "var(--font-mono)", fontWeight: 600, marginTop: 2, display: "inline-flex", alignItems: "center", gap: 3 }}>
+                          <div style={{ fontSize: "0.76rem", color: "#0284C7", fontFamily: "var(--font-mono)", fontWeight: 600, marginTop: 2, display: "inline-flex", alignItems: "center", gap: 3 }}>
                             <PhoneIcon size={11} /> {r.customerMobile}
                           </div>
                         )}
                       </td>
 
                       {/* State */}
-                      <td style={{ verticalAlign: "middle" }}>
-                        <span className="tag-pill badge-sky" style={{ fontSize: "0.72rem", padding: "3px 8px", display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "normal", wordBreak: "break-word", lineHeight: 1.3 }}>
-                          <LocationIcon size={11} /> {r.state}
+                      <td>
+                        <span className="tag-pill badge-sky" style={{ fontSize: "0.74rem", padding: "3px 9px", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                          <LocationIcon size={12} /> {r.state}
                         </span>
                       </td>
 
                       {/* Courier & AWB */}
-                      <td style={{ overflow: "hidden" }}>
-                        <div style={{ fontSize: "0.78rem", color: "#0284C7", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <td>
+                        <div style={{ fontSize: "0.82rem", color: "#0284C7", fontWeight: 600 }}>
                           {r.courierPartner}
                         </div>
                         {r.awbNumber !== "N/A" && (
-                          <div style={{ fontSize: "0.72rem", color: "#64748B", fontFamily: "var(--font-mono)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          <div style={{ fontSize: "0.74rem", color: "#64748B", fontFamily: "var(--font-mono)", marginTop: 2 }}>
                             AWB: {r.awbNumber}
                           </div>
                         )}
                       </td>
 
                       {/* Return Date */}
-                      <td style={{ fontSize: "0.76rem", color: "#64748B", fontFamily: "var(--font-mono)", whiteSpace: "nowrap", paddingRight: "12px", overflow: "hidden" }}>
+                      <td style={{ fontSize: "0.8rem", color: "#64748B", fontFamily: "var(--font-mono)", whiteSpace: "nowrap", paddingRight: "16px" }}>
                         {r.deliveredDate || r.returnCreatedDate || "N/A"}
                       </td>
                     </tr>
@@ -711,31 +710,31 @@ export default function ReturnsPage() {
           <div
             style={{
               padding: "14px 24px",
-              borderTop: "1px solid var(--glass-border)",
+              borderTop: "1px solid #E2E8F0",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
               flexWrap: "wrap",
               gap: 12,
-              background: "rgba(0, 0, 0, 0.2)",
+              background: "#F8FAFC",
             }}
           >
             {/* Page Info */}
-            <div style={{ fontSize: "0.82rem", color: "var(--text-silver)" }}>
+            <div style={{ fontSize: "0.84rem", color: "#475569" }}>
               Showing{" "}
-              <strong style={{ color: "var(--aurora-1)" }}>
+              <strong style={{ color: "#4F46E5" }}>
                 {Math.min((pagination.page - 1) * pagination.limit + 1, pagination.total)}
               </strong>{" "}
               to{" "}
-              <strong style={{ color: "var(--aurora-1)" }}>
+              <strong style={{ color: "#4F46E5" }}>
                 {Math.min(pagination.page * pagination.limit, pagination.total)}
               </strong>{" "}
-              of <strong style={{ color: "var(--text-pure)" }}>{pagination.total}</strong> return entries
+              of <strong style={{ color: "#0F172A" }}>{pagination.total}</strong> return entries
             </div>
 
             {/* Controls */}
             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.8rem", color: "var(--text-silver)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.82rem", color: "#475569" }}>
                 <span>Rows per page:</span>
                 <select
                   value={pageSize}
@@ -743,36 +742,27 @@ export default function ReturnsPage() {
                     setPageSize(Number(e.target.value));
                     setCurrentPage(1);
                   }}
+                  className="select-light"
                   style={{
-                    background: "rgba(255, 255, 255, 0.06)",
-                    border: "1px solid var(--glass-border)",
-                    color: "var(--text-pure)",
-                    borderRadius: "var(--radius-sm)",
                     padding: "4px 8px",
-                    fontSize: "0.8rem",
-                    cursor: "pointer",
-                    outline: "none",
+                    fontSize: "0.82rem",
                   }}
                 >
-                  <option value={10} style={{ background: "#0f172a" }}>10</option>
-                  <option value={25} style={{ background: "#0f172a" }}>25</option>
-                  <option value={50} style={{ background: "#0f172a" }}>50</option>
-                  <option value={100} style={{ background: "#0f172a" }}>100</option>
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
                 </select>
               </div>
 
               {/* Navigation Buttons */}
-              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <button
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage(1)}
+                  className="btn-secondary"
                   style={{
                     padding: "5px 10px",
-                    borderRadius: "var(--radius-sm)",
-                    border: "1px solid var(--glass-border)",
-                    background: currentPage === 1 ? "transparent" : "rgba(255, 255, 255, 0.05)",
-                    color: currentPage === 1 ? "var(--text-dim)" : "var(--text-pure)",
-                    cursor: currentPage === 1 ? "not-allowed" : "pointer",
                     fontSize: "0.8rem",
                   }}
                 >
@@ -781,32 +771,24 @@ export default function ReturnsPage() {
                 <button
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  className="btn-secondary"
                   style={{
                     padding: "5px 12px",
-                    borderRadius: "var(--radius-sm)",
-                    border: "1px solid var(--glass-border)",
-                    background: currentPage === 1 ? "transparent" : "rgba(255, 255, 255, 0.05)",
-                    color: currentPage === 1 ? "var(--text-dim)" : "var(--text-pure)",
-                    cursor: currentPage === 1 ? "not-allowed" : "pointer",
                     fontSize: "0.8rem",
                     fontWeight: 600,
                   }}
                 >
                   Prev
                 </button>
-                <span style={{ fontSize: "0.82rem", color: "var(--aurora-1)", padding: "0 8px", fontWeight: 700 }}>
+                <span style={{ fontSize: "0.84rem", color: "#4F46E5", padding: "0 8px", fontWeight: 700 }}>
                   Page {pagination.page} of {pagination.totalPages}
                 </span>
                 <button
                   disabled={currentPage >= pagination.totalPages}
                   onClick={() => setCurrentPage((prev) => Math.min(pagination.totalPages, prev + 1))}
+                  className="btn-secondary"
                   style={{
                     padding: "5px 12px",
-                    borderRadius: "var(--radius-sm)",
-                    border: "1px solid var(--glass-border)",
-                    background: currentPage >= pagination.totalPages ? "transparent" : "rgba(255, 255, 255, 0.05)",
-                    color: currentPage >= pagination.totalPages ? "var(--text-dim)" : "var(--text-pure)",
-                    cursor: currentPage >= pagination.totalPages ? "not-allowed" : "pointer",
                     fontSize: "0.8rem",
                     fontWeight: 600,
                   }}
@@ -816,13 +798,9 @@ export default function ReturnsPage() {
                 <button
                   disabled={currentPage >= pagination.totalPages}
                   onClick={() => setCurrentPage(pagination.totalPages)}
+                  className="btn-secondary"
                   style={{
                     padding: "5px 10px",
-                    borderRadius: "var(--radius-sm)",
-                    border: "1px solid var(--glass-border)",
-                    background: currentPage >= pagination.totalPages ? "transparent" : "rgba(255, 255, 255, 0.05)",
-                    color: currentPage >= pagination.totalPages ? "var(--text-dim)" : "var(--text-pure)",
-                    cursor: currentPage >= pagination.totalPages ? "not-allowed" : "pointer",
                     fontSize: "0.8rem",
                   }}
                 >

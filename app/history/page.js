@@ -194,17 +194,17 @@ export default function HistoryPage() {
             </Link>
           </div>
         ) : (
-          <div style={{ width: "100%", maxWidth: "100%", overflow: "hidden" }}>
-            <table className="custom-table" style={{ width: "100%", tableLayout: "fixed" }}>
+          <div className="table-responsive-container" style={{ border: "none" }}>
+            <table className="custom-table" style={{ minWidth: "980px" }}>
               <thead>
                 <tr>
-                  <th style={{ width: "18%" }}>Date & Time</th>
-                  <th style={{ width: "30%" }}>File Name</th>
-                  <th style={{ width: "10%" }}>Type</th>
-                  <th style={{ width: "8%" }}>Pages</th>
-                  <th style={{ width: "14%" }}>Sort Rule</th>
-                  <th style={{ width: "10%" }}>QR Stamper</th>
-                  <th style={{ width: "10%" }}>Status</th>
+                  <th style={{ width: "20%", paddingLeft: "16px" }}>Date & Time</th>
+                  <th style={{ width: "28%" }}>File Name</th>
+                  <th style={{ width: "12%" }}>Type</th>
+                  <th style={{ width: "10%" }}>Pages</th>
+                  <th style={{ width: "16%" }}>Sort Rule</th>
+                  <th style={{ width: "12%" }}>QR Stamper</th>
+                  <th style={{ width: "12%", paddingRight: "16px" }}>Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -212,22 +212,18 @@ export default function HistoryPage() {
                   const dateStr = item.createdAt ? new Date(item.createdAt).toLocaleString("en-IN") : "Just now";
                   return (
                     <tr key={item._id}>
-                      <td style={{ color: "var(--text-silver)", fontSize: "0.8rem", fontFamily: "var(--font-mono)" }}>
+                      <td style={{ color: "#64748B", fontSize: "0.82rem", fontFamily: "var(--font-mono)", paddingLeft: "16px" }}>
                         {dateStr}
                       </td>
-                      <td style={{ fontWeight: 600, color: "var(--text-pure)", display: "flex", alignItems: "center", gap: 6 }}>
+                      <td style={{ fontWeight: 600, color: "#0F172A", display: "flex", alignItems: "center", gap: 6 }}>
                         <FileTextIcon size={14} /> {item.fileName}
                       </td>
                       <td>
                         <span
+                          className={`tag-pill ${item.isSample ? "badge-amber" : "badge-sky"}`}
                           style={{
-                            fontSize: "0.72rem",
-                            padding: "3px 8px",
-                            borderRadius: "var(--radius-full)",
-                            background: item.isSample ? "rgba(249, 115, 22, 0.15)" : "rgba(79, 172, 254, 0.15)",
-                            color: item.isSample ? "#fb923c" : "var(--aurora-1)",
-                            border: `1px solid ${item.isSample ? "rgba(249, 115, 22, 0.3)" : "rgba(79, 172, 254, 0.3)"}`,
-                            fontWeight: 600,
+                            fontSize: "0.74rem",
+                            padding: "3px 9px",
                             display: "inline-flex",
                             alignItems: "center",
                             gap: 4,
@@ -236,18 +232,18 @@ export default function HistoryPage() {
                           {item.isSample ? <><FlaskIcon size={11} /> Page 1 Test</> : <><ZapIcon size={11} /> Full Batch</>}
                         </span>
                       </td>
-                      <td style={{ fontFamily: "var(--font-mono)", fontWeight: 700, color: "var(--aurora-1)" }}>
+                      <td style={{ fontFamily: "var(--font-mono)", fontWeight: 700, color: "#4F46E5" }}>
                         {item.pageCount} {item.pageCount === 1 ? "page" : "pages"}
                       </td>
-                      <td style={{ fontSize: "0.8rem", color: "var(--text-silver)", textTransform: "capitalize" }}>
+                      <td style={{ fontSize: "0.82rem", color: "#475569", textTransform: "capitalize" }}>
                         {item.sortBy === "sku" ? "SKU (High Qty First)" : item.sortBy} ({item.sortOrder})
                       </td>
                       <td>
                         <span
+                          className={`tag-pill ${item.enableQr ? "badge-emerald" : "badge-slate"}`}
                           style={{
-                            fontSize: "0.75rem",
-                            color: item.enableQr ? "var(--accent-emerald)" : "var(--text-dim)",
-                            fontWeight: 500,
+                            fontSize: "0.74rem",
+                            padding: "3px 9px",
                             display: "inline-flex",
                             alignItems: "center",
                             gap: 4,
@@ -256,16 +252,12 @@ export default function HistoryPage() {
                           {item.enableQr ? <><CheckIcon size={12} /> Enabled</> : <><SlashIcon size={12} /> Disabled</>}
                         </span>
                       </td>
-                      <td>
+                      <td style={{ paddingRight: "16px" }}>
                         <span
+                          className="tag-pill badge-emerald"
                           style={{
                             fontSize: "0.72rem",
-                            padding: "3px 8px",
-                            borderRadius: "var(--radius-full)",
-                            background: "rgba(16, 185, 129, 0.12)",
-                            color: "var(--accent-emerald)",
-                            border: "1px solid rgba(16, 185, 129, 0.25)",
-                            fontWeight: 600,
+                            padding: "3px 9px",
                           }}
                         >
                           Completed

@@ -161,13 +161,13 @@ function CloudIcon() {
 
 
 const FIELD_COLUMNS = [
-  { key: "page", label: "Page", editable: false, width: "90px" },
-  { key: "sku", label: "SKU", width: "160px" },
-  { key: "orderNo", label: "Order No", width: "160px" },
-  { key: "orderDate", label: "Order Date", width: "120px" },
-  { key: "qty", label: "Qty", width: "80px" },
-  { key: "customerName", label: "Customer", width: "180px" },
-  { key: "invoiceNo", label: "Invoice No", width: "150px" },
+  { key: "page", label: "Page", editable: false, width: "130px" },
+  { key: "sku", label: "SKU", width: "180px" },
+  { key: "orderNo", label: "Order No", width: "180px" },
+  { key: "orderDate", label: "Order Date", width: "130px" },
+  { key: "qty", label: "Qty", width: "90px" },
+  { key: "customerName", label: "Customer", width: "200px" },
+  { key: "invoiceNo", label: "Invoice No", width: "160px" },
 ];
 
 const SORT_OPTIONS = [
@@ -1597,10 +1597,10 @@ export default function Home() {
                     display: "inline-flex",
                     alignItems: "center",
                     gap: 5,
-                    borderColor: "rgba(255, 255, 255, 0.18)",
-                    color: "var(--text-silver)",
+                    borderColor: "#CBD5E1",
+                    color: "#475569",
                     cursor: "pointer",
-                    background: "rgba(255, 255, 255, 0.05)",
+                    background: "#FFFFFF",
                   }}
                 >
                   <ResetIcon /> Reset Default
@@ -1618,8 +1618,8 @@ export default function Home() {
                   background: "#ffffff",
                   borderRadius: 6,
                   position: "relative",
-                  boxShadow: "0 14px 40px rgba(0,0,0,0.6)",
-                  border: "1px solid #111",
+                  boxShadow: "0 10px 30px rgba(15, 23, 42, 0.12)",
+                  border: "1.5px solid #CBD5E1",
                   overflow: "hidden",
                   userSelect: "none",
                   color: "#000",
@@ -3046,14 +3046,14 @@ export default function Home() {
               width: "100%",
               maxHeight: 480,
               overflow: "auto",
-              background: "#090d16",
-              borderRadius: 14,
-              padding: 20,
+              background: "#F1F5F9",
+              borderRadius: 16,
+              padding: 24,
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              boxShadow: "inset 0 2px 10px rgba(0,0,0,0.6)",
-              border: "1px solid var(--glass-border)",
+              boxShadow: "inset 0 2px 8px rgba(15, 23, 42, 0.05)",
+              border: "1px solid #E2E8F0",
             }}
           >
             {/* Actual Uploaded Shipping Label Sheet or Fallback Mock */}
@@ -3063,8 +3063,9 @@ export default function Home() {
                 height: 470 * (zoomLevel / 100),
                 position: "relative",
                 background: "#ffffff",
-                borderRadius: 6,
-                boxShadow: "0 10px 30px rgba(0,0,0,0.6)",
+                borderRadius: 8,
+                boxShadow: "0 12px 35px rgba(15, 23, 42, 0.15)",
+                border: "1px solid #CBD5E1",
                 overflow: "hidden",
                 userSelect: "none",
                 display: "flex",
@@ -3231,8 +3232,8 @@ export default function Home() {
           </div>
 
           {/* Fine-tune the edges sliders section */}
-          <div style={{ marginTop: 18, background: "rgba(255,255,255,0.03)", borderRadius: 12, padding: 16, border: "1px solid var(--glass-border)" }}>
-            <div style={{ fontSize: "0.82rem", fontWeight: 800, color: "var(--text-silver)", marginBottom: 12 }}>
+          <div style={{ marginTop: 18, background: "#F8FAFC", borderRadius: 14, padding: 18, border: "1px solid #E2E8F0" }}>
+            <div style={{ fontSize: "0.82rem", fontWeight: 800, color: "#334155", marginBottom: 12 }}>
               Fine-tune the edges (optional)
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 14 }}>

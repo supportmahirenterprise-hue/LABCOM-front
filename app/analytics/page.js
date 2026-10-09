@@ -307,43 +307,44 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Date-wise Daily Scan Timeline Histogram */}
+      {/* Date-wise Daily Scan Timeline Histogram */}
       <div className="premium-glass" style={{ marginBottom: 24, overflowX: "auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 10 }}>
           <div>
-            <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
+            <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "#0F172A", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
               <CalendarIcon /> Date-wise Scan Volume (Last 7 Days)
             </h3>
-            <p style={{ fontSize: "0.8rem", color: "var(--text-silver)", margin: 0 }}>
+            <p style={{ fontSize: "0.82rem", color: "#64748B", margin: 0 }}>
               Daily breakdown of how many buyers scanned parcel QR codes.
             </p>
           </div>
-          <span className="tag-pill" style={{ fontSize: "0.75rem" }}>
+          <span className="tag-pill active" style={{ fontSize: "0.75rem" }}>
             Daily Timeline
           </span>
         </div>
 
         {/* Histogram Bars */}
-        <div style={{ display: "grid", gridTemplateColumns: `repeat(${data?.dailyTimeline?.length || 7}, 1fr)`, gap: 10, alignItems: "flex-end", minHeight: 180, minWidth: 320, padding: "20px 8px 10px", background: "rgba(0,0,0,0.2)", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.04)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: `repeat(${data?.dailyTimeline?.length || 7}, 1fr)`, gap: 12, alignItems: "flex-end", minHeight: 180, minWidth: 320, padding: "24px 16px 14px", background: "#F8FAFC", borderRadius: "16px", border: "1px solid #E2E8F0" }}>
           {data?.dailyTimeline?.map((day) => {
-            const heightPercent = Math.max(12, Math.round((day.count / maxDaily) * 100));
+            const heightPercent = Math.max(14, Math.round((day.count / maxDaily) * 100));
             return (
-              <div key={day.date} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, height: "100%", justifyContent: "flex-end" }}>
-                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: day.count > 0 ? "var(--aurora-1)" : "var(--text-dim)" }}>
+              <div key={day.date} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, height: "100%", justifyContent: "flex-end" }}>
+                <span style={{ fontSize: "0.78rem", fontWeight: 700, color: day.count > 0 ? "#4F46E5" : "#94A3B8" }}>
                   {day.count}
                 </span>
                 <div
                   style={{
                     width: "100%",
-                    maxWidth: 40,
+                    maxWidth: 44,
                     height: `${heightPercent}%`,
-                    minHeight: 14,
-                    background: day.count > 0 ? "linear-gradient(180deg, var(--aurora-1) 0%, var(--aurora-2) 100%)" : "rgba(255,255,255,0.05)",
-                    borderRadius: "6px 6px 2px 2px",
-                    boxShadow: day.count > 0 ? "0 4px 15px rgba(0,242,254,0.3)" : "none",
+                    minHeight: 16,
+                    background: day.count > 0 ? "linear-gradient(180deg, #4F46E5 0%, #0284C7 100%)" : "#E2E8F0",
+                    borderRadius: "8px 8px 4px 4px",
+                    boxShadow: day.count > 0 ? "0 4px 12px rgba(79, 70, 229, 0.25)" : "none",
                     transition: "all 0.3s ease",
                   }}
                 />
-                <span style={{ fontSize: "0.68rem", color: "var(--text-silver)", textAlign: "center", whiteSpace: "nowrap", marginTop: 4 }}>
+                <span style={{ fontSize: "0.72rem", color: "#64748B", textAlign: "center", whiteSpace: "nowrap", marginTop: 4, fontWeight: 600 }}>
                   {day.label}
                 </span>
               </div>
@@ -358,41 +359,41 @@ export default function AnalyticsPage() {
         <div className="premium-glass">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <div>
-              <h3 className="heading-display" style={{ fontSize: "1.1rem", color: "var(--text-pure)", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <h3 className="heading-display" style={{ fontSize: "1.1rem", color: "#0F172A", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
                 <TagIcon /> Top Converting SKUs
               </h3>
-              <p style={{ fontSize: "0.8rem", color: "var(--text-silver)", margin: 0 }}>
+              <p style={{ fontSize: "0.8rem", color: "#64748B", margin: 0 }}>
                 Products that generate the most repeat QR scans.
               </p>
             </div>
-            <span style={{ fontSize: "0.75rem", color: "var(--text-dim)" }}>
+            <span style={{ fontSize: "0.75rem", color: "#94A3B8" }}>
               By Scan Volume
             </span>
           </div>
 
           {(!data?.topSkus || data.topSkus.length === 0) ? (
-            <div style={{ padding: "40px 10px", textAlign: "center", color: "var(--text-dim)", fontSize: "0.85rem" }}>
+            <div style={{ padding: "40px 10px", textAlign: "center", color: "#94A3B8", fontSize: "0.85rem" }}>
               No SKU scan data recorded yet. Click "Test Simulate QR Scan" to log sample scans!
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {data.topSkus.map((item, idx) => (
                 <div key={item.sku} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem" }}>
-                    <span style={{ fontWeight: 600, color: "var(--text-pure)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.84rem" }}>
+                    <span style={{ fontWeight: 600, color: "#0F172A" }}>
                       #{idx + 1} {item.sku}
                     </span>
-                    <strong style={{ color: "var(--aurora-1)", fontFamily: "var(--font-mono)" }}>
+                    <strong style={{ color: "#4F46E5", fontFamily: "var(--font-mono)" }}>
                       {item.count} scans ({item.percent}%)
                     </strong>
                   </div>
-                  <div style={{ width: "100%", height: 6, background: "rgba(255,255,255,0.05)", borderRadius: 3, overflow: "hidden" }}>
+                  <div style={{ width: "100%", height: 7, background: "#E2E8F0", borderRadius: 4, overflow: "hidden" }}>
                     <div
                       style={{
                         width: `${item.percent}%`,
                         height: "100%",
-                        background: "linear-gradient(90deg, var(--aurora-2), var(--aurora-1))",
-                        borderRadius: 3,
+                        background: "linear-gradient(90deg, #4F46E5, #0284C7)",
+                        borderRadius: 4,
                       }}
                     />
                   </div>
@@ -406,33 +407,33 @@ export default function AnalyticsPage() {
         <div className="premium-glass">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <div>
-              <h3 className="heading-display" style={{ fontSize: "1.1rem", color: "var(--text-pure)", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <h3 className="heading-display" style={{ fontSize: "1.1rem", color: "#0F172A", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
                 <TargetIcon /> Destination Channels
               </h3>
-              <p style={{ fontSize: "0.8rem", color: "var(--text-silver)", margin: 0 }}>
+              <p style={{ fontSize: "0.8rem", color: "#64748B", margin: 0 }}>
                 Distribution of where scanned customers are directed.
               </p>
             </div>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {data?.destinations?.map((dest) => (
-              <div key={dest.name} style={{ background: "rgba(0,0,0,0.2)", padding: "14px 18px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.04)" }}>
+              <div key={dest.name} style={{ background: "#F8FAFC", padding: "14px 18px", borderRadius: "14px", border: "1px solid #E2E8F0" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                  <span style={{ fontWeight: 600, fontSize: "0.88rem", color: "var(--text-pure)" }}>
+                  <span style={{ fontWeight: 600, fontSize: "0.88rem", color: "#0F172A" }}>
                     {dest.name}
                   </span>
-                  <span style={{ fontSize: "0.82rem", color: "var(--aurora-1)", fontWeight: 700, fontFamily: "var(--font-mono)" }}>
+                  <span style={{ fontSize: "0.82rem", color: "#059669", fontWeight: 700, fontFamily: "var(--font-mono)" }}>
                     {dest.count} visits ({dest.percent}%)
                   </span>
                 </div>
-                <div style={{ width: "100%", height: 6, background: "rgba(255,255,255,0.05)", borderRadius: 3, overflow: "hidden" }}>
+                <div style={{ width: "100%", height: 7, background: "#E2E8F0", borderRadius: 4, overflow: "hidden" }}>
                   <div
                     style={{
                       width: `${dest.percent}%`,
                       height: "100%",
-                      background: "var(--accent-emerald)",
-                      borderRadius: 3,
+                      background: "linear-gradient(90deg, #059669, #10B981)",
+                      borderRadius: 4,
                     }}
                   />
                 </div>
@@ -444,30 +445,30 @@ export default function AnalyticsPage() {
 
       {/* Live Realtime Scans Feed Table */}
       <div className="premium-glass" style={{ padding: 0, overflow: "hidden" }}>
-        <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--glass-border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
-          <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text-pure)", display: "inline-flex", alignItems: "center", gap: 8 }}>
+        <div style={{ padding: "18px 24px", borderBottom: "1px solid #E2E8F0", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
+          <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "#0F172A", display: "inline-flex", alignItems: "center", gap: 8 }}>
             <ZapIcon /> Realtime Scan Feed
           </div>
-          <span style={{ fontSize: "0.78rem", color: "var(--text-silver)" }}>
+          <span style={{ fontSize: "0.78rem", color: "#64748B" }}>
             Showing recent parcel scans logged in MongoDB
           </span>
         </div>
 
         {(!data?.recentScans || data.recentScans.length === 0) ? (
-          <div style={{ padding: "40px 20px", textAlign: "center", color: "var(--text-dim)", fontSize: "0.85rem" }}>
+          <div style={{ padding: "40px 20px", textAlign: "center", color: "#94A3B8", fontSize: "0.85rem" }}>
             No recent scans recorded yet.
           </div>
         ) : (
-          <div style={{ overflowX: "auto", width: "100%", maxWidth: "100%" }}>
-            <table className="custom-table">
+          <div className="table-responsive-container" style={{ border: "none" }}>
+            <table className="custom-table" style={{ minWidth: "920px" }}>
               <thead>
                 <tr>
-                  <th style={{ width: "160px" }}>Scan Time</th>
-                  <th style={{ width: "200px" }}>Order Number</th>
+                  <th style={{ width: "180px", paddingLeft: "16px" }}>Scan Time</th>
+                  <th style={{ width: "210px" }}>Order Number</th>
                   <th style={{ width: "180px" }}>SKU Code</th>
-                  <th style={{ width: "120px" }}>Device</th>
+                  <th style={{ width: "130px" }}>Device</th>
                   <th style={{ width: "220px" }}>Target URL</th>
-                  <th style={{ width: "100px" }}>Status</th>
+                  <th style={{ width: "110px", paddingRight: "16px" }}>Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -475,35 +476,25 @@ export default function AnalyticsPage() {
                   const timeStr = s.createdAt ? new Date(s.createdAt).toLocaleString("en-IN") : "Just now";
                   return (
                     <tr key={s.id}>
-                      <td style={{ color: "var(--text-silver)", fontSize: "0.8rem", fontFamily: "var(--font-mono)" }}>
+                      <td style={{ color: "#64748B", fontSize: "0.82rem", fontFamily: "var(--font-mono)", paddingLeft: "16px" }}>
                         {timeStr}
                       </td>
-                      <td style={{ fontWeight: 600, color: "var(--text-pure)", fontFamily: "var(--font-mono)" }}>
+                      <td style={{ fontWeight: 700, color: "#0F172A", fontFamily: "var(--font-mono)" }}>
                         {s.orderNo}
                       </td>
                       <td>
-                        <span className="tag-pill" style={{ fontSize: "0.75rem", padding: "2px 8px" }}>
+                        <span className="tag-pill badge-slate" style={{ fontSize: "0.75rem", padding: "3px 8px" }}>
                           {s.sku}
                         </span>
                       </td>
-                      <td style={{ fontSize: "0.8rem", color: "var(--text-silver)", display: "flex", alignItems: "center", gap: 6 }}>
+                      <td style={{ fontSize: "0.82rem", color: "#475569", display: "flex", alignItems: "center", gap: 6 }}>
                         {s.isMobile ? <><SmartphoneIcon /> Mobile</> : <><MonitorIcon /> Desktop</>}
                       </td>
-                      <td style={{ fontSize: "0.78rem", color: "var(--aurora-1)", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <td style={{ fontSize: "0.8rem", color: "#0284C7", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {s.targetUrl}
                       </td>
-                      <td>
-                        <span
-                          style={{
-                            fontSize: "0.72rem",
-                            padding: "3px 8px",
-                            borderRadius: "var(--radius-full)",
-                            background: "rgba(16, 185, 129, 0.12)",
-                            color: "var(--accent-emerald)",
-                            border: "1px solid rgba(16, 185, 129, 0.25)",
-                            fontWeight: 600,
-                          }}
-                        >
+                      <td style={{ paddingRight: "16px" }}>
+                        <span className="tag-pill badge-emerald" style={{ fontSize: "0.72rem", padding: "3px 9px" }}>
                           Redirected
                         </span>
                       </td>

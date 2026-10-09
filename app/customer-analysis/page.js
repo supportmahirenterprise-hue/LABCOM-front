@@ -495,23 +495,23 @@ export default function CustomerAnalysisPage() {
           </div>
 
           {/* Table Container */}
-          <div style={{ width: "100%", borderRadius: "12px", border: "1px solid #E2E8F0", overflow: "hidden" }}>
-            <table style={{ width: "100%", tableLayout: "fixed", borderCollapse: "collapse", textAlign: "left", fontSize: "0.82rem" }}>
+          <div className="table-responsive-container">
+            <table className="custom-table" style={{ minWidth: "980px" }}>
               <thead>
-                <tr style={{ background: "#F8FAFC", borderBottom: "1px solid #E2E8F0", color: "#475569", fontWeight: 700 }}>
-                  <th style={{ padding: "10px 12px", width: "16%" }}>PRODUCT / SKU NAME</th>
-                  <th style={{ padding: "10px 12px", width: "14%" }}>ORDERS LOGGED</th>
-                  <th style={{ padding: "10px 12px", width: "10%" }}>RETURNS</th>
-                  <th style={{ padding: "10px 12px", width: "10%" }}>COURIER RTOs</th>
-                  <th style={{ padding: "10px 12px", width: "11%" }}>RETURN RATE %</th>
-                  <th style={{ padding: "10px 12px", width: "14%" }}>DECISION STATUS</th>
-                  <th style={{ padding: "10px 12px", width: "25%" }}>SELLER RECOMMENDATION</th>
+                <tr>
+                  <th style={{ width: "20%" }}>PRODUCT / SKU NAME</th>
+                  <th style={{ width: "14%" }}>ORDERS LOGGED</th>
+                  <th style={{ width: "10%" }}>RETURNS</th>
+                  <th style={{ width: "10%" }}>COURIER RTOs</th>
+                  <th style={{ width: "12%" }}>RETURN RATE %</th>
+                  <th style={{ width: "14%" }}>DECISION STATUS</th>
+                  <th style={{ width: "20%" }}>SELLER RECOMMENDATION</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredSkuMatrix.length === 0 ? (
                   <tr>
-                    <td colSpan={7} style={{ padding: "24px", textAlign: "center", color: "#64748B" }}>
+                    <td colSpan={7} style={{ padding: "28px", textAlign: "center", color: "#64748B" }}>
                       No matching products found for selected filter.
                     </td>
                   </tr>
@@ -520,40 +520,39 @@ export default function CustomerAnalysisPage() {
                     <tr
                       key={idx}
                       style={{
-                        borderBottom: "1px solid #F1F5F9",
                         background: item.shouldPause ? "#FFF5F5" : "transparent",
                       }}
                     >
-                      <td style={{ padding: "12px 14px", fontWeight: 700, color: "#0F172A", wordBreak: "break-word", verticalAlign: "middle" }}>
+                      <td style={{ fontWeight: 700, color: "#0F172A", wordBreak: "break-word" }}>
                         {item.sku}
                       </td>
-                      <td style={{ padding: "12px 14px", verticalAlign: "middle" }}>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 3, lineHeight: 1.35 }}>
+                      <td>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
                           <span style={{ fontWeight: 700, color: "#0284C7", fontSize: "0.85rem" }}>
                             {item.totalOrders} units
                           </span>
                           {item.totalReturns > 0 && (
-                            <span style={{ fontSize: "0.72rem", color: "#059669", fontWeight: 600, display: "block", marginTop: 1 }}>
+                            <span style={{ fontSize: "0.72rem", color: "#059669", fontWeight: 600 }}>
                               ({item.netDeliveredOrders || Math.max(0, item.totalOrders - item.totalReturns)} net delivered)
                             </span>
                           )}
                         </div>
                       </td>
-                      <td style={{ padding: "14px 16px", color: "#475569" }}>
+                      <td style={{ color: "#475569", fontWeight: 600 }}>
                         {item.customerReturnCount}
                       </td>
-                      <td style={{ padding: "14px 16px", color: "#475569" }}>
+                      <td style={{ color: "#475569", fontWeight: 600 }}>
                         {item.rtoCount}
                       </td>
-                      <td style={{ padding: "14px 16px", fontWeight: 800, color: (item.returnRate > 10 || item.shouldPause) ? "#DC2626" : "#059669" }}>
+                      <td style={{ fontWeight: 800, color: (item.returnRate > 10 || item.shouldPause) ? "#DC2626" : "#059669" }}>
                         {item.returnRate}%
                       </td>
-                      <td style={{ padding: "14px 16px" }}>
-                        <span className={`badge ${item.badgeStyle}`}>
+                      <td>
+                        <span className={`tag-pill ${item.shouldPause ? "badge-rose" : item.returnRate > 5 ? "badge-amber" : "badge-emerald"}`}>
                           {item.actionBadge}
                         </span>
                       </td>
-                      <td style={{ padding: "14px 16px", color: "#334155", fontSize: "0.8rem", maxWidth: 300, lineHeight: 1.4 }}>
+                      <td style={{ color: "#334155", fontSize: "0.82rem", lineHeight: 1.45 }}>
                         {item.adviceText}
                       </td>
                     </tr>
@@ -820,18 +819,18 @@ export default function CustomerAnalysisPage() {
             No customer records matching the filter criteria.
           </div>
         ) : (
-          <div style={{ width: "100%", maxWidth: "100%", borderRadius: "0 0 16px 16px", overflow: "hidden" }}>
-            <table className="custom-table" style={{ width: "100%", tableLayout: "fixed" }}>
+          <div className="table-responsive-container">
+            <table className="custom-table" style={{ minWidth: "1050px" }}>
               <thead>
                 <tr>
-                  <th style={{ width: "35px", paddingLeft: "12px", paddingRight: "4px" }}>#</th>
-                  <th style={{ width: "15%" }}>CUSTOMER NAME</th>
-                  <th style={{ width: "11%" }}>MOBILE NUMBER</th>
-                  <th style={{ width: "10%" }}>STATE</th>
-                  <th style={{ width: "10%" }}>DISTRICT</th>
-                  <th style={{ width: "25%" }}>DELIVERY ADDRESS</th>
-                  <th style={{ width: "18%", textAlign: "center" }}>ORDERS COUNT</th>
-                  <th style={{ width: "10%", paddingRight: "12px" }}>LAST ORDER</th>
+                  <th style={{ width: "45px", paddingLeft: "16px" }}>#</th>
+                  <th style={{ width: "16%" }}>CUSTOMER NAME</th>
+                  <th style={{ width: "13%" }}>MOBILE NUMBER</th>
+                  <th style={{ width: "12%" }}>STATE</th>
+                  <th style={{ width: "12%" }}>DISTRICT</th>
+                  <th style={{ width: "24%" }}>DELIVERY ADDRESS</th>
+                  <th style={{ width: "13%", textAlign: "center" }}>ORDERS COUNT</th>
+                  <th style={{ width: "10%", paddingRight: "16px" }}>LAST ORDER</th>
                 </tr>
               </thead>
               <tbody>
@@ -839,25 +838,25 @@ export default function CustomerAnalysisPage() {
                   const globalIdx = (currentPage - 1) * pageSize + idx + 1;
                   return (
                     <tr key={c.id || idx}>
-                      <td style={{ color: "var(--text-dim)", fontSize: "0.78rem", fontFamily: "var(--font-mono)", paddingLeft: "12px", paddingRight: "4px" }}>
+                      <td style={{ color: "#94A3B8", fontSize: "0.8rem", fontFamily: "var(--font-mono)", paddingLeft: "16px" }}>
                         {globalIdx} 
                       </td>
-                      <td style={{ fontWeight: 700, color: "var(--text-pure)", fontSize: "0.85rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <td style={{ fontWeight: 700, color: "#0F172A", fontSize: "0.88rem" }}>
                         {c.name}
                       </td>
-                      <td style={{ fontSize: "0.8rem", color: c.mobileNumber !== "N/A" ? "var(--aurora-1)" : "var(--text-dim)", fontFamily: "var(--font-mono)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <td style={{ fontSize: "0.82rem", color: c.mobileNumber !== "N/A" ? "#0284C7" : "#94A3B8", fontFamily: "var(--font-mono)", fontWeight: 600 }}>
                         {c.mobileNumber !== "N/A" ? c.mobileNumber : "N/A"}
                       </td>
-                      <td style={{ verticalAlign: "middle" }}>
-                        <span className="tag-pill badge-sky" style={{ fontSize: "0.72rem", padding: "3px 8px", display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "normal", wordBreak: "break-word", lineHeight: 1.3 }}>
-                          <LocationIcon size={11} /> {c.state}
+                      <td>
+                        <span className="tag-pill badge-sky" style={{ fontSize: "0.74rem", padding: "3px 10px", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                          <LocationIcon size={12} /> {c.state}
                         </span>
                       </td>
 
                       {/* Dedicated District Column */}
-                      <td style={{ verticalAlign: "middle" }}>
-                        <span className="tag-pill badge-teal" style={{ fontSize: "0.72rem", padding: "3px 8px", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "normal", wordBreak: "break-word", lineHeight: 1.3 }}>
-                          <BuildingIcon size={11} /> {c.district || "Central"}
+                      <td>
+                        <span className="tag-pill badge-teal" style={{ fontSize: "0.74rem", padding: "3px 10px", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                          <BuildingIcon size={12} /> {c.district || "Central"}
                         </span>
                       </td>
 
@@ -867,11 +866,9 @@ export default function CustomerAnalysisPage() {
                           fontSize: "0.82rem",
                           color: "#475569",
                           minWidth: 220,
-                          maxWidth: 400,
-                          whiteSpace: "normal",
-                          wordBreak: "break-word",
                           lineHeight: "1.45",
-                          padding: "12px 14px",
+                          padding: "12px 16px",
+                          wordBreak: "break-word",
                         }}
                       >
                         {c.address}
@@ -886,7 +883,7 @@ export default function CustomerAnalysisPage() {
                             display: "inline-flex",
                             alignItems: "center",
                             gap: 6,
-                            padding: "6px 16px",
+                            padding: "6px 14px",
                             borderRadius: "var(--radius-full)",
                             background: c.isRepeat ? "#FEF3C7" : "#F8FAFC",
                             border: c.isRepeat ? "1.5px solid #F59E0B" : "1px solid #E2E8F0",
@@ -911,7 +908,7 @@ export default function CustomerAnalysisPage() {
                         </button>
                       </td>
 
-                      <td style={{ fontSize: "0.8rem", color: "#64748B", fontFamily: "var(--font-mono)", whiteSpace: "nowrap", paddingRight: "24px" }}>
+                      <td style={{ fontSize: "0.82rem", color: "#64748B", fontFamily: "var(--font-mono)", whiteSpace: "nowrap", paddingRight: "16px" }}>
                         {c.lastOrderDate || "N/A"}
                       </td>
                     </tr>
