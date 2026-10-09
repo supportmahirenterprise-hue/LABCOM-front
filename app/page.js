@@ -3,6 +3,7 @@
 import { useMemo, useState, useRef, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import QRCode from "qrcode";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import Modal from "./components/Modal";
@@ -11,92 +12,72 @@ const BACKEND_URL = (
   process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
 ).replace(/\/+$/, "");
 
-// Clean SVG Vector Icons
-function FilePdfIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-      <polyline points="14 2 14 8 20 8" />
-    </svg>
-  );
-}
-
-function DownloadIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-      <polyline points="7 10 12 15 17 10" />
-      <line x1="12" x2="12" y1="15" y2="3" />
-    </svg>
-  );
-}
-
-function SortAscIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="12" x2="12" y1="19" y2="5" />
-      <polyline points="5 12 12 5 19 12" />
-    </svg>
-  );
-}
-
-function SortDescIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="12" x2="12" y1="5" y2="19" />
-      <polyline points="19 12 12 19 5 12" />
-    </svg>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
-}
-
-function SlashIcon({ size = 13 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
-    </svg>
-  );
-}
-
-function AlertTriangleIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-      <line x1="12" x2="12" y1="9" y2="13" />
-      <line x1="12" x2="12.01" y1="17" y2="17" />
-    </svg>
-  );
-}
-
-function LocationIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 10c0 6-8 12-8 12s-8-6-8-10a8 8 0 0 1 16 0Z" />
-      <circle cx="12" cy="10" r="3" />
-    </svg>
-  );
-}
-
-function StorefrontIcon({ size = 32 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" stroke="#000000" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M7 5h18l3.5 7H3.5L7 5z" fill="#000000" fillOpacity="0.04" />
-      <path d="M3.5 12c1.4 1.8 3.6 1.8 5 0 1.4 1.8 3.6 1.8 5 0 1.4 1.8 3.6 1.8 5 0 1.4 1.8 3.6 1.8 5 0" />
-      <path d="M5 14v13h22V14" />
-      <path d="M3 27h26" />
-      <path d="M8 27v-8a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v8" />
-      <rect x="18" y="17" width="6" height="6" rx="1" />
-    </svg>
-  );
-}
+import {
+  FilePdfIcon,
+  FileTextIcon,
+  FileCheckIcon,
+  ImageIcon,
+  DownloadIcon,
+  UploadCloudIcon,
+  CloudIcon,
+  SparklesIcon,
+  ZapIcon,
+  CheckIcon,
+  CheckCircleIcon,
+  AlertTriangleIcon,
+  AlertCircleIcon,
+  CloseIcon,
+  XCircleIcon,
+  SlashIcon,
+  LocationIcon,
+  StorefrontIcon,
+  StoreIcon,
+  InstagramIcon,
+  HeartIcon,
+  PackageIcon,
+  TagIcon,
+  FlaskIcon,
+  ResetIcon,
+  RefreshIcon,
+  SortAscIcon,
+  SortDescIcon,
+  FilterIcon,
+  SearchIcon,
+  CropIcon,
+  EyeIcon,
+  EyeOffIcon,
+  QrCodeIcon,
+  CopyIcon,
+  TrashIcon,
+  LayersIcon,
+  ShieldIcon,
+  ShieldCheckIcon,
+  LockIcon,
+  InfoIcon,
+  PhoneIcon,
+  MailIcon,
+  ScaleIcon,
+  BarChartIcon,
+  TrendingUpIcon,
+  TrendingDownIcon,
+  UsersIcon,
+  UserIcon,
+  TruckIcon,
+  ArrowRightIcon,
+  ArrowLeftIcon,
+  ArrowUpIcon,
+  ArrowDownIcon,
+  ExternalLinkIcon,
+  BuildingIcon,
+  HomeIcon,
+  CreditCardIcon,
+  BanknotesIcon,
+  TargetIcon,
+  SendIcon,
+  SettingsIcon,
+  WhatsAppIcon,
+  RefreshCwIcon,
+} from "./components/Icons";
 
 function drawShopIconCanvas(ctx, x, y, size) {
   ctx.save();
@@ -218,80 +199,6 @@ function wrapCanvasText(ctx, text, maxLineWidth) {
   return lines.length > 0 ? lines : [" "];
 }
 
-function StoreIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
-      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-      <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" />
-      <path d="M2 7h20" />
-    </svg>
-  );
-}
-
-function InstagramIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-    </svg>
-  );
-}
-
-function HeartIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-    </svg>
-  );
-}
-
-function PackageIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
-      <path d="m3.3 7 8.7 5 8.7-5" />
-      <path d="M12 22V12" />
-    </svg>
-  );
-}
-
-function TagIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z" />
-      <path d="M7 7h.01" />
-    </svg>
-  );
-}
-
-function FlaskIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55A1 1 0 0 0 5.61 22h12.78a1 1 0 0 0 .89-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2" />
-      <path d="M8.5 2h7" />
-      <path d="M7 16h10" />
-    </svg>
-  );
-}
-
-function ZapIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-    </svg>
-  );
-}
-
-function CloudIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M17.5 19x-13a4.5 4.5 0 0 1-.5-8.97A8 8 0 0 1 19.34 9 4.5 4.5 0 0 1 17.5 19z" />
-    </svg>
-  );
-}
-
 
 const FIELD_COLUMNS = [
   { key: "page", label: "Page", editable: false, width: "130px" },
@@ -319,14 +226,7 @@ const DEFAULT_STAMP_SETTINGS = {
   fontSize: 8,
 };
 
-function ResetIcon() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-      <path d="M3 3v5h5" />
-    </svg>
-  );
-}
+
 
 const TAG_PLACEHOLDERS = [
   "{regionalThankYou}",
@@ -419,6 +319,7 @@ export default function Home() {
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [loadingGenerate, setLoadingGenerate] = useState(false);
+  const [loadingHdGenerate, setLoadingHdGenerate] = useState(false);
   const [loadingSample, setLoadingSample] = useState(false);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
@@ -536,7 +437,7 @@ export default function Home() {
   const fileInputRef = useRef(null);
   const isInitialLoadDone = useRef(false);
 
-  const isBusy = loadingPreview || loadingGenerate || loadingSample;
+  const isBusy = loadingPreview || loadingGenerate || loadingSample || loadingHdGenerate;
 
   function showToast(message, type = "error") {
     setToast({ message, type });
@@ -1093,6 +994,7 @@ export default function Home() {
   async function handleGenerate(options = {}) {
     if (isBusy) return;
     const isSample = Boolean(options.sampleOnly);
+    const isHd = Boolean(options.hdQuality);
     const targetFiles = files && files.length > 0 ? files : (file ? [file] : []);
     if (targetFiles.length === 0) {
       const msg = isSample
@@ -1109,13 +1011,17 @@ export default function Home() {
     setSuccessMsg("");
     if (isSample) {
       setLoadingSample(true);
+    } else if (isHd) {
+      setLoadingHdGenerate(true);
     } else {
       setLoadingGenerate(true);
     }
 
     try {
       showToast(
-        targetFiles.length > 1
+        isHd
+          ? `Generating Standard Ultra-HD Quality (${targetFiles.length > 1 ? `${targetFiles.length} files` : "labels"})...`
+          : targetFiles.length > 1
           ? `Merging & generating ${targetFiles.length} PDF files in browser...`
           : "Generating labels in browser (0ms instant speed)...",
         "info"
@@ -1144,7 +1050,7 @@ export default function Home() {
         const badgeImageCache = new Map();
 
         const renderStampBadgeCanvas = async (storeNameStr, qrContentStr, detailTextStr, qrSizeVal, fontSizeVal, pageWidthPt = 288) => {
-          const scale = 4; // High DPI (300+ DPI for crisp thermal printing)
+          const scale = isHd ? 6 : 4; // High DPI (300+ to 600 DPI Ultra-HD for crisp thermal printing)
           const cleanStore = (storeNameStr || "STORE").trim().toUpperCase();
 
           const isA4 = pageWidthPt > 400;
@@ -1326,7 +1232,7 @@ export default function Home() {
             detailFilled = detailFilled.replace(new RegExp(tag, "g"), data[key] || "");
           });
 
-          const cacheKey = `${cleanStoreName}__${qrContent}__${detailFilled}__${size}__${fSize}__${pageWidth}`;
+          const cacheKey = `${cleanStoreName}__${qrContent}__${detailFilled}__${size}__${fSize}__${pageWidth}__${isHd ? "hd" : "std"}`;
           let badgeObj = badgeImageCache.get(cacheKey);
 
           if (!badgeObj) {
@@ -1428,7 +1334,8 @@ export default function Home() {
       const dateStr = `${String(today.getDate()).padStart(2, "0")}.${String(today.getMonth() + 1).padStart(2, "0")}.${today.getFullYear()}`;
       const pageCount = isSample ? 1 : (pages?.length || totalPdfPages || 1);
       const mainBaseName = targetFiles.length > 1 ? `${targetFiles.length}_files_batch` : targetFiles[0].name.replace(/\.pdf$/i, "");
-      const stampedFileName = isSample ? `1_${dateStr}_sample_test_page_1.pdf` : `${pageCount}_${dateStr}_${mainBaseName}_stamped.pdf`;
+      const qualityTag = isHd ? "_standard_HD_quality" : "_stamped";
+      const stampedFileName = isSample ? `1_${dateStr}_sample_test_page_1.pdf` : `${pageCount}_${dateStr}_${mainBaseName}${qualityTag}.pdf`;
       a.download = stampedFileName;
       document.body.appendChild(a);
       a.click();
@@ -1499,6 +1406,11 @@ export default function Home() {
         const msg = "Test Sample (Page 1) downloaded! Check QR alignment & print preview.";
         setSuccessMsg(msg);
         showToast(msg, "success");
+      } else if (isHd) {
+        const summaryNote = downloadSummary ? " + Summary PDF" : "";
+        const msg = `Standard HD Quality PDF${summaryNote} generated and downloaded!`;
+        setSuccessMsg(msg);
+        showToast(msg, "success");
       } else {
         const summaryNote = downloadSummary ? " + Summary PDF" : "";
         const msg = `Stamped & Cropped PDF${summaryNote} generated instantly and downloaded!`;
@@ -1512,6 +1424,8 @@ export default function Home() {
     } finally {
       if (isSample) {
         setLoadingSample(false);
+      } else if (isHd) {
+        setLoadingHdGenerate(false);
       } else {
         setLoadingGenerate(false);
       }
@@ -1781,12 +1695,12 @@ export default function Home() {
                 {files.length > 1 ? (
                   <div style={{ textAlign: "center", width: "100%", maxWidth: "92%" }}>
                     <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(79, 70, 229, 0.1)", color: "#4F46E5", padding: "4px 14px", borderRadius: 20, fontWeight: 700, fontSize: "0.9rem", marginBottom: 10 }}>
-                      <span>📦 {files.length} PDF Files Selected</span>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><PackageIcon size={14} /> {files.length} PDF Files Selected</span>
                     </div>
                     <div style={{ maxHeight: "88px", overflowY: "auto", margin: "6px 0", display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center" }}>
                       {files.map((f, idx) => (
                         <span key={idx} style={{ fontSize: "0.74rem", background: "rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.1)", padding: "3px 8px", borderRadius: 6, color: "var(--text-pure)", maxWidth: 190, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                          📄 {f.name}
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><FileTextIcon size={12} /> {f.name}</span>
                         </span>
                       ))}
                     </div>
@@ -2436,7 +2350,7 @@ export default function Home() {
                     cursor: "pointer",
                   }}
                 >
-                  🏷️ Modern Store Pill Badge
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><TagIcon size={14} /> Modern Store Pill Badge</span>
                 </button>
 
                 <button
@@ -2453,7 +2367,7 @@ export default function Home() {
                     cursor: "pointer",
                   }}
                 >
-                  📄 Classic Minimal Stamp
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><FileTextIcon size={14} /> Classic Minimal Stamp</span>
                 </button>
               </div>
             </div>
@@ -2590,7 +2504,7 @@ export default function Home() {
           <div style={{ background: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: "16px", padding: "20px 24px", marginTop: 10 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: "1.1rem" }}>🏷️</span>
+                <TagIcon size={18} color="#4F46E5" />
                 <span style={{ fontSize: "0.88rem", fontWeight: 800, color: "#0F172A" }}>
                   Live Real-Time Stamp Preview (Client-Side Stamp Engine)
                 </span>
@@ -2870,23 +2784,23 @@ export default function Home() {
       {/* Sticky Action Bar */}
       <footer className="action-dock premium-glass">
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{ fontSize: "0.82rem", color: "var(--text-silver)" }}>
-            {file ? (
-              <>Ready to process <strong>{pages.length} pages</strong> from <code style={{ color: "var(--text-pure)" }}>{file.name}</code></>
+          <span style={{ fontSize: "0.85rem", color: "var(--text-silver)" }}>
+            {file || files.length > 0 ? (
+              <>Ready to process <strong>{pages.length} pages</strong></>
             ) : (
-              "Upload a PDF file to preview, test sample, and sort labels"
+              "Upload PDF file(s) to preview, test sample, and sort labels"
             )}
           </span>
         </div>
 
-        <div className="action-dock-buttons" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div className="action-dock-buttons" style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <button
             className="btn-secondary"
-            disabled={!file || isBusy}
+            disabled={(!file && files.length === 0) || isBusy}
             style={{
-              minWidth: 190,
-              opacity: file && !isBusy ? 1 : 0.5,
-              cursor: file && !isBusy ? "pointer" : "not-allowed",
+              minWidth: 180,
+              opacity: (file || files.length > 0) && !isBusy ? 1 : 0.5,
+              cursor: (file || files.length > 0) && !isBusy ? "pointer" : "not-allowed",
             }}
             onClick={() => handleGenerate({ sampleOnly: true })}
           >
@@ -2895,18 +2809,49 @@ export default function Home() {
 
           <button
             className="btn-primary"
-            disabled={!file || isBusy}
+            disabled={(!file && files.length === 0) || isBusy}
             style={{
-              minWidth: 220,
-              opacity: file && !isBusy ? 1 : 0.5,
-              cursor: file && !isBusy ? "pointer" : "not-allowed",
+              minWidth: 195,
+              opacity: (file || files.length > 0) && !isBusy ? 1 : 0.5,
+              cursor: (file || files.length > 0) && !isBusy ? "pointer" : "not-allowed",
             }}
-            onClick={() => handleGenerate({ sampleOnly: false })}
+            onClick={() => handleGenerate({ sampleOnly: false, hdQuality: false })}
           >
             {loadingGenerate ? (
               <>Processing All {pages.length} Pages...</>
             ) : (
               <><ZapIcon /> Generate Full PDF ({pages.length > 0 ? `${pages.length} Pages` : "Batch"})</>
+            )}
+          </button>
+
+          <button
+            type="button"
+            disabled={(!file && files.length === 0) || isBusy}
+            style={{
+              minWidth: 215,
+              background: "linear-gradient(135deg, #059669 0%, #10B981 50%, #34D399 100%)",
+              color: "#FFFFFF",
+              border: "none",
+              borderRadius: "var(--radius-full)",
+              padding: "10px 20px",
+              fontSize: "0.85rem",
+              fontWeight: 800,
+              letterSpacing: "0.01em",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              cursor: (file || files.length > 0) && !isBusy ? "pointer" : "not-allowed",
+              opacity: (file || files.length > 0) && !isBusy ? 1 : 0.5,
+              boxShadow: "0 4px 16px rgba(16, 185, 129, 0.4)",
+              transition: "all 0.2s ease",
+            }}
+            onClick={() => handleGenerate({ sampleOnly: false, hdQuality: true })}
+          >
+            {loadingHdGenerate ? (
+              <>Enhancing Quality ({pages.length} Pages)...</>
+            ) : (
+              <><SparklesIcon /> Standard HD Quality PDF ({pages.length > 0 ? `${pages.length} Pages` : "HD"})</>
             )}
           </button>
         </div>

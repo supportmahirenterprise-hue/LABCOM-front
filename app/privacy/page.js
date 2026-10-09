@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ShieldCheckIcon } from "../components/Icons";
 
 export default function PrivacyPolicyPage() {
   const lastUpdated = "October 2026";
@@ -19,7 +20,7 @@ export default function PrivacyPolicyPage() {
 
         <div className="premium-glass" style={{ padding: "32px 36px", borderRadius: "20px", background: "linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%)", border: "1px solid #E2E8F0" }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(79, 70, 229, 0.08)", border: "1px solid rgba(79, 70, 229, 0.2)", padding: "4px 12px", borderRadius: "9999px", color: "#4F46E5", fontSize: "0.75rem", fontWeight: 700, marginBottom: 14 }}>
-            🛡️ Safe Harbor & DPDP Act 2023 Compliant • Mahir Enterprise
+            <ShieldCheckIcon size={14} color="#4F46E5" /> Safe Harbor & DPDP Act 2023 Compliant • Mahir Enterprise
           </div>
           <h1 className="heading-display" style={{ fontSize: "2.1rem", color: "#0F172A", margin: "0 0 10px 0", fontWeight: 800, letterSpacing: "-0.02em" }}>
             Privacy Policy & Data Protection Governance

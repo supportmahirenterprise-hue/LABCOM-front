@@ -5,18 +5,11 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Modal from "../components/Modal";
+import { ZapIcon, CloseIcon, TrashIcon, ArrowLeftIcon } from "../components/Icons";
 
 const BACKEND_URL = (
   process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
 ).replace(/\/+$/, "");
-
-function ZapIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-    </svg>
-  );
-}
 
 export default function TemplatesPage() {
   const { data: session, status } = useSession();
@@ -340,10 +333,7 @@ export default function TemplatesPage() {
             onClick={() => setShowModal(false)}
             style={{ background: "#F1F5F9", border: "1px solid #E2E8F0", borderRadius: "50%", width: 32, height: 32, color: "#475569", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
+            <CloseIcon size={16} />
           </button>
         </div>
 

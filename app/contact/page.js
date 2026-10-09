@@ -2,6 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import {
+  ZapIcon,
+  CheckCircleIcon,
+  WhatsAppIcon,
+  MailIcon,
+  BuildingIcon,
+  ArrowRightIcon,
+  SendIcon,
+} from "../components/Icons";
 
 export default function ContactUsPage() {
   const [formData, setFormData] = useState({
@@ -77,7 +86,7 @@ export default function ContactUsPage() {
 
         <div className="premium-glass" style={{ padding: "32px 36px", borderRadius: "20px", background: "linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%)", border: "1px solid #E2E8F0" }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(5, 150, 105, 0.08)", border: "1px solid rgba(5, 150, 105, 0.2)", padding: "4px 12px", borderRadius: "9999px", color: "#059669", fontSize: "0.75rem", fontWeight: 700, marginBottom: 14 }}>
-            ⚡ Live Support Desk Online • Mahir Enterprise
+            <ZapIcon size={14} color="#059669" /> Live Support Desk Online • Mahir Enterprise
           </div>
           <h1 className="heading-display" style={{ fontSize: "2.1rem", color: "#0F172A", margin: "0 0 10px 0", fontWeight: 800, letterSpacing: "-0.02em" }}>
             Get in Touch with LabelPro Support
@@ -99,7 +108,9 @@ export default function ContactUsPage() {
 
           {submitted ? (
             <div style={{ padding: "28px 22px", textAlign: "center", background: "#F0FDF4", border: "1px solid #BBF7D0", borderRadius: "16px" }}>
-              <div style={{ fontSize: "2.4rem", marginBottom: 8 }}>✅</div>
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
+                <CheckCircleIcon size={36} color="#16A34A" />
+              </div>
               <span style={{ display: "inline-block", background: "#DCFCE7", color: "#15803D", padding: "4px 12px", borderRadius: "9999px", fontSize: "0.75rem", fontWeight: 700, marginBottom: 10 }}>
                 Reference ID: #{referenceId}
               </span>
@@ -119,7 +130,7 @@ export default function ContactUsPage() {
                     display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    gap: 6,
+                    gap: 8,
                     background: "#16A34A",
                     color: "#FFFFFF",
                     padding: "10px 18px",
@@ -129,7 +140,7 @@ export default function ContactUsPage() {
                     textDecoration: "none",
                   }}
                 >
-                  💬 Open in WhatsApp Chat (Instant Priority)
+                  <WhatsAppIcon size={18} color="#FFFFFF" /> Open in WhatsApp Chat (Instant Priority)
                 </a>
 
                 <button
@@ -280,7 +291,13 @@ export default function ContactUsPage() {
                   marginTop: 6,
                 }}
               >
-                {submitting ? "Sending Inquiry..." : "Submit Inquiry ➔"}
+                {submitting ? (
+                  "Sending Inquiry..."
+                ) : (
+                  <>
+                    <SendIcon size={16} /> Submit Inquiry
+                  </>
+                )}
               </button>
             </form>
           )}
@@ -292,7 +309,9 @@ export default function ContactUsPage() {
           {/* Direct WhatsApp Support */}
           <div className="premium-glass" style={{ padding: "24px 28px", borderRadius: "18px", background: "linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%)", border: "1px solid #86EFAC" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
-              <span style={{ fontSize: "1.8rem" }}>💬</span>
+              <div style={{ width: 44, height: 44, borderRadius: "12px", background: "rgba(22, 163, 74, 0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <WhatsAppIcon size={24} color="#16A34A" />
+              </div>
               <div>
                 <h3 style={{ fontSize: "1.1rem", color: "#166534", fontWeight: 800, margin: 0 }}>
                   Instant WhatsApp Live Chat
@@ -321,7 +340,7 @@ export default function ContactUsPage() {
                 boxShadow: "0 4px 12px rgba(22, 163, 74, 0.25)",
               }}
             >
-              Open WhatsApp Support ➔
+              Open WhatsApp Support <ArrowRightIcon size={16} />
             </a>
           </div>
 
@@ -329,8 +348,8 @@ export default function ContactUsPage() {
           <div className="premium-glass" style={{ padding: "24px 28px", borderRadius: "18px", background: "#FFFFFF", border: "1px solid #E2E8F0" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div>
-                <div style={{ fontSize: "0.75rem", color: "#64748B", fontWeight: 600, textTransform: "uppercase" }}>
-                  Official Support Email
+                <div style={{ fontSize: "0.75rem", color: "#64748B", fontWeight: 600, textTransform: "uppercase", display: "flex", alignItems: "center", gap: 6 }}>
+                  <MailIcon size={14} color="#64748B" /> Official Support Email
                 </div>
                 <div style={{ fontSize: "0.95rem", color: "#4F46E5", fontWeight: 700, marginTop: 2 }}>
                   support.mahirenterprise@gmail.com
@@ -338,8 +357,8 @@ export default function ContactUsPage() {
               </div>
 
               <div>
-                <div style={{ fontSize: "0.75rem", color: "#64748B", fontWeight: 600, textTransform: "uppercase" }}>
-                  Operational Headquarters &amp; Entity
+                <div style={{ fontSize: "0.75rem", color: "#64748B", fontWeight: 600, textTransform: "uppercase", display: "flex", alignItems: "center", gap: 6 }}>
+                  <BuildingIcon size={14} color="#64748B" /> Operational Headquarters &amp; Entity
                 </div>
                 <div style={{ fontSize: "0.92rem", color: "#0F172A", fontWeight: 600, marginTop: 2 }}>
                   Mahir Enterprise, Ratanvav, Gujarat, India - 360575

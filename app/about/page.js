@@ -1,13 +1,27 @@
 "use client";
 
 import Link from "next/link";
+import {
+  StorefrontIcon,
+  PackageIcon,
+  ZapIcon,
+  TargetIcon,
+  BarChartIcon,
+  TagIcon,
+  ShieldIcon,
+  RocketIcon,
+  LockIcon,
+  CheckIcon,
+  ArrowRightIcon,
+  PhoneIcon,
+} from "../components/Icons";
 
 export default function AboutUsPage() {
   const STATS = [
-    { label: "Active Marketplace Sellers", value: "10,000+", icon: "🏪" },
-    { label: "Shipping Labels Processed", value: "5,000,000+", icon: "📦" },
-    { label: "Client-Side Processing Delay", value: "0 ms", icon: "⚡" },
-    { label: "Barcode First-Scan Success", value: "99.98%", icon: "🎯" },
+    { label: "Active Marketplace Sellers", value: "10,000+", icon: <StorefrontIcon size={28} color="#4F46E5" /> },
+    { label: "Shipping Labels Processed", value: "5,000,000+", icon: <PackageIcon size={28} color="#0284C7" /> },
+    { label: "Client-Side Processing Delay", value: "0 ms", icon: <ZapIcon size={28} color="#EAB308" /> },
+    { label: "Barcode First-Scan Success", value: "99.98%", icon: <TargetIcon size={28} color="#10B981" /> },
   ];
 
   const PILLARS = [
@@ -15,28 +29,28 @@ export default function AboutUsPage() {
       title: "0ms Client-Side Instant Engine",
       description:
         "Unlike legacy tools that upload multi-gigabyte PDF batches to remote servers causing massive queues, LabelPro processes everything directly inside your browser memory with zero waiting time.",
-      icon: "⚡",
+      icon: <ZapIcon size={24} color="#4F46E5" />,
       badge: "Performance",
     },
     {
       title: "Smart Multi-Attribute Batch Sorter",
       description:
         "Automatically group and sort label pages by SKU, High Quantity First, Order Date, or Customer Name, cutting warehouse packing & dispatch time by over 65%.",
-      icon: "📊",
+      icon: <BarChartIcon size={24} color="#0284C7" />,
       badge: "Logistics Automation",
     },
     {
       title: "Store Growth QR & Brand Stamper",
       description:
         "Turn every shipping parcel into a customer retention channel. Stamp high-contrast, scannable Meesho or Instagram store QR codes and vernacular state greetings.",
-      icon: "🏷️",
+      icon: <TagIcon size={24} color="#EC4899" />,
       badge: "Brand Scaling",
     },
     {
       title: "Reverse Logistics & Return Intelligence",
       description:
         "Track RTO and customer returns with real-time barcode scanning, state-level return risk scoring, and channel distribution analytics to protect seller margins.",
-      icon: "🛡️",
+      icon: <ShieldIcon size={24} color="#10B981" />,
       badge: "Margin Protection",
     },
   ];
@@ -66,7 +80,7 @@ export default function AboutUsPage() {
           }}
         >
           <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "linear-gradient(135deg, rgba(79, 70, 229, 0.12) 0%, rgba(2, 132, 199, 0.12) 100%)", border: "1px solid #C7D2FE", padding: "5px 14px", borderRadius: "9999px", color: "#4F46E5", fontSize: "0.78rem", fontWeight: 700, marginBottom: 16 }}>
-            🚀 Mahir Enterprise • LabelPro Print Engine
+            <RocketIcon size={14} color="#4F46E5" /> Mahir Enterprise • LabelPro Print Engine
           </div>
 
           <h1 className="heading-display" style={{ fontSize: "2.4rem", color: "#0F172A", margin: "0 0 14px 0", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.2 }}>
@@ -94,7 +108,7 @@ export default function AboutUsPage() {
                 boxShadow: "0 4px 16px rgba(79, 70, 229, 0.3)",
               }}
             >
-              Open Print Studio →
+              Open Print Studio <ArrowRightIcon size={16} />
             </Link>
 
             <Link
@@ -113,7 +127,7 @@ export default function AboutUsPage() {
                 textDecoration: "none",
               }}
             >
-              Contact Support
+              <PhoneIcon size={16} /> Contact Support
             </Link>
           </div>
         </div>
@@ -133,7 +147,7 @@ export default function AboutUsPage() {
               border: "1px solid #E2E8F0",
             }}
           >
-            <div style={{ fontSize: "1.8rem", marginBottom: 8 }}>{stat.icon}</div>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>{stat.icon}</div>
             <div className="heading-display" style={{ fontSize: "1.8rem", fontWeight: 800, color: "#0F172A", margin: "0 0 4px 0", letterSpacing: "-0.02em" }}>
               {stat.value}
             </div>
@@ -171,7 +185,9 @@ export default function AboutUsPage() {
               }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: "1.8rem" }}>{pillar.icon}</span>
+                <div style={{ width: 44, height: 44, borderRadius: "12px", background: "#F8FAFC", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #E2E8F0" }}>
+                  {pillar.icon}
+                </div>
                 <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "3px 10px", borderRadius: "9999px", background: "#EEF2FF", color: "#4F46E5", border: "1px solid #C7D2FE" }}>
                   {pillar.badge}
                 </span>
@@ -190,7 +206,7 @@ export default function AboutUsPage() {
       {/* Security & Architecture Statement */}
       <div className="premium-glass" style={{ padding: "32px 36px", borderRadius: "20px", background: "linear-gradient(135deg, #0F172A 0%, #1E293B 100%)", color: "#FFFFFF", border: "1px solid #334155" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-          <span style={{ fontSize: "1.5rem" }}>🔒</span>
+          <LockIcon size={24} color="#38BDF8" />
           <h3 className="heading-display" style={{ fontSize: "1.3rem", fontWeight: 800, margin: 0, color: "#FFFFFF" }}>
             Privacy by Design: Zero-Retention Architecture
           </h3>
@@ -199,10 +215,10 @@ export default function AboutUsPage() {
           Your business data, customer addresses, order lists, and proprietary SKUs remain completely confidential. All PDF manipulation runs on-device inside your browser without permanent cloud data recording.
         </p>
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: "0.82rem", color: "#94A3B8" }}>
-          <span>✓ Mahir Enterprise (Ratanvav, Gujarat)</span>
-          <span>✓ 100% Client-Side In-Memory Engine</span>
-          <span>✓ Zero Third-Party Data Sharing</span>
-          <span>✓ Full DPDP Act 2023 &amp; IT Act 2000 Compliance</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><CheckIcon size={14} color="#10B981" /> Mahir Enterprise (Ratanvav, Gujarat)</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><CheckIcon size={14} color="#10B981" /> 100% Client-Side In-Memory Engine</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><CheckIcon size={14} color="#10B981" /> Zero Third-Party Data Sharing</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><CheckIcon size={14} color="#10B981" /> Full DPDP Act 2023 &amp; IT Act 2000 Compliance</span>
         </div>
       </div>
     </div>

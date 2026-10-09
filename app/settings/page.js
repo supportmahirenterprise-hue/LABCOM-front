@@ -4,87 +4,26 @@ import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import {
+  SortAscIcon,
+  SortDescIcon,
+  DownloadIcon,
+  StoreIcon,
+  CloudIcon,
+  SendIcon,
+  EyeIcon,
+  EyeOffIcon,
+  CheckIcon,
+  FilePdfIcon,
+  ImageIcon,
+  WhatsAppIcon,
+  LockIcon,
+  ArrowLeftIcon,
+} from "../components/Icons";
 
 const BACKEND_URL = (
   process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
 ).replace(/\/+$/, "");
-
-// Vector SVG Icons
-function SortAscIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="12" x2="12" y1="19" y2="5" />
-      <polyline points="5 12 12 5 19 12" />
-    </svg>
-  );
-}
-
-function SortDescIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="12" x2="12" y1="5" y2="19" />
-      <polyline points="19 12 12 19 5 12" />
-    </svg>
-  );
-}
-
-function DownloadIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-      <polyline points="7 10 12 15 17 10" />
-      <line x1="12" x2="12" y1="15" y2="3" />
-    </svg>
-  );
-}
-
-function StoreIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
-      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-      <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" />
-      <path d="M2 7h20" />
-    </svg>
-  );
-}
-
-function CloudIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M17.5 19x-13a4.5 4.5 0 0 1-.5-8.97A8 8 0 0 1 19.34 9 4.5 4.5 0 0 1 17.5 19z" />
-    </svg>
-  );
-}
-
-function SendIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="22" y1="2" x2="11" y2="13" />
-      <polygon points="22 2 15 22 11 13 2 9 22 2" />
-    </svg>
-  );
-}
-
-function EyeIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  );
-}
-
-function EyeOffIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
-      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
-      <path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
-      <line x1="2" x2="22" y1="2" y2="22" />
-    </svg>
-  );
-}
 
 export default function SettingsPage() {
   const { data: session, status } = useSession();
@@ -329,8 +268,8 @@ export default function SettingsPage() {
             <h1 className="heading-display" style={{ fontSize: "1.6rem", color: "var(--text-pure)", margin: 0 }}>
               Account & Store Settings
             </h1>
-            <span className="tag-pill active" style={{ fontSize: "0.72rem", display: "inline-flex", alignItems: "center", gap: 4 }}>
-              <CloudIcon /> Cloud Synchronized
+            <span className="tag-pill active" style={{ fontSize: "0.72rem", display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <CloudIcon size={14} /> Cloud Synchronized
             </span>
           </div>
           <p style={{ fontSize: "0.85rem", color: "var(--text-silver)", marginTop: 6, marginBottom: 0 }}>
@@ -339,8 +278,8 @@ export default function SettingsPage() {
         </div>
 
         <div>
-          <Link href="/" className="btn-secondary" style={{ textDecoration: "none", fontSize: "0.85rem", padding: "10px 18px" }}>
-            ← Back to Studio
+          <Link href="/" className="btn-secondary" style={{ textDecoration: "none", fontSize: "0.85rem", padding: "10px 18px", display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <ArrowLeftIcon size={14} /> Back to Studio
           </Link>
         </div>
       </div>
@@ -351,7 +290,7 @@ export default function SettingsPage() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <div>
               <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
-                <StoreIcon /> Seller & Store Profile
+                <StoreIcon size={18} /> Seller & Store Profile
               </h3>
               <p style={{ fontSize: "0.8rem", color: "var(--text-silver)", margin: 0 }}>
                 These optional details help you identify your store and can be stamped onto package slips.
@@ -475,7 +414,7 @@ export default function SettingsPage() {
                 style={{ width: 16, height: 16, accentColor: "#059669", cursor: saving ? "not-allowed" : "pointer" }}
               />
               <span style={{ fontSize: "0.8rem", fontWeight: 600, color: downloadSummary ? "#065F46" : "#475569", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <DownloadIcon /> {downloadSummary ? "Download Summary PDF: Enabled by Default" : "Download Summary PDF: Disabled"}
+                <DownloadIcon size={14} /> {downloadSummary ? "Download Summary PDF: Enabled by Default" : "Download Summary PDF: Disabled"}
               </span>
             </label>
           </div>
@@ -515,10 +454,13 @@ export default function SettingsPage() {
                     fontWeight: sortOrder === "asc" ? 700 : 500,
                     padding: "10px",
                     justifyContent: "center",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
                   }}
                   onClick={() => setSortOrder("asc")}
                 >
-                  <SortAscIcon /> Ascending
+                  <SortAscIcon size={14} /> Ascending
                 </button>
                 <button
                   type="button"
@@ -531,10 +473,13 @@ export default function SettingsPage() {
                     fontWeight: sortOrder === "desc" ? 700 : 500,
                     padding: "10px",
                     justifyContent: "center",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
                   }}
                   onClick={() => setSortOrder("desc")}
                 >
-                  <SortDescIcon /> Descending
+                  <SortDescIcon size={14} /> Descending
                 </button>
               </div>
             </div>
@@ -546,7 +491,7 @@ export default function SettingsPage() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 10 }}>
             <div>
               <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "#0F172A", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
-                <SendIcon /> WhatsApp Automatic Media Dispatcher
+                <WhatsAppIcon size={18} color="#16A34A" /> WhatsApp Automatic Media Dispatcher
               </h3>
               <p style={{ fontSize: "0.82rem", color: "#64748B", margin: 0 }}>
                 Configure your personal WhatsApp API Key and Receiver Number for automatic media dispatch.
@@ -559,7 +504,7 @@ export default function SettingsPage() {
               disabled={testingWa}
               style={{ fontSize: "0.82rem", padding: "8px 16px", borderColor: "#C7D2FE", color: "#4F46E5", display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <SendIcon />
+              <SendIcon size={14} />
               {testingWa ? "Sending Test..." : "Test WhatsApp Send"}
             </button>
           </div>
@@ -595,8 +540,8 @@ export default function SettingsPage() {
 
             {/* PDF Receiver Phone Number */}
             <div>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
-                📄 Stamped Label PDF Receiver WhatsApp Number (with Country Code)
+              <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
+                <FilePdfIcon size={16} color="#DC2626" /> Stamped Label PDF Receiver WhatsApp Number (with Country Code)
               </label>
               <input
                 className="input-field"
@@ -611,8 +556,8 @@ export default function SettingsPage() {
 
             {/* Image Receiver Phone Number */}
             <div>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
-                🖼️ Summary Report Image Receiver WhatsApp Number (with Country Code)
+              <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
+                <ImageIcon size={16} color="#0284C7" /> Summary Report Image Receiver WhatsApp Number (with Country Code)
               </label>
               <input
                 className="input-field"
@@ -644,7 +589,7 @@ export default function SettingsPage() {
                   onClick={() => setShowApiKey(!showApiKey)}
                   style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--text-silver)", cursor: "pointer", fontSize: "0.9rem" }}
                 >
-                  {showApiKey ? <EyeOffIcon /> : <EyeIcon />}
+                  {showApiKey ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
                 </button>
               </div>
             </div>

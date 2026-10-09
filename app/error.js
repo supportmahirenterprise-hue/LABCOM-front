@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
+import { AlertTriangleIcon, RefreshCwIcon, HomeIcon } from "./components/Icons";
 
 export default function Error({ error, reset }) {
   useEffect(() => {
@@ -43,11 +44,9 @@ export default function Error({ error, reset }) {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "#ef4444",
-            fontSize: "1.8rem",
           }}
         >
-          ⚠️
+          <AlertTriangleIcon size={28} color="#EF4444" />
         </div>
 
         <h2 className="heading-display" style={{ fontSize: "1.4rem", color: "var(--text-pure)", margin: 0 }}>
@@ -82,16 +81,16 @@ export default function Error({ error, reset }) {
           <button
             onClick={() => reset()}
             className="btn-primary"
-            style={{ fontSize: "0.88rem", padding: "10px 22px" }}
+            style={{ fontSize: "0.88rem", padding: "10px 22px", display: "inline-flex", alignItems: "center", gap: 6 }}
           >
-            Try Again
+            <RefreshCwIcon size={16} /> Try Again
           </button>
           <Link
             href="/"
             className="btn-secondary"
-            style={{ textDecoration: "none", fontSize: "0.88rem", padding: "10px 22px" }}
+            style={{ textDecoration: "none", fontSize: "0.88rem", padding: "10px 22px", display: "inline-flex", alignItems: "center", gap: 6 }}
           >
-            Back to Dashboard
+            <HomeIcon size={16} /> Back to Dashboard
           </Link>
         </div>
       </div>

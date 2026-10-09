@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { HomeIcon } from "./components/Icons";
 
 export default function NotFound() {
   return (
@@ -25,8 +26,8 @@ export default function NotFound() {
         <p style={{ fontSize: "0.88rem", color: "var(--text-silver)", marginBottom: 24 }}>
           The page you are looking for does not exist or has been moved.
         </p>
-        <Link href="/" className="btn-primary" style={{ textDecoration: "none", display: "inline-block" }}>
-          Return to Dashboard
+        <Link href="/" className="btn-primary" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}>
+          <HomeIcon size={16} /> Return to Dashboard
         </Link>
       </div>
     </div>
