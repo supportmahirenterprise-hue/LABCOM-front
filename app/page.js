@@ -438,7 +438,7 @@ export default function Home() {
 
   // Stamp Design Style Config (Badge vs Classic)
   const [stampStyle, setStampStyle] = useState("badge"); // "badge", "classic"
-  const [storeName, setStoreName] = useState("VISHAL");
+  const [storeName, setStoreName] = useState("MAHIR ENTERPRISE");
   const [previewQrDataUrl, setPreviewQrDataUrl] = useState("");
 
   useEffect(() => {
@@ -457,9 +457,9 @@ export default function Home() {
   const [showCropModal, setShowCropModal] = useState(false);
   const [cropEnabled, setCropEnabled] = useState(false);
   const [cropPreset, setCropPreset] = useState("label_only"); // "label_only", "trim_white", "manual"
-  const [cropMode, setCropMode] = useState("none"); // "none", "top50", "bottom50", "custom"
+  const [cropMode, setCropMode] = useState("custom"); // "custom", "none"
   const [cropTop, setCropTop] = useState(0);
-  const [cropBottom, setCropBottom] = useState(50);
+  const [cropBottom, setCropBottom] = useState(58);
   const [cropLeft, setCropLeft] = useState(0);
   const [cropRight, setCropRight] = useState(0);
   const [previewMode, setPreviewMode] = useState("after"); // "after", "before"
@@ -468,20 +468,19 @@ export default function Home() {
   function handleSelectCropPreset(preset) {
     setCropPreset(preset);
     setCropEnabled(true);
+    setCropMode("custom");
     if (preset === "label_only") {
       setCropTop(0);
-      setCropBottom(50);
+      setCropBottom(58);
       setCropLeft(0);
       setCropRight(0);
-      setCropMode("top50");
     } else if (preset === "trim_white") {
-      setCropTop(4);
-      setCropBottom(4);
-      setCropLeft(4);
-      setCropRight(4);
-      setCropMode("custom");
+      setCropTop(1);
+      setCropBottom(24);
+      setCropLeft(1);
+      setCropRight(1);
     } else if (preset === "manual") {
-      setCropMode("custom");
+      // keep current slider adjustments
     }
   }
 
@@ -491,20 +490,14 @@ export default function Home() {
       showToast("PDF Cropping turned OFF. Labels will download as full-size sheets.", "info");
     } else {
       setCropEnabled(true);
-      if (cropMode === "none") {
-        setCropMode("top50");
-      }
+      setCropMode("custom");
       showToast("PDF Cropping turned ON! Generated labels will be cropped.", "success");
     }
   }
 
   function handleSaveCrop() {
     setCropEnabled(true);
-    if (cropPreset === "label_only") {
-      setCropMode("top50");
-    } else {
-      setCropMode("custom");
-    }
+    setCropMode("custom");
     setShowCropModal(false);
     showToast("Crop settings saved! Download will generate cropped thermal labels.", "success");
   }
@@ -737,30 +730,50 @@ export default function Home() {
     return { totalPages, uniqueSkus, totalQty };
   }, [pages]);
 
-  // Interactive Drag-to-Crop Handler for Mouse & Touch
+  // Interactive Drag-to-Crop Handler for Mouse & Touch (Supports 8 Directions: Top, Bottom, Left, Right & All 4 Corners)
   const handleCropDragStart = (e, dragTarget = "bottom") => {
     e.preventDefault();
     setCropPreset("manual");
     setCropMode("custom");
 
-    const stageEl = e.currentTarget.closest(".crop-stage-container") || e.currentTarget.parentElement;
-    const rect = stageEl ? stageEl.getBoundingClientRect() : { height: 470 };
+    const stageEl = document.getElementById("crop-stage-preview-box") || e.currentTarget.closest(".crop-stage-container") || e.currentTarget.parentElement;
+    const rect = stageEl ? stageEl.getBoundingClientRect() : { width: 330, height: 470 };
+    const containerWidth = rect.width || 330;
     const containerHeight = rect.height || 470;
+
+    const startX = e.clientX || (e.touches && e.touches[0]?.clientX) || 0;
     const startY = e.clientY || (e.touches && e.touches[0]?.clientY) || 0;
-    const initialBottom = cropBottom;
+
     const initialTop = cropTop;
+    const initialBottom = cropBottom;
+    const initialLeft = cropLeft;
+    const initialRight = cropRight;
 
     const onMove = (moveEvent) => {
+      const currentX = moveEvent.clientX || (moveEvent.touches && moveEvent.touches[0]?.clientX) || startX;
       const currentY = moveEvent.clientY || (moveEvent.touches && moveEvent.touches[0]?.clientY) || startY;
-      const deltaY = currentY - startY;
-      const deltaPct = Math.round((deltaY / containerHeight) * 100);
 
-      if (dragTarget === "bottom") {
-        const newBottom = Math.max(0, Math.min(85, initialBottom - deltaPct));
-        setCropBottom(newBottom);
-      } else if (dragTarget === "top") {
-        const newTop = Math.max(0, Math.min(85, initialTop + deltaPct));
+      const deltaX = currentX - startX;
+      const deltaY = currentY - startY;
+
+      const deltaXPct = Math.round((deltaX / containerWidth) * 100);
+      const deltaYPct = Math.round((deltaY / containerHeight) * 100);
+
+      if (dragTarget.includes("top")) {
+        const newTop = Math.max(0, Math.min(85 - initialBottom, initialTop + deltaYPct));
         setCropTop(newTop);
+      }
+      if (dragTarget.includes("bottom")) {
+        const newBottom = Math.max(0, Math.min(85 - initialTop, initialBottom - deltaYPct));
+        setCropBottom(newBottom);
+      }
+      if (dragTarget.includes("left")) {
+        const newLeft = Math.max(0, Math.min(45 - initialRight, initialLeft + deltaXPct));
+        setCropLeft(newLeft);
+      }
+      if (dragTarget.includes("right")) {
+        const newRight = Math.max(0, Math.min(45 - initialLeft, initialRight - deltaXPct));
+        setCropRight(newRight);
       }
     };
 
@@ -1071,10 +1084,12 @@ export default function Home() {
 
         const badgeImageCache = new Map();
 
-        const renderStampBadgeCanvas = async (storeNameStr, qrContentStr, detailTextStr, qrSizeVal, fontSizeVal, maxAllowedWidthPt = 260) => {
+        const renderStampBadgeCanvas = async (storeNameStr, qrContentStr, detailTextStr, qrSizeVal, fontSizeVal, pageWidthPt = 288) => {
           const scale = 4; // High DPI (300+ DPI for crisp thermal printing)
           const cleanStore = (storeNameStr || "STORE").trim().toUpperCase();
 
+          const isA4 = pageWidthPt > 400;
+          const maxAllowedWidthPt = isA4 ? Math.min(pageWidthPt - 28, 540) : Math.min(pageWidthPt - 24, 266);
           const maxTotalWidthPx = Math.round(maxAllowedWidthPt * scale);
 
           // Setup measuring canvas
@@ -1082,29 +1097,33 @@ export default function Home() {
           const mCtx = measureCanvas.getContext("2d");
 
           // Determine Store Font Size
-          let storeFontSizePt = Math.max(11, Math.min(14, fontSizeVal * 1.3));
+          const baseScaleMultiplier = isA4 ? 1.65 : 1.3;
+
+          let storeFontSizePt = Math.round(Math.max(14 * baseScaleMultiplier, fontSizeVal * 1.5 * baseScaleMultiplier));
           let storeFontCss = `bold ${Math.round(storeFontSizePt * scale)}px "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
           mCtx.font = storeFontCss;
           let storeTextWidth = mCtx.measureText(cleanStore).width;
 
-          // Auto-shrink store name if it is very long (e.g. "MAHIR ENTERPRISE GUJARAT")
-          const maxStoreWidthPx = Math.round(85 * scale);
-          while (storeTextWidth > maxStoreWidthPx && storeFontSizePt > 8.5) {
+          // Auto-shrink store name if it is very long
+          const maxStoreWidthPx = Math.round((isA4 ? 165 : 95) * scale);
+          while (storeTextWidth > maxStoreWidthPx && storeFontSizePt > 9.5) {
             storeFontSizePt -= 0.5;
             storeFontCss = `bold ${Math.round(storeFontSizePt * scale)}px "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
             mCtx.font = storeFontCss;
             storeTextWidth = mCtx.measureText(cleanStore).width;
           }
 
+          // Dynamic Sizing for Icon and QR
+          const iconSizePx = Math.round((isA4 ? 40 : 30) * scale);
+          const qrScaledSizePx = Math.round((isA4 ? 56 : 42) * scale);
+
           // Layout spacing
-          const padXPx = Math.round(10 * scale);
-          const padYPx = Math.round(6 * scale);
-          const iconSizePx = Math.round(22 * scale);
-          const iconTextGapPx = Math.round(8 * scale);
-          const dividerGapPx = Math.round(10 * scale);
-          const dividerWidthPx = Math.round(1.5 * scale);
-          const qrScaledSizePx = Math.round(Math.max(26, Math.min(34, qrSizeVal * 0.45)) * scale);
-          const qrTextGapPx = Math.round(8 * scale);
+          const padXPx = Math.round((isA4 ? 15 : 11) * scale);
+          const padYPx = Math.round((isA4 ? 11 : 9) * scale);
+          const iconTextGapPx = Math.round((isA4 ? 10 : 7) * scale);
+          const dividerGapPx = Math.round((isA4 ? 14 : 9) * scale);
+          const dividerWidthPx = Math.round((isA4 ? 2.2 : 1.8) * scale);
+          const qrTextGapPx = Math.round((isA4 ? 12 : 8) * scale);
 
           const leftSectionWidthPx = iconSizePx + iconTextGapPx + storeTextWidth;
 
@@ -1113,14 +1132,14 @@ export default function Home() {
           const maxAvailableTextWidthPx = Math.max(Math.round(60 * scale), maxTotalWidthPx - fixedWidthPx);
 
           // Auto-fit detail text
-          let detailFontSizePt = Math.max(7, Math.min(10, fontSizeVal));
+          let detailFontSizePt = Math.max(isA4 ? 10.5 : 8, fontSizeVal * (isA4 ? 1.15 : 0.95));
           let detailFontCss = `bold ${Math.round(detailFontSizePt * scale)}px "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
           mCtx.font = detailFontCss;
 
           let wrappedLines = wrapCanvasText(mCtx, detailTextStr || "Follow\nour page", maxAvailableTextWidthPx);
 
-          // If text creates more than 3 lines, shrink font size to fit cleanly
-          while (wrappedLines.length > 3 && detailFontSizePt > 6.5) {
+          // If text creates more than 4 lines, shrink font size to fit cleanly
+          while (wrappedLines.length > 4 && detailFontSizePt > 6.5) {
             detailFontSizePt -= 0.5;
             detailFontCss = `bold ${Math.round(detailFontSizePt * scale)}px "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
             mCtx.font = detailFontCss;
@@ -1153,8 +1172,8 @@ export default function Home() {
           ctx.imageSmoothingQuality = "high";
 
           // 1. White Background with Rounded Outer Border (Exact Match)
-          const borderRadiusPx = Math.round(10 * scale);
-          const borderWidthPx = Math.round(2 * scale);
+          const borderRadiusPx = Math.round((isA4 ? 14 : 10) * scale);
+          const borderWidthPx = Math.round((isA4 ? 2.5 : 2) * scale);
 
           ctx.fillStyle = "#FFFFFF";
           ctx.strokeStyle = "#000000";
@@ -1186,8 +1205,8 @@ export default function Home() {
           // 4. Draw Vertical Divider Line
           curXPx += storeTextWidth + dividerGapPx;
           ctx.beginPath();
-          ctx.moveTo(curXPx, padYPx + Math.round(2 * scale));
-          ctx.lineTo(curXPx, totalHeightPx - padYPx - Math.round(2 * scale));
+          ctx.moveTo(curXPx, padYPx + Math.round(2.5 * scale));
+          ctx.lineTo(curXPx, totalHeightPx - padYPx - Math.round(2.5 * scale));
           ctx.strokeStyle = "#000000";
           ctx.lineWidth = dividerWidthPx;
           ctx.stroke();
@@ -1230,6 +1249,7 @@ export default function Home() {
 
         for (let i = 0; i < numPagesToProcess; i++) {
           const page = srcDoc.getPage(i);
+          const pageWidth = page.getWidth();
           const data = fields[i] || {};
 
           let qrContent = qrText || "{orderNo}";
@@ -1245,7 +1265,7 @@ export default function Home() {
             detailFilled = detailFilled.replace(new RegExp(tag, "g"), data[key] || "");
           });
 
-          const cacheKey = `${cleanStoreName}__${qrContent}__${detailFilled}__${size}__${fSize}`;
+          const cacheKey = `${cleanStoreName}__${qrContent}__${detailFilled}__${size}__${fSize}__${pageWidth}`;
           let badgeObj = badgeImageCache.get(cacheKey);
 
           if (!badgeObj) {
@@ -1254,7 +1274,8 @@ export default function Home() {
               qrContent,
               detailFilled,
               size,
-              fSize
+              fSize,
+              pageWidth
             );
             const embeddedImg = await srcDoc.embedPng(pngBytes);
             badgeObj = {
@@ -1314,25 +1335,16 @@ export default function Home() {
       if (cropEnabled) {
         copiedPages.forEach((p) => {
           const { width, height } = p.getSize();
-          let cropX = 0, cropY = 0, cropW = width, cropH = height;
-          const activeCropMode = cropMode === "none" ? "top50" : cropMode;
+          const topPct = (parseFloat(cropTop) || 0) / 100;
+          const botPct = (parseFloat(cropBottom) || 0) / 100;
+          const leftPct = (parseFloat(cropLeft) || 0) / 100;
+          const rightPct = (parseFloat(cropRight) || 0) / 100;
 
-          if (activeCropMode === "top50") {
-            cropY = height / 2;
-            cropH = height / 2;
-          } else if (activeCropMode === "bottom50") {
-            cropY = 0;
-            cropH = height / 2;
-          } else {
-            const topPct = (parseFloat(cropTop) || 0) / 100;
-            const botPct = (parseFloat(cropBottom) || 0) / 100;
-            const leftPct = (parseFloat(cropLeft) || 0) / 100;
-            const rightPct = (parseFloat(cropRight) || 0) / 100;
-            cropX = width * leftPct;
-            cropW = width * Math.max(0.05, 1 - leftPct - rightPct);
-            cropY = height * botPct;
-            cropH = height * Math.max(0.05, 1 - topPct - botPct);
-          }
+          const cropX = width * leftPct;
+          const cropW = width * Math.max(0.05, 1 - leftPct - rightPct);
+          const cropY = height * botPct;
+          const cropH = height * Math.max(0.05, 1 - topPct - botPct);
+
           p.setCropBox(cropX, cropY, cropW, cropH);
           p.setMediaBox(cropX, cropY, cropW, cropH);
         });
@@ -2311,18 +2323,37 @@ export default function Home() {
             </div>
 
             {stampStyle === "badge" && (
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 12, flexWrap: "wrap" }}>
                 <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", minWidth: 120 }}>
                   Store / Brand Name:
                 </label>
-                <input
-                  type="text"
-                  className="input-field"
-                  value={storeName}
-                  onChange={(e) => setStoreName(e.target.value)}
-                  placeholder="e.g. VISHAL STORE"
-                  style={{ maxWidth: 300, padding: "8px 12px", fontSize: "0.85rem", fontWeight: 700, letterSpacing: "0.03em" }}
-                />
+                <div style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
+                  <input
+                    type="text"
+                    maxLength={25}
+                    className="input-field"
+                    value={storeName}
+                    onChange={(e) => setStoreName(e.target.value)}
+                    placeholder="e.g. MAHIR ENTERPRISE"
+                    style={{ width: 280, padding: "8px 54px 8px 12px", fontSize: "0.88rem", fontWeight: 700, letterSpacing: "0.03em" }}
+                  />
+                  <span
+                    style={{
+                      position: "absolute",
+                      right: 10,
+                      fontSize: "0.72rem",
+                      fontFamily: "var(--font-mono)",
+                      color: (storeName || "").length >= 22 ? "#f59e0b" : "var(--text-dim)",
+                      fontWeight: 600,
+                      pointerEvents: "none",
+                    }}
+                  >
+                    {(storeName || "").length}/25
+                  </span>
+                </div>
+                <span style={{ fontSize: "0.74rem", color: "var(--text-dim)" }}>
+                  (Max 25 characters for perfect thermal label fitting)
+                </span>
               </div>
             )}
           </div>
@@ -2428,70 +2459,66 @@ export default function Home() {
                   Live Real-Time Stamp Preview (Client-Side Stamp Engine)
                 </span>
                 <span style={{ fontSize: "0.72rem", background: "#EEF2FF", color: "#4F46E5", padding: "2px 8px", borderRadius: "9999px", fontWeight: 700 }}>
-                  0ms Client-Side
+                  0ms Client-Side • Auto-Scaling Prominent Size
                 </span>
               </div>
               <span style={{ fontSize: "0.75rem", color: "#64748B", fontFamily: "var(--font-mono)", fontWeight: 600 }}>
-                Offset: ({qrX}pt, {qrY}pt) • Size: {qrSize}pt • Font: {fontSize}pt
+                Offset: ({qrX}pt, {qrY}pt) • Scale: {qrSize}pt • Font: {fontSize}pt
               </span>
             </div>
 
             {/* Visual Badge Card matching screenshot */}
-            <div style={{ display: "flex", justifyContent: "center", padding: "14px 0 6px", overflowX: "auto" }}>
+            <div style={{ display: "flex", justifyContent: "center", padding: "16px 0 10px", overflowX: "auto" }}>
               <div
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
                   background: "#FFFFFF",
-                  border: "2px solid #000000",
-                  borderRadius: "12px",
-                  padding: "10px 16px",
-                  boxShadow: "0 6px 16px rgba(0,0,0,0.06)",
+                  border: "2.5px solid #000000",
+                  borderRadius: "14px",
+                  padding: "12px 22px",
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
                   gap: 0,
                   maxWidth: "100%",
                 }}
               >
                 {/* Left: Storefront Icon + Store Name */}
-                <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
-                  <StorefrontIcon size={28} />
+                <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
+                  <StorefrontIcon size={38} />
                   <span
                     style={{
-                      fontSize: (storeName || "").length > 14 ? "1.05rem" : "1.2rem",
+                      fontSize: (storeName || "").length > 18 ? "1.05rem" : (storeName || "").length > 12 ? "1.22rem" : "1.42rem",
                       fontWeight: 900,
                       color: "#000000",
                       letterSpacing: "0.02em",
-                      maxWidth: 160,
                       whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
                     }}
-                    title={(storeName || "VISHAL").trim().toUpperCase()}
                   >
-                    {(storeName || "VISHAL").trim().toUpperCase()}
+                    {(storeName || "MAHIR ENTERPRISE").trim().toUpperCase()}
                   </span>
                 </div>
 
                 {/* Middle: Vertical Divider */}
-                <div style={{ width: 2, height: 38, background: "#000000", margin: "0 14px", flexShrink: 0 }} />
+                <div style={{ width: 2.5, height: 48, background: "#000000", margin: "0 18px", flexShrink: 0 }} />
 
                 {/* Right: QR Code + Text */}
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                   {previewQrDataUrl ? (
-                    <img src={previewQrDataUrl} alt="QR" style={{ width: 34, height: 34, objectFit: "contain", flexShrink: 0 }} />
+                    <img src={previewQrDataUrl} alt="QR" style={{ width: 48, height: 48, objectFit: "contain", flexShrink: 0 }} />
                   ) : (
-                    <div style={{ width: 34, height: 34, background: "#000000", borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", color: "#FFF", fontSize: 10, fontWeight: 700, flexShrink: 0 }}>
+                    <div style={{ width: 48, height: 48, background: "#000000", borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", color: "#FFF", fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
                       QR
                     </div>
                   )}
-                  <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", maxWidth: 180 }}>
+                  <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", maxWidth: 260 }}>
                     {(detailText || "Follow\nour page").split("\n").map((line, idx) => (
                       <span
                         key={idx}
                         style={{
-                          fontSize: (detailText || "").length > 30 ? "0.8rem" : "0.88rem",
+                          fontSize: (detailText || "").length > 30 ? "0.92rem" : "1rem",
                           fontWeight: 800,
                           color: "#000000",
-                          lineHeight: 1.22,
+                          lineHeight: 1.25,
                           wordBreak: "break-word",
                           whiteSpace: "pre-wrap",
                         }}
@@ -3330,6 +3357,8 @@ export default function Home() {
           >
             {/* Actual Uploaded Shipping Label Sheet or Fallback Mock */}
             <div
+              id="crop-stage-preview-box"
+              className="crop-stage-container"
               style={{
                 width: 330 * (zoomLevel / 100),
                 height: 470 * (zoomLevel / 100),
@@ -3421,6 +3450,7 @@ export default function Home() {
                     <div
                       onMouseDown={(e) => handleCropDragStart(e, "top")}
                       onTouchStart={(e) => handleCropDragStart(e, "top")}
+                      title="Drag to crop top edge"
                       style={{
                         position: "absolute",
                         top: -8,
@@ -3436,6 +3466,7 @@ export default function Home() {
                     <div
                       onMouseDown={(e) => handleCropDragStart(e, "bottom")}
                       onTouchStart={(e) => handleCropDragStart(e, "bottom")}
+                      title="Drag to crop bottom edge"
                       style={{
                         position: "absolute",
                         bottom: -8,
@@ -3447,26 +3478,110 @@ export default function Home() {
                       }}
                     />
 
-                    {/* Corner Drag Handles */}
+                    {/* Interactive Left Border Drag Zone */}
                     <div
-                      onMouseDown={(e) => handleCropDragStart(e, "top")}
-                      onTouchStart={(e) => handleCropDragStart(e, "top")}
-                      style={{ position: "absolute", top: -8, left: -8, width: 16, height: 16, borderRadius: "50%", background: "#ffffff", border: "3px solid #10B981", cursor: "ns-resize", boxShadow: "0 2px 8px rgba(0,0,0,0.4)", zIndex: 30 }}
+                      onMouseDown={(e) => handleCropDragStart(e, "left")}
+                      onTouchStart={(e) => handleCropDragStart(e, "left")}
+                      title="Drag to crop left edge"
+                      style={{
+                        position: "absolute",
+                        left: -8,
+                        top: 0,
+                        bottom: 0,
+                        width: 16,
+                        cursor: "ew-resize",
+                        zIndex: 25,
+                      }}
+                    />
+
+                    {/* Interactive Right Border Drag Zone */}
+                    <div
+                      onMouseDown={(e) => handleCropDragStart(e, "right")}
+                      onTouchStart={(e) => handleCropDragStart(e, "right")}
+                      title="Drag to crop right edge"
+                      style={{
+                        position: "absolute",
+                        right: -8,
+                        top: 0,
+                        bottom: 0,
+                        width: 16,
+                        cursor: "ew-resize",
+                        zIndex: 25,
+                      }}
+                    />
+
+                    {/* Corner Drag Handles (All 4 Corners with 2D Resizing) */}
+                    <div
+                      onMouseDown={(e) => handleCropDragStart(e, "top-left")}
+                      onTouchStart={(e) => handleCropDragStart(e, "top-left")}
+                      title="Drag Top-Left corner"
+                      style={{
+                        position: "absolute",
+                        top: -8,
+                        left: -8,
+                        width: 16,
+                        height: 16,
+                        borderRadius: "50%",
+                        background: "#ffffff",
+                        border: "3px solid #10B981",
+                        cursor: "nwse-resize",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
+                        zIndex: 30,
+                      }}
                     />
                     <div
-                      onMouseDown={(e) => handleCropDragStart(e, "top")}
-                      onTouchStart={(e) => handleCropDragStart(e, "top")}
-                      style={{ position: "absolute", top: -8, right: -8, width: 16, height: 16, borderRadius: "50%", background: "#ffffff", border: "3px solid #10B981", cursor: "ns-resize", boxShadow: "0 2px 8px rgba(0,0,0,0.4)", zIndex: 30 }}
+                      onMouseDown={(e) => handleCropDragStart(e, "top-right")}
+                      onTouchStart={(e) => handleCropDragStart(e, "top-right")}
+                      title="Drag Top-Right corner"
+                      style={{
+                        position: "absolute",
+                        top: -8,
+                        right: -8,
+                        width: 16,
+                        height: 16,
+                        borderRadius: "50%",
+                        background: "#ffffff",
+                        border: "3px solid #10B981",
+                        cursor: "nesw-resize",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
+                        zIndex: 30,
+                      }}
                     />
                     <div
-                      onMouseDown={(e) => handleCropDragStart(e, "bottom")}
-                      onTouchStart={(e) => handleCropDragStart(e, "bottom")}
-                      style={{ position: "absolute", bottom: -8, left: -8, width: 16, height: 16, borderRadius: "50%", background: "#ffffff", border: "3px solid #10B981", cursor: "ns-resize", boxShadow: "0 2px 8px rgba(0,0,0,0.4)", zIndex: 30 }}
+                      onMouseDown={(e) => handleCropDragStart(e, "bottom-left")}
+                      onTouchStart={(e) => handleCropDragStart(e, "bottom-left")}
+                      title="Drag Bottom-Left corner"
+                      style={{
+                        position: "absolute",
+                        bottom: -8,
+                        left: -8,
+                        width: 16,
+                        height: 16,
+                        borderRadius: "50%",
+                        background: "#ffffff",
+                        border: "3px solid #10B981",
+                        cursor: "nesw-resize",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
+                        zIndex: 30,
+                      }}
                     />
                     <div
-                      onMouseDown={(e) => handleCropDragStart(e, "bottom")}
-                      onTouchStart={(e) => handleCropDragStart(e, "bottom")}
-                      style={{ position: "absolute", bottom: -8, right: -8, width: 16, height: 16, borderRadius: "50%", background: "#ffffff", border: "3px solid #10B981", cursor: "ns-resize", boxShadow: "0 2px 8px rgba(0,0,0,0.4)", zIndex: 30 }}
+                      onMouseDown={(e) => handleCropDragStart(e, "bottom-right")}
+                      onTouchStart={(e) => handleCropDragStart(e, "bottom-right")}
+                      title="Drag Bottom-Right corner"
+                      style={{
+                        position: "absolute",
+                        bottom: -8,
+                        right: -8,
+                        width: 16,
+                        height: 16,
+                        borderRadius: "50%",
+                        background: "#ffffff",
+                        border: "3px solid #10B981",
+                        cursor: "nwse-resize",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
+                        zIndex: 30,
+                      }}
                     />
 
                     {/* Interactive Dimensions Badge (Drag Handle) */}
@@ -3491,11 +3606,7 @@ export default function Home() {
                         userSelect: "none",
                       }}
                     >
-                      {cropPreset === "label_only"
-                        ? "Label Only (Top 50%) — Drag to Adjust"
-                        : cropPreset === "trim_white"
-                        ? "Trim White Edges — Drag to Adjust"
-                        : `Custom Crop: Top ${cropTop}% | Bottom ${cropBottom}% (Drag Handle)`}
+                      {`Crop: Top ${cropTop}% | Bottom ${cropBottom}%${cropLeft > 0 || cropRight > 0 ? ` | Left ${cropLeft}% | Right ${cropRight}%` : ""}`}
                     </div>
                   </div>
                 </>
