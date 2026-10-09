@@ -90,7 +90,7 @@ export function Sidebar() {
 
   return (
     <aside
-      className="premium-glass sidebar-desktop"
+      className="sidebar-desktop"
       style={{
         width: 250,
         height: "calc(100vh - 48px)",
@@ -101,7 +101,7 @@ export function Sidebar() {
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
-        zIndex: 50,
+        zIndex: 500,
         padding: 0,
         borderRadius: "20px",
         background: "#FFFFFF",
