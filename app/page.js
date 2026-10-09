@@ -296,12 +296,54 @@ export default function Home() {
   const [stampStyle, setStampStyle] = useState("badge"); // "badge", "classic"
   const [storeName, setStoreName] = useState("VISHAL");
 
-  // PDF Crop Config
+  // PDF Crop Config & Modal State (Matching Mayur.dev 1:1)
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [cropEnabled, setCropEnabled] = useState(false);
+  const [cropPreset, setCropPreset] = useState("label_only"); // "label_only", "trim_white", "manual"
   const [cropMode, setCropMode] = useState("none"); // "none", "top50", "bottom50", "custom"
   const [cropTop, setCropTop] = useState(0);
   const [cropBottom, setCropBottom] = useState(50);
   const [cropLeft, setCropLeft] = useState(0);
   const [cropRight, setCropRight] = useState(0);
+  const [previewMode, setPreviewMode] = useState("after"); // "after", "before"
+  const [zoomLevel, setZoomLevel] = useState(100);
+
+  function handleSelectCropPreset(preset) {
+    setCropPreset(preset);
+    if (preset === "label_only") {
+      setCropTop(0);
+      setCropBottom(50);
+      setCropLeft(0);
+      setCropRight(0);
+      setCropMode("top50");
+    } else if (preset === "trim_white") {
+      setCropTop(4);
+      setCropBottom(4);
+      setCropLeft(4);
+      setCropRight(4);
+      setCropMode("custom");
+    } else if (preset === "manual") {
+      setCropMode("custom");
+    }
+  }
+
+  function handleSaveCrop() {
+    setCropEnabled(true);
+    if (cropPreset === "label_only") {
+      setCropMode("top50");
+    } else {
+      setCropMode("custom");
+    }
+    setShowCropModal(false);
+    showToast("Crop settings saved! Download will generate cropped thermal labels.", "success");
+  }
+
+  function handleDisableCrop() {
+    setCropEnabled(false);
+    setCropMode("none");
+    setShowCropModal(false);
+    showToast("Label cropping disabled.", "info");
+  }
 
   function handleResetDefaults() {
     setQrX(DEFAULT_STAMP_SETTINGS.qrX);
@@ -714,7 +756,7 @@ export default function Home() {
         fd.append("qrY", String(qrY));
         fd.append("qrSize", String(qrSize));
         fd.append("fontSize", String(fontSize));
-        fd.append("cropMode", cropMode);
+        fd.append("cropMode", cropEnabled ? cropMode : "none");
         fd.append("cropTop", String(cropTop));
         fd.append("cropBottom", String(cropBottom));
         fd.append("cropLeft", String(cropLeft));
@@ -763,7 +805,7 @@ export default function Home() {
           fd.append("qrY", String(qrY));
           fd.append("qrSize", String(qrSize));
           fd.append("fontSize", String(fontSize));
-          fd.append("cropMode", cropMode);
+          fd.append("cropMode", cropEnabled ? cropMode : "none");
           fd.append("cropTop", String(cropTop));
           fd.append("cropBottom", String(cropBottom));
           fd.append("cropLeft", String(cropLeft));
@@ -1583,96 +1625,63 @@ export default function Home() {
           </div>
         </div>
 
-        {/* PDF Label Cropper Studio Card */}
-        <div className="premium-glass" style={{ marginBottom: 24 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+        {/* Crop out the tax invoice Card (Exact Mayur.dev matching) */}
+        <div className="premium-glass" style={{ marginBottom: 24, padding: "20px 24px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: 0 }}>
-                  ✂️ PDF Shipping Label Cropper
-                </h3>
-                <span className="tag-pill active" style={{ fontSize: "0.72rem", background: "rgba(99, 102, 241, 0.15)", color: "#818cf8", border: "1px solid rgba(99, 102, 241, 0.3)" }}>
-                  Thermal Printer Optimized
-                </span>
-              </div>
-              <p style={{ fontSize: "0.82rem", color: "var(--text-silver)", margin: "4px 0 0 0" }}>
-                Crop Meesho / Flipkart label pages to thermal printer size or remove extra tax invoice parts.
+              <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 6px 0" }}>
+                Crop out the tax invoice
+              </h3>
+              <p style={{ fontSize: "0.82rem", color: "var(--text-silver)", margin: 0, maxWidth: 450, lineHeight: 1.45 }}>
+                Print labels only — smaller, cleaner sheets. Only the download changes.
               </p>
             </div>
 
-            {/* Crop Mode Presets */}
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {[
-                { id: "none", label: "📄 Full Page", desc: "Original layout" },
-                { id: "top50", label: "✂️ Thermal Label (Top 50%)", desc: "Meesho 4x6 Thermal" },
-                { id: "bottom50", label: "🧾 Invoice Only (Bottom 50%)", desc: "Bottom invoice part" },
-                { id: "custom", label: "⚙️ Custom Margins %", desc: "Top/Bottom/Left/Right %" },
-              ].map((mode) => (
-                <button
-                  key={mode.id}
-                  type="button"
-                  onClick={() => setCropMode(mode.id)}
-                  style={{
-                    padding: "8px 14px",
-                    borderRadius: "var(--radius-md)",
-                    border: `1px solid ${cropMode === mode.id ? "#6366f1" : "var(--glass-border)"}`,
-                    background: cropMode === mode.id ? "rgba(99, 102, 241, 0.2)" : "rgba(255, 255, 255, 0.03)",
-                    color: cropMode === mode.id ? "#ffffff" : "var(--text-silver)",
-                    fontWeight: cropMode === mode.id ? 700 : 500,
-                    fontSize: "0.82rem",
-                    cursor: "pointer",
-                    transition: "all 0.2s ease",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "flex-start",
-                    gap: 2,
-                  }}
-                >
-                  <span>{mode.label}</span>
-                  <span style={{ fontSize: "0.68rem", opacity: 0.7 }}>{mode.desc}</span>
-                </button>
-              ))}
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              {/* Toggle Badge OFF/ON */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (cropEnabled) {
+                    handleDisableCrop();
+                  } else {
+                    setShowCropModal(true);
+                  }
+                }}
+                style={{
+                  background: cropEnabled ? "rgba(16, 185, 129, 0.2)" : "rgba(255, 255, 255, 0.08)",
+                  border: `1px solid ${cropEnabled ? "#10B981" : "var(--glass-border)"}`,
+                  color: cropEnabled ? "#10B981" : "var(--text-silver)",
+                  padding: "6px 14px",
+                  borderRadius: "var(--radius-sm)",
+                  fontWeight: 800,
+                  fontSize: "0.78rem",
+                  cursor: "pointer",
+                  letterSpacing: "0.05em",
+                }}
+              >
+                {cropEnabled ? "ON" : "OFF"}
+              </button>
+
+              {/* Set up crop Action Button */}
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => setShowCropModal(true)}
+                style={{
+                  padding: "8px 18px",
+                  fontSize: "0.85rem",
+                  fontWeight: 700,
+                  borderColor: "rgba(255, 255, 255, 0.25)",
+                  color: "var(--text-pure)",
+                  borderRadius: "var(--radius-md)",
+                  cursor: "pointer",
+                }}
+              >
+                Set up crop
+              </button>
             </div>
           </div>
-
-          {/* Custom Crop Sliders (Visible when cropMode === "custom") */}
-          {cropMode === "custom" && (
-            <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--glass-border)", borderRadius: "12px", padding: 16, marginTop: 12 }}>
-              <div style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 12 }}>
-                Custom Margin Crop Percentages (%)
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
-                <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", marginBottom: 4 }}>
-                    <span>Top Crop</span>
-                    <span style={{ color: "#818cf8", fontWeight: 700 }}>{cropTop}%</span>
-                  </div>
-                  <input type="range" min="0" max="80" value={cropTop} onChange={(e) => setCropTop(Number(e.target.value))} className="range-slider" />
-                </div>
-                <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", marginBottom: 4 }}>
-                    <span>Bottom Crop</span>
-                    <span style={{ color: "#818cf8", fontWeight: 700 }}>{cropBottom}%</span>
-                  </div>
-                  <input type="range" min="0" max="80" value={cropBottom} onChange={(e) => setCropBottom(Number(e.target.value))} className="range-slider" />
-                </div>
-                <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", marginBottom: 4 }}>
-                    <span>Left Crop</span>
-                    <span style={{ color: "#818cf8", fontWeight: 700 }}>{cropLeft}%</span>
-                  </div>
-                  <input type="range" min="0" max="50" value={cropLeft} onChange={(e) => setCropLeft(Number(e.target.value))} className="range-slider" />
-                </div>
-                <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", marginBottom: 4 }}>
-                    <span>Right Crop</span>
-                    <span style={{ color: "#818cf8", fontWeight: 700 }}>{cropRight}%</span>
-                  </div>
-                  <input type="range" min="0" max="50" value={cropRight} onChange={(e) => setCropRight(Number(e.target.value))} className="range-slider" />
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Store Growth Engine & QR Stamp Config */}
@@ -2559,6 +2568,429 @@ export default function Home() {
             </div>
           </>
         )}
+      </Modal>
+      {/* Crop your labels Modal Popup (Exact Mayur.dev 1:1 Matching) */}
+      <Modal isOpen={showCropModal} onClose={() => setShowCropModal(false)} maxWidth="780px">
+        <div style={{ padding: "4px 8px" }}>
+          {/* Header */}
+          <div style={{ marginBottom: 20 }}>
+            <h2 style={{ fontSize: "1.35rem", fontWeight: 800, color: "var(--text-pure)", margin: "0 0 6px 0" }}>
+              Crop your labels
+            </h2>
+            <p style={{ fontSize: "0.85rem", color: "var(--text-silver)", margin: 0 }}>
+              Pick one. You'll see the result before you download — nothing changes until then.
+            </p>
+          </div>
+
+          {/* 3 Preset Option Cards Grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14, marginBottom: 24 }}>
+            {/* Preset 1: Label only */}
+            <div
+              onClick={() => handleSelectCropPreset("label_only")}
+              style={{
+                border: `2px solid ${cropPreset === "label_only" ? "#10B981" : "var(--glass-border)"}`,
+                background: cropPreset === "label_only" ? "rgba(16, 185, 129, 0.12)" : "rgba(255, 255, 255, 0.03)",
+                borderRadius: 14,
+                padding: 14,
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <div>
+                <div style={{ width: "100%", height: 50, border: "1px solid var(--glass-border)", borderRadius: 6, background: "rgba(0,0,0,0.2)", padding: 4, marginBottom: 12 }}>
+                  <div style={{ width: "100%", height: "50%", background: "#10B981", borderRadius: 3, border: "1.5px solid #059669" }} />
+                </div>
+                <div style={{ fontWeight: 800, fontSize: "0.95rem", color: "var(--text-pure)" }}>Label only</div>
+                <div style={{ fontSize: "0.78rem", color: "var(--text-silver)", marginTop: 4, lineHeight: 1.35 }}>
+                  Cuts the tax invoice off.
+                </div>
+              </div>
+              <div style={{ marginTop: 12, fontSize: "0.68rem", fontWeight: 800, color: "#10B981", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                MOST SELLERS PICK THIS
+              </div>
+            </div>
+
+            {/* Preset 2: Trim white edges */}
+            <div
+              onClick={() => handleSelectCropPreset("trim_white")}
+              style={{
+                border: `2px solid ${cropPreset === "trim_white" ? "#10B981" : "var(--glass-border)"}`,
+                background: cropPreset === "trim_white" ? "rgba(16, 185, 129, 0.12)" : "rgba(255, 255, 255, 0.03)",
+                borderRadius: 14,
+                padding: 14,
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <div>
+                <div style={{ width: "100%", height: 50, border: "1px solid var(--glass-border)", borderRadius: 6, background: "rgba(0,0,0,0.2)", padding: 5, marginBottom: 12 }}>
+                  <div style={{ width: "100%", height: "100%", border: "1.5px dashed #10B981", background: "rgba(16,185,129,0.12)", borderRadius: 3 }} />
+                </div>
+                <div style={{ fontWeight: 800, fontSize: "0.95rem", color: "var(--text-pure)" }}>Trim white edges</div>
+                <div style={{ fontSize: "0.78rem", color: "var(--text-silver)", marginTop: 4, lineHeight: 1.35 }}>
+                  Keeps everything, removes the blank margin.
+                </div>
+              </div>
+            </div>
+
+            {/* Preset 3: I'll set it myself */}
+            <div
+              onClick={() => handleSelectCropPreset("manual")}
+              style={{
+                border: `2px solid ${cropPreset === "manual" ? "#10B981" : "var(--glass-border)"}`,
+                background: cropPreset === "manual" ? "rgba(16, 185, 129, 0.12)" : "rgba(255, 255, 255, 0.03)",
+                borderRadius: 14,
+                padding: 14,
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <div>
+                <div style={{ width: "100%", height: 50, border: "1px solid var(--glass-border)", borderRadius: 6, background: "rgba(0,0,0,0.2)", padding: "6px 12px", marginBottom: 12 }}>
+                  <div style={{ width: "80%", height: "70%", border: "1.5px solid #10B981", background: "rgba(16,185,129,0.2)", borderRadius: 3 }} />
+                </div>
+                <div style={{ fontWeight: 800, fontSize: "0.95rem", color: "var(--text-pure)" }}>I'll set it myself</div>
+                <div style={{ fontSize: "0.78rem", color: "var(--text-silver)", marginTop: 4, lineHeight: 1.35 }}>
+                  Drag the box, or fine-tune below.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Stage Header Controls: PREVIEW - PAGE 1 | Before/After | Zoom */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10, flexWrap: "wrap", gap: 10 }}>
+            <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "var(--text-silver)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+              PREVIEW - PAGE 1
+            </span>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              {/* Before / After Switcher */}
+              <div style={{ background: "rgba(255,255,255,0.06)", padding: 3, borderRadius: "var(--radius-full)", display: "flex", gap: 2, border: "1px solid var(--glass-border)" }}>
+                <button
+                  type="button"
+                  onClick={() => setPreviewMode("before")}
+                  style={{
+                    padding: "4px 14px",
+                    borderRadius: "var(--radius-full)",
+                    border: "none",
+                    fontSize: "0.75rem",
+                    fontWeight: previewMode === "before" ? 800 : 600,
+                    background: previewMode === "before" ? "var(--aurora-1)" : "transparent",
+                    color: previewMode === "before" ? "#000000" : "var(--text-silver)",
+                    cursor: "pointer",
+                  }}
+                >
+                  Before
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewMode("after")}
+                  style={{
+                    padding: "4px 14px",
+                    borderRadius: "var(--radius-full)",
+                    border: "none",
+                    fontSize: "0.75rem",
+                    fontWeight: previewMode === "after" ? 800 : 600,
+                    background: previewMode === "after" ? "#10B981" : "transparent",
+                    color: previewMode === "after" ? "#ffffff" : "var(--text-silver)",
+                    cursor: "pointer",
+                  }}
+                >
+                  After
+                </button>
+              </div>
+
+              {/* Zoom Controls */}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.78rem", fontWeight: 700, color: "var(--text-silver)" }}>
+                <span>Zoom</span>
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel((z) => Math.max(75, z - 15))}
+                  style={{ border: "1px solid var(--glass-border)", background: "rgba(255,255,255,0.06)", color: "#fff", borderRadius: 4, width: 26, height: 26, cursor: "pointer", fontWeight: 800 }}
+                >
+                  -
+                </button>
+                <span style={{ minWidth: 36, textAlign: "center" }}>{zoomLevel}%</span>
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel((z) => Math.min(150, z + 15))}
+                  style={{ border: "1px solid var(--glass-border)", background: "rgba(255,255,255,0.06)", color: "#fff", borderRadius: 4, width: 26, height: 26, cursor: "pointer", fontWeight: 800 }}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Canvas Stage Frame with Interactive Green Resizable Crop Box */}
+          <div
+            style={{
+              position: "relative",
+              width: "100%",
+              maxHeight: 380,
+              overflow: "auto",
+              background: "#090d16",
+              borderRadius: 14,
+              padding: 24,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              boxShadow: "inset 0 2px 10px rgba(0,0,0,0.6)",
+              border: "1px solid var(--glass-border)",
+            }}
+          >
+            {/* Simulated Shipping Label Sheet */}
+            <div
+              style={{
+                width: 310 * (zoomLevel / 100),
+                height: 450 * (zoomLevel / 100),
+                position: "relative",
+                background: "#ffffff",
+                borderRadius: 4,
+                boxShadow: "0 10px 30px rgba(0,0,0,0.6)",
+                overflow: "hidden",
+                userSelect: "none",
+              }}
+            >
+              {/* Label Content Mock (Delhivery / Meesho Shipping Label Header + Invoice) */}
+              <div style={{ padding: 10, fontSize: 8, fontFamily: "Arial, sans-serif", color: "#000", height: "100%" }}>
+                <div style={{ borderBottom: "2px solid #000", paddingBottom: 6, display: "flex", justifyContent: "space-between" }}>
+                  <div>
+                    <div style={{ fontWeight: 900, fontSize: 12 }}>Delhivery</div>
+                    <div style={{ fontSize: 7, fontWeight: 700 }}>Prepaid: Do not collect cash</div>
+                    <div style={{ fontSize: 7, marginTop: 4 }}><b>Destination:</b> Amreli, Gujarat</div>
+                  </div>
+                  <div style={{ width: 40, height: 40, border: "1px solid #000", background: "repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 50% / 4px 4px" }} />
+                </div>
+
+                <div style={{ marginTop: 8, textAlign: "center" }}>
+                  <div style={{ height: 24, background: "repeating-linear-gradient(90deg, #000 0px, #000 2px, #fff 2px, #fff 4px)" }} />
+                  <div style={{ fontWeight: 800, fontSize: 8, marginTop: 2 }}>1490842209153146</div>
+                </div>
+
+                <div style={{ marginTop: 10, borderTop: "1px solid #000", paddingTop: 4, display: "grid", gridTemplateColumns: "2fr 1fr 1fr 2fr", fontSize: 7, fontWeight: 700 }}>
+                  <span>SKU: UvgvFO2z</span>
+                  <span>Size: Free</span>
+                  <span>Qty: 1</span>
+                  <span>Order: 33903404040000304_1</span>
+                </div>
+
+                <div style={{ marginTop: 14, borderTop: "2px dashed #666", paddingTop: 8, background: "#f8fafc" }}>
+                  <div style={{ fontWeight: 800, fontSize: 8, color: "#333" }}>TAX INVOICE (Original For Recipient)</div>
+                  <div style={{ fontSize: 6.5, color: "#666", marginTop: 4, lineHeight: 1.3 }}>
+                    Sold by: The Mahir Enterprise | Inv: INV-9876543<br />
+                    Description: Cotton Printed Saree | Amount: Rs 120.00
+                  </div>
+                </div>
+              </div>
+
+              {/* OVERLAY: GREEN RESIZABLE CROP BOX (Visible when previewMode === "after") */}
+              {previewMode === "after" && (
+                <>
+                  {/* Top Dimmed Area */}
+                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: `${cropTop}%`, background: "rgba(15,23,42,0.65)", pointerEvents: "none" }} />
+                  {/* Bottom Dimmed Area */}
+                  <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: `${cropBottom}%`, background: "rgba(15,23,42,0.65)", pointerEvents: "none" }} />
+                  {/* Left Dimmed Area */}
+                  <div style={{ position: "absolute", top: `${cropTop}%`, bottom: `${cropBottom}%`, left: 0, width: `${cropLeft}%`, background: "rgba(15,23,42,0.65)", pointerEvents: "none" }} />
+                  {/* Right Dimmed Area */}
+                  <div style={{ position: "absolute", top: `${cropTop}%`, bottom: `${cropBottom}%`, right: 0, width: `${cropRight}%`, background: "rgba(15,23,42,0.65)", pointerEvents: "none" }} />
+
+                  {/* Green Bounding Box */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: `${cropTop}%`,
+                      bottom: `${cropBottom}%`,
+                      left: `${cropLeft}%`,
+                      right: `${cropRight}%`,
+                      border: "2.5px solid #10B981",
+                      boxShadow: "0 0 0 1px rgba(255,255,255,0.8) inset, 0 4px 20px rgba(16,185,129,0.45)",
+                      zIndex: 10,
+                    }}
+                  >
+                    {/* Corner Handles */}
+                    <div
+                      onMouseDown={() => setCropPreset("manual")}
+                      style={{ position: "absolute", top: -7, left: -7, width: 14, height: 14, borderRadius: "50%", background: "#ffffff", border: "2.5px solid #10B981", cursor: "nwse-resize", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}
+                    />
+                    <div
+                      onMouseDown={() => setCropPreset("manual")}
+                      style={{ position: "absolute", top: -7, right: -7, width: 14, height: 14, borderRadius: "50%", background: "#ffffff", border: "2.5px solid #10B981", cursor: "nesw-resize", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}
+                    />
+                    <div
+                      onMouseDown={() => setCropPreset("manual")}
+                      style={{ position: "absolute", bottom: -7, left: -7, width: 14, height: 14, borderRadius: "50%", background: "#ffffff", border: "2.5px solid #10B981", cursor: "nesw-resize", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}
+                    />
+                    <div
+                      onMouseDown={() => setCropPreset("manual")}
+                      style={{ position: "absolute", bottom: -7, right: -7, width: 14, height: 14, borderRadius: "50%", background: "#ffffff", border: "2.5px solid #10B981", cursor: "nwse-resize", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}
+                    />
+
+                    {/* Dimensions Badge */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: "50%",
+                        bottom: -12,
+                        transform: "translateX(-50%)",
+                        background: "#10B981",
+                        color: "#ffffff",
+                        fontSize: 10,
+                        fontWeight: 800,
+                        padding: "2px 10px",
+                        borderRadius: "var(--radius-full)",
+                        whiteSpace: "nowrap",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+                      }}
+                    >
+                      {cropPreset === "label_only"
+                        ? "Label Only (Top 50%)"
+                        : cropPreset === "trim_white"
+                        ? "Trim White Edges"
+                        : `Custom Crop: Top ${cropTop}% | Bottom ${cropBottom}%`}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Fine-tune the edges sliders section */}
+          <div style={{ marginTop: 18, background: "rgba(255,255,255,0.03)", borderRadius: 12, padding: 16, border: "1px solid var(--glass-border)" }}>
+            <div style={{ fontSize: "0.82rem", fontWeight: 800, color: "var(--text-silver)", marginBottom: 12 }}>
+              Fine-tune the edges (optional)
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 14 }}>
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", fontWeight: 700, color: "var(--text-silver)", marginBottom: 4 }}>
+                  <span>Top Crop</span>
+                  <span style={{ color: "#10B981", fontWeight: 800 }}>{cropTop}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="80"
+                  value={cropTop}
+                  onChange={(e) => {
+                    setCropTop(Number(e.target.value));
+                    setCropPreset("manual");
+                  }}
+                  className="range-slider"
+                />
+              </div>
+
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", fontWeight: 700, color: "var(--text-silver)", marginBottom: 4 }}>
+                  <span>Bottom Crop</span>
+                  <span style={{ color: "#10B981", fontWeight: 800 }}>{cropBottom}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="80"
+                  value={cropBottom}
+                  onChange={(e) => {
+                    setCropBottom(Number(e.target.value));
+                    setCropPreset("manual");
+                  }}
+                  className="range-slider"
+                />
+              </div>
+
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", fontWeight: 700, color: "var(--text-silver)", marginBottom: 4 }}>
+                  <span>Left Crop</span>
+                  <span style={{ color: "#10B981", fontWeight: 800 }}>{cropLeft}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="40"
+                  value={cropLeft}
+                  onChange={(e) => {
+                    setCropLeft(Number(e.target.value));
+                    setCropPreset("manual");
+                  }}
+                  className="range-slider"
+                />
+              </div>
+
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", fontWeight: 700, color: "var(--text-silver)", marginBottom: 4 }}>
+                  <span>Right Crop</span>
+                  <span style={{ color: "#10B981", fontWeight: 800 }}>{cropRight}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="40"
+                  value={cropRight}
+                  onChange={(e) => {
+                    setCropRight(Number(e.target.value));
+                    setCropPreset("manual");
+                  }}
+                  className="range-slider"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Footer Action Buttons matching Mayur.dev */}
+          <div style={{ marginTop: 20, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12, borderTop: "1px solid var(--glass-border)", paddingTop: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <button
+                type="button"
+                onClick={handleSaveCrop}
+                style={{
+                  background: "#10B981",
+                  color: "#ffffff",
+                  border: "none",
+                  borderRadius: "var(--radius-md)",
+                  padding: "10px 24px",
+                  fontSize: "0.9rem",
+                  fontWeight: 800,
+                  cursor: "pointer",
+                  boxShadow: "0 4px 16px rgba(16,185,129,0.35)",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                Use this crop
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDisableCrop}
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  color: "var(--text-silver)",
+                  border: "1px solid var(--glass-border)",
+                  borderRadius: "var(--radius-md)",
+                  padding: "10px 20px",
+                  fontSize: "0.88rem",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                Don't crop
+              </button>
+            </div>
+
+            <span style={{ fontSize: "0.78rem", color: "var(--text-dim)", fontStyle: "italic" }}>
+              Remembered for next time.
+            </span>
+          </div>
+        </div>
       </Modal>
     </div>
   );
