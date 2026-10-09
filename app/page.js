@@ -797,19 +797,33 @@ export default function Home() {
         await new Promise((resolve, reject) => {
           const script = document.createElement("script");
           script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
-          script.onload = () => {
-            window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-            resolve();
-          };
+          script.onload = resolve;
           script.onerror = reject;
           document.head.appendChild(script);
         });
       }
 
+      if (window.pdfjsLib) {
+        try {
+          const workerBlob = new Blob(
+            ['importScripts("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js");'],
+            { type: "application/javascript" }
+          );
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(workerBlob);
+        } catch (e) {
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+        }
+      }
+
       const arrayBuffer = await fileObj.arrayBuffer();
-      const pdfDoc = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const loadingTask = window.pdfjsLib.getDocument({
+        data: new Uint8Array(arrayBuffer),
+        cMapUrl: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/",
+        cMapPacked: true,
+      });
+      const pdfDoc = await loadingTask.promise;
       const page = await pdfDoc.getPage(1);
-      const viewport = page.getViewport({ scale: 2.0 });
+      const viewport = page.getViewport({ scale: 2.2 });
 
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
@@ -817,9 +831,10 @@ export default function Home() {
       canvas.height = viewport.height;
 
       await page.render({ canvasContext: ctx, viewport }).promise;
-      return canvas.toDataURL("image/png");
+      const dataUrl = canvas.toDataURL("image/png");
+      return dataUrl;
     } catch (err) {
-      console.error("Failed to render PDF page 1 for crop preview:", err);
+      console.error("Failed to render PDF page 1 for preview:", err);
       return null;
     }
   }
@@ -831,17 +846,31 @@ export default function Home() {
         await new Promise((resolve, reject) => {
           const script = document.createElement("script");
           script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
-          script.onload = () => {
-            window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-            resolve();
-          };
+          script.onload = resolve;
           script.onerror = reject;
           document.head.appendChild(script);
         });
       }
 
+      if (window.pdfjsLib) {
+        try {
+          const workerBlob = new Blob(
+            ['importScripts("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js");'],
+            { type: "application/javascript" }
+          );
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(workerBlob);
+        } catch (e) {
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+        }
+      }
+
       const arrayBuffer = await fileObj.arrayBuffer();
-      const pdfDoc = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const loadingTask = window.pdfjsLib.getDocument({
+        data: new Uint8Array(arrayBuffer),
+        cMapUrl: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/",
+        cMapPacked: true,
+      });
+      const pdfDoc = await loadingTask.promise;
       const numPages = pdfDoc.numPages;
       const extractedPages = [];
 
@@ -1089,23 +1118,24 @@ export default function Home() {
           const cleanStore = (storeNameStr || "STORE").trim().toUpperCase();
 
           const isA4 = pageWidthPt > 400;
-          const maxAllowedWidthPt = isA4 ? Math.min(pageWidthPt - 28, 540) : Math.min(pageWidthPt - 24, 266);
-          const maxTotalWidthPx = Math.round(maxAllowedWidthPt * scale);
+          // Target width to fill the label footer cleanly with symmetric left/right margins matching the table
+          const targetWidthPt = isA4 ? Math.min(pageWidthPt - 28, 540) : Math.min(pageWidthPt - 16, 272);
+          const targetWidthPx = Math.round(targetWidthPt * scale);
 
           // Setup measuring canvas
           const measureCanvas = document.createElement("canvas");
           const mCtx = measureCanvas.getContext("2d");
 
-          // Determine Store Font Size
-          const baseScaleMultiplier = isA4 ? 1.65 : 1.3;
+          // Determine Store Font Size (Larger & more prominent)
+          const baseScaleMultiplier = isA4 ? 1.8 : 1.45;
 
-          let storeFontSizePt = Math.round(Math.max(14 * baseScaleMultiplier, fontSizeVal * 1.5 * baseScaleMultiplier));
+          let storeFontSizePt = Math.round(Math.max(15 * baseScaleMultiplier, fontSizeVal * 1.55 * baseScaleMultiplier));
           let storeFontCss = `bold ${Math.round(storeFontSizePt * scale)}px "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
           mCtx.font = storeFontCss;
           let storeTextWidth = mCtx.measureText(cleanStore).width;
 
           // Auto-shrink store name if it is very long
-          const maxStoreWidthPx = Math.round((isA4 ? 165 : 95) * scale);
+          const maxStoreWidthPx = Math.round((isA4 ? 180 : 112) * scale);
           while (storeTextWidth > maxStoreWidthPx && storeFontSizePt > 9.5) {
             storeFontSizePt -= 0.5;
             storeFontCss = `bold ${Math.round(storeFontSizePt * scale)}px "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
@@ -1113,26 +1143,26 @@ export default function Home() {
             storeTextWidth = mCtx.measureText(cleanStore).width;
           }
 
-          // Dynamic Sizing for Icon and QR
-          const iconSizePx = Math.round((isA4 ? 40 : 30) * scale);
-          const qrScaledSizePx = Math.round((isA4 ? 56 : 42) * scale);
+          // Dynamic Sizing for Icon and QR (More prominent & larger)
+          const iconSizePx = Math.round((isA4 ? 46 : 35) * scale);
+          const qrScaledSizePx = Math.round((isA4 ? 64 : 48) * scale);
 
           // Layout spacing
-          const padXPx = Math.round((isA4 ? 15 : 11) * scale);
-          const padYPx = Math.round((isA4 ? 11 : 9) * scale);
-          const iconTextGapPx = Math.round((isA4 ? 10 : 7) * scale);
-          const dividerGapPx = Math.round((isA4 ? 14 : 9) * scale);
-          const dividerWidthPx = Math.round((isA4 ? 2.2 : 1.8) * scale);
-          const qrTextGapPx = Math.round((isA4 ? 12 : 8) * scale);
+          const padXPx = Math.round((isA4 ? 16 : 12) * scale);
+          const padYPx = Math.round((isA4 ? 12 : 9.5) * scale);
+          const iconTextGapPx = Math.round((isA4 ? 10 : 8) * scale);
+          const dividerGapPx = Math.round((isA4 ? 14 : 10) * scale);
+          const dividerWidthPx = Math.round((isA4 ? 2.5 : 2) * scale);
+          const qrTextGapPx = Math.round((isA4 ? 12 : 9) * scale);
 
           const leftSectionWidthPx = iconSizePx + iconTextGapPx + storeTextWidth;
 
           // Calculate available width for text column
-          const fixedWidthPx = padXPx + leftSectionWidthPx + dividerGapPx + dividerWidthPx + dividerGapPx + qrScaledSizePx + qrTextGapPx + padXPx;
-          const maxAvailableTextWidthPx = Math.max(Math.round(60 * scale), maxTotalWidthPx - fixedWidthPx);
+          const fixedWidthBeforeDetailPx = padXPx + leftSectionWidthPx + dividerGapPx + dividerWidthPx + dividerGapPx + qrScaledSizePx + qrTextGapPx + padXPx;
+          const maxAvailableTextWidthPx = Math.max(Math.round(70 * scale), targetWidthPx - fixedWidthBeforeDetailPx);
 
           // Auto-fit detail text
-          let detailFontSizePt = Math.max(isA4 ? 10.5 : 8, fontSizeVal * (isA4 ? 1.15 : 0.95));
+          let detailFontSizePt = Math.max(isA4 ? 11 : 9.2, fontSizeVal * (isA4 ? 1.2 : 1.0));
           let detailFontCss = `bold ${Math.round(detailFontSizePt * scale)}px "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
           mCtx.font = detailFontCss;
 
@@ -1153,8 +1183,9 @@ export default function Home() {
             if (w > maxDetailLineWidthPx) maxDetailLineWidthPx = w;
           }
 
-          // Total dimensions
-          const totalWidthPx = padXPx + leftSectionWidthPx + dividerGapPx + dividerWidthPx + dividerGapPx + qrScaledSizePx + qrTextGapPx + maxDetailLineWidthPx + padXPx;
+          // Total dimensions - expand badge to targetWidthPx for a symmetrical, prominent card that spans footer evenly
+          const contentTotalWidthPx = fixedWidthBeforeDetailPx + maxDetailLineWidthPx - padXPx;
+          const totalWidthPx = Math.max(contentTotalWidthPx + padXPx, targetWidthPx);
 
           const detailFontSizePx = Math.round(detailFontSizePt * scale);
           const textLineHeightPx = Math.round(detailFontSizePx * 1.25);
@@ -1172,7 +1203,7 @@ export default function Home() {
           ctx.imageSmoothingQuality = "high";
 
           // 1. White Background with Rounded Outer Border (Exact Match)
-          const borderRadiusPx = Math.round((isA4 ? 14 : 10) * scale);
+          const borderRadiusPx = Math.round((isA4 ? 16 : 12) * scale);
           const borderWidthPx = Math.round((isA4 ? 2.5 : 2) * scale);
 
           ctx.fillStyle = "#FFFFFF";
@@ -1286,9 +1317,14 @@ export default function Home() {
             badgeImageCache.set(cacheKey, badgeObj);
           }
 
+          // Center horizontally on page so both left & right margins are equal
+          const centeredX = Math.max(6, Math.round((pageWidth - badgeObj.widthPt) / 2));
+          const finalX = stampStyle === "badge" ? centeredX : x;
+          const finalY = y;
+
           page.drawImage(badgeObj.image, {
-            x: x,
-            y: y,
+            x: finalX,
+            y: finalY,
             width: badgeObj.widthPt,
             height: badgeObj.heightPt,
           });
@@ -1683,6 +1719,13 @@ export default function Home() {
 
               <div
                 className={`dropzone ${file ? "active" : ""}`}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  if (e.dataTransfer?.files?.[0]) {
+                    handleFileSelect(e.dataTransfer.files[0]);
+                  }
+                }}
                 style={{
                   minHeight: 280,
                   display: "flex",
@@ -1691,6 +1734,7 @@ export default function Home() {
                   justifyContent: "center",
                   borderRadius: "16px",
                   padding: "28px 16px",
+                  cursor: "pointer",
                 }}
                 onClick={() => fileInputRef.current?.click()}
               >
@@ -1804,107 +1848,124 @@ export default function Home() {
                   fontFamily: "Arial, sans-serif",
                 }}
               >
-                {/* Top Section: Customer Address & Courier Info */}
-                <div style={{ display: "flex", borderBottom: "1.5px solid #000", height: 130 }}>
-                  {/* Left: Customer Address */}
-                  <div style={{ width: "45%", borderRight: "1.5px solid #000", padding: "3px 4px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                    <div>
-                      <div style={{ fontWeight: 800, fontSize: 6.5 }}>Customer Address</div>
-                      <div style={{ fontWeight: 800, fontSize: 8, marginTop: 1 }}>{pages[0]?.customerName || "Sample Customer"}</div>
-                      <div style={{ fontSize: 5.5, color: "#222", lineHeight: 1.15, marginTop: 1 }}>
-                        123, Sample Colony, Landmark Area, City Name, State Name, 500001
-                      </div>
-                    </div>
-                    <div style={{ borderTop: "1px solid #000", paddingTop: 2 }}>
-                      <div style={{ fontWeight: 700, fontSize: 6 }}>If undelivered, return to:</div>
-                      <div style={{ fontWeight: 700, fontSize: 6.5 }}>{storeName || "Mahir Enterprise"}</div>
-                      <div style={{ fontSize: 5.5, color: "#333", lineHeight: 1.1 }}>
-                        Ratanvav, Gujarat, India - 360575
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right: XpressBees Courier Header */}
-                  <div style={{ width: "55%", display: "flex", flexDirection: "column" }}>
-                    <div style={{ background: "#000", color: "#fff", padding: "1px 4px", fontSize: 6, fontWeight: 700, textAlign: "left" }}>
-                      Prepaid: Do not collect cash
-                    </div>
-                    <div style={{ padding: "3px 4px", flex: 1, position: "relative" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                {/* Real Uploaded PDF Page 1 Image Preview or Fallback Mock */}
+                {pdfPage1DataUrl ? (
+                  <img
+                    src={pdfPage1DataUrl}
+                    alt="Uploaded Label Page 1"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                      background: "#ffffff",
+                      display: "block",
+                    }}
+                  />
+                ) : (
+                  <div style={{ padding: 0, height: "100%", display: "flex", flexDirection: "column" }}>
+                    {/* Top Section: Customer Address & Courier Info */}
+                    <div style={{ display: "flex", borderBottom: "1.5px solid #000", height: 130 }}>
+                      {/* Left: Customer Address */}
+                      <div style={{ width: "45%", borderRight: "1.5px solid #000", padding: "3px 4px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                         <div>
-                          <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: -0.2 }}>Xpress Bees</div>
-                          <span style={{ background: "#000", color: "#fff", fontSize: 5.5, padding: "0px 3px", fontWeight: 700, borderRadius: 1 }}>Pickup</span>
-                          <div style={{ fontSize: 5.5, marginTop: 2 }}>
-                            Dest Code: <b>XX/X-00/0A/000</b><br/>
-                            Return Code: <b>000000,0000000</b>
+                          <div style={{ fontWeight: 800, fontSize: 6.5 }}>Customer Address</div>
+                          <div style={{ fontWeight: 800, fontSize: 8, marginTop: 1 }}>{pages[0]?.customerName || "Sample Customer"}</div>
+                          <div style={{ fontSize: 5.5, color: "#222", lineHeight: 1.15, marginTop: 1 }}>
+                            123, Sample Colony, Landmark Area, City Name, State Name, 500001
                           </div>
                         </div>
-
-                        {/* DataMatrix Mock */}
-                        <div style={{ width: 28, height: 28, border: "1px solid #000", background: "repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 0 / 4px 4px" }} />
+                        <div style={{ borderTop: "1px solid #000", paddingTop: 2 }}>
+                          <div style={{ fontWeight: 700, fontSize: 6 }}>If undelivered, return to:</div>
+                          <div style={{ fontWeight: 700, fontSize: 6.5 }}>{storeName || "Mahir Enterprise"}</div>
+                          <div style={{ fontSize: 5.5, color: "#333", lineHeight: 1.1 }}>
+                            Ratanvav, Gujarat, India - 360575
+                          </div>
+                        </div>
                       </div>
 
-                      {/* 1D Barcode */}
-                      <div style={{ marginTop: 4, textAlign: "center" }}>
-                        <div style={{ height: 16, background: "repeating-linear-gradient(90deg, #000 0px, #000 1.5px, #fff 1.5px, #fff 3px)" }} />
-                        <div style={{ fontSize: 6.5, fontWeight: 800, letterSpacing: 0.5, marginTop: 1 }}>
-                          999096131786000
+                      {/* Right: XpressBees Courier Header */}
+                      <div style={{ width: "55%", display: "flex", flexDirection: "column" }}>
+                        <div style={{ background: "#000", color: "#fff", padding: "1px 4px", fontSize: 6, fontWeight: 700, textAlign: "left" }}>
+                          Prepaid: Do not collect cash
+                        </div>
+                        <div style={{ padding: "3px 4px", flex: 1, position: "relative" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                            <div>
+                              <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: -0.2 }}>Xpress Bees</div>
+                              <span style={{ background: "#000", color: "#fff", fontSize: 5.5, padding: "0px 3px", fontWeight: 700, borderRadius: 1 }}>Pickup</span>
+                              <div style={{ fontSize: 5.5, marginTop: 2 }}>
+                                Dest Code: <b>XX/X-00/0A/000</b><br/>
+                                Return Code: <b>000000,0000000</b>
+                              </div>
+                            </div>
+
+                            {/* DataMatrix Mock */}
+                            <div style={{ width: 28, height: 28, border: "1px solid #000", background: "repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 0 / 4px 4px" }} />
+                          </div>
+
+                          {/* 1D Barcode */}
+                          <div style={{ marginTop: 4, textAlign: "center" }}>
+                            <div style={{ height: 16, background: "repeating-linear-gradient(90deg, #000 0px, #000 1.5px, #fff 1.5px, #fff 3px)" }} />
+                            <div style={{ fontSize: 6.5, fontWeight: 800, letterSpacing: 0.5, marginTop: 1 }}>
+                              999096131786000
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
 
-                {/* Middle Section: Product Details */}
-                <div style={{ borderBottom: "1.5px solid #000", padding: "2px 4px", background: "#fff" }}>
-                  <div style={{ fontWeight: 800, fontSize: 7, marginBottom: 1 }}>Product Details</div>
-                  <div style={{ display: "grid", gridTemplateColumns: "2.5fr 1fr 0.8fr 0.8fr 2fr", fontSize: 5.5, fontWeight: 700, color: "#111" }}>
-                    <span>SKU</span>
-                    <span>Size</span>
-                    <span>Qty</span>
-                    <span>Color</span>
-                    <span>Order No.</span>
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "2.5fr 1fr 0.8fr 0.8fr 2fr", fontSize: 5.5, color: "#222", marginTop: 1 }}>
-                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {pages[0]?.sku || "SAMPLE-SKU-COTTON-SHIRT"}
-                    </span>
-                    <span>{pages[0]?.size || "Free Size"}</span>
-                    <span>{pages[0]?.qty || "1"}</span>
-                    <span>{pages[0]?.color || "NA"}</span>
-                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {pages[0]?.orderNo || "OD-398241029_1"}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Lower Section: Tax Invoice */}
-                <div style={{ borderBottom: "1.5px solid #000", padding: "2px 4px", background: "#fafafa" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #000", paddingBottom: 1, fontWeight: 800, fontSize: 6 }}>
-                    <span>TAX INVOICE</span>
-                    <span style={{ fontSize: 5, color: "#444" }}>Original For Recipient</span>
-                  </div>
-
-                  <div style={{ display: "flex", fontSize: 5, borderBottom: "1px solid #ddd", padding: "2px 0" }}>
-                    <div style={{ width: "50%", borderRight: "1px solid #ddd", paddingRight: 2 }}>
-                      <b>BILL TO / SHIP TO:</b><br />
-                      {pages[0]?.customerName || "Sample Customer"} - City, 500001
+                    {/* Middle Section: Product Details */}
+                    <div style={{ borderBottom: "1.5px solid #000", padding: "2px 4px", background: "#fff" }}>
+                      <div style={{ fontWeight: 800, fontSize: 7, marginBottom: 1 }}>Product Details</div>
+                      <div style={{ display: "grid", gridTemplateColumns: "2.5fr 1fr 0.8fr 0.8fr 2fr", fontSize: 5.5, fontWeight: 700, color: "#111" }}>
+                        <span>SKU</span>
+                        <span>Size</span>
+                        <span>Qty</span>
+                        <span>Color</span>
+                        <span>Order No.</span>
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "2.5fr 1fr 0.8fr 0.8fr 2fr", fontSize: 5.5, color: "#222", marginTop: 1 }}>
+                        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {pages[0]?.sku || "SAMPLE-SKU-COTTON-SHIRT"}
+                        </span>
+                        <span>{pages[0]?.size || "Free Size"}</span>
+                        <span>{pages[0]?.qty || "1"}</span>
+                        <span>{pages[0]?.color || "NA"}</span>
+                        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {pages[0]?.orderNo || "OD-398241029_1"}
+                        </span>
+                      </div>
                     </div>
-                    <div style={{ width: "50%", paddingLeft: 2 }}>
-                      <b>Sold by:</b> {storeName || "Mahir Enterprise"}<br />
-                      <b>Invoice No:</b> {pages[0]?.invoiceNo || "INV-9876541"} | <b>Date:</b> {pages[0]?.orderDate || "24.08.2026"}
+
+                    {/* Lower Section: Tax Invoice */}
+                    <div style={{ borderBottom: "1.5px solid #000", padding: "2px 4px", background: "#fafafa" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #000", paddingBottom: 1, fontWeight: 800, fontSize: 6 }}>
+                        <span>TAX INVOICE</span>
+                        <span style={{ fontSize: 5, color: "#444" }}>Original For Recipient</span>
+                      </div>
+
+                      <div style={{ display: "flex", fontSize: 5, borderBottom: "1px solid #ddd", padding: "2px 0" }}>
+                        <div style={{ width: "50%", borderRight: "1px solid #ddd", paddingRight: 2 }}>
+                          <b>BILL TO / SHIP TO:</b><br />
+                          {pages[0]?.customerName || "Sample Customer"} - City, 500001
+                        </div>
+                        <div style={{ width: "50%", paddingLeft: 2 }}>
+                          <b>Sold by:</b> {storeName || "Mahir Enterprise"}<br />
+                          <b>Invoice No:</b> {pages[0]?.invoiceNo || "INV-9876541"} | <b>Date:</b> {pages[0]?.orderDate || "24.08.2026"}
+                        </div>
+                      </div>
+
+                      <div style={{ fontSize: 4.5, color: "#555", marginTop: 2, lineHeight: 1.1 }}>
+                        Tax is not payable on reverse charge basis. Computer generated invoice for logistics.
+                      </div>
+                    </div>
+
+                    {/* Blank Label Area */}
+                    <div style={{ padding: "4px", fontSize: 5.5, color: "#aaa", fontStyle: "italic", textAlign: "center", marginTop: 6 }}>
+                      -- Blank Stamp Area --
                     </div>
                   </div>
-
-                  <div style={{ fontSize: 4.5, color: "#555", marginTop: 2, lineHeight: 1.1 }}>
-                    Tax is not payable on reverse charge basis. Computer generated invoice for logistics.
-                  </div>
-                </div>
-
-                {/* Blank Label Area */}
-                <div style={{ padding: "4px", fontSize: 5.5, color: "#aaa", fontStyle: "italic", textAlign: "center", marginTop: 10 }}>
-                  -- Blank Stamp Area --
-                </div>
+                )}
 
                 {/* DYNAMIC QR STAMP OVERLAY - 1:1 PDF Output Matching */}
                 {enableQr ? (
@@ -1913,62 +1974,86 @@ export default function Home() {
                     <div
                       style={{
                         position: "absolute",
-                        left: simQrX,
-                        top: simQrY,
+                        left: 8,
+                        right: 8,
+                        bottom: Math.max(6, (numQrY || 14) * scale * 0.6),
                         display: "flex",
                         alignItems: "center",
-                        gap: 8,
-                        border: "1.5px solid #000000",
-                        borderRadius: 6,
-                        padding: "5px 9px",
-                        background: "#ffffff",
-                        boxShadow: "0 4px 14px rgba(0,0,0,0.12)",
+                        justifyContent: "space-between",
+                        background: "#FFFFFF",
+                        border: "1.8px solid #000000",
+                        borderRadius: 8,
+                        padding: "5px 10px",
+                        boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
                         zIndex: 20,
                         userSelect: "none",
-                        maxWidth: "calc(100% - 10px)",
                       }}
                     >
-                      {/* Left: Store Icon + Store Name */}
-                      <div style={{ display: "flex", alignItems: "center", gap: 5, paddingRight: 2, flexShrink: 0 }}>
-                        <StoreIcon />
-                        <span style={{ fontWeight: 800, fontSize: Math.max(7, simFontSize * 1.05), letterSpacing: "0.03em", textTransform: "uppercase", color: "#000000" }}>
-                          {storeName || "VISHAL"}
+                      {/* Left: Storefront Icon + Store Name */}
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                        <StorefrontIcon size={22} />
+                        <span
+                          style={{
+                            fontWeight: 900,
+                            fontSize: (storeName || "").length > 18 ? 7.2 : (storeName || "").length > 12 ? 8.2 : 9.2,
+                            letterSpacing: "0.02em",
+                            textTransform: "uppercase",
+                            color: "#000000",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {(storeName || "MAHIR ENTERPRISE").trim().toUpperCase()}
                         </span>
                       </div>
 
-                      {/* Vertical Divider Line */}
-                      <div style={{ width: 1.2, height: Math.max(22, simQrSize * 0.85), background: "#000000", flexShrink: 0 }} />
+                      {/* Middle: Vertical Divider Line */}
+                      <div style={{ width: 1.6, height: 32, background: "#000000", margin: "0 8px", flexShrink: 0 }} />
 
-                      {/* QR Code */}
-                      <div
-                        style={{
-                          width: Math.min(36, simQrSize),
-                          height: Math.min(36, simQrSize),
-                          background: "repeating-conic-gradient(#000000 0% 25%, #ffffff 0% 50%) 50% / 4px 4px",
-                          border: "1px solid #000000",
-                          borderRadius: 2,
-                          flexShrink: 0,
-                        }}
-                      />
-
-                      {/* Right: Dynamic Text Lines */}
-                      <div style={{ display: "flex", flexDirection: "column", gap: 1, minWidth: 0 }}>
-                        {previewLines.slice(0, 4).map((line, idx) => (
+                      {/* Right: QR Code + Multi-Line Text */}
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0 }}>
+                        {previewQrDataUrl ? (
+                          <img
+                            src={previewQrDataUrl}
+                            alt="QR"
+                            style={{ width: 30, height: 30, objectFit: "contain", flexShrink: 0 }}
+                          />
+                        ) : (
                           <div
-                            key={idx}
                             style={{
-                              fontSize: idx === 0 ? Math.max(6, simFontSize) : Math.max(5.5, simFontSize * 0.9),
-                              fontWeight: idx === 0 ? 800 : 500,
-                              color: idx === 0 ? "#000000" : "#222222",
-                              lineHeight: 1.2,
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
+                              width: 30,
+                              height: 30,
+                              background: "#000000",
+                              borderRadius: 2,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              color: "#FFF",
+                              fontSize: 7,
+                              fontWeight: 800,
+                              flexShrink: 0,
                             }}
                           >
-                            {line}
+                            QR
                           </div>
-                        ))}
+                        )}
+
+                        <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", minWidth: 0 }}>
+                          {(previewText || "Thank You for Shopping with Us!\nFollow our page").split("\n").slice(0, 3).map((line, idx) => (
+                            <span
+                              key={idx}
+                              style={{
+                                fontSize: (previewText || "").length > 35 ? 5.8 : 6.6,
+                                fontWeight: 800,
+                                color: "#000000",
+                                lineHeight: 1.2,
+                                wordBreak: "break-word",
+                                whiteSpace: "pre-wrap",
+                              }}
+                            >
+                              {line || " "}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   ) : (
@@ -1991,18 +2076,13 @@ export default function Home() {
                         maxWidth: "calc(100% - 10px)",
                       }}
                     >
-                      <div
-                        style={{
-                          width: Math.min(36, simQrSize),
-                          height: Math.min(36, simQrSize),
-                          background: "repeating-conic-gradient(#000000 0% 25%, #ffffff 0% 50%) 50% / 4px 4px",
-                          border: "1px solid #000000",
-                          borderRadius: 2,
-                          flexShrink: 0,
-                        }}
-                      />
+                      {previewQrDataUrl ? (
+                        <img src={previewQrDataUrl} alt="QR" style={{ width: Math.min(32, simQrSize), height: Math.min(32, simQrSize), objectFit: "contain", flexShrink: 0 }} />
+                      ) : (
+                        <div style={{ width: Math.min(32, simQrSize), height: Math.min(32, simQrSize), background: "#000", borderRadius: 2, flexShrink: 0 }} />
+                      )}
                       <div style={{ display: "flex", flexDirection: "column", gap: 1, minWidth: 0 }}>
-                        {previewLines.slice(0, 4).map((line, idx) => (
+                        {(previewText || "Follow\nour page").split("\n").slice(0, 4).map((line, idx) => (
                           <div
                             key={idx}
                             style={{
@@ -2010,9 +2090,7 @@ export default function Home() {
                               fontWeight: idx === 0 ? 800 : 500,
                               color: idx === 0 ? "#000000" : "#333333",
                               lineHeight: 1.2,
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
+                              wordBreak: "break-word",
                             }}
                           >
                             {line}
@@ -2475,19 +2553,19 @@ export default function Home() {
                   alignItems: "center",
                   background: "#FFFFFF",
                   border: "2.5px solid #000000",
-                  borderRadius: "14px",
-                  padding: "12px 22px",
+                  borderRadius: "16px",
+                  padding: "14px 26px",
                   boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
                   gap: 0,
                   maxWidth: "100%",
                 }}
               >
                 {/* Left: Storefront Icon + Store Name */}
-                <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
-                  <StorefrontIcon size={38} />
+                <div style={{ display: "flex", alignItems: "center", gap: 14, flexShrink: 0 }}>
+                  <StorefrontIcon size={44} />
                   <span
                     style={{
-                      fontSize: (storeName || "").length > 18 ? "1.05rem" : (storeName || "").length > 12 ? "1.22rem" : "1.42rem",
+                      fontSize: (storeName || "").length > 18 ? "1.15rem" : (storeName || "").length > 12 ? "1.32rem" : "1.52rem",
                       fontWeight: 900,
                       color: "#000000",
                       letterSpacing: "0.02em",
@@ -2499,23 +2577,23 @@ export default function Home() {
                 </div>
 
                 {/* Middle: Vertical Divider */}
-                <div style={{ width: 2.5, height: 48, background: "#000000", margin: "0 18px", flexShrink: 0 }} />
+                <div style={{ width: 2.5, height: 54, background: "#000000", margin: "0 20px", flexShrink: 0 }} />
 
                 {/* Right: QR Code + Text */}
-                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                   {previewQrDataUrl ? (
-                    <img src={previewQrDataUrl} alt="QR" style={{ width: 48, height: 48, objectFit: "contain", flexShrink: 0 }} />
+                    <img src={previewQrDataUrl} alt="QR" style={{ width: 54, height: 54, objectFit: "contain", flexShrink: 0 }} />
                   ) : (
-                    <div style={{ width: 48, height: 48, background: "#000000", borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", color: "#FFF", fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
+                    <div style={{ width: 54, height: 54, background: "#000000", borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", color: "#FFF", fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
                       QR
                     </div>
                   )}
-                  <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", maxWidth: 260 }}>
+                  <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", maxWidth: 300 }}>
                     {(detailText || "Follow\nour page").split("\n").map((line, idx) => (
                       <span
                         key={idx}
                         style={{
-                          fontSize: (detailText || "").length > 30 ? "0.92rem" : "1rem",
+                          fontSize: (detailText || "").length > 30 ? "0.98rem" : "1.08rem",
                           fontWeight: 800,
                           color: "#000000",
                           lineHeight: 1.25,
