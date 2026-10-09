@@ -180,10 +180,10 @@ const SORT_OPTIONS = [
 ];
 
 const DEFAULT_STAMP_SETTINGS = {
-  qrX: 12,
-  qrY: 10,
-  qrSize: 142,
-  fontSize: 29,
+  qrX: 14,
+  qrY: 14,
+  qrSize: 70,
+  fontSize: 8,
 };
 
 function ResetIcon() {
@@ -915,7 +915,7 @@ export default function Home() {
         const boldFont = await srcDoc.embedFont(StandardFonts.HelveticaBold);
         const x = parseFloat(qrX) || 0;
         const y = parseFloat(qrY) || 0;
-        const size = parseFloat(qrSize) || 90;
+        const size = parseFloat(qrSize) || 70;
         const fSize = parseFloat(fontSize) || 8;
         const isBadgeMode = stampStyle === "badge";
         const cleanStoreName = (storeName || "STORE").trim().toUpperCase();
@@ -942,8 +942,8 @@ export default function Home() {
 
                 ctx.font = fontCss;
                 const metrics = ctx.measureText(textStr);
-                const canvasW = Math.max(20, Math.ceil(metrics.width + 12 * scaleFactor));
-                const canvasH = Math.max(16, Math.ceil(fontSizePx * 1.4 + 4 * scaleFactor));
+                const canvasW = Math.max(20, Math.ceil(metrics.width + 8 * scaleFactor));
+                const canvasH = Math.max(16, Math.ceil(fontSizePx * 1.35 + 4 * scaleFactor));
 
                 canvas.width = canvasW;
                 canvas.height = canvasH;
@@ -951,7 +951,7 @@ export default function Home() {
                 ctx.font = fontCss;
                 ctx.fillStyle = "#000000";
                 ctx.textBaseline = "middle";
-                ctx.fillText(textStr, 4 * scaleFactor, canvasH / 2);
+                ctx.fillText(textStr, 2 * scaleFactor, canvasH / 2);
 
                 const dataUrl = canvas.toDataURL("image/png");
                 const pngBytes = await fetch(dataUrl).then((r) => r.arrayBuffer());
@@ -967,7 +967,7 @@ export default function Home() {
 
               pageObj.drawImage(cachedImg.image, {
                 x: textX,
-                y: textY - 2,
+                y: textY - (fontSizeVal * 0.25),
                 width: cachedImg.width,
                 height: cachedImg.height,
               });
@@ -1008,21 +1008,56 @@ export default function Home() {
           return 0;
         };
 
-        const getSafeStoreWidth = (str, fontObj, fontSz) => {
+        const measureTextWidth = (str, fontObj, fontSz, isBold = false) => {
           if (!str) return 0;
           if (/[^\x00-\x7F]/.test(str)) {
+            if (typeof document !== "undefined") {
+              try {
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+                ctx.font = `${isBold ? "bold" : "normal"} ${Math.round(fontSz * 3.5)}px "Nirmala UI", "Segoe UI", Arial, sans-serif`;
+                return (ctx.measureText(str).width / 3.5) + 4;
+              } catch (e) {}
+            }
             return str.length * fontSz * 0.7;
           }
           try {
             return fontObj.widthOfTextAtSize(str, fontSz);
           } catch (e) {
-            return str.length * fontSz * 0.7;
+            return str.length * fontSz * 0.65;
           }
+        };
+
+        const wrapLinesForWidth = (rawText, maxWidth, fontObj, fontSz) => {
+          if (!rawText) return [];
+          const initialLines = rawText.split("\n");
+          const result = [];
+          for (const rawLine of initialLines) {
+            if (!rawLine.trim()) {
+              result.push("");
+              continue;
+            }
+            const words = rawLine.split(/\s+/);
+            let cur = "";
+            for (const word of words) {
+              const test = cur ? `${cur} ${word}` : word;
+              const testW = measureTextWidth(test, fontObj, fontSz, false);
+              if (testW > maxWidth && cur) {
+                result.push(cur);
+                cur = word;
+              } else {
+                cur = test;
+              }
+            }
+            if (cur) result.push(cur);
+          }
+          return result;
         };
 
         for (let i = 0; i < numPagesToProcess; i++) {
           const page = srcDoc.getPage(i);
           const data = fields[i] || {};
+          const pageWidth = page.getWidth();
 
           let qrContent = qrText || "{orderNo}";
           TAG_PLACEHOLDERS.forEach((tag) => {
@@ -1039,69 +1074,173 @@ export default function Home() {
             qrImageCache.set(qrContent, qrImage);
           }
 
-          let actualQrX = x;
-          let actualTextX = x + size + 10;
-
-          if (isBadgeMode) {
-            const storeWidth = getSafeStoreWidth(cleanStoreName, boldFont, Math.max(9, fSize * 0.9));
-            const boxHeight = Math.max(size + 10, fSize * 2.2 + 14);
-            const textMaxWidthCalc = 120;
-            const boxWidth = 14 + storeWidth + 12 + 1 + 10 + size + 8 + textMaxWidthCalc + 12;
-
-            page.drawRectangle({
-              x: x - 4,
-              y: y - 4,
-              width: boxWidth,
-              height: boxHeight,
-              color: rgb(1, 1, 1),
-              borderColor: rgb(0, 0, 0),
-              borderWidth: 1.5,
-            });
-
-            await drawSafeTextOnPdf(
-              srcDoc,
-              page,
-              cleanStoreName,
-              x + 6,
-              y + boxHeight / 2 - fSize * 0.45,
-              Math.max(9, fSize * 0.9),
-              boldFont,
-              true
-            );
-
-            const divX = x + 6 + storeWidth + 10;
-            page.drawLine({
-              start: { x: divX, y: y - 1 },
-              end: { x: divX, y: y + boxHeight - 7 },
-              thickness: 1.2,
-              color: rgb(0, 0, 0),
-            });
-
-            actualQrX = divX + 10;
-            actualTextX = actualQrX + size + 8;
-          }
-
-          page.drawImage(qrImage, { x: actualQrX, y, width: size, height: size });
-
           let detailFilled = detailText || "";
           TAG_PLACEHOLDERS.forEach((tag) => {
             const key = tag.replace(/[{}]/g, "");
             detailFilled = detailFilled.replace(new RegExp(tag, "g"), data[key] || "");
           });
 
-          if (detailFilled.trim()) {
-            const lines = detailFilled.split("\n");
-            const lineHeight = fSize + 3;
-            const totalTextHeight = (lines.length - 1) * lineHeight + fSize;
-            const qrCenterY = y + size / 2;
-            const startY = qrCenterY + totalTextHeight / 2 - fSize * 0.85;
+          const padX = 8;
+          const padY = 6;
+          const gapQrText = 8;
+          const dividerGap = 6;
+          const storeFontSize = Math.max(8, Math.min(14, fSize * 1.05));
+          const actualQrSize = size;
 
-            for (let li = 0; li < lines.length; li++) {
-              const line = lines[li];
+          if (isBadgeMode) {
+            const storeTextWidth = measureTextWidth(cleanStoreName, boldFont, storeFontSize, true);
+            const prefixWidth = padX + storeTextWidth + dividerGap + 1.2 + dividerGap + actualQrSize + gapQrText;
+            const maxAllowedTextWidth = Math.max(60, pageWidth - x - prefixWidth - padX - 8);
+
+            const wrappedLines = wrapLinesForWidth(detailFilled, maxAllowedTextWidth, font, fSize);
+
+            let maxLineWidth = 0;
+            for (let li = 0; li < wrappedLines.length; li++) {
+              const line = wrappedLines[li];
+              const isHeader = li === 0;
+              const w = measureTextWidth(line, isHeader ? boldFont : font, fSize, isHeader);
+              if (w > maxLineWidth) maxLineWidth = w;
+            }
+            if (maxLineWidth < 30 && wrappedLines.length > 0) maxLineWidth = 30;
+
+            const lineHeight = fSize + 3;
+            const totalTextHeight = wrappedLines.length > 0 ? ((wrappedLines.length - 1) * lineHeight + fSize) : 0;
+            const contentHeight = Math.max(actualQrSize, totalTextHeight, storeFontSize + 4);
+            const boxHeight = contentHeight + padY * 2;
+            const boxWidth = prefixWidth + maxLineWidth + padX;
+
+            const boxX = x;
+            const boxY = y;
+            const centerY = boxY + (boxHeight / 2);
+
+            // 1. Draw Badge Background Card
+            page.drawRectangle({
+              x: boxX,
+              y: boxY,
+              width: boxWidth,
+              height: boxHeight,
+              color: rgb(1, 1, 1),
+              borderColor: rgb(0, 0, 0),
+              borderWidth: 1.2,
+            });
+
+            // 2. Draw Store Name on left
+            const storeX = boxX + padX;
+            const storeY = centerY - (storeFontSize * 0.35);
+            await drawSafeTextOnPdf(
+              srcDoc,
+              page,
+              cleanStoreName,
+              storeX,
+              storeY,
+              storeFontSize,
+              boldFont,
+              true
+            );
+
+            // 3. Draw Vertical Divider
+            const divX = storeX + storeTextWidth + dividerGap;
+            page.drawLine({
+              start: { x: divX, y: boxY + 4 },
+              end: { x: divX, y: boxY + boxHeight - 4 },
+              thickness: 1.0,
+              color: rgb(0, 0, 0),
+            });
+
+            // 4. Draw QR Code
+            const qrXPos = divX + dividerGap;
+            const qrYPos = centerY - (actualQrSize / 2);
+            page.drawImage(qrImage, {
+              x: qrXPos,
+              y: qrYPos,
+              width: actualQrSize,
+              height: actualQrSize,
+            });
+
+            // 5. Draw Text Lines
+            const textXPos = qrXPos + actualQrSize + gapQrText;
+            const textBlockStartY = centerY + (totalTextHeight / 2) - (fSize * 0.75);
+
+            for (let li = 0; li < wrappedLines.length; li++) {
+              const line = wrappedLines[li];
               if (line && line.trim()) {
-                const textY = startY - li * lineHeight;
-                if (textY >= 0) {
-                  await drawSafeTextOnPdf(srcDoc, page, line, actualTextX, textY, fSize, font, false);
+                const curTextY = textBlockStartY - (li * lineHeight);
+                if (curTextY >= boxY) {
+                  await drawSafeTextOnPdf(
+                    srcDoc,
+                    page,
+                    line,
+                    textXPos,
+                    curTextY,
+                    fSize,
+                    li === 0 ? boldFont : font,
+                    li === 0
+                  );
+                }
+              }
+            }
+          } else {
+            // Classic Minimal Mode with Clean White Protective Box
+            const prefixWidth = padX + actualQrSize + gapQrText;
+            const maxAllowedTextWidth = Math.max(60, pageWidth - x - prefixWidth - padX - 8);
+            const wrappedLines = wrapLinesForWidth(detailFilled, maxAllowedTextWidth, font, fSize);
+
+            let maxLineWidth = 0;
+            for (let li = 0; li < wrappedLines.length; li++) {
+              const line = wrappedLines[li];
+              const isHeader = li === 0;
+              const w = measureTextWidth(line, isHeader ? boldFont : font, fSize, isHeader);
+              if (w > maxLineWidth) maxLineWidth = w;
+            }
+            if (maxLineWidth < 30 && wrappedLines.length > 0) maxLineWidth = 30;
+
+            const lineHeight = fSize + 3;
+            const totalTextHeight = wrappedLines.length > 0 ? ((wrappedLines.length - 1) * lineHeight + fSize) : 0;
+            const contentHeight = Math.max(actualQrSize, totalTextHeight);
+            const boxHeight = contentHeight + padY * 2;
+            const boxWidth = prefixWidth + maxLineWidth + padX;
+
+            const boxX = x;
+            const boxY = y;
+            const centerY = boxY + (boxHeight / 2);
+
+            page.drawRectangle({
+              x: boxX,
+              y: boxY,
+              width: boxWidth,
+              height: boxHeight,
+              color: rgb(1, 1, 1),
+              borderColor: rgb(0, 0, 0),
+              borderWidth: 1.0,
+            });
+
+            const qrXPos = boxX + padX;
+            const qrYPos = centerY - (actualQrSize / 2);
+            page.drawImage(qrImage, {
+              x: qrXPos,
+              y: qrYPos,
+              width: actualQrSize,
+              height: actualQrSize,
+            });
+
+            const textXPos = qrXPos + actualQrSize + gapQrText;
+            const textBlockStartY = centerY + (totalTextHeight / 2) - (fSize * 0.75);
+
+            for (let li = 0; li < wrappedLines.length; li++) {
+              const line = wrappedLines[li];
+              if (line && line.trim()) {
+                const curTextY = textBlockStartY - (li * lineHeight);
+                if (curTextY >= boxY) {
+                  await drawSafeTextOnPdf(
+                    srcDoc,
+                    page,
+                    line,
+                    textXPos,
+                    curTextY,
+                    fSize,
+                    li === 0 ? boldFont : font,
+                    li === 0
+                  );
                 }
               }
             }
@@ -1732,7 +1871,7 @@ export default function Home() {
                 {/* DYNAMIC QR STAMP OVERLAY - 1:1 PDF Output Matching */}
                 {enableQr ? (
                   stampStyle === "badge" ? (
-                    /* Ultra-Clean Store Pill Badge Design matching user image */
+                    /* Ultra-Clean Store Pill Badge Design matching PDF Output 1:1 */
                     <div
                       style={{
                         position: "absolute",
@@ -1741,86 +1880,108 @@ export default function Home() {
                         display: "flex",
                         alignItems: "center",
                         gap: 8,
-                        border: "2px solid #000000",
-                        borderRadius: 12,
-                        padding: "5px 10px",
+                        border: "1.5px solid #000000",
+                        borderRadius: 6,
+                        padding: "5px 9px",
                         background: "#ffffff",
-                        boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
+                        boxShadow: "0 4px 14px rgba(0,0,0,0.12)",
                         zIndex: 20,
                         userSelect: "none",
-                        transition: "all 0.1s ease-out",
+                        maxWidth: "calc(100% - 10px)",
                       }}
                     >
                       {/* Left: Store Icon + Store Name */}
-                      <div style={{ display: "flex", alignItems: "center", gap: 5, paddingRight: 4 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 5, paddingRight: 2, flexShrink: 0 }}>
                         <StoreIcon />
-                        <span style={{ fontWeight: 800, fontSize: 10, letterSpacing: 0.5, textTransform: "uppercase", color: "#000000" }}>
+                        <span style={{ fontWeight: 800, fontSize: Math.max(7, simFontSize * 1.05), letterSpacing: "0.03em", textTransform: "uppercase", color: "#000000" }}>
                           {storeName || "VISHAL"}
                         </span>
                       </div>
 
                       {/* Vertical Divider Line */}
-                      <div style={{ width: 1.5, height: 22, background: "#000000", flexShrink: 0 }} />
+                      <div style={{ width: 1.2, height: Math.max(22, simQrSize * 0.85), background: "#000000", flexShrink: 0 }} />
 
-                      {/* Right: QR Code + Text Details */}
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <div
-                          style={{
-                            width: Math.min(32, simQrSize),
-                            height: Math.min(32, simQrSize),
-                            background: "repeating-conic-gradient(#000000 0% 25%, #ffffff 0% 50%) 50% / 4px 4px",
-                            border: "1px solid #000000",
-                            borderRadius: 2,
-                            flexShrink: 0,
-                          }}
-                        />
-                        <div style={{ fontSize: Math.max(6, simFontSize * 0.85), fontWeight: 800, color: "#000000", lineHeight: 1.15 }}>
-                          <div>Follow our page</div>
-                          <div style={{ fontSize: 5, fontWeight: 600, color: "#444444" }}>{previewLines[0] || ""}</div>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    /* Classic Minimal Mode */
-                    <>
+                      {/* QR Code */}
                       <div
                         style={{
-                          position: "absolute",
-                          left: simQrX,
-                          top: simQrY,
-                          width: simQrSize,
-                          height: simQrSize,
-                          background: "repeating-conic-gradient(#EA580C 0% 25%, #FFF7ED 0% 50%) 50% / 6px 6px",
-                          border: "1px solid #EA580C",
-                          borderRadius: 1,
-                          boxSizing: "border-box",
-                          zIndex: 20,
+                          width: Math.min(36, simQrSize),
+                          height: Math.min(36, simQrSize),
+                          background: "repeating-conic-gradient(#000000 0% 25%, #ffffff 0% 50%) 50% / 4px 4px",
+                          border: "1px solid #000000",
+                          borderRadius: 2,
+                          flexShrink: 0,
                         }}
                       />
-                      <div
-                        style={{
-                          position: "absolute",
-                          left: simTextX,
-                          top: simTextTop,
-                          width: simTextMaxWidth,
-                          fontSize: simFontSize,
-                          lineHeight: `${simLineHeight}px`,
-                          fontFamily: "'Times New Roman', Times, 'Nirmala UI', serif",
-                          fontStyle: "italic",
-                          color: "#C2410C",
-                          fontWeight: 700,
-                          whiteSpace: "pre-wrap",
-                          wordBreak: "break-word",
-                          zIndex: 20,
-                        }}
-                      >
-                        {previewLines.map((line, i) => (
-                          <div key={i} style={{ height: `${simLineHeight}px`, overflow: "hidden" }}>
+
+                      {/* Right: Dynamic Text Lines */}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 1, minWidth: 0 }}>
+                        {previewLines.slice(0, 4).map((line, idx) => (
+                          <div
+                            key={idx}
+                            style={{
+                              fontSize: idx === 0 ? Math.max(6, simFontSize) : Math.max(5.5, simFontSize * 0.9),
+                              fontWeight: idx === 0 ? 800 : 500,
+                              color: idx === 0 ? "#000000" : "#222222",
+                              lineHeight: 1.2,
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
                             {line}
                           </div>
                         ))}
                       </div>
-                    </>
+                    </div>
+                  ) : (
+                    /* Classic Minimal Mode matching PDF Output 1:1 */
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: simQrX,
+                        top: simQrY,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 7,
+                        border: "1px solid #000000",
+                        borderRadius: 4,
+                        padding: "4px 8px",
+                        background: "#ffffff",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                        zIndex: 20,
+                        userSelect: "none",
+                        maxWidth: "calc(100% - 10px)",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: Math.min(36, simQrSize),
+                          height: Math.min(36, simQrSize),
+                          background: "repeating-conic-gradient(#000000 0% 25%, #ffffff 0% 50%) 50% / 4px 4px",
+                          border: "1px solid #000000",
+                          borderRadius: 2,
+                          flexShrink: 0,
+                        }}
+                      />
+                      <div style={{ display: "flex", flexDirection: "column", gap: 1, minWidth: 0 }}>
+                        {previewLines.slice(0, 4).map((line, idx) => (
+                          <div
+                            key={idx}
+                            style={{
+                              fontSize: idx === 0 ? Math.max(6, simFontSize) : Math.max(5.5, simFontSize * 0.9),
+                              fontWeight: idx === 0 ? 800 : 500,
+                              color: idx === 0 ? "#000000" : "#333333",
+                              lineHeight: 1.2,
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {line}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   )
                 ) : (
                   <div
