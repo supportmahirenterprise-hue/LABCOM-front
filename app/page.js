@@ -413,6 +413,7 @@ export default function Home() {
   }, [status, router]);
 
   const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
   const [pdfPage1DataUrl, setPdfPage1DataUrl] = useState(null);
   const [pages, setPages] = useState([]);
   const [loadingPreview, setLoadingPreview] = useState(false);
@@ -839,8 +840,13 @@ export default function Home() {
     }
   }
 
-  async function extractFieldsClientSide(fileObj) {
-    if (!fileObj || typeof window === "undefined") return [];
+  async function extractFieldsClientSide(fileObjOrList) {
+    if (!fileObjOrList || typeof window === "undefined") return [];
+    const fileList = Array.isArray(fileObjOrList)
+      ? fileObjOrList
+      : (fileObjOrList instanceof FileList ? Array.from(fileObjOrList) : [fileObjOrList]);
+    if (fileList.length === 0) return [];
+
     try {
       if (!window.pdfjsLib) {
         await new Promise((resolve, reject) => {
@@ -864,46 +870,53 @@ export default function Home() {
         }
       }
 
-      const arrayBuffer = await fileObj.arrayBuffer();
-      const loadingTask = window.pdfjsLib.getDocument({
-        data: new Uint8Array(arrayBuffer),
-        cMapUrl: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/",
-        cMapPacked: true,
-      });
-      const pdfDoc = await loadingTask.promise;
-      const numPages = pdfDoc.numPages;
       const extractedPages = [];
+      let globalPageNum = 1;
 
-      for (let i = 1; i <= numPages; i++) {
-        const page = await pdfDoc.getPage(i);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items.map((item) => item.str).join(" ");
-
-        const orderMatch = pageText.match(/(?:Order|Sub\s*Order|Order\s*ID|Order\s*No)[^\d]*(\d{10,20}(?:_\d+)?)/i) || pageText.match(/\b(\d{14,19}(?:_\d+)?)\b/);
-        const orderNo = orderMatch ? orderMatch[1] : `ORDER-${i}`;
-
-        const skuMatch = pageText.match(/SKU[:\s]+([^\s\n,]+)/i) || pageText.match(/(?:SKU|Product|Item)[:\s]+([A-Za-z0-9_\-]+)/i);
-        const sku = skuMatch ? skuMatch[1] : "LABEL-ITEM";
-
-        const dateMatch = pageText.match(/(\d{2}[.\/]\d{2}[.\/]\d{4})/);
-        const orderDate = dateMatch ? dateMatch[1] : "";
-
-        const qtyMatch = pageText.match(/(?:Qty|Quantity)[:\s]+(\d+)/i);
-        const qty = qtyMatch ? qtyMatch[1] : "1";
-
-        const stateMatch = pageText.match(/(?:Gujarat|Rajasthan|Maharashtra|Delhi|Uttar Pradesh|Punjab|Haryana|Karnataka|Tamil Nadu|West Bengal|Bihar|Assam|Kerala|Madhya Pradesh|Odisha|Telangana|Andhra Pradesh)/i);
-        const state = stateMatch ? stateMatch[0] : "";
-
-        extractedPages.push({
-          page: i,
-          orderNo,
-          orderDate,
-          sku,
-          qty,
-          state,
-          customerName: `Customer Page #${i}`,
-          invoiceNo: `INV-${100000 + i}`,
+      for (const fileObj of fileList) {
+        const arrayBuffer = await fileObj.arrayBuffer();
+        const loadingTask = window.pdfjsLib.getDocument({
+          data: new Uint8Array(arrayBuffer),
+          cMapUrl: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/",
+          cMapPacked: true,
         });
+        const pdfDoc = await loadingTask.promise;
+        const numPages = pdfDoc.numPages;
+
+        for (let i = 1; i <= numPages; i++) {
+          const page = await pdfDoc.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items.map((item) => item.str).join(" ");
+
+          const orderMatch = pageText.match(/(?:Order|Sub\s*Order|Order\s*ID|Order\s*No)[^\d]*(\d{10,20}(?:_\d+)?)/i) || pageText.match(/\b(\d{14,19}(?:_\d+)?)\b/);
+          const orderNo = orderMatch ? orderMatch[1] : `ORDER-${globalPageNum}`;
+
+          const skuMatch = pageText.match(/SKU[:\s]+([^\s\n,]+)/i) || pageText.match(/(?:SKU|Product|Item)[:\s]+([A-Za-z0-9_\-]+)/i);
+          const sku = skuMatch ? skuMatch[1] : "LABEL-ITEM";
+
+          const dateMatch = pageText.match(/(\d{2}[.\/]\d{2}[.\/]\d{4})/);
+          const orderDate = dateMatch ? dateMatch[1] : "";
+
+          const qtyMatch = pageText.match(/(?:Qty|Quantity)[:\s]+(\d+)/i);
+          const qty = qtyMatch ? qtyMatch[1] : "1";
+
+          const stateMatch = pageText.match(/(?:Gujarat|Rajasthan|Maharashtra|Delhi|Uttar Pradesh|Punjab|Haryana|Karnataka|Tamil Nadu|West Bengal|Bihar|Assam|Kerala|Madhya Pradesh|Odisha|Telangana|Andhra Pradesh)/i);
+          const state = stateMatch ? stateMatch[0] : "";
+
+          extractedPages.push({
+            page: globalPageNum,
+            filePageIndex: i,
+            sourceFile: fileObj.name,
+            orderNo,
+            orderDate,
+            sku,
+            qty,
+            state,
+            customerName: `Customer Page #${globalPageNum}`,
+            invoiceNo: `INV-${100000 + globalPageNum}`,
+          });
+          globalPageNum++;
+        }
       }
 
       return extractedPages;
@@ -913,10 +926,16 @@ export default function Home() {
     }
   }
 
-  async function handleFileSelect(f, nativeOverride) {
-    if (!f || isBusy) return;
+  async function handleFileSelect(fileInputOrList, nativeOverride) {
+    if (!fileInputOrList || isBusy) return;
+    const fileList = Array.isArray(fileInputOrList)
+      ? fileInputOrList
+      : (fileInputOrList instanceof FileList ? Array.from(fileInputOrList) : [fileInputOrList]);
+    if (fileList.length === 0) return;
+
     const isNative = nativeOverride !== undefined ? nativeOverride : useNativeScript;
-    setFile(f);
+    setFiles(fileList);
+    setFile(fileList[0]);
     setPages([]);
     setPdfPage1DataUrl(null);
     setError("");
@@ -924,83 +943,89 @@ export default function Home() {
     setLoadingPreview(true);
     setUploadProgress(20);
 
-    // Asynchronously render Page 1 image of uploaded PDF for Crop Modal preview
-    renderPdfPage1ToDataUrl(f).then((dataUrl) => {
+    // Asynchronously render Page 1 image of uploaded PDF for Crop / Live Stamp preview
+    renderPdfPage1ToDataUrl(fileList[0]).then((dataUrl) => {
       if (dataUrl) setPdfPage1DataUrl(dataUrl);
     });
 
     // Instant Client-Side Field Extraction in Browser Memory (0ms - 200ms)
-    extractFieldsClientSide(f).then((clientPages) => {
+    extractFieldsClientSide(fileList).then((clientPages) => {
       if (clientPages && clientPages.length > 0) {
         setPages(clientPages);
         setUploadProgress(100);
         setLoadingPreview(false);
       }
     });
-    try {
-      let totalPagesInPdf = 1;
-      try {
-        const fileBuffer = await f.arrayBuffer();
-        const loadedPdf = await PDFDocument.load(fileBuffer, { ignoreEncryption: true });
-        totalPagesInPdf = loadedPdf.getPageCount();
-      } catch (e) {
-        console.warn("Could not read page count client-side:", e);
-      }
 
-      const CHUNK_SIZE = 150;
+    try {
       let allExtractedPages = [];
       let allReturnWarnings = [];
       let allDuplicateOrderWarnings = [];
+      let currentGlobalPageOffset = 0;
 
-      if (totalPagesInPdf <= CHUNK_SIZE) {
-        const fd = new FormData();
-        fd.append("pdf", f);
-        fd.append("useNativeScript", isNative ? "true" : "false");
-        const res = await fetch(`${BACKEND_URL}/api/preview`, {
-          method: "POST",
-          headers: { "x-user-email": session?.user?.email || "" },
-          body: fd,
-        });
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || "Failed to read PDF preview");
+      for (let fIdx = 0; fIdx < fileList.length; fIdx++) {
+        const curFile = fileList[fIdx];
+        let totalPagesInPdf = 1;
+        try {
+          const fileBuffer = await curFile.arrayBuffer();
+          const loadedPdf = await PDFDocument.load(fileBuffer, { ignoreEncryption: true });
+          totalPagesInPdf = loadedPdf.getPageCount();
+        } catch (e) {
+          console.warn("Could not read page count client-side:", e);
         }
-        const data = await res.json();
-        allExtractedPages = data.pages || [];
-        allReturnWarnings = data.returnWarnings || [];
-        allDuplicateOrderWarnings = data.duplicateOrderWarnings || [];
-        setUploadProgress(100);
-      } else {
-        const totalChunks = Math.ceil(totalPagesInPdf / CHUNK_SIZE);
-        showToast(`Large PDF detected (${totalPagesInPdf} pages). Processing in ${totalChunks} fast chunks...`, "info");
 
-        for (let c = 0; c < totalChunks; c++) {
-          const startP = c * CHUNK_SIZE + 1;
-          const endP = Math.min(totalPagesInPdf, (c + 1) * CHUNK_SIZE);
-          showToast(`Reading pages ${startP}-${endP} of ${totalPagesInPdf}...`, "info");
-
+        const CHUNK_SIZE = 150;
+        if (totalPagesInPdf <= CHUNK_SIZE) {
           const fd = new FormData();
-          fd.append("pdf", f);
+          fd.append("pdf", curFile);
           fd.append("useNativeScript", isNative ? "true" : "false");
-          fd.append("startPage", String(startP));
-          fd.append("endPage", String(endP));
-
           const res = await fetch(`${BACKEND_URL}/api/preview`, {
             method: "POST",
             headers: { "x-user-email": session?.user?.email || "" },
             body: fd,
           });
-
-          if (!res.ok) {
-            const data = await res.json().catch(() => ({}));
-            throw new Error(data.error || `Failed to read PDF preview chunk ${c + 1}`);
+          if (res.ok) {
+            const data = await res.json();
+            const reindexedPages = (data.pages || []).map((p, idx) => ({
+              ...p,
+              page: currentGlobalPageOffset + (p.page || idx + 1),
+              sourceFile: curFile.name,
+            }));
+            allExtractedPages = [...allExtractedPages, ...reindexedPages];
+            allReturnWarnings = [...allReturnWarnings, ...(data.returnWarnings || [])];
+            allDuplicateOrderWarnings = [...allDuplicateOrderWarnings, ...(data.duplicateOrderWarnings || [])];
           }
-          const data = await res.json();
-          allExtractedPages = [...allExtractedPages, ...(data.pages || [])];
-          allReturnWarnings = [...allReturnWarnings, ...(data.returnWarnings || [])];
-          allDuplicateOrderWarnings = [...allDuplicateOrderWarnings, ...(data.duplicateOrderWarnings || [])];
-          setUploadProgress(Math.round(((c + 1) / totalChunks) * 100));
+        } else {
+          const totalChunks = Math.ceil(totalPagesInPdf / CHUNK_SIZE);
+          for (let c = 0; c < totalChunks; c++) {
+            const startP = c * CHUNK_SIZE + 1;
+            const endP = Math.min(totalPagesInPdf, (c + 1) * CHUNK_SIZE);
+            const fd = new FormData();
+            fd.append("pdf", curFile);
+            fd.append("useNativeScript", isNative ? "true" : "false");
+            fd.append("startPage", String(startP));
+            fd.append("endPage", String(endP));
+
+            const res = await fetch(`${BACKEND_URL}/api/preview`, {
+              method: "POST",
+              headers: { "x-user-email": session?.user?.email || "" },
+              body: fd,
+            });
+            if (res.ok) {
+              const data = await res.json();
+              const reindexedPages = (data.pages || []).map((p, idx) => ({
+                ...p,
+                page: currentGlobalPageOffset + (p.page || idx + 1),
+                sourceFile: curFile.name,
+              }));
+              allExtractedPages = [...allExtractedPages, ...reindexedPages];
+              allReturnWarnings = [...allReturnWarnings, ...(data.returnWarnings || [])];
+              allDuplicateOrderWarnings = [...allDuplicateOrderWarnings, ...(data.duplicateOrderWarnings || [])];
+            }
+          }
         }
+        currentGlobalPageOffset += totalPagesInPdf;
+        setUploadProgress(Math.round(((fIdx + 1) / fileList.length) * 100));
       }
 
       if (allExtractedPages && allExtractedPages.length > 0) {
@@ -1030,8 +1055,9 @@ export default function Home() {
 
   function handleNativeScriptToggle(val) {
     setUseNativeScript(val);
-    if (file) {
-      handleFileSelect(file, val);
+    const targetFiles = files && files.length > 0 ? files : (file ? [file] : []);
+    if (targetFiles.length > 0) {
+      handleFileSelect(targetFiles, val);
     } else {
       setPages((prev) => {
         const targetList = prev && prev.length ? prev : MOCK_PAGES;
@@ -1064,22 +1090,14 @@ export default function Home() {
     }
   }
 
-/*
-  function applyPreset(p) {
-    setQrX(p.x);
-    setQrY(p.y);
-    setQrSize(p.size);
-    setFontSize(p.font);
-  }
-*/
-
   async function handleGenerate(options = {}) {
     if (isBusy) return;
     const isSample = Boolean(options.sampleOnly);
-    if (!file) {
+    const targetFiles = files && files.length > 0 ? files : (file ? [file] : []);
+    if (targetFiles.length === 0) {
       const msg = isSample
         ? "Please upload a PDF file first to download a test sample."
-        : "Please upload a PDF file first to generate labels.";
+        : "Please upload PDF file(s) first to generate labels.";
       showToast(msg, "error");
       setError(msg);
       if (fileInputRef.current) {
@@ -1096,9 +1114,21 @@ export default function Home() {
     }
 
     try {
-      showToast("Generating labels in browser (0ms instant speed)...", "info");
-      const fileBuffer = await file.arrayBuffer();
-      const srcDoc = await PDFDocument.load(fileBuffer, { ignoreEncryption: true });
+      showToast(
+        targetFiles.length > 1
+          ? `Merging & generating ${targetFiles.length} PDF files in browser...`
+          : "Generating labels in browser (0ms instant speed)...",
+        "info"
+      );
+
+      // Merge all input PDF files into a single in-memory source document
+      const srcDoc = await PDFDocument.create();
+      for (const f of targetFiles) {
+        const fileBuffer = await f.arrayBuffer();
+        const subDoc = await PDFDocument.load(fileBuffer, { ignoreEncryption: true });
+        const copiedSubPages = await srcDoc.copyPages(subDoc, subDoc.getPageIndices());
+        copiedSubPages.forEach((p) => srcDoc.addPage(p));
+      }
       const totalPdfPages = srcDoc.getPageCount();
 
       const numPagesToProcess = isSample ? 1 : totalPdfPages;
@@ -1396,8 +1426,9 @@ export default function Home() {
       a.href = url;
       const today = new Date();
       const dateStr = `${String(today.getDate()).padStart(2, "0")}.${String(today.getMonth() + 1).padStart(2, "0")}.${today.getFullYear()}`;
-      const pageCount = isSample ? 1 : (pages?.length || totalPagesInPdf || 1);
-      const stampedFileName = isSample ? `1_${dateStr}_sample_test_page_1.pdf` : `${pageCount}_${dateStr}_stamped.pdf`;
+      const pageCount = isSample ? 1 : (pages?.length || totalPdfPages || 1);
+      const mainBaseName = targetFiles.length > 1 ? `${targetFiles.length}_files_batch` : targetFiles[0].name.replace(/\.pdf$/i, "");
+      const stampedFileName = isSample ? `1_${dateStr}_sample_test_page_1.pdf` : `${pageCount}_${dateStr}_${mainBaseName}_stamped.pdf`;
       a.download = stampedFileName;
       document.body.appendChild(a);
       a.click();
@@ -1406,13 +1437,14 @@ export default function Home() {
 
       // Async Background Server Sync (Zero delay on download speed)
       const userEmail = session?.user?.email || "";
+      const historyFileName = targetFiles.length > 1 ? `${targetFiles.length} PDFs (${targetFiles.map(f => f.name).join(", ")})` : targetFiles[0].name;
       fetch(`${BACKEND_URL}/api/history`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-user-email": userEmail },
-        body: JSON.stringify({ email: userEmail, fileName: file.name, pageCount: isSample ? 1 : pages.length, isSample, sortBy, sortOrder, enableQr, qrText, pages: isSample ? [] : pages }),
+        body: JSON.stringify({ email: userEmail, fileName: historyFileName, pageCount: isSample ? 1 : pages.length, isSample, sortBy, sortOrder, enableQr, qrText, pages: isSample ? [] : pages }),
       }).catch((e) => console.error("Async history save error:", e));
 
-      // Bug Fix 3: Auto-download summary PDF if downloadSummary is enabled
+      // Auto-download summary PDF if downloadSummary is enabled
       if (!isSample && downloadSummary && pages && pages.length > 0) {
         try {
           const today2 = new Date();
@@ -1420,7 +1452,7 @@ export default function Home() {
           const summaryRes = await fetch(`${BACKEND_URL}/api/generate-summary`, {
             method: "POST",
             headers: { "Content-Type": "application/json", "x-user-email": userEmail },
-            body: JSON.stringify({ pages, fileName: file.name }),
+            body: JSON.stringify({ pages, fileName: historyFileName }),
           });
           if (summaryRes.ok) {
             const summaryBlob = await summaryRes.blob();
@@ -1440,14 +1472,14 @@ export default function Home() {
         }
       }
 
-      // Bug Fix 2: Send final PDF to WhatsApp via /api/whatsapp/dispatch-final
+      // Send final PDF to WhatsApp via /api/whatsapp/dispatch-final
       if (!isSample) {
         (async () => {
           try {
             const waFormData = new FormData();
             waFormData.append("pdf", finalPdfBlob, stampedFileName);
             waFormData.append("pages", JSON.stringify(pages));
-            waFormData.append("fileName", file.name);
+            waFormData.append("fileName", historyFileName);
             const waRes = await fetch(`${BACKEND_URL}/api/whatsapp/dispatch-final`, {
               method: "POST",
               headers: { "x-user-email": userEmail },
@@ -1713,17 +1745,22 @@ export default function Home() {
                 type="file"
                 ref={fileInputRef}
                 accept="application/pdf"
+                multiple
                 style={{ display: "none" }}
-                onChange={(e) => handleFileSelect(e.target.files?.[0])}
+                onChange={(e) => {
+                  if (e.target.files && e.target.files.length > 0) {
+                    handleFileSelect(e.target.files);
+                  }
+                }}
               />
 
               <div
-                className={`dropzone ${file ? "active" : ""}`}
+                className={`dropzone ${files.length > 0 || file ? "active" : ""}`}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => {
                   e.preventDefault();
-                  if (e.dataTransfer?.files?.[0]) {
-                    handleFileSelect(e.dataTransfer.files[0]);
+                  if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
+                    handleFileSelect(e.dataTransfer.files);
                   }
                 }}
                 style={{
@@ -1733,7 +1770,7 @@ export default function Home() {
                   alignItems: "center",
                   justifyContent: "center",
                   borderRadius: "16px",
-                  padding: "28px 16px",
+                  padding: "24px 16px",
                   cursor: "pointer",
                 }}
                 onClick={() => fileInputRef.current?.click()}
@@ -1741,7 +1778,26 @@ export default function Home() {
                 <div style={{ color: "#4F46E5", marginBottom: 12 }}>
                   <FilePdfIcon />
                 </div>
-                {file ? (
+                {files.length > 1 ? (
+                  <div style={{ textAlign: "center", width: "100%", maxWidth: "92%" }}>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(79, 70, 229, 0.1)", color: "#4F46E5", padding: "4px 14px", borderRadius: 20, fontWeight: 700, fontSize: "0.9rem", marginBottom: 10 }}>
+                      <span>📦 {files.length} PDF Files Selected</span>
+                    </div>
+                    <div style={{ maxHeight: "88px", overflowY: "auto", margin: "6px 0", display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center" }}>
+                      {files.map((f, idx) => (
+                        <span key={idx} style={{ fontSize: "0.74rem", background: "rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.1)", padding: "3px 8px", borderRadius: 6, color: "var(--text-pure)", maxWidth: 190, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          📄 {f.name}
+                        </span>
+                      ))}
+                    </div>
+                    <p style={{ fontSize: "0.84rem", color: "#16A34A", marginTop: 8, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                      {pages.length > 0 ? <><CheckIcon /> Total {pages.length} Pages Extracted & Ready</> : "Extracting pages..."}
+                    </p>
+                    <p style={{ fontSize: "0.74rem", color: "var(--text-dim)", marginTop: 4 }}>
+                      Click to choose different PDFs or replace
+                    </p>
+                  </div>
+                ) : file ? (
                   <div style={{ textAlign: "center", wordBreak: "break-all" }}>
                     <p style={{ fontWeight: 600, color: "#4F46E5", fontSize: "0.95rem" }}>
                       {file.name}
@@ -1753,18 +1809,18 @@ export default function Home() {
                 ) : (
                   <div style={{ textAlign: "center" }}>
                     <p style={{ fontWeight: 600, color: "var(--text-pure)", fontSize: "0.95rem" }}>
-                      Drop PDF shipping label here or <span style={{ color: "#4F46E5" }}>Browse</span>
+                      Drop multiple PDF shipping labels here or <span style={{ color: "#4F46E5" }}>Browse</span>
                     </p>
                     <p style={{ fontSize: "0.78rem", color: "var(--text-dim)", marginTop: 6 }}>
-                      Supports Meesho, Xpressbees, and Delhivery label sheets
+                      Select multiple PDFs at once (Meesho, Xpressbees, Delhivery)
                     </p>
                   </div>
                 )}
 
                 {loadingPreview && (
-                  <div style={{ marginTop: 24, width: "100%", maxWidth: "340px", margin: "24px auto 0" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: "0.85rem", color: "var(--aurora-1)", fontWeight: 600 }}>
-                      <span>Extracting label fields & metadata (Instant Browser Memory)...</span>
+                  <div style={{ marginTop: 20, width: "100%", maxWidth: "340px", margin: "20px auto 0" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: "0.82rem", color: "var(--aurora-1)", fontWeight: 600 }}>
+                      <span>Extracting label fields across all PDFs...</span>
                       <span>{uploadProgress}%</span>
                     </div>
                     <div style={{ width: "100%", height: 6, background: "rgba(255,255,255,0.08)", borderRadius: 10, overflow: "hidden" }}>
@@ -1779,17 +1835,19 @@ export default function Home() {
               <span style={{ fontSize: "0.75rem", color: "var(--text-dim)" }}>
                 Auto-regex parses Order ID, SKU, Date & Quantity
               </span>
-              {file && (
+              {(file || files.length > 0) && (
                 <button
                   className="btn-secondary"
                   onClick={(e) => {
                     e.stopPropagation();
                     setFile(null);
+                    setFiles([]);
                     setPages([]);
+                    setPdfPage1DataUrl(null);
                   }}
                   style={{ padding: "4px 12px", fontSize: "0.75rem" }}
                 >
-                  Clear
+                  Clear All
                 </button>
               )}
             </div>
