@@ -292,6 +292,10 @@ export default function Home() {
   const [qrSize, setQrSize] = useState(DEFAULT_STAMP_SETTINGS.qrSize);
   const [fontSize, setFontSize] = useState(DEFAULT_STAMP_SETTINGS.fontSize);
 
+  // Stamp Design Style Config (Badge vs Classic)
+  const [stampStyle, setStampStyle] = useState("badge"); // "badge", "classic"
+  const [storeName, setStoreName] = useState("VISHAL");
+
   // PDF Crop Config
   const [cropMode, setCropMode] = useState("none"); // "none", "top50", "bottom50", "custom"
   const [cropTop, setCropTop] = useState(0);
@@ -715,6 +719,8 @@ export default function Home() {
         fd.append("cropBottom", String(cropBottom));
         fd.append("cropLeft", String(cropLeft));
         fd.append("cropRight", String(cropRight));
+        fd.append("stampStyle", stampStyle);
+        fd.append("storeName", storeName);
         const modifiedPages = pages.filter((p) => p && p._modified);
         fd.append("overrides", JSON.stringify(modifiedPages));
         fd.append("sampleOnly", String(isSample));
@@ -762,6 +768,8 @@ export default function Home() {
           fd.append("cropBottom", String(cropBottom));
           fd.append("cropLeft", String(cropLeft));
           fd.append("cropRight", String(cropRight));
+          fd.append("stampStyle", stampStyle);
+          fd.append("storeName", storeName);
           fd.append("overrides", JSON.stringify(modifiedPages));
           fd.append("sampleOnly", "false");
           fd.append("startPage", String(startP));
@@ -1367,66 +1375,97 @@ export default function Home() {
 
                 {/* DYNAMIC QR STAMP OVERLAY - 1:1 PDF Output Matching */}
                 {enableQr ? (
-                  <>
-                    {/* Outer Stamp Zone Boundary Indicator */}
-                    <div
-                      style={{
-                        position: "absolute",
-                        left: Math.max(0, simQrX - 3),
-                        top: Math.max(0, Math.min(simQrY, simTextTop) - 3),
-                        width: Math.min(canvasW - simQrX, simQrSize + 8 + simTextMaxWidth + 6),
-                        height: Math.max(simQrSize + 6, (previewLines.length * simLineHeight) + 6),
-                        background: "rgba(249, 115, 22, 0.08)",
-                        border: "1.5px dashed #F97316",
-                        borderRadius: 3,
-                        pointerEvents: "none",
-                        zIndex: 19,
-                      }}
-                    />
-
-                    {/* QR Code Graphic */}
+                  stampStyle === "badge" ? (
+                    /* Ultra-Clean Store Pill Badge Design matching user image */
                     <div
                       style={{
                         position: "absolute",
                         left: simQrX,
                         top: simQrY,
-                        width: simQrSize,
-                        height: simQrSize,
-                        background: "repeating-conic-gradient(#EA580C 0% 25%, #FFF7ED 0% 50%) 50% / 6px 6px",
-                        border: "1px solid #EA580C",
-                        borderRadius: 1,
-                        boxSizing: "border-box",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        border: "2px solid #000000",
+                        borderRadius: 12,
+                        padding: "5px 10px",
+                        background: "#ffffff",
+                        boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
                         zIndex: 20,
-                        transition: "all 0.1s ease-out",
-                      }}
-                    />
-
-                    {/* Text Details next to QR - Centered vertically relative to QR code */}
-                    <div
-                      style={{
-                        position: "absolute",
-                        left: simTextX,
-                        top: simTextTop,
-                        width: simTextMaxWidth,
-                        fontSize: simFontSize,
-                        lineHeight: `${simLineHeight}px`,
-                        fontFamily: "'Times New Roman', Times, 'Nirmala UI', serif",
-                        fontStyle: "italic",
-                        color: "#C2410C",
-                        fontWeight: 700,
-                        whiteSpace: "pre-wrap",
-                        wordBreak: "break-word",
-                        zIndex: 20,
+                        userSelect: "none",
                         transition: "all 0.1s ease-out",
                       }}
                     >
-                      {previewLines.map((line, i) => (
-                        <div key={i} style={{ height: `${simLineHeight}px`, overflow: "hidden" }}>
-                          {line}
+                      {/* Left: Store Icon + Store Name */}
+                      <div style={{ display: "flex", alignItems: "center", gap: 5, paddingRight: 4 }}>
+                        <StoreIcon />
+                        <span style={{ fontWeight: 800, fontSize: 10, letterSpacing: 0.5, textTransform: "uppercase", color: "#000000" }}>
+                          {storeName || "VISHAL"}
+                        </span>
+                      </div>
+
+                      {/* Vertical Divider Line */}
+                      <div style={{ width: 1.5, height: 22, background: "#000000", flexShrink: 0 }} />
+
+                      {/* Right: QR Code + Text Details */}
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <div
+                          style={{
+                            width: Math.min(32, simQrSize),
+                            height: Math.min(32, simQrSize),
+                            background: "repeating-conic-gradient(#000000 0% 25%, #ffffff 0% 50%) 50% / 4px 4px",
+                            border: "1px solid #000000",
+                            borderRadius: 2,
+                            flexShrink: 0,
+                          }}
+                        />
+                        <div style={{ fontSize: Math.max(6, simFontSize * 0.85), fontWeight: 800, color: "#000000", lineHeight: 1.15 }}>
+                          <div>Follow our page</div>
+                          <div style={{ fontSize: 5, fontWeight: 600, color: "#444444" }}>{previewLines[0] || ""}</div>
                         </div>
-                      ))}
+                      </div>
                     </div>
-                  </>
+                  ) : (
+                    /* Classic Minimal Mode */
+                    <>
+                      <div
+                        style={{
+                          position: "absolute",
+                          left: simQrX,
+                          top: simQrY,
+                          width: simQrSize,
+                          height: simQrSize,
+                          background: "repeating-conic-gradient(#EA580C 0% 25%, #FFF7ED 0% 50%) 50% / 6px 6px",
+                          border: "1px solid #EA580C",
+                          borderRadius: 1,
+                          boxSizing: "border-box",
+                          zIndex: 20,
+                        }}
+                      />
+                      <div
+                        style={{
+                          position: "absolute",
+                          left: simTextX,
+                          top: simTextTop,
+                          width: simTextMaxWidth,
+                          fontSize: simFontSize,
+                          lineHeight: `${simLineHeight}px`,
+                          fontFamily: "'Times New Roman', Times, 'Nirmala UI', serif",
+                          fontStyle: "italic",
+                          color: "#C2410C",
+                          fontWeight: 700,
+                          whiteSpace: "pre-wrap",
+                          wordBreak: "break-word",
+                          zIndex: 20,
+                        }}
+                      >
+                        {previewLines.map((line, i) => (
+                          <div key={i} style={{ height: `${simLineHeight}px`, overflow: "hidden" }}>
+                            {line}
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )
                 ) : (
                   <div
                     style={{
@@ -1723,6 +1762,66 @@ export default function Home() {
           </div>
 
           <div style={{ opacity: enableQr ? 1 : 0.4, pointerEvents: enableQr ? "auto" : "none", transition: "all 0.2s ease" }}>
+
+          {/* Stamp Design Style Selector */}
+          <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--glass-border)", borderRadius: "14px", padding: "18px 20px", marginBottom: 20 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
+              <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-silver)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                Select Stamp Design Layout
+              </span>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  type="button"
+                  onClick={() => setStampStyle("badge")}
+                  style={{
+                    padding: "6px 14px",
+                    borderRadius: "var(--radius-md)",
+                    border: `1px solid ${stampStyle === "badge" ? "#6366f1" : "var(--glass-border)"}`,
+                    background: stampStyle === "badge" ? "rgba(99, 102, 241, 0.2)" : "rgba(255, 255, 255, 0.04)",
+                    color: stampStyle === "badge" ? "#ffffff" : "var(--text-silver)",
+                    fontWeight: stampStyle === "badge" ? 700 : 500,
+                    fontSize: "0.8rem",
+                    cursor: "pointer",
+                  }}
+                >
+                  🏷️ Modern Store Pill Badge
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setStampStyle("classic")}
+                  style={{
+                    padding: "6px 14px",
+                    borderRadius: "var(--radius-md)",
+                    border: `1px solid ${stampStyle === "classic" ? "#6366f1" : "var(--glass-border)"}`,
+                    background: stampStyle === "classic" ? "rgba(99, 102, 241, 0.2)" : "rgba(255, 255, 255, 0.04)",
+                    color: stampStyle === "classic" ? "#ffffff" : "var(--text-silver)",
+                    fontWeight: stampStyle === "classic" ? 700 : 500,
+                    fontSize: "0.8rem",
+                    cursor: "pointer",
+                  }}
+                >
+                  📄 Classic Minimal Stamp
+                </button>
+              </div>
+            </div>
+
+            {stampStyle === "badge" && (
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 12 }}>
+                <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", minWidth: 120 }}>
+                  Store / Brand Name:
+                </label>
+                <input
+                  type="text"
+                  className="input-field"
+                  value={storeName}
+                  onChange={(e) => setStoreName(e.target.value)}
+                  placeholder="e.g. VISHAL STORE"
+                  style={{ maxWidth: 300, padding: "8px 12px", fontSize: "0.85rem", fontWeight: 700, letterSpacing: "0.03em" }}
+                />
+              </div>
+            )}
+          </div>
 
           {/* Preset Bar */}
           <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--glass-border)", borderRadius: "14px", padding: "18px 20px", marginBottom: 24 }}>
