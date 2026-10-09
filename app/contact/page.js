@@ -16,6 +16,8 @@ export default function ContactUsPage() {
 
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [referenceId, setReferenceId] = useState("");
+  const [submitError, setSubmitError] = useState("");
 
   const FAQS = [
     {
@@ -36,13 +38,29 @@ export default function ContactUsPage() {
     },
   ];
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     setSubmitting(true);
-    setTimeout(() => {
+    setSubmitError("");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setReferenceId(data.referenceId || "LP-" + Math.floor(100000 + Math.random() * 900000));
+        setSubmitted(true);
+      } else {
+        setSubmitError(data.error || "Failed to submit inquiry. Please try again or contact via WhatsApp.");
+      }
+    } catch (err) {
+      console.error("Contact form error:", err);
+      setSubmitError("Failed to connect to server. Please reach out directly on WhatsApp (+91 96647 20473).");
+    } finally {
       setSubmitting(false);
-      setSubmitted(true);
-    }, 800);
+    }
   }
 
   return (
@@ -80,28 +98,61 @@ export default function ContactUsPage() {
           </h2>
 
           {submitted ? (
-            <div style={{ padding: "32px 20px", textAlign: "center", background: "#F0FDF4", border: "1px solid #BBF7D0", borderRadius: "14px" }}>
-              <div style={{ fontSize: "2.5rem", marginBottom: 10 }}>✅</div>
-              <h3 style={{ fontSize: "1.15rem", color: "#166534", fontWeight: 700, margin: "0 0 6px 0" }}>
-                Inquiry Received!
+            <div style={{ padding: "28px 22px", textAlign: "center", background: "#F0FDF4", border: "1px solid #BBF7D0", borderRadius: "16px" }}>
+              <div style={{ fontSize: "2.4rem", marginBottom: 8 }}>✅</div>
+              <span style={{ display: "inline-block", background: "#DCFCE7", color: "#15803D", padding: "4px 12px", borderRadius: "9999px", fontSize: "0.75rem", fontWeight: 700, marginBottom: 10 }}>
+                Reference ID: #{referenceId}
+              </span>
+              <h3 style={{ fontSize: "1.2rem", color: "#166534", fontWeight: 800, margin: "0 0 6px 0" }}>
+                Inquiry Saved in Database!
               </h3>
-              <p style={{ fontSize: "0.86rem", color: "#15803D", margin: "0 0 16px 0" }}>
-                Thank you for contacting Mahir Enterprise. A member of our support team will reply to <b>{formData.email || "your email"}</b> shortly.
+              <p style={{ fontSize: "0.86rem", color: "#15803D", margin: "0 0 16px 0", lineHeight: 1.6 }}>
+                Thank you for contacting Mahir Enterprise. Your inquiry has been logged in our system. Our team will review and reply to <b>{formData.email || "your email"}</b> ({formData.phone}) shortly.
               </p>
-              <button
-                type="button"
-                className="btn-primary"
-                onClick={() => {
-                  setSubmitted(false);
-                  setFormData({ name: "", email: "", phone: "", storeName: "", category: "support", subject: "", message: "" });
-                }}
-                style={{ padding: "8px 18px", fontSize: "0.82rem" }}
-              >
-                Send Another Message
-              </button>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, maxWidth: 360, margin: "0 auto" }}>
+                <a
+                  href={`https://wa.me/919664720473?text=${encodeURIComponent(`Hello LabelPro Support, I submitted an inquiry [Ref: #${referenceId}] regarding "${formData.subject}". Name: ${formData.name}, Mobile: ${formData.phone}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 6,
+                    background: "#16A34A",
+                    color: "#FFFFFF",
+                    padding: "10px 18px",
+                    borderRadius: "10px",
+                    fontWeight: 700,
+                    fontSize: "0.85rem",
+                    textDecoration: "none",
+                  }}
+                >
+                  💬 Open in WhatsApp Chat (Instant Priority)
+                </a>
+
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => {
+                    setSubmitted(false);
+                    setReferenceId("");
+                    setFormData({ name: "", email: "", phone: "", storeName: "", category: "support", subject: "", message: "" });
+                  }}
+                  style={{ padding: "8px 18px", fontSize: "0.82rem" }}
+                >
+                  Send Another Message
+                </button>
+              </div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {submitError && (
+                <div style={{ padding: "10px 14px", background: "#FEF2F2", border: "1px solid #FECACA", color: "#DC2626", borderRadius: "10px", fontSize: "0.82rem" }}>
+                  {submitError}
+                </div>
+              )}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div>
                   <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "#334155", marginBottom: 6 }}>
