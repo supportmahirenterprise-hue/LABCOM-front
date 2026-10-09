@@ -292,6 +292,13 @@ export default function Home() {
   const [qrSize, setQrSize] = useState(DEFAULT_STAMP_SETTINGS.qrSize);
   const [fontSize, setFontSize] = useState(DEFAULT_STAMP_SETTINGS.fontSize);
 
+  // PDF Crop Config
+  const [cropMode, setCropMode] = useState("none"); // "none", "top50", "bottom50", "custom"
+  const [cropTop, setCropTop] = useState(0);
+  const [cropBottom, setCropBottom] = useState(50);
+  const [cropLeft, setCropLeft] = useState(0);
+  const [cropRight, setCropRight] = useState(0);
+
   function handleResetDefaults() {
     setQrX(DEFAULT_STAMP_SETTINGS.qrX);
     setQrY(DEFAULT_STAMP_SETTINGS.qrY);
@@ -703,6 +710,11 @@ export default function Home() {
         fd.append("qrY", String(qrY));
         fd.append("qrSize", String(qrSize));
         fd.append("fontSize", String(fontSize));
+        fd.append("cropMode", cropMode);
+        fd.append("cropTop", String(cropTop));
+        fd.append("cropBottom", String(cropBottom));
+        fd.append("cropLeft", String(cropLeft));
+        fd.append("cropRight", String(cropRight));
         const modifiedPages = pages.filter((p) => p && p._modified);
         fd.append("overrides", JSON.stringify(modifiedPages));
         fd.append("sampleOnly", String(isSample));
@@ -745,6 +757,11 @@ export default function Home() {
           fd.append("qrY", String(qrY));
           fd.append("qrSize", String(qrSize));
           fd.append("fontSize", String(fontSize));
+          fd.append("cropMode", cropMode);
+          fd.append("cropTop", String(cropTop));
+          fd.append("cropBottom", String(cropBottom));
+          fd.append("cropLeft", String(cropLeft));
+          fd.append("cropRight", String(cropRight));
           fd.append("overrides", JSON.stringify(modifiedPages));
           fd.append("sampleOnly", "false");
           fd.append("startPage", String(startP));
@@ -1525,6 +1542,98 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* PDF Label Cropper Studio Card */}
+        <div className="premium-glass" style={{ marginBottom: 24 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: 0 }}>
+                  ✂️ PDF Shipping Label Cropper
+                </h3>
+                <span className="tag-pill active" style={{ fontSize: "0.72rem", background: "rgba(99, 102, 241, 0.15)", color: "#818cf8", border: "1px solid rgba(99, 102, 241, 0.3)" }}>
+                  Thermal Printer Optimized
+                </span>
+              </div>
+              <p style={{ fontSize: "0.82rem", color: "var(--text-silver)", margin: "4px 0 0 0" }}>
+                Crop Meesho / Flipkart label pages to thermal printer size or remove extra tax invoice parts.
+              </p>
+            </div>
+
+            {/* Crop Mode Presets */}
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {[
+                { id: "none", label: "📄 Full Page", desc: "Original layout" },
+                { id: "top50", label: "✂️ Thermal Label (Top 50%)", desc: "Meesho 4x6 Thermal" },
+                { id: "bottom50", label: "🧾 Invoice Only (Bottom 50%)", desc: "Bottom invoice part" },
+                { id: "custom", label: "⚙️ Custom Margins %", desc: "Top/Bottom/Left/Right %" },
+              ].map((mode) => (
+                <button
+                  key={mode.id}
+                  type="button"
+                  onClick={() => setCropMode(mode.id)}
+                  style={{
+                    padding: "8px 14px",
+                    borderRadius: "var(--radius-md)",
+                    border: `1px solid ${cropMode === mode.id ? "#6366f1" : "var(--glass-border)"}`,
+                    background: cropMode === mode.id ? "rgba(99, 102, 241, 0.2)" : "rgba(255, 255, 255, 0.03)",
+                    color: cropMode === mode.id ? "#ffffff" : "var(--text-silver)",
+                    fontWeight: cropMode === mode.id ? 700 : 500,
+                    fontSize: "0.82rem",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    gap: 2,
+                  }}
+                >
+                  <span>{mode.label}</span>
+                  <span style={{ fontSize: "0.68rem", opacity: 0.7 }}>{mode.desc}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Custom Crop Sliders (Visible when cropMode === "custom") */}
+          {cropMode === "custom" && (
+            <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--glass-border)", borderRadius: "12px", padding: 16, marginTop: 12 }}>
+              <div style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 12 }}>
+                Custom Margin Crop Percentages (%)
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", marginBottom: 4 }}>
+                    <span>Top Crop</span>
+                    <span style={{ color: "#818cf8", fontWeight: 700 }}>{cropTop}%</span>
+                  </div>
+                  <input type="range" min="0" max="80" value={cropTop} onChange={(e) => setCropTop(Number(e.target.value))} className="range-slider" />
+                </div>
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", marginBottom: 4 }}>
+                    <span>Bottom Crop</span>
+                    <span style={{ color: "#818cf8", fontWeight: 700 }}>{cropBottom}%</span>
+                  </div>
+                  <input type="range" min="0" max="80" value={cropBottom} onChange={(e) => setCropBottom(Number(e.target.value))} className="range-slider" />
+                </div>
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", marginBottom: 4 }}>
+                    <span>Left Crop</span>
+                    <span style={{ color: "#818cf8", fontWeight: 700 }}>{cropLeft}%</span>
+                  </div>
+                  <input type="range" min="0" max="50" value={cropLeft} onChange={(e) => setCropLeft(Number(e.target.value))} className="range-slider" />
+                </div>
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", marginBottom: 4 }}>
+                    <span>Right Crop</span>
+                    <span style={{ color: "#818cf8", fontWeight: 700 }}>{cropRight}%</span>
+                  </div>
+                  <input type="range" min="0" max="50" value={cropRight} onChange={(e) => setCropRight(Number(e.target.value))} className="range-slider" />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Store Growth Engine & QR Stamp Config */}
