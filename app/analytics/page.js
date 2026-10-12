@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { AnalyticsSkeleton } from "../components/Loader";
 
 const BACKEND_URL = (
   process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
@@ -122,11 +123,7 @@ export default function AnalyticsPage() {
   }
 
   if (status === "loading" || loading) {
-    return (
-      <div style={{ padding: "40px 0", color: "var(--text-silver)", fontSize: "0.9rem" }}>
-        Aggregating QR scan analytics from MongoDB...
-      </div>
-    );
+    return <AnalyticsSkeleton />;
   }
 
   const maxDaily = Math.max(...(data?.dailyTimeline?.map((d) => d.count) || [1]), 1);

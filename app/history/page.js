@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { PageLoader } from "../components/Loader";
+import { HistorySkeleton } from "../components/Loader";
 
 function FolderIcon({ size = 32 }) {
   return (
@@ -113,11 +113,7 @@ export default function HistoryPage() {
   }, [status, session?.user?.email]);
 
   if (status === "loading" || loading) {
-    return (
-      <div style={{ padding: "40px 0", color: "var(--text-silver)", fontSize: "0.9rem" }}>
-        Loading your batch processing history...
-      </div>
-    );
+    return <HistorySkeleton />;
   }
 
   return (

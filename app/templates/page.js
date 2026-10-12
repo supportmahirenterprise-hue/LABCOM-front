@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { PageLoader, ButtonSpinner } from "../components/Loader";
+import { TemplatesSkeleton, ButtonSpinner } from "../components/Loader";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -179,11 +179,7 @@ export default function TemplatesPage() {
   }
 
   if (status === "loading" || loading) {
-    return (
-      <div style={{ padding: "40px 0", color: "var(--text-silver)", fontSize: "0.9rem" }}>
-        Loading templates...
-      </div>
-    );
+    return <TemplatesSkeleton />;
   }
 
   return (
