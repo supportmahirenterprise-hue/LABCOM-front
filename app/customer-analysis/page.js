@@ -45,6 +45,7 @@ export default function CustomerAnalysisPage() {
   const [repeatOnly, setRepeatOnly] = useState(false);
   const [selectedState, setSelectedState] = useState("ALL");
   const [selectedDistrict, setSelectedDistrict] = useState("ALL");
+  const [selectedPlatform, setSelectedPlatform] = useState("ALL");
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [toast, setToast] = useState(null);
 
@@ -54,6 +55,14 @@ export default function CustomerAnalysisPage() {
 
   const paginatedCustomers = useMemo(() => {
     let list = data?.customers || [];
+    if (selectedPlatform && selectedPlatform.toUpperCase() !== "ALL") {
+      const sp = selectedPlatform.toLowerCase();
+      list = list.filter((c) => {
+        const p = (c.platform || "meesho").toLowerCase();
+        const plist = (c.platforms || [p]).map((x) => x.toLowerCase());
+        return p === sp || plist.includes(sp);
+      });
+    }
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       list = list.filter(
@@ -62,12 +71,13 @@ export default function CustomerAnalysisPage() {
           (c.mobileNumber && c.mobileNumber.toLowerCase().includes(q)) ||
           (c.address && c.address.toLowerCase().includes(q)) ||
           (c.state && c.state.toLowerCase().includes(q)) ||
-          (c.district && c.district.toLowerCase().includes(q))
+          (c.district && c.district.toLowerCase().includes(q)) ||
+          (c.platform && c.platform.toLowerCase().includes(q))
       );
     }
     const start = (currentPage - 1) * pageSize;
     return list.slice(start, start + pageSize);
-  }, [data?.customers, search, currentPage, pageSize]);
+  }, [data?.customers, search, selectedPlatform, currentPage, pageSize]);
 
   const filteredSkuMatrix = useMemo(() => {
     if (!insightsData?.skuPerformanceMatrix) return [];
@@ -90,7 +100,7 @@ export default function CustomerAnalysisPage() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, repeatOnly, selectedState, selectedDistrict]);
+  }, [search, repeatOnly, selectedState, selectedDistrict, selectedPlatform]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -130,17 +140,27 @@ export default function CustomerAnalysisPage() {
     setSelectedDistrict("ALL");
   };
 
-  async function fetchCustomerAnalysis(force = false) {
+  const handlePlatformClick = (platformKey) => {
+    if (selectedPlatform === platformKey && platformKey !== "ALL") {
+      setSelectedPlatform("ALL");
+    } else {
+      setSelectedPlatform(platformKey);
+    }
+  };
+
+  async function fetchCustomerAnalysis(force = false, platformOverride = null) {
     if (!session?.user?.email) return;
     if (!data || force === true) setLoading(true);
     try {
       const userEmail = session.user.email;
+      const targetPlatform = platformOverride !== null ? platformOverride : selectedPlatform;
       const queryParams = new URLSearchParams({
         email: userEmail,
         search: search.trim(),
         repeatOnly: repeatOnly ? "true" : "false",
         state: selectedState,
         district: selectedDistrict,
+        platform: targetPlatform,
         ...(force === true ? { refresh: "true" } : {}),
       });
 
@@ -188,7 +208,7 @@ export default function CustomerAnalysisPage() {
     if (status === "authenticated" && session?.user?.email) {
       fetchCustomerAnalysis();
     }
-  }, [status, session?.user?.email, repeatOnly, selectedState, selectedDistrict]);
+  }, [status, session?.user?.email, repeatOnly, selectedState, selectedDistrict, selectedPlatform]);
 
   useEffect(() => {
     if (selectedCustomer) {
@@ -307,6 +327,166 @@ export default function CustomerAnalysisPage() {
             </svg>
             Studio
           </Link>
+        </div>
+      </div>
+
+      {/* Multi-Marketplace Channel Filter Cards */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexWrap: "wrap", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#0F172A", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+              Marketplace Channels
+            </span>
+            <span style={{ fontSize: "0.72rem", color: "#64748B", background: "#F1F5F9", padding: "2px 8px", borderRadius: "10px", fontWeight: 600 }}>
+              Click any card to filter buyers
+            </span>
+          </div>
+          {selectedPlatform !== "ALL" && (
+            <button
+              onClick={() => setSelectedPlatform("ALL")}
+              style={{
+                background: "#EEF2FF",
+                border: "1px solid #C7D2FE",
+                color: "#4F46E5",
+                fontSize: "0.75rem",
+                fontWeight: 700,
+                padding: "4px 12px",
+                borderRadius: "10px",
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Clear Filter (Showing {selectedPlatform.toUpperCase()})
+            </button>
+          )}
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 210px), 1fr))", gap: 14 }}>
+          {/* All Channels */}
+          <div
+            onClick={() => handlePlatformClick("ALL")}
+            className="premium-glass"
+            style={{
+              padding: "16px 18px",
+              cursor: "pointer",
+              borderRadius: "16px",
+              background: selectedPlatform === "ALL" ? "#F5F3FF" : "#FFFFFF",
+              border: selectedPlatform === "ALL" ? "2px solid #6366F1" : "1px solid #E2E8F0",
+              boxShadow: selectedPlatform === "ALL" ? "0 4px 18px rgba(99, 102, 241, 0.18)" : "0 2px 8px rgba(15, 23, 42, 0.04)",
+              transition: "all 0.2s ease",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: "0.75rem", fontWeight: 700, color: selectedPlatform === "ALL" ? "#4F46E5" : "#64748B" }}>
+                All Channels
+              </span>
+              <span style={{ fontSize: "0.65rem", fontWeight: 800, padding: "2px 7px", borderRadius: 8, background: selectedPlatform === "ALL" ? "#4F46E5" : "#E2E8F0", color: selectedPlatform === "ALL" ? "#FFF" : "#475569" }}>
+                ALL
+              </span>
+            </div>
+            <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#0F172A", marginTop: 6, fontFamily: "var(--font-display)" }}>
+              {data?.summary?.totalCustomers || 0}
+            </div>
+            <span style={{ fontSize: "0.72rem", color: "#64748B", display: "block", marginTop: 2 }}>
+              Total Buyers Across Stores
+            </span>
+          </div>
+
+          {/* Meesho Card */}
+          <div
+            onClick={() => handlePlatformClick("meesho")}
+            className="premium-glass"
+            style={{
+              padding: "16px 18px",
+              cursor: "pointer",
+              borderRadius: "16px",
+              background: selectedPlatform === "meesho" ? "#FDF2F8" : "#FFFFFF",
+              border: selectedPlatform === "meesho" ? "2px solid #DB2777" : "1px solid #E2E8F0",
+              boxShadow: selectedPlatform === "meesho" ? "0 4px 18px rgba(219, 39, 119, 0.18)" : "0 2px 8px rgba(15, 23, 42, 0.04)",
+              transition: "all 0.2s ease",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: "0.75rem", fontWeight: 700, color: selectedPlatform === "meesho" ? "#BE185D" : "#64748B", display: "flex", alignItems: "center", gap: 5 }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#DB2777" }} />
+                Meesho
+              </span>
+              <span style={{ fontSize: "0.65rem", fontWeight: 800, padding: "2px 7px", borderRadius: 8, background: selectedPlatform === "meesho" ? "#DB2777" : "#FCE7F3", color: selectedPlatform === "meesho" ? "#FFF" : "#BE185D" }}>
+                MEESHO
+              </span>
+            </div>
+            <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#BE185D", marginTop: 6, fontFamily: "var(--font-display)" }}>
+              {data?.summary?.meeshoCustomersCount || 0}
+            </div>
+            <span style={{ fontSize: "0.72rem", color: "#9D174D", display: "block", marginTop: 2 }}>
+              Meesho Marketplace Buyers
+            </span>
+          </div>
+
+          {/* Flipkart Card */}
+          <div
+            onClick={() => handlePlatformClick("flipkart")}
+            className="premium-glass"
+            style={{
+              padding: "16px 18px",
+              cursor: "pointer",
+              borderRadius: "16px",
+              background: selectedPlatform === "flipkart" ? "#EFF6FF" : "#FFFFFF",
+              border: selectedPlatform === "flipkart" ? "2px solid #2563EB" : "1px solid #E2E8F0",
+              boxShadow: selectedPlatform === "flipkart" ? "0 4px 18px rgba(37, 99, 235, 0.18)" : "0 2px 8px rgba(15, 23, 42, 0.04)",
+              transition: "all 0.2s ease",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: "0.75rem", fontWeight: 700, color: selectedPlatform === "flipkart" ? "#1D4ED8" : "#64748B", display: "flex", alignItems: "center", gap: 5 }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#2563EB" }} />
+                Flipkart
+              </span>
+              <span style={{ fontSize: "0.65rem", fontWeight: 800, padding: "2px 7px", borderRadius: 8, background: selectedPlatform === "flipkart" ? "#2563EB" : "#DBEAFE", color: selectedPlatform === "flipkart" ? "#FFF" : "#1D4ED8" }}>
+                FLIPKART
+              </span>
+            </div>
+            <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#1D4ED8", marginTop: 6, fontFamily: "var(--font-display)" }}>
+              {data?.summary?.flipkartCustomersCount || 0}
+            </div>
+            <span style={{ fontSize: "0.72rem", color: "#1E40AF", display: "block", marginTop: 2 }}>
+              Flipkart Seller Hub Buyers
+            </span>
+          </div>
+
+          {/* Amazon Card */}
+          <div
+            onClick={() => handlePlatformClick("amazon")}
+            className="premium-glass"
+            style={{
+              padding: "16px 18px",
+              cursor: "pointer",
+              borderRadius: "16px",
+              background: selectedPlatform === "amazon" ? "#FFFBEB" : "#FFFFFF",
+              border: selectedPlatform === "amazon" ? "2px solid #D97706" : "1px solid #E2E8F0",
+              boxShadow: selectedPlatform === "amazon" ? "0 4px 18px rgba(217, 119, 6, 0.18)" : "0 2px 8px rgba(15, 23, 42, 0.04)",
+              transition: "all 0.2s ease",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: "0.75rem", fontWeight: 700, color: selectedPlatform === "amazon" ? "#B45309" : "#64748B", display: "flex", alignItems: "center", gap: 5 }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#D97706" }} />
+                Amazon
+              </span>
+              <span style={{ fontSize: "0.65rem", fontWeight: 800, padding: "2px 7px", borderRadius: 8, background: selectedPlatform === "amazon" ? "#D97706" : "#FEF3C7", color: selectedPlatform === "amazon" ? "#FFF" : "#B45309" }}>
+                AMAZON
+              </span>
+            </div>
+            <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#B45309", marginTop: 6, fontFamily: "var(--font-display)" }}>
+              {data?.summary?.amazonCustomersCount || 0}
+            </div>
+            <span style={{ fontSize: "0.72rem", color: "#92400E", display: "block", marginTop: 2 }}>
+              Amazon Easy/Self Ship Buyers
+            </span>
+          </div>
         </div>
       </div>
 
@@ -846,13 +1026,14 @@ export default function CustomerAnalysisPage() {
               <thead>
                 <tr>
                   <th style={{ width: "45px", paddingLeft: "16px" }}>#</th>
-                  <th style={{ width: "16%" }}>CUSTOMER NAME</th>
-                  <th style={{ width: "13%" }}>MOBILE NUMBER</th>
-                  <th style={{ width: "12%" }}>STATE</th>
-                  <th style={{ width: "12%" }}>DISTRICT</th>
-                  <th style={{ width: "24%" }}>DELIVERY ADDRESS</th>
-                  <th style={{ width: "13%", textAlign: "center" }}>ORDERS COUNT</th>
-                  <th style={{ width: "10%", paddingRight: "16px" }}>LAST ORDER</th>
+                  <th style={{ width: "10%", textAlign: "center" }}>CHANNEL</th>
+                  <th style={{ width: "15%" }}>CUSTOMER NAME</th>
+                  <th style={{ width: "12%" }}>MOBILE NUMBER</th>
+                  <th style={{ width: "11%" }}>STATE</th>
+                  <th style={{ width: "11%" }}>DISTRICT</th>
+                  <th style={{ width: "23%" }}>DELIVERY ADDRESS</th>
+                  <th style={{ width: "11%", textAlign: "center" }}>ORDERS COUNT</th>
+                  <th style={{ width: "9%", paddingRight: "16px" }}>LAST ORDER</th>
                 </tr>
               </thead>
               <tbody>
@@ -862,6 +1043,21 @@ export default function CustomerAnalysisPage() {
                     <tr key={c.id || idx}>
                       <td style={{ color: "#94A3B8", fontSize: "0.8rem", fontFamily: "var(--font-mono)", paddingLeft: "16px" }}>
                         {globalIdx} 
+                      </td>
+                      <td style={{ textAlign: "center" }}>
+                        {(c.platform || "meesho").toLowerCase() === "flipkart" ? (
+                          <span style={{ fontSize: "0.72rem", fontWeight: 800, padding: "2px 8px", borderRadius: 8, background: "#EFF6FF", color: "#1D4ED8", border: "1px solid #BFDBFE" }}>
+                            Flipkart
+                          </span>
+                        ) : (c.platform || "meesho").toLowerCase() === "amazon" ? (
+                          <span style={{ fontSize: "0.72rem", fontWeight: 800, padding: "2px 8px", borderRadius: 8, background: "#FFFBEB", color: "#B45309", border: "1px solid #FDE68A" }}>
+                            Amazon
+                          </span>
+                        ) : (
+                          <span style={{ fontSize: "0.72rem", fontWeight: 800, padding: "2px 8px", borderRadius: 8, background: "#FDF2F8", color: "#BE185D", border: "1px solid #FBCFE8" }}>
+                            Meesho
+                          </span>
+                        )}
                       </td>
                       <td style={{ fontWeight: 700, color: "#0F172A", fontSize: "0.88rem" }}>
                         {c.name}
@@ -1107,6 +1303,19 @@ export default function CustomerAnalysisPage() {
                   >
                     {selectedCustomer.ordersCountText}
                   </span>
+                  <span
+                    style={{
+                      padding: "4px 10px",
+                      borderRadius: "var(--radius-full)",
+                      fontSize: "0.74rem",
+                      fontWeight: 800,
+                      background: (selectedCustomer.platform || "meesho").toLowerCase() === "flipkart" ? "#EFF6FF" : (selectedCustomer.platform || "meesho").toLowerCase() === "amazon" ? "#FFFBEB" : "#FDF2F8",
+                      color: (selectedCustomer.platform || "meesho").toLowerCase() === "flipkart" ? "#1D4ED8" : (selectedCustomer.platform || "meesho").toLowerCase() === "amazon" ? "#B45309" : "#BE185D",
+                      border: (selectedCustomer.platform || "meesho").toLowerCase() === "flipkart" ? "1px solid #BFDBFE" : (selectedCustomer.platform || "meesho").toLowerCase() === "amazon" ? "1px solid #FDE68A" : "1px solid #FBCFE8",
+                    }}
+                  >
+                    {((selectedCustomer.platform || "meesho").toUpperCase())}
+                  </span>
                   {selectedCustomer.postDeliveryReturnCount > 0 && (
                     <span
                       className="tag-pill badge-rose"
@@ -1171,7 +1380,8 @@ export default function CustomerAnalysisPage() {
                   <thead>
                     <tr>
                       <th style={{ width: "40px" }}>#</th>
-                      <th style={{ width: "180px" }}>SUB ORDER ID / ORDER NO</th>
+                      <th style={{ width: "90px" }}>CHANNEL</th>
+                      <th style={{ width: "170px" }}>SUB ORDER ID / ORDER NO</th>
                       <th style={{ width: "100px" }}>PAYMENT</th>
                       <th style={{ width: "100px" }}>ORDER DATE</th>
                       <th style={{ width: "150px" }}>SKU CODE</th>
@@ -1185,6 +1395,11 @@ export default function CustomerAnalysisPage() {
                       <tr key={ord.subOrderNo || ord.orderNo || i}>
                         <td style={{ color: "#94A3B8", fontSize: "0.8rem", fontFamily: "var(--font-mono)" }}>
                           {i + 1}
+                        </td>
+                        <td>
+                          <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "2px 7px", borderRadius: 6, background: (ord.platform || selectedCustomer.platform || "meesho").toLowerCase() === "flipkart" ? "#EFF6FF" : (ord.platform || selectedCustomer.platform || "meesho").toLowerCase() === "amazon" ? "#FFFBEB" : "#FDF2F8", color: (ord.platform || selectedCustomer.platform || "meesho").toLowerCase() === "flipkart" ? "#1D4ED8" : (ord.platform || selectedCustomer.platform || "meesho").toLowerCase() === "amazon" ? "#B45309" : "#BE185D" }}>
+                            {ord.platform || selectedCustomer.platform || "Meesho"}
+                          </span>
                         </td>
                         <td style={{ fontWeight: 700, color: "#4F46E5", fontFamily: "var(--font-mono)" }}>
                           {ord.subOrderNo || ord.orderNo || "N/A"}

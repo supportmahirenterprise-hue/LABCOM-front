@@ -38,6 +38,9 @@ export default function RemoveDuplicatePage() {
   const [file2, setFile2] = useState(null);
   const [file1PagesCount, setFile1PagesCount] = useState(0);
   const [file2PagesCount, setFile2PagesCount] = useState(0);
+  const [file1Platform, setFile1Platform] = useState(null); // "meesho" | "flipkart" | "amazon" | "generic"
+  const [file2Platform, setFile2Platform] = useState(null);
+  const [showMismatchModal, setShowMismatchModal] = useState(false);
 
   // Clean Mode: "clean_pdf1" (clean PDF 1 using PDF 2), "clean_pdf2" (clean PDF 2 using PDF 1), "merge_unique" (merge all unique)
   const [cleanMode, setCleanMode] = useState("clean_pdf1");
@@ -81,6 +84,86 @@ export default function RemoveDuplicatePage() {
     };
   }, [cleanedPdfUrl]);
 
+  // Client-Side Marketplace Detection Helper
+  function detectPlatformFromText(text) {
+    if (!text) return "generic";
+    const t = text;
+
+    // 1. Amazon: 3-7-7 Order ID, ASIN keyword, or Amazon shipping keywords
+    if (
+      /\b\d{3}-\d{7}-\d{7}\b/.test(t) ||
+      /\bASIN\b/i.test(t) ||
+      /amazon/i.test(t) ||
+      (/Mode of Payment/i.test(t) && /Place of delivery/i.test(t)) ||
+      /ATS\s+LOGISTICS/i.test(t)
+    ) {
+      return "amazon";
+    }
+
+    // 2. Flipkart: OD order number, Ekart, FBF, Instakart, Flipkart keywords
+    if (
+      /\bOD\d{10,}\b/i.test(t) ||
+      /flipkart/i.test(t) ||
+      /E-?\s*Kart/i.test(t) ||
+      /AWB\s*No\.?\s*F/i.test(t) ||
+      /Ordered through/i.test(t) ||
+      /INSTAKART/i.test(t)
+    ) {
+      return "flipkart";
+    }
+
+    // 3. Meesho: \d{10,}_\d+, Meesho, Customer Address, Supplier, Fashnear
+    if (
+      /\b\d{10,}_\d+\b/.test(t) ||
+      /meesho/i.test(t) ||
+      /Customer\s+Address/i.test(t) ||
+      /If undelivered,?\s*return to/i.test(t) ||
+      /Fashnear/i.test(t)
+    ) {
+      return "meesho";
+    }
+
+    return "generic";
+  }
+
+  function getPlatformBadge(platform) {
+    if (!platform) return { label: "PDF", bg: "#F1F5F9", color: "#475569", border: "1px solid #CBD5E1", icon: "📄" };
+    switch (platform.toLowerCase()) {
+      case "meesho":
+        return {
+          label: "Meesho",
+          bg: "rgba(168, 85, 247, 0.12)",
+          color: "#9333EA",
+          border: "1px solid rgba(168, 85, 247, 0.3)",
+          icon: "🟣",
+        };
+      case "flipkart":
+        return {
+          label: "Flipkart",
+          bg: "rgba(245, 158, 11, 0.12)",
+          color: "#D97706",
+          border: "1px solid rgba(245, 158, 11, 0.3)",
+          icon: "🟡",
+        };
+      case "amazon":
+        return {
+          label: "Amazon",
+          bg: "rgba(249, 115, 22, 0.12)",
+          color: "#EA580C",
+          border: "1px solid rgba(249, 115, 22, 0.3)",
+          icon: "🟠",
+        };
+      default:
+        return {
+          label: "Shipping Label",
+          bg: "rgba(100, 116, 139, 0.1)",
+          color: "#475569",
+          border: "1px solid rgba(100, 116, 139, 0.2)",
+          icon: "📄",
+        };
+    }
+  }
+
   // Load PDF.js dynamically on client side for fast text extraction
   async function ensurePdfJsLoaded() {
     if (typeof window === "undefined") return null;
@@ -107,11 +190,37 @@ export default function RemoveDuplicatePage() {
     return window.pdfjsLib;
   }
 
+  // Fast sample detection of platform from first 1-3 pages
+  async function quickDetectFilePlatform(fileObj) {
+    try {
+      await ensurePdfJsLoaded();
+      const arrayBuffer = await fileObj.arrayBuffer();
+      const loadingTask = window.pdfjsLib.getDocument({
+        data: new Uint8Array(arrayBuffer),
+        cMapUrl: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/",
+        cMapPacked: true,
+      });
+      const pdfDoc = await loadingTask.promise;
+      const samplePages = Math.min(pdfDoc.numPages, 3);
+      let combined = "";
+      for (let i = 1; i <= samplePages; i++) {
+        const page = await pdfDoc.getPage(i);
+        const textContent = await page.getTextContent();
+        combined += " " + textContent.items.map((it) => it.str || "").join(" ");
+      }
+      return detectPlatformFromText(combined);
+    } catch (e) {
+      console.warn("Quick platform detect warning:", e);
+      return "generic";
+    }
+  }
+
   // Handle PDF 1 selection
   async function handleFile1Change(e) {
     const f = e.target.files?.[0];
     if (!f) return;
     setFile1(f);
+    setFile1Platform(null);
     setCachedPdf1Pages(null);
     cachedPdf1DocRef.current = null;
     setComparisonResults(null);
@@ -136,7 +245,11 @@ export default function RemoveDuplicatePage() {
         setCleanMode("clean_pdf1");
       }
 
-      showToast(`Loaded "${f.name}" (${count} pages)`, "info");
+      // Quick detect platform
+      quickDetectFilePlatform(f).then((plat) => {
+        setFile1Platform(plat);
+        showToast(`Batch 1: ${getPlatformBadge(plat).label} detected (${count} pages)`, "info");
+      });
     } catch (err) {
       console.error(err);
       showToast("Invalid PDF file for Batch 1", "error");
@@ -148,6 +261,7 @@ export default function RemoveDuplicatePage() {
     const f = e.target.files?.[0];
     if (!f) return;
     setFile2(f);
+    setFile2Platform(null);
     setCachedPdf2Pages(null);
     cachedPdf2DocRef.current = null;
     setComparisonResults(null);
@@ -170,27 +284,66 @@ export default function RemoveDuplicatePage() {
         }
       }
 
-      showToast(`Loaded "${f.name}" (${count} pages)`, "info");
+      // Quick detect platform
+      quickDetectFilePlatform(f).then((plat) => {
+        setFile2Platform(plat);
+        showToast(`Batch 2: ${getPlatformBadge(plat).label} detected (${count} pages)`, "info");
+      });
     } catch (err) {
       console.error(err);
       showToast("Invalid PDF file for Batch 2", "error");
     }
   }
 
+  // Clear Batch 1
+  function handleClearFile1() {
+    setFile1(null);
+    setFile1PagesCount(0);
+    setFile1Platform(null);
+    setCachedPdf1Pages(null);
+    cachedPdf1DocRef.current = null;
+    setComparisonResults(null);
+    if (cleanedPdfUrl) URL.revokeObjectURL(cleanedPdfUrl);
+    setCleanedPdfBlob(null);
+    setCleanedPdfUrl(null);
+    if (file1InputRef.current) file1InputRef.current.value = "";
+    if (file2) setCleanMode("clean_pdf2");
+    showToast("Cleared Batch 1", "info");
+  }
+
+  // Clear Batch 2
+  function handleClearFile2() {
+    setFile2(null);
+    setFile2PagesCount(0);
+    setFile2Platform(null);
+    setCachedPdf2Pages(null);
+    cachedPdf2DocRef.current = null;
+    setComparisonResults(null);
+    if (cleanedPdfUrl) URL.revokeObjectURL(cleanedPdfUrl);
+    setCleanedPdfBlob(null);
+    setCleanedPdfUrl(null);
+    if (file2InputRef.current) file2InputRef.current.value = "";
+    if (file1) setCleanMode("clean_pdf1");
+    showToast("Cleared Batch 2", "info");
+  }
+
   // Swap Files if user uploaded them in reverse
   function handleSwapFiles() {
     const tempFile = file1;
     const tempCount = file1PagesCount;
+    const tempPlat = file1Platform;
     const tempPages = cachedPdf1Pages;
     const tempDoc = cachedPdf1DocRef.current;
 
     setFile1(file2);
     setFile1PagesCount(file2PagesCount);
+    setFile1Platform(file2Platform);
     setCachedPdf1Pages(cachedPdf2Pages);
     cachedPdf1DocRef.current = cachedPdf2DocRef.current;
 
     setFile2(tempFile);
     setFile2PagesCount(tempCount);
+    setFile2Platform(tempPlat);
     setCachedPdf2Pages(tempPages);
     cachedPdf2DocRef.current = tempDoc;
 
@@ -218,6 +371,17 @@ export default function RemoveDuplicatePage() {
 
     showToast("Swapped PDF 1 and PDF 2", "info");
   }
+
+  // Check if both files belong to conflicting e-commerce marketplaces
+  const isPlatformMismatch = !!(
+    file1 &&
+    file2 &&
+    file1Platform &&
+    file2Platform &&
+    file1Platform !== "generic" &&
+    file2Platform !== "generic" &&
+    file1Platform !== file2Platform
+  );
 
   // Normalized order keys generator to support both full sub-order IDs and base order IDs
   function getOrderKeys(orderNo) {
@@ -674,6 +838,16 @@ export default function RemoveDuplicatePage() {
       return;
     }
 
+    // Safety Check 1: Block mismatched marketplace uploads upfront
+    if (isPlatformMismatch) {
+      setShowMismatchModal(true);
+      showToast(
+        `Marketplace Mismatch Error: Batch 1 is ${getPlatformBadge(file1Platform).label} and Batch 2 is ${getPlatformBadge(file2Platform).label}. Dono same platform ki honi chahiye!`,
+        "error"
+      );
+      return;
+    }
+
     setIsProcessing(true);
     setProgress(5);
     setProgressText("Initializing 100% client-side engine in browser memory...");
@@ -721,6 +895,23 @@ export default function RemoveDuplicatePage() {
           40
         );
         setCachedPdf2Pages(p2Pages);
+      }
+
+      // Safety Check 2: Deep check after extraction across all pages
+      if (file1 && file2 && p1Pages && p2Pages) {
+        const plat1 = file1Platform || detectPlatformFromText(p1Pages.map((p) => p.rawSnippet).join(" "));
+        const plat2 = file2Platform || detectPlatformFromText(p2Pages.map((p) => p.rawSnippet).join(" "));
+        if (plat1 && plat2 && plat1 !== "generic" && plat2 !== "generic" && plat1 !== plat2) {
+          setFile1Platform(plat1);
+          setFile2Platform(plat2);
+          setShowMismatchModal(true);
+          setIsProcessing(false);
+          showToast(
+            `Marketplace Mismatch: Batch 1 is ${getPlatformBadge(plat1).label} and Batch 2 is ${getPlatformBadge(plat2).label}. Dono same platform ki honi chahiye!`,
+            "error"
+          );
+          return;
+        }
       }
 
       // Determine active target mode: if single PDF uploaded, force that target
@@ -937,15 +1128,35 @@ export default function RemoveDuplicatePage() {
             boxShadow: "0 8px 24px -4px rgba(15, 23, 42, 0.05)",
           }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 6 }}>
             <span style={{ fontSize: "0.74rem", fontWeight: 800, color: "#4F46E5", textTransform: "uppercase", letterSpacing: "0.08em" }}>
               PDF 1: Batch 1 (Master / Main Batch)
             </span>
-            {file1 && (
-              <span className="tag-pill badge-indigo" style={{ fontSize: "0.72rem" }}>
-                {file1PagesCount} Labels
-              </span>
-            )}
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              {file1 && file1Platform && (
+                <span
+                  style={{
+                    fontSize: "0.72rem",
+                    fontWeight: 700,
+                    padding: "2px 8px",
+                    borderRadius: "6px",
+                    background: getPlatformBadge(file1Platform).bg,
+                    color: getPlatformBadge(file1Platform).color,
+                    border: getPlatformBadge(file1Platform).border,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                  }}
+                >
+                  {getPlatformBadge(file1Platform).icon} {getPlatformBadge(file1Platform).label}
+                </span>
+              )}
+              {file1 && (
+                <span className="tag-pill badge-indigo" style={{ fontSize: "0.72rem" }}>
+                  {file1PagesCount} Labels
+                </span>
+              )}
+            </div>
           </div>
 
           <p style={{ fontSize: "0.8rem", color: "#64748B", marginTop: 0, marginBottom: 14 }}>
@@ -993,18 +1204,45 @@ export default function RemoveDuplicatePage() {
                   <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#0F172A", whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>
                     {file1.name}
                   </div>
-                  <div style={{ fontSize: "0.72rem", color: "#4F46E5", fontWeight: 600 }}>
-                    {file1PagesCount} pages detected
+                  <div style={{ fontSize: "0.72rem", color: "#4F46E5", fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+                    <span>{file1PagesCount} pages detected</span>
+                    {file1Platform && (
+                      <span style={{ color: getPlatformBadge(file1Platform).color, fontWeight: 700 }}>
+                        • {getPlatformBadge(file1Platform).label}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
-              <button
-                onClick={() => file1InputRef.current?.click()}
-                className="btn-secondary"
-                style={{ padding: "6px 12px", fontSize: "0.75rem", background: "#FFFFFF" }}
-              >
-                Change
-              </button>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <button
+                  type="button"
+                  onClick={() => file1InputRef.current?.click()}
+                  className="btn-secondary"
+                  style={{ padding: "6px 12px", fontSize: "0.75rem", background: "#FFFFFF" }}
+                >
+                  Change
+                </button>
+                <button
+                  type="button"
+                  onClick={handleClearFile1}
+                  title="Remove Batch 1"
+                  style={{
+                    padding: "6px 10px",
+                    fontSize: "0.75rem",
+                    background: "#FEE2E2",
+                    border: "1px solid #FECACA",
+                    color: "#DC2626",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                  }}
+                >
+                  <TrashIcon size={13} color="#DC2626" /> Remove
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -1020,15 +1258,35 @@ export default function RemoveDuplicatePage() {
             boxShadow: "0 8px 24px -4px rgba(15, 23, 42, 0.05)",
           }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 6 }}>
             <span style={{ fontSize: "0.74rem", fontWeight: 800, color: "#0284C7", textTransform: "uppercase", letterSpacing: "0.08em" }}>
               PDF 2: Batch 2 (Comparison / Duplicate List)
             </span>
-            {file2 && (
-              <span className="tag-pill badge-sky" style={{ fontSize: "0.72rem" }}>
-                {file2PagesCount} Labels
-              </span>
-            )}
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              {file2 && file2Platform && (
+                <span
+                  style={{
+                    fontSize: "0.72rem",
+                    fontWeight: 700,
+                    padding: "2px 8px",
+                    borderRadius: "6px",
+                    background: getPlatformBadge(file2Platform).bg,
+                    color: getPlatformBadge(file2Platform).color,
+                    border: getPlatformBadge(file2Platform).border,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                  }}
+                >
+                  {getPlatformBadge(file2Platform).icon} {getPlatformBadge(file2Platform).label}
+                </span>
+              )}
+              {file2 && (
+                <span className="tag-pill badge-sky" style={{ fontSize: "0.72rem" }}>
+                  {file2PagesCount} Labels
+                </span>
+              )}
+            </div>
           </div>
 
           <p style={{ fontSize: "0.8rem", color: "#64748B", marginTop: 0, marginBottom: 14 }}>
@@ -1076,18 +1334,45 @@ export default function RemoveDuplicatePage() {
                   <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#0F172A", whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>
                     {file2.name}
                   </div>
-                  <div style={{ fontSize: "0.72rem", color: "#0284C7", fontWeight: 600 }}>
-                    {file2PagesCount} pages detected
+                  <div style={{ fontSize: "0.72rem", color: "#0284C7", fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+                    <span>{file2PagesCount} pages detected</span>
+                    {file2Platform && (
+                      <span style={{ color: getPlatformBadge(file2Platform).color, fontWeight: 700 }}>
+                        • {getPlatformBadge(file2Platform).label}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
-              <button
-                onClick={() => file2InputRef.current?.click()}
-                className="btn-secondary"
-                style={{ padding: "6px 12px", fontSize: "0.75rem", background: "#FFFFFF" }}
-              >
-                Change
-              </button>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <button
+                  type="button"
+                  onClick={() => file2InputRef.current?.click()}
+                  className="btn-secondary"
+                  style={{ padding: "6px 12px", fontSize: "0.75rem", background: "#FFFFFF" }}
+                >
+                  Change
+                </button>
+                <button
+                  type="button"
+                  onClick={handleClearFile2}
+                  title="Remove Batch 2"
+                  style={{
+                    padding: "6px 10px",
+                    fontSize: "0.75rem",
+                    background: "#FEE2E2",
+                    border: "1px solid #FECACA",
+                    color: "#DC2626",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                  }}
+                >
+                  <TrashIcon size={13} color="#DC2626" /> Remove
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -1208,6 +1493,120 @@ export default function RemoveDuplicatePage() {
         </div>
       </div>
 
+      {/* ⚠️ CRITICAL MARKETPLACE MISMATCH ERROR BANNER */}
+      {isPlatformMismatch && (
+        <div
+          style={{
+            background: "#FEF2F2",
+            border: "2px solid #EF4444",
+            borderRadius: "16px",
+            padding: "16px 20px",
+            marginBottom: 20,
+            boxShadow: "0 8px 24px -4px rgba(239, 68, 68, 0.15)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+            <div
+              style={{
+                width: 42,
+                height: 42,
+                borderRadius: "50%",
+                background: "#FEE2E2",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <AlertTriangleIcon size={24} color="#DC2626" />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 6 }}>
+                <span style={{ fontSize: "0.96rem", fontWeight: 800, color: "#991B1B" }}>
+                  Platform Mismatch Error: Dono PDF alag-alag marketplace ki hain!
+                </span>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span
+                    style={{
+                      fontSize: "0.75rem",
+                      fontWeight: 700,
+                      padding: "2px 8px",
+                      borderRadius: "6px",
+                      background: getPlatformBadge(file1Platform).bg,
+                      color: getPlatformBadge(file1Platform).color,
+                      border: getPlatformBadge(file1Platform).border,
+                    }}
+                  >
+                    {getPlatformBadge(file1Platform).icon} Batch 1: {getPlatformBadge(file1Platform).label}
+                  </span>
+                  <span style={{ fontSize: "0.85rem", color: "#DC2626", fontWeight: 800 }}>≠</span>
+                  <span
+                    style={{
+                      fontSize: "0.75rem",
+                      fontWeight: 700,
+                      padding: "2px 8px",
+                      borderRadius: "6px",
+                      background: getPlatformBadge(file2Platform).bg,
+                      color: getPlatformBadge(file2Platform).color,
+                      border: getPlatformBadge(file2Platform).border,
+                    }}
+                  >
+                    {getPlatformBadge(file2Platform).icon} Batch 2: {getPlatformBadge(file2Platform).label}
+                  </span>
+                </div>
+              </div>
+              <p style={{ fontSize: "0.84rem", color: "#B91C1C", margin: "0 0 12px 0", lineHeight: 1.5 }}>
+                Aap <strong>{getPlatformBadge(file1Platform).label}</strong> aur{" "}
+                <strong>{getPlatformBadge(file2Platform).label}</strong> ki PDF aapas mein compare nahi kar sakte! Dono
+                platforms ke Order ID formats alag hote hain (jaise Meesho ka <code>12345678901_1</code> vs Flipkart ka{" "}
+                <code>OD...</code>), isliye 0 duplicate match honge.{" "}
+                <strong>Kripya same platform ki dono PDF upload karein.</strong>
+              </p>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  onClick={handleClearFile2}
+                  style={{
+                    background: "#DC2626",
+                    color: "#FFFFFF",
+                    border: "none",
+                    borderRadius: "8px",
+                    padding: "7px 14px",
+                    fontSize: "0.8rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <TrashIcon size={13} color="#FFFFFF" /> Batch 2 ({getPlatformBadge(file2Platform).label}) Hataayein
+                </button>
+                <button
+                  type="button"
+                  onClick={handleClearFile1}
+                  style={{
+                    background: "#FFFFFF",
+                    color: "#DC2626",
+                    border: "1px solid #FECACA",
+                    borderRadius: "8px",
+                    padding: "7px 14px",
+                    fontSize: "0.8rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <TrashIcon size={13} color="#DC2626" /> Batch 1 ({getPlatformBadge(file1Platform).label}) Hataayein
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Compare Action Bar */}
       <div
         className="premium-glass"
@@ -1235,21 +1634,27 @@ export default function RemoveDuplicatePage() {
             </button>
           )}
           <span style={{ fontSize: "0.82rem", color: "#64748B" }}>
-            {file1 && file2
-              ? `Comparing ${file1PagesCount} labels in PDF 1 vs ${file2PagesCount} labels in PDF 2 (Active Target: ${
-                  cleanMode === "clean_pdf1" ? "Clean PDF 1" : cleanMode === "clean_pdf2" ? "Clean PDF 2" : "Merge Both"
-                })`
-              : file1
-              ? `Ready to scan ${file1PagesCount} labels in PDF 1 for duplicate orders`
-              : file2
-              ? `Ready to scan ${file2PagesCount} labels in PDF 2 for duplicate orders`
-              : "Upload at least one PDF to find and remove duplicates"}
+            {isPlatformMismatch ? (
+              <span style={{ color: "#DC2626", fontWeight: 700 }}>
+                ⚠️ Marketplace Mismatch: Same platform ki dono PDF upload karein to continue
+              </span>
+            ) : file1 && file2 ? (
+              `Comparing ${file1PagesCount} labels in PDF 1 vs ${file2PagesCount} labels in PDF 2 (Active Target: ${
+                cleanMode === "clean_pdf1" ? "Clean PDF 1" : cleanMode === "clean_pdf2" ? "Clean PDF 2" : "Merge Both"
+              })`
+            ) : file1 ? (
+              `Ready to scan ${file1PagesCount} labels in PDF 1 for duplicate orders`
+            ) : file2 ? (
+              `Ready to scan ${file2PagesCount} labels in PDF 2 for duplicate orders`
+            ) : (
+              "Upload at least one PDF to find and remove duplicates"
+            )}
           </span>
         </div>
 
         <button
           onClick={handleFindAndRemoveDuplicates}
-          disabled={!hasAnyFile || isProcessing}
+          disabled={!hasAnyFile || isProcessing || isPlatformMismatch}
           className="btn-primary"
           style={{
             padding: "12px 28px",
@@ -1258,14 +1663,19 @@ export default function RemoveDuplicatePage() {
             display: "flex",
             alignItems: "center",
             gap: 10,
-            opacity: !hasAnyFile || isProcessing ? 0.6 : 1,
-            cursor: !hasAnyFile || isProcessing ? "not-allowed" : "pointer",
-            boxShadow: "0 4px 16px rgba(79, 70, 229, 0.3)",
+            opacity: !hasAnyFile || isProcessing || isPlatformMismatch ? 0.6 : 1,
+            cursor: !hasAnyFile || isProcessing || isPlatformMismatch ? "not-allowed" : "pointer",
+            boxShadow: isPlatformMismatch ? "none" : "0 4px 16px rgba(79, 70, 229, 0.3)",
+            background: isPlatformMismatch ? "#94A3B8" : undefined,
           }}
         >
           {isProcessing ? (
             <>
               <RefreshCwIcon size={16} className="spin-icon" /> Comparing Orders...
+            </>
+          ) : isPlatformMismatch ? (
+            <>
+              <AlertTriangleIcon size={18} /> Platform Mismatch Error
             </>
           ) : (
             <>
@@ -1608,6 +2018,147 @@ export default function RemoveDuplicatePage() {
             </div>
           </div>
         </>
+      )}
+
+      {/* 🚫 Platform Mismatch Interactive Error Modal */}
+      {showMismatchModal && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(15, 23, 42, 0.7)",
+            backdropFilter: "blur(6px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 99999,
+            padding: 20,
+          }}
+        >
+          <div
+            className="premium-glass"
+            style={{
+              background: "#FFFFFF",
+              borderRadius: "22px",
+              maxWidth: 520,
+              width: "100%",
+              padding: "28px 26px",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.35)",
+              border: "2px solid #FCA5A5",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
+              <div
+                style={{
+                  width: 50,
+                  height: 50,
+                  borderRadius: "50%",
+                  background: "#FEE2E2",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <AlertTriangleIcon size={26} color="#DC2626" />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 800, color: "#991B1B" }}>
+                  Marketplace Mismatch Error
+                </h3>
+                <p style={{ margin: "3px 0 0 0", fontSize: "0.8rem", color: "#64748B" }}>
+                  Dono PDF same platform ki honi chahiye!
+                </p>
+              </div>
+            </div>
+
+            <div
+              style={{
+                background: "#FEF2F2",
+                border: "1px solid #FECACA",
+                borderRadius: "14px",
+                padding: "16px",
+                marginBottom: 20,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 12 }}>
+                <span
+                  style={{
+                    fontSize: "0.82rem",
+                    fontWeight: 700,
+                    padding: "4px 12px",
+                    borderRadius: "8px",
+                    background: getPlatformBadge(file1Platform).bg,
+                    color: getPlatformBadge(file1Platform).color,
+                    border: getPlatformBadge(file1Platform).border,
+                  }}
+                >
+                  {getPlatformBadge(file1Platform).icon} Batch 1: {getPlatformBadge(file1Platform).label}
+                </span>
+                <span style={{ fontSize: "1.1rem", fontWeight: 800, color: "#DC2626" }}>≠</span>
+                <span
+                  style={{
+                    fontSize: "0.82rem",
+                    fontWeight: 700,
+                    padding: "4px 12px",
+                    borderRadius: "8px",
+                    background: getPlatformBadge(file2Platform).bg,
+                    color: getPlatformBadge(file2Platform).color,
+                    border: getPlatformBadge(file2Platform).border,
+                  }}
+                >
+                  {getPlatformBadge(file2Platform).icon} Batch 2: {getPlatformBadge(file2Platform).label}
+                </span>
+              </div>
+              <p style={{ fontSize: "0.85rem", color: "#7F1D1D", lineHeight: 1.55, margin: 0, textAlign: "center" }}>
+                Aapne Batch 1 mein <strong>{getPlatformBadge(file1Platform).label}</strong> aur Batch 2 mein galti se{" "}
+                <strong>{getPlatformBadge(file2Platform).label}</strong> upload kar diya hai. Dono platforms ke Order ID
+                formats alag hote hain, isliye inme koi duplicate match nahi hoga.
+                <br />
+                <br />
+                <strong>Kripya same marketplace ki dono PDF upload karein (jaise dono Meesho ya dono Flipkart).</strong>
+              </p>
+            </div>
+
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", flexWrap: "wrap" }}>
+              <button
+                type="button"
+                onClick={() => {
+                  handleClearFile2();
+                  setShowMismatchModal(false);
+                }}
+                style={{
+                  padding: "9px 18px",
+                  fontSize: "0.82rem",
+                  fontWeight: 700,
+                  background: "#DC2626",
+                  color: "#FFFFFF",
+                  border: "none",
+                  borderRadius: "10px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <TrashIcon size={14} color="#FFFFFF" /> Batch 2 ({getPlatformBadge(file2Platform).label}) Hataayein
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowMismatchModal(false)}
+                className="btn-secondary"
+                style={{
+                  padding: "9px 18px",
+                  fontSize: "0.82rem",
+                  fontWeight: 600,
+                  background: "#F1F5F9",
+                }}
+              >
+                Theek Hai, Samajh Gaya
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

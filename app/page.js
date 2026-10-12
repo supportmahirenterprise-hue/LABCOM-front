@@ -437,6 +437,12 @@ export default function Home() {
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
   const [currentDuplicateIndex, setCurrentDuplicateIndex] = useState(0);
 
+  // Multi-Marketplace Auto-Detection States
+  const [detectedMarketplaces, setDetectedMarketplaces] = useState([]);
+  const [marketplaceCounts, setMarketplaceCounts] = useState({ meesho: 0, flipkart: 0, amazon: 0 });
+  const [activeMarketplace, setActiveMarketplace] = useState("meesho");
+  const [showMixedMarketplaceModal, setShowMixedMarketplaceModal] = useState(false);
+
   const fileInputRef = useRef(null);
   const isInitialLoadDone = useRef(false);
 
@@ -981,6 +987,24 @@ export default function Home() {
 
       if (allExtractedPages && allExtractedPages.length > 0) {
         setPages(allExtractedPages);
+
+        const mCounts = { meesho: 0, flipkart: 0, amazon: 0 };
+        allExtractedPages.forEach((p) => {
+          const pl = (p.platform || "meesho").toLowerCase();
+          if (mCounts[pl] !== undefined) mCounts[pl]++;
+          else mCounts[pl] = 1;
+        });
+        const mPresent = Object.keys(mCounts).filter((k) => mCounts[k] > 0);
+        const dominant =
+          mPresent.sort((a, b) => mCounts[b] - mCounts[a])[0] || "meesho";
+
+        setMarketplaceCounts(mCounts);
+        setDetectedMarketplaces(mPresent);
+        setActiveMarketplace(dominant);
+
+        if (mPresent.length > 1) {
+          setShowMixedMarketplaceModal(true);
+        }
       }
 
       if (allDuplicateOrderWarnings.length > 0) {
@@ -1718,6 +1742,26 @@ export default function Home() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
                 <h3 className="heading-display" style={{ fontSize: "1.1rem", color: "var(--text-pure)", margin: 0 }}>
                   Shipping Label PDF
+                  {pages.length > 0 && (
+                    <span
+                      style={{
+                        marginLeft: 10,
+                        fontSize: "0.74rem",
+                        fontWeight: 800,
+                        padding: "3px 9px",
+                        borderRadius: "8px",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 5,
+                        background: activeMarketplace === "flipkart" ? "#EFF6FF" : activeMarketplace === "amazon" ? "#FFFBEB" : "#FDF2F8",
+                        color: activeMarketplace === "flipkart" ? "#1D4ED8" : activeMarketplace === "amazon" ? "#B45309" : "#BE185D",
+                        border: activeMarketplace === "flipkart" ? "1px solid #BFDBFE" : activeMarketplace === "amazon" ? "1px solid #FDE68A" : "1px solid #FBCFE8",
+                      }}
+                    >
+                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: activeMarketplace === "flipkart" ? "#2563EB" : activeMarketplace === "amazon" ? "#D97706" : "#DB2777" }} />
+                      {activeMarketplace.toUpperCase()}
+                    </span>
+                  )}
                 </h3>
                 <span className="tag-pill" style={{ fontSize: "0.72rem" }}>
                   Step 1: Upload
@@ -3204,6 +3248,105 @@ export default function Home() {
             </div>
           </>
         )}
+      </Modal>
+
+      {/* Mixed Marketplace Detected Modal Popup */}
+      <Modal
+        isOpen={showMixedMarketplaceModal && detectedMarketplaces.length > 1}
+        onClose={() => setShowMixedMarketplaceModal(false)}
+        maxWidth={580}
+        style={{
+          borderRadius: "20px",
+          boxShadow: "0 25px 60px -12px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(245, 158, 11, 0.15)",
+          border: "1px solid #FDE68A",
+          background: "#FFFFFF",
+          color: "#0F172A",
+          padding: "26px 28px",
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+          <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+            <div
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: "12px",
+                background: "#FEF3C7",
+                border: "1px solid #FDE68A",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#D97706",
+                flexShrink: 0,
+              }}
+            >
+              <AlertTriangleIcon size={24} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: "1.15rem", fontWeight: 800, color: "#0F172A", margin: "0 0 4px" }}>
+                Multiple Marketplaces Detected
+              </h3>
+              <p style={{ fontSize: "0.82rem", color: "#64748B", margin: 0 }}>
+                Found labels from more than one platform in this upload
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowMixedMarketplaceModal(false)}
+            style={{
+              background: "#F1F5F9",
+              border: "none",
+              borderRadius: "50%",
+              width: 32,
+              height: 32,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#64748B",
+            }}
+          >
+            <CloseIcon size={16} />
+          </button>
+        </div>
+
+        {/* Platform Breakdown Cards */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10, margin: "18px 0" }}>
+          {marketplaceCounts.meesho > 0 && (
+            <div style={{ padding: "12px 14px", borderRadius: 12, background: "#FDF2F8", border: "1px solid #FBCFE8", textAlign: "center" }}>
+              <span style={{ fontSize: "0.72rem", fontWeight: 800, color: "#BE185D", textTransform: "uppercase" }}>Meesho</span>
+              <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#9D174D", marginTop: 2 }}>{marketplaceCounts.meesho} Pages</div>
+            </div>
+          )}
+          {marketplaceCounts.flipkart > 0 && (
+            <div style={{ padding: "12px 14px", borderRadius: 12, background: "#EFF6FF", border: "1px solid #BFDBFE", textAlign: "center" }}>
+              <span style={{ fontSize: "0.72rem", fontWeight: 800, color: "#1D4ED8", textTransform: "uppercase" }}>Flipkart</span>
+              <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#1E40AF", marginTop: 2 }}>{marketplaceCounts.flipkart} Pages</div>
+            </div>
+          )}
+          {marketplaceCounts.amazon > 0 && (
+            <div style={{ padding: "12px 14px", borderRadius: 12, background: "#FFFBEB", border: "1px solid #FDE68A", textAlign: "center" }}>
+              <span style={{ fontSize: "0.72rem", fontWeight: 800, color: "#B45309", textTransform: "uppercase" }}>Amazon</span>
+              <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#92400E", marginTop: 2 }}>{marketplaceCounts.amazon} Pages</div>
+            </div>
+          )}
+        </div>
+
+        <div style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: 12, padding: "12px 16px", marginBottom: 20 }}>
+          <p style={{ fontSize: "0.82rem", color: "#475569", lineHeight: 1.5, margin: 0 }}>
+            <strong>Recommendation:</strong> Different marketplaces (Meesho, Flipkart, Amazon) print different label dimensions and thermal invoice cuts. Mixing them in a single batch can cause print alignment issues. We strongly recommend processing labels from <strong>one marketplace at a time</strong>.
+          </p>
+        </div>
+
+        <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+          <button
+            onClick={() => setShowMixedMarketplaceModal(false)}
+            className="btn-primary"
+            style={{ padding: "10px 20px", fontSize: "0.86rem" }}
+          >
+            Understood, Continue
+          </button>
+        </div>
       </Modal>
 
       {/* Duplicate Saved Order Warning Notice Modal Popup */}
