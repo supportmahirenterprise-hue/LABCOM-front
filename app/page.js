@@ -368,6 +368,7 @@ export default function Home() {
   const [cropRight, setCropRight] = useState(0);
   const [previewMode, setPreviewMode] = useState("after"); // "after", "before"
   const [zoomLevel, setZoomLevel] = useState(100);
+  const [detectedLabelFormat, setDetectedLabelFormat] = useState(null); // "thermal_4x6" | "a4_sheet" | "custom"
 
   function handleSelectCropPreset(preset) {
     setCropPreset(preset);
@@ -927,6 +928,23 @@ export default function Home() {
           const fileBuffer = await curFile.arrayBuffer();
           const loadedPdf = await PDFDocument.load(fileBuffer, { ignoreEncryption: true });
           totalPagesInPdf = loadedPdf.getPageCount();
+
+          if (fIdx === 0 && totalPagesInPdf > 0) {
+            const p1 = loadedPdf.getPage(0);
+            const { width: p1W, height: p1H } = p1.getSize();
+            if (p1W > 380 || p1H > 550) {
+              setDetectedLabelFormat("a4_sheet");
+              setCropEnabled(true);
+              setCropPreset("label_only");
+              setCropTop(0);
+              setCropBottom(58);
+            } else if (p1W >= 240 && p1W <= 360 && p1H >= 360 && p1H <= 520) {
+              setDetectedLabelFormat("thermal_4x6");
+              setCropEnabled(false);
+            } else {
+              setDetectedLabelFormat("custom");
+            }
+          }
         } catch (e) {
           console.warn("Could not read page count client-side:", e);
         }
@@ -1142,13 +1160,22 @@ export default function Home() {
 
         const badgeImageCache = new Map();
 
-        const renderStampBadgeCanvas = async (storeNameStr, qrContentStr, detailTextStr, qrSizeVal, fontSizeVal, pageWidthPt = 288) => {
+        const renderStampBadgeCanvas = async (
+          storeNameStr,
+          qrContentStr,
+          detailTextStr,
+          qrSizeVal,
+          fontSizeVal,
+          targetAvailableWidthPt = 272,
+          isA4Format = false
+        ) => {
           const scale = isHd ? 6 : 4; // High DPI (300+ to 600 DPI Ultra-HD for crisp thermal printing)
           const cleanStore = (storeNameStr || "STORE").trim().toUpperCase();
 
-          const isA4 = pageWidthPt > 400;
-          // Target width to fill the label footer cleanly with symmetric left/right margins matching the table
-          const targetWidthPt = isA4 ? Math.min(pageWidthPt - 28, 540) : Math.min(pageWidthPt - 16, 272);
+          // Target width to fill the visible label footer cleanly with symmetric margins
+          const targetWidthPt = isA4Format
+            ? Math.min(targetAvailableWidthPt - 28, 540)
+            : Math.min(targetAvailableWidthPt - 16, 272);
           const targetWidthPx = Math.round(targetWidthPt * scale);
 
           // Setup measuring canvas
@@ -1156,7 +1183,7 @@ export default function Home() {
           const mCtx = measureCanvas.getContext("2d");
 
           // Determine Store Font Size (Larger & more prominent)
-          const baseScaleMultiplier = isA4 ? 1.8 : 1.45;
+          const baseScaleMultiplier = isA4Format ? 1.8 : 1.45;
 
           let storeFontSizePt = Math.round(Math.max(15 * baseScaleMultiplier, fontSizeVal * 1.55 * baseScaleMultiplier));
           let storeFontCss = `bold ${Math.round(storeFontSizePt * scale)}px "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
@@ -1164,7 +1191,7 @@ export default function Home() {
           let storeTextWidth = mCtx.measureText(cleanStore).width;
 
           // Auto-shrink store name if it is very long
-          const maxStoreWidthPx = Math.round((isA4 ? 180 : 112) * scale);
+          const maxStoreWidthPx = Math.round((isA4Format ? 180 : 112) * scale);
           while (storeTextWidth > maxStoreWidthPx && storeFontSizePt > 9.5) {
             storeFontSizePt -= 0.5;
             storeFontCss = `bold ${Math.round(storeFontSizePt * scale)}px "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
@@ -1173,16 +1200,16 @@ export default function Home() {
           }
 
           // Dynamic Sizing for Icon and QR (More prominent & larger)
-          const iconSizePx = Math.round((isA4 ? 46 : 35) * scale);
-          const qrScaledSizePx = Math.round((isA4 ? 64 : 48) * scale);
+          const iconSizePx = Math.round((isA4Format ? 46 : 35) * scale);
+          const qrScaledSizePx = Math.round((isA4Format ? 64 : 48) * scale);
 
           // Layout spacing
-          const padXPx = Math.round((isA4 ? 16 : 12) * scale);
-          const padYPx = Math.round((isA4 ? 12 : 9.5) * scale);
-          const iconTextGapPx = Math.round((isA4 ? 10 : 8) * scale);
-          const dividerGapPx = Math.round((isA4 ? 14 : 10) * scale);
-          const dividerWidthPx = Math.round((isA4 ? 2.5 : 2) * scale);
-          const qrTextGapPx = Math.round((isA4 ? 12 : 9) * scale);
+          const padXPx = Math.round((isA4Format ? 16 : 12) * scale);
+          const padYPx = Math.round((isA4Format ? 12 : 9.5) * scale);
+          const iconTextGapPx = Math.round((isA4Format ? 10 : 8) * scale);
+          const dividerGapPx = Math.round((isA4Format ? 14 : 10) * scale);
+          const dividerWidthPx = Math.round((isA4Format ? 2.5 : 2) * scale);
+          const qrTextGapPx = Math.round((isA4Format ? 12 : 9) * scale);
 
           const leftSectionWidthPx = iconSizePx + iconTextGapPx + storeTextWidth;
 
@@ -1191,7 +1218,7 @@ export default function Home() {
           const maxAvailableTextWidthPx = Math.max(Math.round(70 * scale), targetWidthPx - fixedWidthBeforeDetailPx);
 
           // Auto-fit detail text
-          let detailFontSizePt = Math.max(isA4 ? 11 : 9.2, fontSizeVal * (isA4 ? 1.2 : 1.0));
+          let detailFontSizePt = Math.max(isA4Format ? 11 : 9.2, fontSizeVal * (isA4Format ? 1.2 : 1.0));
           let detailFontCss = `bold ${Math.round(detailFontSizePt * scale)}px "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
           mCtx.font = detailFontCss;
 
@@ -1232,8 +1259,8 @@ export default function Home() {
           ctx.imageSmoothingQuality = "high";
 
           // 1. White Background with Rounded Outer Border (Exact Match)
-          const borderRadiusPx = Math.round((isA4 ? 16 : 12) * scale);
-          const borderWidthPx = Math.round((isA4 ? 2.5 : 2) * scale);
+          const borderRadiusPx = Math.round((isA4Format ? 16 : 12) * scale);
+          const borderWidthPx = Math.round((isA4Format ? 2.5 : 2) * scale);
 
           ctx.fillStyle = "#FFFFFF";
           ctx.strokeStyle = "#000000";
@@ -1309,7 +1336,37 @@ export default function Home() {
 
         for (let i = 0; i < numPagesToProcess; i++) {
           const page = srcDoc.getPage(i);
-          const pageWidth = page.getWidth();
+          const { width: pageWidth, height: pageHeight } = page.getSize();
+
+          // Automatic format & size detection per page
+          const isThermalPage = pageWidth >= 240 && pageWidth <= 360 && pageHeight >= 360 && pageHeight <= 520;
+          const isA4Page = pageWidth > 380 || pageHeight > 550;
+
+          // Crop safeguard: If the page is already a 4x6 thermal label, do NOT apply A4 receipt crop!
+          const shouldApplyCrop = cropEnabled && !(isThermalPage && cropPreset === "label_only");
+
+          let pageCropX = 0;
+          let pageCropY = 0;
+          let pageCropW = pageWidth;
+          let pageCropH = pageHeight;
+
+          if (shouldApplyCrop) {
+            const topPct = (parseFloat(cropTop) || 0) / 100;
+            const botPct = (parseFloat(cropBottom) || 0) / 100;
+            const leftPct = (parseFloat(cropLeft) || 0) / 100;
+            const rightPct = (parseFloat(cropRight) || 0) / 100;
+
+            pageCropX = pageWidth * leftPct;
+            pageCropW = pageWidth * Math.max(0.05, 1 - leftPct - rightPct);
+            pageCropY = pageHeight * botPct;
+            pageCropH = pageHeight * Math.max(0.05, 1 - topPct - botPct);
+          }
+
+          const effectiveIsA4 = !shouldApplyCrop && isA4Page;
+          const targetBadgeWidthPt = effectiveIsA4
+            ? Math.min(pageCropW - 28, 540)
+            : Math.min(pageCropW - 16, 272);
+
           const data = fields[i] || {};
 
           let qrContent = qrText || "{orderNo}";
@@ -1325,7 +1382,7 @@ export default function Home() {
             detailFilled = detailFilled.replace(new RegExp(tag, "g"), data[key] || "");
           });
 
-          const cacheKey = `${cleanStoreName}__${qrContent}__${detailFilled}__${size}__${fSize}__${pageWidth}__${isHd ? "hd" : "std"}`;
+          const cacheKey = `${cleanStoreName}__${qrContent}__${detailFilled}__${size}__${fSize}__${Math.round(targetBadgeWidthPt)}__${effectiveIsA4 ? "a4" : "thermal"}__${isHd ? "hd" : "std"}`;
           let badgeObj = badgeImageCache.get(cacheKey);
 
           if (!badgeObj) {
@@ -1335,7 +1392,8 @@ export default function Home() {
               detailFilled,
               size,
               fSize,
-              pageWidth
+              targetBadgeWidthPt,
+              effectiveIsA4
             );
             const embeddedImg = await srcDoc.embedPng(pngBytes);
             badgeObj = {
@@ -1346,10 +1404,15 @@ export default function Home() {
             badgeImageCache.set(cacheKey, badgeObj);
           }
 
-          // Center horizontally on page so both left & right margins are equal
-          const centeredX = Math.max(6, Math.round((pageWidth - badgeObj.widthPt) / 2));
-          const finalX = stampStyle === "badge" ? centeredX : x;
-          const finalY = y;
+          // Horizontal Alignment: Centered symmetrically inside the visible cropped/page area
+          const centeredX = pageCropX + Math.max(4, Math.round((pageCropW - badgeObj.widthPt) / 2));
+          const finalX = stampStyle === "badge" ? centeredX : Math.max(pageCropX + 4, pageCropX + x);
+
+          // Vertical Alignment: Positioned cleanly relative to the bottom of the visible cropped/page area
+          // On cropped A4 (e.g. cropBottom 58%), pageCropY is 488pt. y is 10pt. finalY = 488 + 10 = 498pt!
+          // On 4x6 thermal (cropBottom 0%), pageCropY is 0. y is 10pt. finalY = 0 + 10 = 10pt!
+          const baseOffsetY = parseFloat(qrY) || 10;
+          const finalY = pageCropY + Math.max(4, baseOffsetY);
 
           page.drawImage(badgeObj.image, {
             x: finalX,
@@ -1399,19 +1462,24 @@ export default function Home() {
       // Apply PDF Crop Box & Media Box Client-Side if cropEnabled
       if (cropEnabled) {
         copiedPages.forEach((p) => {
-          const { width, height } = p.getSize();
-          const topPct = (parseFloat(cropTop) || 0) / 100;
-          const botPct = (parseFloat(cropBottom) || 0) / 100;
-          const leftPct = (parseFloat(cropLeft) || 0) / 100;
-          const rightPct = (parseFloat(cropRight) || 0) / 100;
+          const { width: pWidth, height: pHeight } = p.getSize();
+          const isThermalPage = pWidth >= 240 && pWidth <= 360 && pHeight >= 360 && pHeight <= 520;
+          const shouldApplyCrop = !(isThermalPage && cropPreset === "label_only");
 
-          const cropX = width * leftPct;
-          const cropW = width * Math.max(0.05, 1 - leftPct - rightPct);
-          const cropY = height * botPct;
-          const cropH = height * Math.max(0.05, 1 - topPct - botPct);
+          if (shouldApplyCrop) {
+            const topPct = (parseFloat(cropTop) || 0) / 100;
+            const botPct = (parseFloat(cropBottom) || 0) / 100;
+            const leftPct = (parseFloat(cropLeft) || 0) / 100;
+            const rightPct = (parseFloat(cropRight) || 0) / 100;
 
-          p.setCropBox(cropX, cropY, cropW, cropH);
-          p.setMediaBox(cropX, cropY, cropW, cropH);
+            const cropX = pWidth * leftPct;
+            const cropW = pWidth * Math.max(0.05, 1 - leftPct - rightPct);
+            const cropY = pHeight * botPct;
+            const cropH = pHeight * Math.max(0.05, 1 - topPct - botPct);
+
+            p.setCropBox(cropX, cropY, cropW, cropH);
+            p.setMediaBox(cropX, cropY, cropW, cropH);
+          }
         });
       }
 
@@ -1743,24 +1811,45 @@ export default function Home() {
                 <h3 className="heading-display" style={{ fontSize: "1.1rem", color: "var(--text-pure)", margin: 0 }}>
                   Shipping Label PDF
                   {pages.length > 0 && (
-                    <span
-                      style={{
-                        marginLeft: 10,
-                        fontSize: "0.74rem",
-                        fontWeight: 800,
-                        padding: "3px 9px",
-                        borderRadius: "8px",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 5,
-                        background: activeMarketplace === "flipkart" ? "#EFF6FF" : activeMarketplace === "amazon" ? "#FFFBEB" : "#FDF2F8",
-                        color: activeMarketplace === "flipkart" ? "#1D4ED8" : activeMarketplace === "amazon" ? "#B45309" : "#BE185D",
-                        border: activeMarketplace === "flipkart" ? "1px solid #BFDBFE" : activeMarketplace === "amazon" ? "1px solid #FDE68A" : "1px solid #FBCFE8",
-                      }}
-                    >
-                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: activeMarketplace === "flipkart" ? "#2563EB" : activeMarketplace === "amazon" ? "#D97706" : "#DB2777" }} />
-                      {activeMarketplace.toUpperCase()}
-                    </span>
+                    <>
+                      <span
+                        style={{
+                          marginLeft: 10,
+                          fontSize: "0.74rem",
+                          fontWeight: 800,
+                          padding: "3px 9px",
+                          borderRadius: "8px",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 5,
+                          background: activeMarketplace === "flipkart" ? "#EFF6FF" : activeMarketplace === "amazon" ? "#FFFBEB" : "#FDF2F8",
+                          color: activeMarketplace === "flipkart" ? "#1D4ED8" : activeMarketplace === "amazon" ? "#B45309" : "#BE185D",
+                          border: activeMarketplace === "flipkart" ? "1px solid #BFDBFE" : activeMarketplace === "amazon" ? "1px solid #FDE68A" : "1px solid #FBCFE8",
+                        }}
+                      >
+                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: activeMarketplace === "flipkart" ? "#2563EB" : activeMarketplace === "amazon" ? "#D97706" : "#DB2777" }} />
+                        {activeMarketplace.toUpperCase()}
+                      </span>
+                      {detectedLabelFormat && (
+                        <span
+                          style={{
+                            marginLeft: 6,
+                            fontSize: "0.72rem",
+                            fontWeight: 700,
+                            padding: "3px 8px",
+                            borderRadius: "8px",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 4,
+                            background: detectedLabelFormat === "thermal_4x6" ? "#ECFDF5" : "#F8FAFC",
+                            color: detectedLabelFormat === "thermal_4x6" ? "#065F46" : "#475569",
+                            border: detectedLabelFormat === "thermal_4x6" ? "1px solid #A7F3D0" : "1px solid #CBD5E1",
+                          }}
+                        >
+                          {detectedLabelFormat === "thermal_4x6" ? "📐 4x6\" Thermal" : "📄 A4 Format"}
+                        </span>
+                      )}
+                    </>
                   )}
                 </h3>
                 <span className="tag-pill" style={{ fontSize: "0.72rem" }}>
