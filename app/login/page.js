@@ -59,34 +59,74 @@ export default function LoginPage() {
           Log in to access your intelligent shipping label engine.
         </p>
 
-        {/* 1-Click Quick Demo Login Button (Disabled for Live Production)
-        <button
-          style={{
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 10,
-            padding: "14px 18px",
-            fontSize: "0.95rem",
-            fontWeight: 700,
-            background: "linear-gradient(135deg, #4F46E5 0%, #0284C7 100%)",
-            color: "#FFFFFF",
-            border: "none",
-            borderRadius: "14px",
-            cursor: "pointer",
-            marginBottom: 14,
-            boxShadow: "0 4px 18px rgba(79, 70, 229, 0.28)",
-            transition: "all 0.2s ease",
+        {/* Email Direct Access */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const email = e.target.email.value.trim();
+            if (email) {
+              signIn("credentials", { callbackUrl: "/", email });
+            }
           }}
-          onClick={() => signIn("credentials", { callbackUrl: "/", email: "seller@labelpro.in" })}
+          style={{ marginBottom: 18 }}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-          </svg>
-          1-Click Quick Demo Login
-        </button>
-        */}
+          <div style={{ marginBottom: 10, textAlign: "left" }}>
+            <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#475569", display: "block", marginBottom: 6 }}>
+              Seller Business Email
+            </label>
+            <input
+              name="email"
+              type="email"
+              required
+              placeholder="e.g. seller@yourstore.com"
+              defaultValue="seller@labelpro.in"
+              style={{
+                width: "100%",
+                padding: "11px 14px",
+                borderRadius: "12px",
+                border: "1px solid #CBD5E1",
+                fontSize: "0.88rem",
+                outline: "none",
+                color: "#0F172A",
+                background: "#F8FAFC",
+                transition: "border-color 0.2s ease",
+              }}
+            />
+          </div>
+          <button
+            type="submit"
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              padding: "12px 18px",
+              fontSize: "0.9rem",
+              fontWeight: 700,
+              background: "linear-gradient(135deg, #4F46E5 0%, #0284C7 100%)",
+              color: "#FFFFFF",
+              border: "none",
+              borderRadius: "12px",
+              cursor: "pointer",
+              boxShadow: "0 4px 14px rgba(79, 70, 229, 0.25)",
+              transition: "all 0.2s ease",
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+              <polyline points="10 17 15 12 10 7" />
+              <line x1="15" y1="12" x2="3" y2="12" />
+            </svg>
+            Continue with Email
+          </button>
+        </form>
+
+        <div style={{ display: "flex", alignItems: "center", margin: "16px 0", color: "#94A3B8" }}>
+          <div style={{ flex: 1, height: 1, background: "#E2E8F0" }} />
+          <span style={{ padding: "0 10px", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase" }}>OR</span>
+          <div style={{ flex: 1, height: 1, background: "#E2E8F0" }} />
+        </div>
 
         {/* Google Login */}
         <button
@@ -96,19 +136,19 @@ export default function LoginPage() {
             alignItems: "center",
             justifyContent: "center",
             gap: 12,
-            padding: "12px 16px",
-            fontSize: "0.9rem",
+            padding: "11px 16px",
+            fontSize: "0.88rem",
             fontWeight: 600,
             background: "#FFFFFF",
             color: "#0F172A",
             border: "1px solid #CBD5E1",
-            borderRadius: "14px",
+            borderRadius: "12px",
             cursor: "pointer",
             transition: "all 0.2s ease",
           }}
           onClick={() => signIn("google", { callbackUrl: "/" })}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path
               d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
               fill="#4285F4"
@@ -128,6 +168,12 @@ export default function LoginPage() {
           </svg>
           Continue with Google
         </button>
+
+        <p style={{ marginTop: 22, fontSize: "0.72rem", color: "#94A3B8", lineHeight: 1.5 }}>
+          By continuing, you agree to our{" "}
+          <a href="/terms" style={{ color: "#4F46E5", textDecoration: "underline" }}>Terms</a> and{" "}
+          <a href="/privacy" style={{ color: "#4F46E5", textDecoration: "underline" }}>Privacy Policy</a>.
+        </p>
       </div>
     </div>
   );
