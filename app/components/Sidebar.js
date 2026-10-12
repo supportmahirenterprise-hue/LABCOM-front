@@ -98,13 +98,13 @@ export function Sidebar() {
             LabelPro
           </h1>
           <p style={{ fontSize: "0.62rem", color: "#4F46E5", margin: 0, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700 }}>
-            Print Engine
+            E-Commerce Studio
           </p>
         </div>
       </Link>
 
-      {/* Navigation Links */}
-      <nav style={{ flex: 1, padding: "16px 12px", display: "flex", flexDirection: "column", gap: 3, overflowY: "auto" }}>
+      {/* Navigation Links (Google Sitelinks Hierarchy) */}
+      <nav aria-label="Main Sitelinks Navigation" style={{ flex: 1, padding: "16px 12px", display: "flex", flexDirection: "column", gap: 3, overflowY: "auto" }}>
         <div style={{ fontSize: "0.62rem", fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.12em", paddingLeft: 10, marginBottom: 6 }}>
           Operations
         </div>
@@ -115,6 +115,7 @@ export function Sidebar() {
             <Link
               key={item.label}
               href={item.href}
+              title={item.label}
               prefetch={true}
               style={{
                 display: "flex",
@@ -150,6 +151,7 @@ export function Sidebar() {
             <Link
               key={item.label}
               href={item.href}
+              title={item.label}
               prefetch={true}
               style={{
                 display: "flex",

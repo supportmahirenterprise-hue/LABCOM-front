@@ -1,20 +1,24 @@
 export const metadata = {
-  title: "Remove Duplicate Shipping Labels | LabelPro.in",
+  title: "Duplicate Label Remover | India's First E-Commerce Label Studio",
   description:
-    "Cross-compare two shipping label PDF batches, eliminate duplicate order numbers in browser memory, and download clean unique label PDFs or process directly in Studio.",
+    "India's first duplicate shipping label remover for Meesho, Flipkart & Amazon. Cross-compare two shipping label PDF batches, eliminate duplicate order numbers in browser memory, and prevent double-shipping losses.",
   keywords: [
+    "duplicate label remover",
+    "meesho duplicate label remover",
+    "flipkart double order print prevention",
     "remove duplicate shipping labels",
-    "meesho duplicate order remover",
     "pdf label duplicate filter",
-    "clean duplicate labels",
+    "e-commerce label studio",
+    "clean duplicate labels online",
     "shipping label sorter",
+    "thermal shipping label cropper",
   ],
   openGraph: {
-    title: "Remove Duplicate Shipping Labels | LabelPro.in",
+    title: "Duplicate Label Remover | India's First E-Commerce Label Studio",
     description:
-      "Cross-compare two shipping label PDF batches, eliminate duplicate order numbers in browser memory, and download clean unique label PDFs or process directly in Studio.",
+      "Cross-compare two shipping label PDF batches, eliminate duplicate order numbers in browser memory, and download clean unique label PDFs.",
     url: "https://labelpro.in/remove-duplicate",
-    siteName: "LabelPro",
+    siteName: "LabelPro - India's First E-Commerce Label Studio",
     type: "website",
   },
   alternates: {

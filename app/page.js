@@ -1727,10 +1727,25 @@ export default function Home() {
         }}
       >
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <h1 className="heading-display" style={{ fontSize: "1.5rem", color: "var(--text-pure)", margin: 0, letterSpacing: "-0.02em" }}>
-              Thermal Label Studio
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <h1 className="heading-display" style={{ fontSize: "1.65rem", color: "var(--text-pure)", margin: 0, letterSpacing: "-0.02em" }}>
+              India&apos;s First E-Commerce Label Studio
             </h1>
+            <span
+              style={{
+                fontSize: "0.72rem",
+                padding: "3px 10px",
+                borderRadius: "var(--radius-full)",
+                background: "linear-gradient(135deg, rgba(79, 70, 229, 0.12) 0%, rgba(2, 132, 199, 0.12) 100%)",
+                color: "#4F46E5",
+                border: "1px solid rgba(79, 70, 229, 0.28)",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+              }}
+            >
+              All-in-One Studio
+            </span>
             {session && (
               <span
                 style={{
@@ -1751,8 +1766,18 @@ export default function Home() {
               </span>
             )}
           </div>
-          <p style={{ fontSize: "0.82rem", color: "var(--text-silver)", marginTop: 4, marginBottom: 0 }}>
-            Upload Meesho, Xpressbees, or Delhivery labels to stamp QR codes and sort batches.
+          <p style={{ fontSize: "0.86rem", color: "var(--text-silver)", marginTop: 6, marginBottom: 0, fontWeight: 500, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+            <Link href="/remove-duplicate" style={{ color: "#DC2626", fontWeight: 700, textDecoration: "none" }}>
+              Duplicate Remover
+            </Link>
+            <span>•</span>
+            <span style={{ color: "#0F172A", fontWeight: 600 }}>Label Cropper</span>
+            <span>•</span>
+            <span style={{ color: "#0F172A", fontWeight: 600 }}>Label Sorter</span>
+            <span>•</span>
+            <Link href="/customer-analysis" style={{ color: "#4F46E5", fontWeight: 700, textDecoration: "none" }}>
+              Buyer &amp; Return Analyser
+            </Link>
           </p>
         </div>
       </div>
