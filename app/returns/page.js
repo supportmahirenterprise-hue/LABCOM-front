@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Modal from "../components/Modal";
+import { SkeletonBar, ButtonSpinner, TableSkeletonRows } from "../components/Loader";
 import {
   PackageIcon,
   RefreshIcon,
@@ -299,13 +300,33 @@ export default function ReturnsPage() {
           <button
             className="btn-secondary"
             onClick={() => fetchReturnsData(true)}
-            style={{ fontSize: "0.85rem", padding: "10px 18px", borderColor: "var(--aurora-2)", color: "var(--aurora-1)", display: "flex", alignItems: "center", gap: 8 }}
+            disabled={loading}
+            style={{
+              fontSize: "0.85rem",
+              padding: "10px 18px",
+              borderColor: "var(--aurora-2)",
+              color: "var(--aurora-1)",
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              opacity: loading ? 0.75 : 1,
+              cursor: loading ? "not-allowed" : "pointer"
+            }}
           >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="23 4 23 10 17 10" />
-              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-            </svg>
-            Refresh Data
+            {loading ? (
+              <>
+                <ButtonSpinner color="indigo" size={14} />
+                <span>Refreshing Data...</span>
+              </>
+            ) : (
+              <>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="23 4 23 10 17 10" />
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                </svg>
+                <span>Refresh Data</span>
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -322,8 +343,12 @@ export default function ReturnsPage() {
               <PackageIcon size={16} />
             </div>
           </div>
-          <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#D97706", marginTop: 8, fontFamily: "var(--font-display)" }}>
-            {summary.totalReturns || 0}
+          <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#D97706", marginTop: 8, fontFamily: "var(--font-display)", minHeight: 48, display: "flex", alignItems: "center" }}>
+            {loading && !data ? (
+              <SkeletonBar width={80} height={36} radius={8} />
+            ) : (
+              summary.totalReturns || 0
+            )}
           </div>
           <span style={{ fontSize: "0.76rem", color: "#B45309", fontWeight: 600, marginTop: 4, display: "block" }}>
             Total reverse logistics parcels stored
@@ -340,8 +365,12 @@ export default function ReturnsPage() {
               <RefreshIcon size={16} />
             </div>
           </div>
-          <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#DC2626", marginTop: 8, fontFamily: "var(--font-display)" }}>
-            {summary.customerReturnsCount || 0}
+          <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#DC2626", marginTop: 8, fontFamily: "var(--font-display)", minHeight: 48, display: "flex", alignItems: "center" }}>
+            {loading && !data ? (
+              <SkeletonBar width={80} height={36} radius={8} />
+            ) : (
+              summary.customerReturnsCount || 0
+            )}
           </div>
           <span style={{ fontSize: "0.76rem", color: "#B91C1C", fontWeight: 600, marginTop: 4, display: "block" }}>
             Buyer initiated customer returns
@@ -358,8 +387,12 @@ export default function ReturnsPage() {
               <TruckIcon size={16} />
             </div>
           </div>
-          <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#0284C7", marginTop: 8, fontFamily: "var(--font-display)" }}>
-            {summary.rtoCount || 0}
+          <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#0284C7", marginTop: 8, fontFamily: "var(--font-display)", minHeight: 48, display: "flex", alignItems: "center" }}>
+            {loading && !data ? (
+              <SkeletonBar width={80} height={36} radius={8} />
+            ) : (
+              summary.rtoCount || 0
+            )}
           </div>
           <span style={{ fontSize: "0.76rem", color: "#0369A1", fontWeight: 600, marginTop: 4, display: "block" }}>
             Undelivered courier RTO returns
@@ -376,8 +409,12 @@ export default function ReturnsPage() {
               <AlertTriangleIcon size={16} />
             </div>
           </div>
-          <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#7C3AED", marginTop: 10, wordBreak: "break-all" }}>
-            {summary.topReturnedSku?.name || "N/A"}
+          <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#7C3AED", marginTop: 10, wordBreak: "break-all", minHeight: 28, display: "flex", alignItems: "center" }}>
+            {loading && !data ? (
+              <SkeletonBar width={130} height={26} radius={6} />
+            ) : (
+              summary.topReturnedSku?.name || "N/A"
+            )}
           </div>
           <span style={{ fontSize: "0.76rem", color: "#6D28D9", fontWeight: 600, marginTop: 4, display: "block" }}>
             {summary.topReturnedSku ? `${summary.topReturnedSku.count} returns logged` : "No returns data"}
@@ -488,9 +525,27 @@ export default function ReturnsPage() {
           </span>
         </div>
 
-        {loading ? (
-          <div style={{ padding: "50px 20px", textAlign: "center", color: "var(--text-silver)", fontSize: "0.9rem" }}>
-            ⏳ Loading return shipment records...
+        {loading && !data ? (
+          <div className="table-responsive-container" style={{ borderRadius: "0 0 16px 16px", border: "none" }}>
+            <table className="custom-table" style={{ minWidth: "1100px" }}>
+              <thead>
+                <tr>
+                  <th style={{ width: "45px", paddingLeft: "16px" }}>#</th>
+                  <th style={{ width: "18%" }}>SUB ORDER ID / ORDER NO</th>
+                  <th style={{ width: "13%" }}>RETURN TYPE</th>
+                  <th style={{ width: "14%" }}>SKU / PRODUCT</th>
+                  <th style={{ width: "6%", textAlign: "center" }}>QTY</th>
+                  <th style={{ width: "18%" }}>RETURN REASON</th>
+                  <th style={{ width: "15%" }}>CUSTOMER NAME & MOBILE</th>
+                  <th style={{ width: "10%" }}>STATE</th>
+                  <th style={{ width: "12%" }}>COURIER & AWB</th>
+                  <th style={{ width: "10%", paddingRight: "16px" }}>DATE</th>
+                </tr>
+              </thead>
+              <tbody>
+                <TableSkeletonRows rows={7} cols={10} />
+              </tbody>
+            </table>
           </div>
         ) : returnsList.length === 0 ? (
           <div style={{ padding: "50px 20px", textAlign: "center", color: "#64748B", fontSize: "0.88rem" }}>

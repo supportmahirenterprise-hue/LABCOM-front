@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { PageLoader, ButtonSpinner } from "../components/Loader";
 import {
   SortAscIcon,
   SortDescIcon,
@@ -227,8 +228,8 @@ export default function SettingsPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div style={{ padding: "40px 0", color: "var(--text-silver)", fontSize: "0.9rem" }}>
-        Loading your cloud preferences...
+      <div style={{ minHeight: "100vh", paddingBottom: 60, position: "relative", width: "100%", maxWidth: "100%" }}>
+        <PageLoader title="Loading Account & Store Settings..." subtitle="Synchronizing your cloud preferences and WhatsApp configuration..." />
       </div>
     );
   }

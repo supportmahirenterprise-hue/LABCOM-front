@@ -7,6 +7,7 @@ import Link from "next/link";
 import QRCode from "qrcode";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import Modal from "./components/Modal";
+import { ButtonSpinner } from "./components/Loader";
 import { getPendingStudioPdf, clearPendingStudioPdf } from "../lib/pdfTransfer";
 
 const BACKEND_URL = (
