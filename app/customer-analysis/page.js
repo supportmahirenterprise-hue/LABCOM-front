@@ -54,12 +54,7 @@ export default function CustomerAnalysisPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
 
-  const scrollToTable = () => {
-    if (typeof document !== "undefined") {
-      const el = document.getElementById("customer-directory-table");
-      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
+
 
   const paginatedCustomers = useMemo(() => {
     let list = data?.customers || [];
@@ -166,7 +161,7 @@ export default function CustomerAnalysisPage() {
 
   async function fetchCustomerAnalysis(force = false, platformOverride = null) {
     if (!session?.user?.email) return;
-    if (!data || force === true) setLoading(true);
+    setLoading(true);
     try {
       const userEmail = session.user.email;
       const targetPlatform = platformOverride !== null ? platformOverride : selectedPlatform;
@@ -403,8 +398,12 @@ export default function CustomerAnalysisPage() {
                 ALL
               </span>
             </div>
-            <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#0F172A", marginTop: 6, fontFamily: "var(--font-display)" }}>
-              {data?.summary?.totalCustomers || 0}
+            <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#0F172A", marginTop: 6, fontFamily: "var(--font-display)", minHeight: 34, display: "flex", alignItems: "center" }}>
+              {loading && !data ? (
+                <SkeletonBar width={60} height={28} radius={6} />
+              ) : (
+                data?.summary?.totalCustomers || 0
+              )}
             </div>
             <span style={{ fontSize: "0.72rem", color: "#64748B", display: "block", marginTop: 2 }}>
               Total Buyers Across Stores
@@ -434,8 +433,12 @@ export default function CustomerAnalysisPage() {
                 MEESHO
               </span>
             </div>
-            <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#BE185D", marginTop: 6, fontFamily: "var(--font-display)" }}>
-              {data?.summary?.meeshoCustomersCount || 0}
+            <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#BE185D", marginTop: 6, fontFamily: "var(--font-display)", minHeight: 34, display: "flex", alignItems: "center" }}>
+              {loading && !data ? (
+                <SkeletonBar width={60} height={28} radius={6} />
+              ) : (
+                data?.summary?.meeshoCustomersCount || 0
+              )}
             </div>
             <span style={{ fontSize: "0.72rem", color: "#9D174D", display: "block", marginTop: 2 }}>
               Meesho Marketplace Buyers
@@ -465,8 +468,12 @@ export default function CustomerAnalysisPage() {
                 FLIPKART
               </span>
             </div>
-            <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#1D4ED8", marginTop: 6, fontFamily: "var(--font-display)" }}>
-              {data?.summary?.flipkartCustomersCount || 0}
+            <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#1D4ED8", marginTop: 6, fontFamily: "var(--font-display)", minHeight: 34, display: "flex", alignItems: "center" }}>
+              {loading && !data ? (
+                <SkeletonBar width={60} height={28} radius={6} />
+              ) : (
+                data?.summary?.flipkartCustomersCount || 0
+              )}
             </div>
             <span style={{ fontSize: "0.72rem", color: "#1E40AF", display: "block", marginTop: 2 }}>
               Flipkart Seller Hub Buyers
@@ -496,8 +503,12 @@ export default function CustomerAnalysisPage() {
                 AMAZON
               </span>
             </div>
-            <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#B45309", marginTop: 6, fontFamily: "var(--font-display)" }}>
-              {data?.summary?.amazonCustomersCount || 0}
+            <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#B45309", marginTop: 6, fontFamily: "var(--font-display)", minHeight: 34, display: "flex", alignItems: "center" }}>
+              {loading && !data ? (
+                <SkeletonBar width={60} height={28} radius={6} />
+              ) : (
+                data?.summary?.amazonCustomersCount || 0
+              )}
             </div>
             <span style={{ fontSize: "0.72rem", color: "#92400E", display: "block", marginTop: 2 }}>
               Amazon Easy/Self Ship Buyers
@@ -516,7 +527,6 @@ export default function CustomerAnalysisPage() {
               onClick={() => {
                 setRepeatOnly(false);
                 setCurrentPage(1);
-                scrollToTable();
                 showToast(`Showing all unique buyers (${data?.summary?.totalCustomers || 0})`, "info");
               }}
               className="premium-glass"
@@ -543,8 +553,12 @@ export default function CustomerAnalysisPage() {
                   </svg>
                 </div>
               </div>
-              <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#0F172A", marginTop: 8, fontFamily: "var(--font-display)" }}>
-                {data?.summary?.totalCustomers || 0}
+              <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#0F172A", marginTop: 8, fontFamily: "var(--font-display)", minHeight: 48, display: "flex", alignItems: "center" }}>
+                {loading && !data ? (
+                  <SkeletonBar width={80} height={36} radius={8} />
+                ) : (
+                  data?.summary?.totalCustomers || 0
+                )}
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
                 <span style={{ fontSize: "0.76rem", color: "#4F46E5", fontWeight: 600 }}>
@@ -567,7 +581,6 @@ export default function CustomerAnalysisPage() {
                 const next = !repeatOnly;
                 setRepeatOnly(next);
                 setCurrentPage(1);
-                scrollToTable();
                 showToast(next ? `Filtered: Repeat Buyers with 2+ Orders (${data?.summary?.repeatCustomersCount || 0})` : "Filter cleared: Showing all buyers", "info");
               }}
               className="premium-glass"
@@ -593,8 +606,12 @@ export default function CustomerAnalysisPage() {
                   </svg>
                 </div>
               </div>
-              <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#D97706", marginTop: 8, fontFamily: "var(--font-display)" }}>
-                {data?.summary?.repeatCustomersCount || 0}
+              <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#D97706", marginTop: 8, fontFamily: "var(--font-display)", minHeight: 48, display: "flex", alignItems: "center" }}>
+                {loading && !data ? (
+                  <SkeletonBar width={80} height={36} radius={8} />
+                ) : (
+                  data?.summary?.repeatCustomersCount || 0
+                )}
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
                 <span style={{ fontSize: "0.76rem", color: "#B45309", fontWeight: 600 }}>
@@ -616,7 +633,6 @@ export default function CustomerAnalysisPage() {
               onClick={() => {
                 setRepeatOnly(true);
                 setCurrentPage(1);
-                scrollToTable();
                 showToast(`Filtered: Retention Buyers Cohort (${data?.summary?.repeatRate || 0}%)`, "info");
               }}
               className="premium-glass"
@@ -643,8 +659,12 @@ export default function CustomerAnalysisPage() {
                   </svg>
                 </div>
               </div>
-              <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#059669", marginTop: 8, fontFamily: "var(--font-display)" }}>
-                {data?.summary?.repeatRate || 0}%
+              <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#059669", marginTop: 8, fontFamily: "var(--font-display)", minHeight: 48, display: "flex", alignItems: "center" }}>
+                {loading && !data ? (
+                  <SkeletonBar width={80} height={36} radius={8} />
+                ) : (
+                  `${data?.summary?.repeatRate || 0}%`
+                )}
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
                 <span style={{ fontSize: "0.76rem", color: "#047857", fontWeight: 600 }}>
@@ -666,7 +686,6 @@ export default function CustomerAnalysisPage() {
               onClick={() => {
                 const nextSort = orderSortDirection === "desc" ? "asc" : "desc";
                 setOrderSortDirection(nextSort);
-                scrollToTable();
                 showToast(nextSort === "desc" ? `Sorted: Highest Orders Volume First (${data?.summary?.totalOrdersProcessed || 0} Orders)` : `Sorted: Lowest Orders First`, "info");
               }}
               className="premium-glass"
@@ -695,8 +714,12 @@ export default function CustomerAnalysisPage() {
                   </svg>
                 </div>
               </div>
-              <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#0284C7", marginTop: 8, fontFamily: "var(--font-display)" }}>
-                {data?.summary?.totalOrdersProcessed || 0}
+              <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#0284C7", marginTop: 8, fontFamily: "var(--font-display)", minHeight: 48, display: "flex", alignItems: "center" }}>
+                {loading && !data ? (
+                  <SkeletonBar width={80} height={36} radius={8} />
+                ) : (
+                  data?.summary?.totalOrdersProcessed || 0
+                )}
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
                 <span style={{ fontSize: "0.76rem", color: "#0369A1", fontWeight: 600 }}>
@@ -814,7 +837,9 @@ export default function CustomerAnalysisPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredSkuMatrix.length === 0 ? (
+                {loading && !insightsData ? (
+                  <TableSkeletonRows rows={5} cols={7} />
+                ) : filteredSkuMatrix.length === 0 ? (
                   <tr>
                     <td colSpan={7} style={{ padding: "28px", textAlign: "center", color: "#64748B" }}>
                       No matching products found for selected filter.
@@ -1146,8 +1171,25 @@ export default function CustomerAnalysisPage() {
         </div>
 
         {loading ? (
-          <div style={{ padding: "50px 20px", textAlign: "center", color: "var(--text-silver)", fontSize: "0.9rem" }}>
-            ⏳ Fetching customer intelligence records...
+          <div className="table-responsive-container">
+            <table className="custom-table" style={{ minWidth: "1050px" }}>
+              <thead>
+                <tr>
+                  <th style={{ width: "45px", paddingLeft: "16px" }}>#</th>
+                  <th style={{ width: "10%", textAlign: "center" }}>CHANNEL</th>
+                  <th style={{ width: "15%" }}>CUSTOMER NAME</th>
+                  <th style={{ width: "12%" }}>MOBILE NUMBER</th>
+                  <th style={{ width: "11%" }}>STATE</th>
+                  <th style={{ width: "11%" }}>DISTRICT</th>
+                  <th style={{ width: "23%" }}>DELIVERY ADDRESS</th>
+                  <th style={{ width: "11%", textAlign: "center" }}>ORDERS COUNT</th>
+                  <th style={{ width: "9%", paddingRight: "16px" }}>LAST ORDER</th>
+                </tr>
+              </thead>
+              <tbody>
+                <TableSkeletonRows rows={8} cols={9} />
+              </tbody>
+            </table>
           </div>
         ) : (!data?.customers || data.customers.length === 0) ? (
           <div style={{ padding: "50px 20px", textAlign: "center", color: "var(--text-dim)", fontSize: "0.88rem" }}>

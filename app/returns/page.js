@@ -67,12 +67,7 @@ export default function ReturnsPage() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  const scrollToTable = () => {
-    if (typeof document !== "undefined") {
-      const el = document.getElementById("returns-directory-table");
-      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
+
 
   // Instant SWR Cache Initialization (0ms display on load)
   useEffect(() => {
@@ -90,7 +85,7 @@ export default function ReturnsPage() {
 
   async function fetchReturnsData(force = false) {
     if (!session?.user?.email) return;
-    if (!data || force === true) setLoading(true);
+    setLoading(true);
     try {
       const userEmail = session.user.email;
       const queryParams = new URLSearchParams({
@@ -349,7 +344,6 @@ export default function ReturnsPage() {
                 setSelectedType("ALL");
                 setSelectedSku("ALL");
                 setCurrentPage(1);
-                scrollToTable();
                 showToast(`Showing all return parcels (${summary.totalReturns || 0})`, "info");
               }}
               className="premium-glass"
@@ -400,7 +394,6 @@ export default function ReturnsPage() {
               onClick={() => {
                 setSelectedType(isActive ? "ALL" : "Customer Return");
                 setCurrentPage(1);
-                scrollToTable();
                 showToast(isActive ? "Filter cleared: Showing All Returns" : `Filtered: Customer Returns (${summary.customerReturnsCount || 0})`, "info");
               }}
               className="premium-glass"
@@ -451,7 +444,6 @@ export default function ReturnsPage() {
               onClick={() => {
                 setSelectedType(isActive ? "ALL" : "RTO");
                 setCurrentPage(1);
-                scrollToTable();
                 showToast(isActive ? "Filter cleared: Showing All Returns" : `Filtered: Courier RTO Returns (${summary.rtoCount || 0})`, "info");
               }}
               className="premium-glass"
@@ -504,7 +496,6 @@ export default function ReturnsPage() {
                 if (!topSkuName) return;
                 setSelectedSku(isActive ? "ALL" : topSkuName);
                 setCurrentPage(1);
-                scrollToTable();
                 showToast(isActive ? "SKU Filter cleared: Showing All SKUs" : `Filtered by Top Returned SKU: ${topSkuName}`, "info");
               }}
               className="premium-glass"
@@ -653,7 +644,7 @@ export default function ReturnsPage() {
           </span>
         </div>
 
-        {loading && !data ? (
+        {loading ? (
           <div className="table-responsive-container" style={{ borderRadius: "0 0 16px 16px", border: "none" }}>
             <table className="custom-table" style={{ minWidth: "1100px" }}>
               <thead>
