@@ -52,6 +52,11 @@ export const metadata = {
   alternates: {
     canonical: siteUrl,
   },
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/icon.png",
+  },
 };
 
 const jsonLdSchema = {

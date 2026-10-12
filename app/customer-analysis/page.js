@@ -97,6 +97,23 @@ export default function CustomerAnalysisPage() {
     }
   }, [status, router]);
 
+  // Instant SWR Cache Initialization (0ms display on load)
+  useEffect(() => {
+    try {
+      const cached = sessionStorage.getItem("cached_customer_analysis");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed.data) {
+          setData(parsed.data);
+          setLoading(false);
+        }
+        if (parsed.insights) {
+          setInsightsData(parsed.insights);
+        }
+      }
+    } catch (e) {}
+  }, []);
+
   function showToast(message, type = "success") {
     setToast({ message, type });
   }
@@ -112,9 +129,9 @@ export default function CustomerAnalysisPage() {
     setSelectedDistrict("ALL");
   };
 
-  async function fetchCustomerAnalysis() {
+  async function fetchCustomerAnalysis(force = false) {
     if (!session?.user?.email) return;
-    if (!data) setLoading(true);
+    if (!data || force === true) setLoading(true);
     try {
       const userEmail = session.user.email;
       const queryParams = new URLSearchParams({
@@ -123,27 +140,40 @@ export default function CustomerAnalysisPage() {
         repeatOnly: repeatOnly ? "true" : "false",
         state: selectedState,
         district: selectedDistrict,
+        ...(force === true ? { refresh: "true" } : {}),
       });
 
       const [resCustomer, resInsights] = await Promise.all([
         fetch(`${BACKEND_URL}/api/customer-analysis?${queryParams.toString()}`, {
           headers: { "x-user-email": userEmail },
         }),
-        fetch(`${BACKEND_URL}/api/insights/dashboard`, {
+        fetch(`${BACKEND_URL}/api/insights/dashboard${force === true ? "?refresh=true" : ""}`, {
           headers: { "x-user-email": userEmail },
         }).catch(() => null),
       ]);
 
+      let latestCustomerData = null;
+      let latestInsightsData = null;
+
       if (resCustomer && resCustomer.ok) {
-        const json = await resCustomer.json();
-        setData(json);
+        latestCustomerData = await resCustomer.json();
+        setData(latestCustomerData);
       } else {
         showToast("Failed to load customer analysis data", "error");
       }
 
       if (resInsights && resInsights.ok) {
-        const insightsJson = await resInsights.json();
-        setInsightsData(insightsJson);
+        latestInsightsData = await resInsights.json();
+        setInsightsData(latestInsightsData);
+      }
+
+      if (latestCustomerData) {
+        try {
+          sessionStorage.setItem(
+            "cached_customer_analysis",
+            JSON.stringify({ data: latestCustomerData, insights: latestInsightsData || insightsData })
+          );
+        } catch (e) {}
       }
     } catch (err) {
       console.error("Failed to fetch customer analysis:", err);
@@ -240,7 +270,7 @@ export default function CustomerAnalysisPage() {
         <div style={{ display: "flex", gap: 10 }}>
           <button
             className="btn-secondary"
-            onClick={fetchCustomerAnalysis}
+            onClick={() => fetchCustomerAnalysis(true)}
             style={{ fontSize: "0.85rem", padding: "10px 18px", borderColor: "var(--aurora-2)", color: "var(--aurora-1)", display: "flex", alignItems: "center", gap: 8 }}
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

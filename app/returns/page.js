@@ -66,9 +66,23 @@ export default function ReturnsPage() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  async function fetchReturnsData() {
+    // Instant SWR Cache Initialization (0ms display on load)
+  useEffect(() => {
+    try {
+      const cached = sessionStorage.getItem("cached_returns_data");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && parsed.returns) {
+          setData(parsed);
+          setLoading(false);
+        }
+      }
+    } catch (e) {}
+  }, []);
+
+  async function fetchReturnsData(force = false) {
     if (!session?.user?.email) return;
-    if (!data) setLoading(true);
+    if (!data || force === true) setLoading(true);
     try {
       const userEmail = session.user.email;
       const queryParams = new URLSearchParams({
@@ -79,6 +93,7 @@ export default function ReturnsPage() {
         sku: selectedSku,
         page: String(currentPage),
         limit: String(pageSize),
+        ...(force === true ? { refresh: "true" } : {}),
       });
 
       const res = await fetch(
@@ -91,6 +106,11 @@ export default function ReturnsPage() {
       if (res.ok) {
         const json = await res.json();
         setData(json);
+        try {
+          if (currentPage === 1 && !search.trim() && selectedType === "ALL" && selectedState === "ALL" && selectedSku === "ALL") {
+            sessionStorage.setItem("cached_returns_data", JSON.stringify(json));
+          }
+        } catch (e) {}
       } else {
         showToast("Failed to load return records", "error");
       }
@@ -135,6 +155,10 @@ export default function ReturnsPage() {
       const result = await res.json();
       if (res.ok) {
         showToast(result.message || "Return CSV imported successfully!", "success");
+        try {
+          sessionStorage.removeItem("cached_returns_data");
+          sessionStorage.removeItem("cached_customer_analysis");
+        } catch (e) {}
         setShowUploadModal(false);
         setCurrentPage(1);
         fetchReturnsData();
@@ -158,6 +182,10 @@ export default function ReturnsPage() {
       });
       if (res.ok) {
         showToast("Return entry deleted successfully", "success");
+        try {
+          sessionStorage.removeItem("cached_returns_data");
+          sessionStorage.removeItem("cached_customer_analysis");
+        } catch (e) {}
         if (selectedReturn?.id === id) setSelectedReturn(null);
         fetchReturnsData();
       } else {
@@ -270,7 +298,7 @@ export default function ReturnsPage() {
 
           <button
             className="btn-secondary"
-            onClick={fetchReturnsData}
+            onClick={() => fetchReturnsData(true)}
             style={{ fontSize: "0.85rem", padding: "10px 18px", borderColor: "var(--aurora-2)", color: "var(--aurora-1)", display: "flex", alignItems: "center", gap: 8 }}
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
