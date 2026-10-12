@@ -344,7 +344,6 @@ export default function ReturnsPage() {
                 setSelectedType("ALL");
                 setSelectedSku("ALL");
                 setCurrentPage(1);
-                showToast(`Showing all return parcels (${summary.totalReturns || 0})`, "info");
               }}
               className="premium-glass"
               style={{
@@ -394,7 +393,6 @@ export default function ReturnsPage() {
               onClick={() => {
                 setSelectedType(isActive ? "ALL" : "Customer Return");
                 setCurrentPage(1);
-                showToast(isActive ? "Filter cleared: Showing All Returns" : `Filtered: Customer Returns (${summary.customerReturnsCount || 0})`, "info");
               }}
               className="premium-glass"
               style={{
@@ -444,7 +442,6 @@ export default function ReturnsPage() {
               onClick={() => {
                 setSelectedType(isActive ? "ALL" : "RTO");
                 setCurrentPage(1);
-                showToast(isActive ? "Filter cleared: Showing All Returns" : `Filtered: Courier RTO Returns (${summary.rtoCount || 0})`, "info");
               }}
               className="premium-glass"
               style={{
@@ -496,7 +493,6 @@ export default function ReturnsPage() {
                 if (!topSkuName) return;
                 setSelectedSku(isActive ? "ALL" : topSkuName);
                 setCurrentPage(1);
-                showToast(isActive ? "SKU Filter cleared: Showing All SKUs" : `Filtered by Top Returned SKU: ${topSkuName}`, "info");
               }}
               className="premium-glass"
               style={{

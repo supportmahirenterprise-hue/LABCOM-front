@@ -527,7 +527,6 @@ export default function CustomerAnalysisPage() {
               onClick={() => {
                 setRepeatOnly(false);
                 setCurrentPage(1);
-                showToast(`Showing all unique buyers (${data?.summary?.totalCustomers || 0})`, "info");
               }}
               className="premium-glass"
               style={{
@@ -581,7 +580,6 @@ export default function CustomerAnalysisPage() {
                 const next = !repeatOnly;
                 setRepeatOnly(next);
                 setCurrentPage(1);
-                showToast(next ? `Filtered: Repeat Buyers with 2+ Orders (${data?.summary?.repeatCustomersCount || 0})` : "Filter cleared: Showing all buyers", "info");
               }}
               className="premium-glass"
               style={{
@@ -633,7 +631,6 @@ export default function CustomerAnalysisPage() {
               onClick={() => {
                 setRepeatOnly(true);
                 setCurrentPage(1);
-                showToast(`Filtered: Retention Buyers Cohort (${data?.summary?.repeatRate || 0}%)`, "info");
               }}
               className="premium-glass"
               style={{
@@ -686,7 +683,6 @@ export default function CustomerAnalysisPage() {
               onClick={() => {
                 const nextSort = orderSortDirection === "desc" ? "asc" : "desc";
                 setOrderSortDirection(nextSort);
-                showToast(nextSort === "desc" ? `Sorted: Highest Orders Volume First (${data?.summary?.totalOrdersProcessed || 0} Orders)` : `Sorted: Lowest Orders First`, "info");
               }}
               className="premium-glass"
               style={{
