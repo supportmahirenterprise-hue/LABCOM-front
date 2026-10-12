@@ -424,6 +424,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeInput, setActiveInput] = useState("qrText");
   const [downloadSummary, setDownloadSummary] = useState(false);
+  const [sendWhatsApp, setSendWhatsApp] = useState(true);
 
   // Return History Warning Modal State
   const [returnWarnings, setReturnWarnings] = useState([]);
@@ -470,6 +471,15 @@ export default function Home() {
         if (s.sortBy !== undefined) setSortBy(s.sortBy);
         if (s.sortOrder !== undefined) setSortOrder(s.sortOrder);
         if (s.downloadSummary !== undefined) setDownloadSummary(s.downloadSummary);
+        if (s.sendWhatsApp !== undefined) setSendWhatsApp(s.sendWhatsApp);
+        else if (s.enableWhatsApp !== undefined) setSendWhatsApp(s.enableWhatsApp);
+        if (s.cropEnabled !== undefined) setCropEnabled(s.cropEnabled);
+        if (s.cropPreset !== undefined) setCropPreset(s.cropPreset);
+        if (s.cropMode !== undefined) setCropMode(s.cropMode);
+        if (s.cropTop !== undefined) setCropTop(s.cropTop);
+        if (s.cropBottom !== undefined) setCropBottom(s.cropBottom);
+        if (s.cropLeft !== undefined) setCropLeft(s.cropLeft);
+        if (s.cropRight !== undefined) setCropRight(s.cropRight);
       }
     } catch (e) {}
 
@@ -501,6 +511,15 @@ export default function Home() {
             if (s.sortBy !== undefined) setSortBy(s.sortBy);
             if (s.sortOrder !== undefined) setSortOrder(s.sortOrder);
             if (s.downloadSummary !== undefined) setDownloadSummary(s.downloadSummary);
+            if (s.sendWhatsApp !== undefined) setSendWhatsApp(s.sendWhatsApp);
+            else if (s.enableWhatsApp !== undefined) setSendWhatsApp(s.enableWhatsApp);
+            if (s.cropEnabled !== undefined) setCropEnabled(s.cropEnabled);
+            if (s.cropPreset !== undefined) setCropPreset(s.cropPreset);
+            if (s.cropMode !== undefined) setCropMode(s.cropMode);
+            if (s.cropTop !== undefined) setCropTop(s.cropTop);
+            if (s.cropBottom !== undefined) setCropBottom(s.cropBottom);
+            if (s.cropLeft !== undefined) setCropLeft(s.cropLeft);
+            if (s.cropRight !== undefined) setCropRight(s.cropRight);
 
             try {
               localStorage.setItem("user_stamp_settings", JSON.stringify(s));
@@ -517,7 +536,7 @@ export default function Home() {
     loadSettings();
   }, [status, session?.user?.email]);
 
-  // Debounced auto-save settings to Node.js backend
+  // Debounced auto-save settings to Node.js backend & localStorage
   useEffect(() => {
     if (!isInitialLoadDone.current || status !== "authenticated" || !session?.user?.email) return;
 
@@ -525,28 +544,43 @@ export default function Home() {
       setSavingSettings(true);
       try {
         const userEmail = session.user.email;
+        const payload = {
+          email: userEmail,
+          enableQr,
+          useNativeScript,
+          storeName,
+          stampStyle,
+          qrText,
+          detailText,
+          qrX,
+          qrY,
+          qrSize,
+          fontSize,
+          sortBy,
+          sortOrder,
+          downloadSummary,
+          enableWhatsApp: sendWhatsApp,
+          sendWhatsApp,
+          cropEnabled,
+          cropPreset,
+          cropMode,
+          cropTop,
+          cropBottom,
+          cropLeft,
+          cropRight,
+        };
+
+        try {
+          localStorage.setItem("user_stamp_settings", JSON.stringify(payload));
+        } catch (e) {}
+
         await fetch(`/api/user/settings`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "x-user-email": userEmail,
           },
-          body: JSON.stringify({
-            email: userEmail,
-            enableQr,
-            useNativeScript,
-            storeName,
-            stampStyle,
-            qrText,
-            detailText,
-            qrX,
-            qrY,
-            qrSize,
-            fontSize,
-            sortBy,
-            sortOrder,
-            downloadSummary,
-          }),
+          body: JSON.stringify(payload),
         });
       } catch (err) {
         console.error("Auto-save settings failed:", err);
@@ -556,18 +590,32 @@ export default function Home() {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [enableQr, useNativeScript, storeName, stampStyle, qrText, detailText, qrX, qrY, qrSize, fontSize, sortBy, sortOrder, downloadSummary, status, session]);
-
-  useEffect(() => {
-    if (showWarningModal || showDuplicateModal) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [showWarningModal, showDuplicateModal]);
+  }, [
+    enableQr,
+    useNativeScript,
+    storeName,
+    stampStyle,
+    qrText,
+    detailText,
+    qrX,
+    qrY,
+    qrSize,
+    fontSize,
+    sortBy,
+    sortOrder,
+    downloadSummary,
+    sendWhatsApp,
+    cropEnabled,
+    cropPreset,
+    cropMode,
+    cropTop,
+    cropBottom,
+    cropLeft,
+    cropRight,
+    status,
+    session,
+  ]);
+  // Modal scroll lock is handled centrally by Modal.js
 
   // Filtered & Sorted preview row indices
   const filteredAndSortedIndexes = useMemo(() => {
@@ -1399,8 +1447,8 @@ export default function Home() {
         }
       }
 
-      // Send final PDF to WhatsApp via /api/whatsapp/dispatch-final
-      if (!isSample) {
+      // Send final PDF to WhatsApp via /api/whatsapp/dispatch-final only if sendWhatsApp is enabled
+      if (!isSample && sendWhatsApp) {
         (async () => {
           try {
             const waFormData = new FormData();
@@ -2631,6 +2679,42 @@ export default function Home() {
                   display: "flex",
                   alignItems: "center",
                   gap: 8,
+                  cursor: isBusy ? "not-allowed" : "pointer",
+                  userSelect: "none",
+                  background: sendWhatsApp ? "rgba(37, 211, 102, 0.12)" : "rgba(255, 255, 255, 0.05)",
+                  border: `1px solid ${sendWhatsApp ? "rgba(37, 211, 102, 0.45)" : "var(--glass-border)"}`,
+                  padding: "7px 16px",
+                  borderRadius: "var(--radius-full)",
+                  boxShadow: sendWhatsApp ? "0 0 15px rgba(37, 211, 102, 0.18)" : "none",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                <input
+                  type="checkbox"
+                  disabled={isBusy}
+                  checked={sendWhatsApp}
+                  onChange={(e) => setSendWhatsApp(e.target.checked)}
+                  style={{ width: 16, height: 16, accentColor: "#16a34a", cursor: isBusy ? "not-allowed" : "pointer" }}
+                />
+                <span
+                  style={{
+                    fontSize: "0.82rem",
+                    fontWeight: 700,
+                    color: sendWhatsApp ? "#15803d" : "var(--text-silver)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <WhatsAppIcon size={16} color={sendWhatsApp ? "#16a34a" : "var(--text-silver)"} /> Send WhatsApp
+                </span>
+              </label>
+
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
                   cursor: "pointer",
                   userSelect: "none",
                   background: downloadSummary ? "rgba(16, 185, 129, 0.15)" : "rgba(255, 255, 255, 0.05)",
@@ -2881,120 +2965,140 @@ export default function Home() {
       <Modal
         isOpen={showWarningModal && returnWarnings.length > 0}
         onClose={() => setShowWarningModal(false)}
-        maxWidth={720}
+        maxWidth={740}
         style={{
-          borderRadius: "22px",
-          boxShadow: "0 25px 70px rgba(0,0,0,0.95), 0 0 40px rgba(239, 68, 68, 0.3)",
-          border: "1px solid rgba(239, 68, 68, 0.4)",
-          background: "rgba(18, 18, 24, 0.98)",
-          color: "#fff",
-          padding: "26px 30px",
+          borderRadius: "20px",
+          boxShadow: "0 25px 60px -12px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(239, 68, 68, 0.15)",
+          border: "1px solid #FECACA",
+          background: "#FFFFFF",
+          color: "#0F172A",
+          padding: "24px 28px",
         }}
       >
         {showWarningModal && returnWarnings.length > 0 && (
           <>
             {/* Modal Header */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, borderBottom: "1px solid var(--glass-border)", paddingBottom: 16 }}>
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span style={{ color: "#f87171", display: "flex", alignItems: "center" }}><AlertTriangleIcon /></span>
-                  <h2 className="heading-display" style={{ fontSize: "1.3rem", color: "#f87171", margin: 0 }}>
-                    Past Return Warning Notice
-                  </h2>
-                  <span
-                    style={{
-                      padding: "4px 12px",
-                      borderRadius: "var(--radius-full)",
-                      background: "rgba(239, 68, 68, 0.25)",
-                      color: "#ef4444",
-                      border: "1px solid rgba(239, 68, 68, 0.5)",
-                      fontSize: "0.78rem",
-                      fontWeight: 700,
-                    }}
-                  >
-                    Order {currentWarningIndex + 1} of {returnWarnings.length}
-                  </span>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18, borderBottom: "1px solid #F1F5F9", paddingBottom: 16 }}>
+              <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+                <div
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: "12px",
+                    background: "#FEE2E2",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#DC2626",
+                    flexShrink: 0,
+                  }}
+                >
+                  <AlertTriangleIcon size={22} />
                 </div>
-                <p style={{ fontSize: "0.8rem", color: "var(--text-silver)", margin: "4px 0 0 0" }}>
-                  Label Page #{returnWarnings[currentWarningIndex]?.page} in uploaded PDF has prior return records in DB!
-                </p>
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                    <h2 style={{ fontSize: "1.25rem", fontWeight: 800, color: "#0F172A", margin: 0, letterSpacing: "-0.01em" }}>
+                      Past Return Warning Notice
+                    </h2>
+                    <span
+                      style={{
+                        padding: "3px 10px",
+                        borderRadius: "9999px",
+                        background: "#FEF2F2",
+                        color: "#DC2626",
+                        border: "1px solid #FECACA",
+                        fontSize: "0.76rem",
+                        fontWeight: 700,
+                      }}
+                    >
+                      Order {currentWarningIndex + 1} of {returnWarnings.length}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: "0.82rem", color: "#64748B", margin: "4px 0 0 0" }}>
+                    Label Page #{returnWarnings[currentWarningIndex]?.page} in uploaded PDF has prior return records in DB!
+                  </p>
+                </div>
               </div>
               <button
+                type="button"
                 onClick={() => setShowWarningModal(false)}
+                title="Close Modal"
                 style={{
-                  background: "rgba(255, 255, 255, 0.08)",
-                  border: "1px solid var(--glass-border)",
+                  background: "#F1F5F9",
+                  border: "1px solid #E2E8F0",
                   borderRadius: "50%",
                   width: 34,
                   height: 34,
-                  color: "#ffffff",
+                  color: "#64748B",
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  transition: "all 0.15s ease",
                 }}
               >
-                <CloseIcon />
+                <CloseIcon size={14} />
               </button>
             </div>
 
             {/* Current Label Details Card */}
-            <div style={{ background: "rgba(239, 68, 68, 0.08)", padding: "16px 18px", borderRadius: "14px", border: "1px solid rgba(239, 68, 68, 0.3)", marginBottom: 20 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#f87171", textTransform: "uppercase", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <PackageIcon /> Uploaded Label Page #{returnWarnings[currentWarningIndex]?.page}
+            <div style={{ background: "#FEF2F2", padding: "14px 16px", borderRadius: "14px", border: "1px solid #FECACA", marginBottom: 18 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                <span style={{ fontSize: "0.74rem", fontWeight: 700, color: "#DC2626", textTransform: "uppercase", display: "inline-flex", alignItems: "center", gap: 6, background: "#FFFFFF", padding: "3px 8px", borderRadius: "6px", border: "1px solid #FCA5A5" }}>
+                  <PackageIcon size={13} /> Uploaded Label Page #{returnWarnings[currentWarningIndex]?.page}
                 </span>
-                <span style={{ fontSize: "0.78rem", color: "var(--aurora-1)", fontFamily: "var(--font-mono)", fontWeight: 700 }}>
+                <span style={{ fontSize: "0.78rem", color: "#4F46E5", fontFamily: "var(--font-mono)", fontWeight: 700, background: "#EEF2FF", border: "1px solid #E0E7FF", padding: "3px 8px", borderRadius: "6px" }}>
                   Sub Order: {returnWarnings[currentWarningIndex]?.subOrderNo}
                 </span>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 14 }}>
                 <div>
-                  <div style={{ fontSize: "0.88rem", color: "#fff", fontWeight: 700 }}>
+                  <div style={{ fontSize: "0.9rem", color: "#0F172A", fontWeight: 700 }}>
                     Buyer: {returnWarnings[currentWarningIndex]?.customerName}
                   </div>
-                  {returnWarnings[currentWarningIndex]?.customerMobile !== "N/A" && (
-                    <div style={{ fontSize: "0.78rem", color: "var(--aurora-1)", fontFamily: "var(--font-mono)", marginTop: 2 }}>
+                  {returnWarnings[currentWarningIndex]?.customerMobile && returnWarnings[currentWarningIndex]?.customerMobile !== "N/A" && (
+                    <div style={{ fontSize: "0.78rem", color: "#4F46E5", fontFamily: "var(--font-mono)", marginTop: 2 }}>
                       Mobile: {returnWarnings[currentWarningIndex]?.customerMobile}
                     </div>
                   )}
-                  <div style={{ fontSize: "0.78rem", color: "var(--text-silver)", marginTop: 4, display: "flex", alignItems: "center", gap: 4 }}>
-                    <LocationIcon /> State: {returnWarnings[currentWarningIndex]?.state}
+                  <div style={{ fontSize: "0.78rem", color: "#475569", marginTop: 4, display: "flex", alignItems: "center", gap: 4 }}>
+                    <LocationIcon size={13} /> State: {returnWarnings[currentWarningIndex]?.state || "N/A"}
                   </div>
                 </div>
 
                 <div>
-                  <div style={{ fontSize: "0.82rem", color: "var(--text-silver)" }}>
-                    SKU: <strong style={{ color: "#fff" }}>{returnWarnings[currentWarningIndex]?.sku}</strong>
+                  <div style={{ fontSize: "0.82rem", color: "#475569" }}>
+                    SKU: <strong style={{ color: "#0F172A", background: "#FFFFFF", padding: "2px 6px", borderRadius: "4px", border: "1px solid #E2E8F0" }}>{returnWarnings[currentWarningIndex]?.sku}</strong>
                   </div>
-                  <div style={{ fontSize: "0.78rem", color: "var(--text-silver)", marginTop: 2 }}>
-                    Qty: <strong style={{ color: "#fff" }}>{returnWarnings[currentWarningIndex]?.qty}</strong>
+                  <div style={{ fontSize: "0.78rem", color: "#475569", marginTop: 4 }}>
+                    Qty: <strong style={{ color: "#0F172A" }}>{returnWarnings[currentWarningIndex]?.qty}</strong>
                   </div>
-                  <div style={{ fontSize: "0.75rem", color: "var(--text-dim)", marginTop: 4, lineHeight: 1.35, display: "flex", alignItems: "flex-start", gap: 4 }}>
-                    <StoreIcon /> Address: {returnWarnings[currentWarningIndex]?.customerAddress}
+                  <div style={{ fontSize: "0.75rem", color: "#64748B", marginTop: 4, lineHeight: 1.35, display: "flex", alignItems: "flex-start", gap: 4 }}>
+                    <StoreIcon size={13} style={{ flexShrink: 0, marginTop: 2 }} /> {returnWarnings[currentWarningIndex]?.customerAddress || "N/A"}
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Prior Returns Breakdown */}
-            <div style={{ marginBottom: 20 }}>
+            <div style={{ marginBottom: 18 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#fbbf24", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <AlertTriangleIcon /> Previous Return Records Found ({returnWarnings[currentWarningIndex]?.returnCount})
+                <span style={{ fontSize: "0.84rem", fontWeight: 700, color: "#D97706", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <AlertTriangleIcon size={15} /> Previous Return Records Found ({returnWarnings[currentWarningIndex]?.returnCount})
                 </span>
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: 260, overflowY: "auto", paddingRight: 4 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: 240, overflowY: "auto", paddingRight: 4 }}>
                 {returnWarnings[currentWarningIndex]?.previousReturns?.map((pr, pIdx) => (
                   <div
                     key={pr.id || pIdx}
                     style={{
-                      background: "rgba(0, 0, 0, 0.4)",
+                      background: "#F8FAFC",
                       padding: "12px 14px",
                       borderRadius: "12px",
-                      border: "1px solid var(--glass-border)",
+                      border: "1px solid #E2E8F0",
+                      boxShadow: "0 1px 2px rgba(15, 23, 42, 0.03)",
                     }}
                   >
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -3002,31 +3106,32 @@ export default function Home() {
                         style={{
                           fontSize: "0.72rem",
                           padding: "3px 8px",
-                          borderRadius: "var(--radius-sm)",
+                          borderRadius: "6px",
                           fontWeight: 700,
-                          background: /RTO|Courier/i.test(pr.returnType) ? "rgba(245, 158, 11, 0.2)" : "rgba(239, 68, 68, 0.2)",
-                          color: /RTO|Courier/i.test(pr.returnType) ? "#fbbf24" : "#f87171",
+                          background: /RTO|Courier/i.test(pr.returnType) ? "#FEF3C7" : "#FEE2E2",
+                          color: /RTO|Courier/i.test(pr.returnType) ? "#B45309" : "#DC2626",
+                          border: `1px solid ${/RTO|Courier/i.test(pr.returnType) ? "#FDE68A" : "#FECACA"}`,
                         }}
                       >
                         {pr.returnType}
                       </span>
-                      <span style={{ fontSize: "0.75rem", color: "var(--text-silver)", fontFamily: "var(--font-mono)" }}>
+                      <span style={{ fontSize: "0.75rem", color: "#64748B", fontFamily: "var(--font-mono)" }}>
                         Return Date: {pr.deliveredDate}
                       </span>
                     </div>
 
-                    <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#fff", marginTop: 8 }}>
+                    <div style={{ fontSize: "0.84rem", fontWeight: 700, color: "#0F172A", marginTop: 8 }}>
                       Reason: {pr.returnReason}
                     </div>
                     {pr.detailedReturnReason && pr.detailedReturnReason !== pr.returnReason && (
-                      <div style={{ fontSize: "0.75rem", color: "var(--text-silver)", marginTop: 2 }}>
+                      <div style={{ fontSize: "0.75rem", color: "#64748B", marginTop: 2 }}>
                         {pr.detailedReturnReason}
                       </div>
                     )}
 
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8, fontSize: "0.76rem", color: "var(--text-dim)" }}>
-                      <span>Returned SKU: <strong style={{ color: "#a855f7" }}>{pr.sku}</strong> (Qty: {pr.qty})</span>
-                      <span>Courier: <strong style={{ color: "#38bdf8" }}>{pr.courierPartner}</strong> ({pr.awbNumber})</span>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8, fontSize: "0.76rem", color: "#64748B" }}>
+                      <span>Returned SKU: <strong style={{ color: "#7C3AED", background: "#F5F3FF", padding: "1px 6px", borderRadius: "4px", border: "1px solid #DDD6FE" }}>{pr.sku}</strong> (Qty: {pr.qty})</span>
+                      <span>Courier: <strong style={{ color: "#0284C7" }}>{pr.courierPartner}</strong> ({pr.awbNumber})</span>
                     </div>
                   </div>
                 ))}
@@ -3034,33 +3139,43 @@ export default function Home() {
             </div>
 
             {/* Navigation Controls Footer */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 24, paddingTop: 16, borderTop: "1px solid var(--glass-border)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 20, paddingTop: 16, borderTop: "1px solid #E2E8F0" }}>
               <div style={{ display: "flex", gap: 10 }}>
                 <button
+                  type="button"
                   disabled={currentWarningIndex === 0}
                   onClick={() => setCurrentWarningIndex((prev) => Math.max(0, prev - 1))}
-                  className="btn-secondary"
                   style={{
                     padding: "8px 16px",
                     fontSize: "0.84rem",
-                    opacity: currentWarningIndex === 0 ? 0.4 : 1,
+                    fontWeight: 600,
+                    borderRadius: "10px",
+                    background: "#F8FAFC",
+                    border: "1px solid #CBD5E1",
+                    color: currentWarningIndex === 0 ? "#94A3B8" : "#334155",
+                    opacity: currentWarningIndex === 0 ? 0.5 : 1,
                     cursor: currentWarningIndex === 0 ? "not-allowed" : "pointer",
+                    transition: "all 0.15s ease",
                   }}
                 >
                   ← Previous Order
                 </button>
 
                 <button
+                  type="button"
                   disabled={currentWarningIndex >= returnWarnings.length - 1}
                   onClick={() => setCurrentWarningIndex((prev) => Math.min(returnWarnings.length - 1, prev + 1))}
-                  className="btn-secondary"
                   style={{
                     padding: "8px 16px",
                     fontSize: "0.84rem",
-                    opacity: currentWarningIndex >= returnWarnings.length - 1 ? 0.4 : 1,
+                    fontWeight: 600,
+                    borderRadius: "10px",
+                    background: "#FEF2F2",
+                    border: "1px solid #FECACA",
+                    color: "#DC2626",
+                    opacity: currentWarningIndex >= returnWarnings.length - 1 ? 0.5 : 1,
                     cursor: currentWarningIndex >= returnWarnings.length - 1 ? "not-allowed" : "pointer",
-                    borderColor: "var(--aurora-1)",
-                    color: "var(--aurora-1)",
+                    transition: "all 0.15s ease",
                   }}
                 >
                   Next Order →
@@ -3068,14 +3183,19 @@ export default function Home() {
               </div>
 
               <button
-                className="btn-primary"
+                type="button"
                 onClick={() => setShowWarningModal(false)}
                 style={{
                   padding: "9px 24px",
                   fontSize: "0.85rem",
-                  background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-                  color: "#fff",
+                  fontWeight: 700,
+                  borderRadius: "10px",
+                  background: "linear-gradient(135deg, #10B981 0%, #059669 100%)",
+                  color: "#FFFFFF",
                   border: "none",
+                  cursor: "pointer",
+                  boxShadow: "0 4px 14px rgba(16, 185, 129, 0.28)",
+                  transition: "all 0.15s ease",
                 }}
               >
                 Dismiss & Continue
@@ -3089,137 +3209,156 @@ export default function Home() {
       <Modal
         isOpen={showDuplicateModal && duplicateOrderWarnings.length > 0}
         onClose={() => setShowDuplicateModal(false)}
-        maxWidth={720}
+        maxWidth={740}
         style={{
-          borderRadius: "22px",
-          boxShadow: "0 25px 70px rgba(0,0,0,0.95), 0 0 40px rgba(245, 158, 11, 0.3)",
-          border: "1px solid rgba(245, 158, 11, 0.4)",
-          background: "rgba(18, 18, 24, 0.98)",
-          color: "#fff",
-          padding: "26px 30px",
+          borderRadius: "20px",
+          boxShadow: "0 25px 60px -12px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(245, 158, 11, 0.15)",
+          border: "1px solid #FDE68A",
+          background: "#FFFFFF",
+          color: "#0F172A",
+          padding: "24px 28px",
         }}
       >
         {showDuplicateModal && duplicateOrderWarnings.length > 0 && (
           <>
             {/* Modal Header */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, borderBottom: "1px solid var(--glass-border)", paddingBottom: 16 }}>
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span style={{ color: "#fbbf24", display: "flex", alignItems: "center" }}><PackageIcon /></span>
-                  <h2 className="heading-display" style={{ fontSize: "1.3rem", color: "#fbbf24", margin: 0 }}>
-                    Previously Saved Order Notice
-                  </h2>
-                  <span
-                    style={{
-                      padding: "4px 12px",
-                      borderRadius: "var(--radius-full)",
-                      background: "rgba(245, 158, 11, 0.25)",
-                      color: "#fbbf24",
-                      border: "1px solid rgba(245, 158, 11, 0.5)",
-                      fontSize: "0.78rem",
-                      fontWeight: 700,
-                    }}
-                  >
-                    Order {currentDuplicateIndex + 1} of {duplicateOrderWarnings.length}
-                  </span>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18, borderBottom: "1px solid #F1F5F9", paddingBottom: 16 }}>
+              <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+                <div
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: "12px",
+                    background: "#FEF3C7",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#D97706",
+                    flexShrink: 0,
+                  }}
+                >
+                  <PackageIcon size={22} />
                 </div>
-                <p style={{ fontSize: "0.8rem", color: "var(--text-silver)", margin: "4px 0 0 0" }}>
-                  Sub Order ID on Label Page #{duplicateOrderWarnings[currentDuplicateIndex]?.page} was previously saved in DB!
-                </p>
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                    <h2 style={{ fontSize: "1.25rem", fontWeight: 800, color: "#0F172A", margin: 0, letterSpacing: "-0.01em" }}>
+                      Already Inserted Order Notice
+                    </h2>
+                    <span
+                      style={{
+                        padding: "3px 10px",
+                        borderRadius: "9999px",
+                        background: "#FFFBEB",
+                        color: "#B45309",
+                        border: "1px solid #FDE68A",
+                        fontSize: "0.76rem",
+                        fontWeight: 700,
+                      }}
+                    >
+                      Order {currentDuplicateIndex + 1} of {duplicateOrderWarnings.length}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: "0.82rem", color: "#64748B", margin: "4px 0 0 0" }}>
+                    Sub Order ID on Label Page #{duplicateOrderWarnings[currentDuplicateIndex]?.page} was already saved in DB!
+                  </p>
+                </div>
               </div>
               <button
+                type="button"
                 onClick={() => setShowDuplicateModal(false)}
+                title="Close Modal"
                 style={{
-                  background: "rgba(255, 255, 255, 0.08)",
-                  border: "1px solid var(--glass-border)",
+                  background: "#F1F5F9",
+                  border: "1px solid #E2E8F0",
                   borderRadius: "50%",
                   width: 34,
                   height: 34,
-                  color: "#ffffff",
+                  color: "#64748B",
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  transition: "all 0.15s ease",
                 }}
               >
-                <CloseIcon />
+                <CloseIcon size={14} />
               </button>
             </div>
 
             {/* Current Label Details Card */}
-            <div style={{ background: "rgba(245, 158, 11, 0.08)", padding: "16px 18px", borderRadius: "14px", border: "1px solid rgba(245, 158, 11, 0.3)", marginBottom: 16 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#fbbf24", textTransform: "uppercase", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <TagIcon /> Current Uploaded Label (Page #{duplicateOrderWarnings[currentDuplicateIndex]?.page})
+            <div style={{ background: "#FFFBEB", padding: "14px 16px", borderRadius: "14px", border: "1px solid #FDE68A", marginBottom: 16 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                <span style={{ fontSize: "0.74rem", fontWeight: 700, color: "#B45309", textTransform: "uppercase", display: "inline-flex", alignItems: "center", gap: 6, background: "#FFFFFF", padding: "3px 8px", borderRadius: "6px", border: "1px solid #FCD34D" }}>
+                  <TagIcon size={13} /> Current Uploaded Label (Page #{duplicateOrderWarnings[currentDuplicateIndex]?.page})
                 </span>
-                <span style={{ fontSize: "0.78rem", color: "var(--aurora-1)", fontFamily: "var(--font-mono)", fontWeight: 700 }}>
+                <span style={{ fontSize: "0.78rem", color: "#4F46E5", fontFamily: "var(--font-mono)", fontWeight: 700, background: "#EEF2FF", border: "1px solid #E0E7FF", padding: "3px 8px", borderRadius: "6px" }}>
                   Sub Order: {duplicateOrderWarnings[currentDuplicateIndex]?.subOrderNo}
                 </span>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 14 }}>
                 <div>
-                  <div style={{ fontSize: "0.88rem", color: "#fff", fontWeight: 700 }}>
+                  <div style={{ fontSize: "0.9rem", color: "#0F172A", fontWeight: 700 }}>
                     Buyer: {duplicateOrderWarnings[currentDuplicateIndex]?.customerName}
                   </div>
-                  {duplicateOrderWarnings[currentDuplicateIndex]?.customerMobile !== "N/A" && (
-                    <div style={{ fontSize: "0.78rem", color: "var(--aurora-1)", fontFamily: "var(--font-mono)", marginTop: 2 }}>
+                  {duplicateOrderWarnings[currentDuplicateIndex]?.customerMobile && duplicateOrderWarnings[currentDuplicateIndex]?.customerMobile !== "N/A" && (
+                    <div style={{ fontSize: "0.78rem", color: "#4F46E5", fontFamily: "var(--font-mono)", marginTop: 2 }}>
                       Mobile: {duplicateOrderWarnings[currentDuplicateIndex]?.customerMobile}
                     </div>
                   )}
-                  <div style={{ fontSize: "0.78rem", color: "var(--text-silver)", marginTop: 4, display: "flex", alignItems: "center", gap: 4 }}>
-                    <LocationIcon /> State: {duplicateOrderWarnings[currentDuplicateIndex]?.state}
+                  <div style={{ fontSize: "0.78rem", color: "#475569", marginTop: 4, display: "flex", alignItems: "center", gap: 4 }}>
+                    <LocationIcon size={13} /> State: {duplicateOrderWarnings[currentDuplicateIndex]?.state || "N/A"}
                   </div>
                 </div>
 
                 <div>
-                  <div style={{ fontSize: "0.82rem", color: "var(--text-silver)" }}>
-                    SKU: <strong style={{ color: "#fff" }}>{duplicateOrderWarnings[currentDuplicateIndex]?.sku}</strong>
+                  <div style={{ fontSize: "0.82rem", color: "#475569" }}>
+                    SKU: <strong style={{ color: "#0F172A", background: "#FFFFFF", padding: "2px 6px", borderRadius: "4px", border: "1px solid #E2E8F0" }}>{duplicateOrderWarnings[currentDuplicateIndex]?.sku}</strong>
                   </div>
-                  <div style={{ fontSize: "0.78rem", color: "var(--text-silver)", marginTop: 2 }}>
-                    Qty: <strong style={{ color: "#fff" }}>{duplicateOrderWarnings[currentDuplicateIndex]?.qty}</strong>
+                  <div style={{ fontSize: "0.78rem", color: "#475569", marginTop: 4 }}>
+                    Qty: <strong style={{ color: "#0F172A" }}>{duplicateOrderWarnings[currentDuplicateIndex]?.qty}</strong>
                   </div>
-                  <div style={{ fontSize: "0.75rem", color: "var(--text-dim)", marginTop: 4, lineHeight: 1.35, display: "flex", alignItems: "flex-start", gap: 4 }}>
-                    <StoreIcon /> Address: {duplicateOrderWarnings[currentDuplicateIndex]?.customerAddress}
+                  <div style={{ fontSize: "0.75rem", color: "#64748B", marginTop: 4, lineHeight: 1.35, display: "flex", alignItems: "flex-start", gap: 4 }}>
+                    <StoreIcon size={13} style={{ flexShrink: 0, marginTop: 2 }} /> {duplicateOrderWarnings[currentDuplicateIndex]?.customerAddress || "N/A"}
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Previously Saved DB Order Record */}
-            <div style={{ background: "rgba(0,0,0,0.4)", padding: "16px 18px", borderRadius: "14px", border: "1px solid var(--glass-border)", marginBottom: 20 }}>
+            <div style={{ background: "#F8FAFC", padding: "14px 16px", borderRadius: "14px", border: "1px solid #CBD5E1", marginBottom: 18, boxShadow: "0 1px 2px rgba(15, 23, 42, 0.03)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--aurora-1)", textTransform: "uppercase", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <CloudIcon /> Database Record (Already Saved)
+                <span style={{ fontSize: "0.76rem", fontWeight: 700, color: "#047857", textTransform: "uppercase", display: "inline-flex", alignItems: "center", gap: 6, background: "#ECFDF5", border: "1px solid #A7F3D0", padding: "3px 8px", borderRadius: "6px" }}>
+                  <CloudIcon size={13} /> Database Record (Already Inserted)
                 </span>
-                <span style={{ fontSize: "0.76rem", color: "#fbbf24", fontFamily: "var(--font-mono)", fontWeight: 700 }}>
-                  Saved On: {duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.savedAt}
+                <span style={{ fontSize: "0.76rem", color: "#B45309", fontFamily: "var(--font-mono)", fontWeight: 700, background: "#FEF3C7", border: "1px solid #FDE68A", padding: "3px 8px", borderRadius: "6px" }}>
+                  Saved On: {duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.savedAt || "Prior Batch"}
                 </span>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 14 }}>
                 <div>
-                  <div style={{ fontSize: "0.84rem", color: "var(--text-silver)" }}>
-                    Saved Order No: <strong style={{ color: "#fff", fontFamily: "var(--font-mono)" }}>{duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.orderNo}</strong>
+                  <div style={{ fontSize: "0.84rem", color: "#475569" }}>
+                    Saved Order No: <strong style={{ color: "#0F172A", fontFamily: "var(--font-mono)" }}>{duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.orderNo}</strong>
                   </div>
-                  <div style={{ fontSize: "0.82rem", color: "var(--text-silver)", marginTop: 4 }}>
-                    Saved Buyer: <strong style={{ color: "#fff" }}>{duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.customerName}</strong>
+                  <div style={{ fontSize: "0.82rem", color: "#475569", marginTop: 4 }}>
+                    Saved Buyer: <strong style={{ color: "#0F172A" }}>{duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.customerName}</strong>
                   </div>
-                  {duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.customerMobile !== "N/A" && (
-                    <div style={{ fontSize: "0.76rem", color: "var(--aurora-1)", fontFamily: "var(--font-mono)", marginTop: 2 }}>
+                  {duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.customerMobile && duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.customerMobile !== "N/A" && (
+                    <div style={{ fontSize: "0.76rem", color: "#4F46E5", fontFamily: "var(--font-mono)", marginTop: 2 }}>
                       {duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.customerMobile}
                     </div>
                   )}
                 </div>
 
                 <div>
-                  <div style={{ fontSize: "0.82rem", color: "var(--text-silver)" }}>
-                    Saved SKU: <strong style={{ color: "#a855f7" }}>{duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.sku}</strong> (Qty: {duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.qty})
+                  <div style={{ fontSize: "0.82rem", color: "#475569" }}>
+                    Saved SKU: <strong style={{ color: "#7C3AED", background: "#F5F3FF", border: "1px solid #DDD6FE", padding: "1px 6px", borderRadius: "4px" }}>{duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.sku}</strong> (Qty: {duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.qty})
                   </div>
-                  <div style={{ fontSize: "0.78rem", color: "var(--text-silver)", marginTop: 4 }}>
-                    Payment Type: <strong style={{ color: "#10b981" }}>{duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.paymentType}</strong>
+                  <div style={{ fontSize: "0.78rem", color: "#475569", marginTop: 4 }}>
+                    Payment Type: <strong style={{ color: "#047857", background: "#ECFDF5", border: "1px solid #A7F3D0", padding: "1px 6px", borderRadius: "4px" }}>{duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.paymentType}</strong>
                   </div>
-                  <div style={{ fontSize: "0.76rem", color: "var(--text-dim)", marginTop: 4 }}>
+                  <div style={{ fontSize: "0.76rem", color: "#64748B", marginTop: 4 }}>
                     Original Order Date: {duplicateOrderWarnings[currentDuplicateIndex]?.existingOrder?.orderDate}
                   </div>
                 </div>
@@ -3227,33 +3366,43 @@ export default function Home() {
             </div>
 
             {/* Navigation Controls Footer */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 24, paddingTop: 16, borderTop: "1px solid var(--glass-border)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 20, paddingTop: 16, borderTop: "1px solid #E2E8F0" }}>
               <div style={{ display: "flex", gap: 10 }}>
                 <button
+                  type="button"
                   disabled={currentDuplicateIndex === 0}
                   onClick={() => setCurrentDuplicateIndex((prev) => Math.max(0, prev - 1))}
-                  className="btn-secondary"
                   style={{
                     padding: "8px 16px",
                     fontSize: "0.84rem",
-                    opacity: currentDuplicateIndex === 0 ? 0.4 : 1,
+                    fontWeight: 600,
+                    borderRadius: "10px",
+                    background: "#F8FAFC",
+                    border: "1px solid #CBD5E1",
+                    color: currentDuplicateIndex === 0 ? "#94A3B8" : "#334155",
+                    opacity: currentDuplicateIndex === 0 ? 0.5 : 1,
                     cursor: currentDuplicateIndex === 0 ? "not-allowed" : "pointer",
+                    transition: "all 0.15s ease",
                   }}
                 >
                   ← Previous Order
                 </button>
 
                 <button
+                  type="button"
                   disabled={currentDuplicateIndex >= duplicateOrderWarnings.length - 1}
                   onClick={() => setCurrentDuplicateIndex((prev) => Math.min(duplicateOrderWarnings.length - 1, prev + 1))}
-                  className="btn-secondary"
                   style={{
                     padding: "8px 16px",
                     fontSize: "0.84rem",
-                    opacity: currentDuplicateIndex >= duplicateOrderWarnings.length - 1 ? 0.4 : 1,
+                    fontWeight: 600,
+                    borderRadius: "10px",
+                    background: "#FFFBEB",
+                    border: "1px solid #FDE68A",
+                    color: "#D97706",
+                    opacity: currentDuplicateIndex >= duplicateOrderWarnings.length - 1 ? 0.5 : 1,
                     cursor: currentDuplicateIndex >= duplicateOrderWarnings.length - 1 ? "not-allowed" : "pointer",
-                    borderColor: "#fbbf24",
-                    color: "#fbbf24",
+                    transition: "all 0.15s ease",
                   }}
                 >
                   Next Order →
@@ -3261,14 +3410,19 @@ export default function Home() {
               </div>
 
               <button
-                className="btn-primary"
+                type="button"
                 onClick={() => setShowDuplicateModal(false)}
                 style={{
                   padding: "9px 24px",
                   fontSize: "0.85rem",
-                  background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-                  color: "#fff",
+                  fontWeight: 700,
+                  borderRadius: "10px",
+                  background: "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)",
+                  color: "#FFFFFF",
                   border: "none",
+                  cursor: "pointer",
+                  boxShadow: "0 4px 14px rgba(245, 158, 11, 0.28)",
+                  transition: "all 0.15s ease",
                 }}
               >
                 Dismiss & Continue

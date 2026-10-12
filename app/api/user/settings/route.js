@@ -37,60 +37,60 @@ export async function POST(req) {
     }
 
     const cleanEmail = userEmail.toLowerCase().trim();
-    const {
-      storeName,
-      phone,
-      supportEmail,
-      storeUrl,
-      instagramHandle,
-      customNote,
-      enableQr,
-      useNativeScript,
-      qrText,
-      detailText,
-      qrX,
-      qrY,
-      qrSize,
-      fontSize,
-      sortBy,
-      sortOrder,
-      downloadSummary,
-      enableWhatsApp,
-      waApiKey,
-      waReceiverNumber,
-      pdfReceiverNumber,
-      imageReceiverNumber,
-    } = body;
 
-    const db = await getDb();
+    const allowedFields = [
+      "storeName",
+      "phone",
+      "supportEmail",
+      "storeUrl",
+      "instagramHandle",
+      "customNote",
+      "enableQr",
+      "useNativeScript",
+      "stampStyle",
+      "qrText",
+      "detailText",
+      "qrX",
+      "qrY",
+      "qrSize",
+      "fontSize",
+      "sortBy",
+      "sortOrder",
+      "downloadSummary",
+      "enableWhatsApp",
+      "sendWhatsApp",
+      "cropEnabled",
+      "cropPreset",
+      "cropMode",
+      "cropTop",
+      "cropBottom",
+      "cropLeft",
+      "cropRight",
+      "waApiKey",
+      "waReceiverNumber",
+      "pdfReceiverNumber",
+      "imageReceiverNumber",
+    ];
 
     const updateDoc = {
       email: cleanEmail,
       updatedAt: new Date(),
     };
 
-    if (storeName !== undefined) updateDoc.storeName = storeName;
-    if (phone !== undefined) updateDoc.phone = phone;
-    if (supportEmail !== undefined) updateDoc.supportEmail = supportEmail;
-    if (storeUrl !== undefined) updateDoc.storeUrl = storeUrl;
-    if (instagramHandle !== undefined) updateDoc.instagramHandle = instagramHandle;
-    if (customNote !== undefined) updateDoc.customNote = customNote;
-    if (enableQr !== undefined) updateDoc.enableQr = enableQr;
-    if (useNativeScript !== undefined) updateDoc.useNativeScript = useNativeScript;
-    if (qrText !== undefined) updateDoc.qrText = qrText;
-    if (detailText !== undefined) updateDoc.detailText = detailText;
-    if (qrX !== undefined) updateDoc.qrX = qrX;
-    if (qrY !== undefined) updateDoc.qrY = qrY;
-    if (qrSize !== undefined) updateDoc.qrSize = qrSize;
-    if (fontSize !== undefined) updateDoc.fontSize = fontSize;
-    if (sortBy !== undefined) updateDoc.sortBy = sortBy;
-    if (sortOrder !== undefined) updateDoc.sortOrder = sortOrder;
-    if (downloadSummary !== undefined) updateDoc.downloadSummary = downloadSummary;
-    if (enableWhatsApp !== undefined) updateDoc.enableWhatsApp = enableWhatsApp;
-    if (waApiKey !== undefined) updateDoc.waApiKey = waApiKey;
-    if (waReceiverNumber !== undefined) updateDoc.waReceiverNumber = waReceiverNumber;
-    if (pdfReceiverNumber !== undefined) updateDoc.pdfReceiverNumber = pdfReceiverNumber;
-    if (imageReceiverNumber !== undefined) updateDoc.imageReceiverNumber = imageReceiverNumber;
+    for (const key of allowedFields) {
+      if (body[key] !== undefined) {
+        updateDoc[key] = body[key];
+      }
+    }
+
+    // Keep enableWhatsApp & sendWhatsApp in sync
+    if (updateDoc.sendWhatsApp !== undefined && updateDoc.enableWhatsApp === undefined) {
+      updateDoc.enableWhatsApp = updateDoc.sendWhatsApp;
+    } else if (updateDoc.enableWhatsApp !== undefined && updateDoc.sendWhatsApp === undefined) {
+      updateDoc.sendWhatsApp = updateDoc.enableWhatsApp;
+    }
+
+    const db = await getDb();
 
     await db.collection("user_settings").updateOne(
       { email: cleanEmail },

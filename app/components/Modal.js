@@ -3,6 +3,11 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
+let activeModalsCount = 0;
+let originalBodyOverflow = "";
+let originalDocOverflow = "";
+let originalPaddingRight = "";
+
 export function Modal({ isOpen, onClose, children, maxWidth = 680, className = "", style = {} }) {
   const [mounted, setMounted] = useState(false);
 
@@ -13,19 +18,20 @@ export function Modal({ isOpen, onClose, children, maxWidth = 680, className = "
   useEffect(() => {
     if (!isOpen) return;
 
-    // Save initial overflow values
-    const prevBodyOverflow = document.body.style.overflow;
-    const prevDocOverflow = document.documentElement.style.overflow;
-    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
-    const prevBodyPaddingRight = document.body.style.paddingRight;
+    if (activeModalsCount === 0) {
+      originalBodyOverflow = document.body.style.overflow;
+      originalDocOverflow = document.documentElement.style.overflow;
+      originalPaddingRight = document.body.style.paddingRight;
 
-    // Lock body scrolling to prevent background scroll and blank white spaces on scroll
-    document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
+      const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
 
-    if (scrollBarWidth > 0) {
-      document.body.style.paddingRight = `${scrollBarWidth}px`;
+      if (scrollBarWidth > 0) {
+        document.body.style.paddingRight = `${scrollBarWidth}px`;
+      }
     }
+    activeModalsCount++;
 
     const handleKeyDown = (e) => {
       if (e.key === "Escape" && onClose) {
@@ -36,10 +42,16 @@ export function Modal({ isOpen, onClose, children, maxWidth = 680, className = "
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      document.body.style.overflow = prevBodyOverflow;
-      document.documentElement.style.overflow = prevDocOverflow;
-      document.body.style.paddingRight = prevBodyPaddingRight;
       window.removeEventListener("keydown", handleKeyDown);
+      activeModalsCount = Math.max(0, activeModalsCount - 1);
+
+      if (activeModalsCount === 0) {
+        document.body.style.overflow =
+          originalBodyOverflow && originalBodyOverflow !== "hidden" ? originalBodyOverflow : "";
+        document.documentElement.style.overflow =
+          originalDocOverflow && originalDocOverflow !== "hidden" ? originalDocOverflow : "";
+        document.body.style.paddingRight = originalPaddingRight || "";
+      }
     };
   }, [isOpen, onClose]);
 

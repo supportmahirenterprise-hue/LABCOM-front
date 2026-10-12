@@ -187,17 +187,7 @@ export default function ReturnsPage() {
 
   const summary = data?.summary || {};
   const pagination = data?.pagination || {};
-
-  useEffect(() => {
-    if (showUploadModal || selectedReturn) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [showUploadModal, selectedReturn]);
+  // Modal scroll lock is handled centrally by Modal.js
 
   return (
     <div style={{ minHeight: "100vh", paddingBottom: 60, position: "relative", width: "100%", maxWidth: "100%" }}>
