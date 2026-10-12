@@ -48,10 +48,18 @@ export default function CustomerAnalysisPage() {
   const [selectedPlatform, setSelectedPlatform] = useState("ALL");
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [toast, setToast] = useState(null);
+  const [orderSortDirection, setOrderSortDirection] = useState("desc");
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
+
+  const scrollToTable = () => {
+    if (typeof document !== "undefined") {
+      const el = document.getElementById("customer-directory-table");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
   const paginatedCustomers = useMemo(() => {
     let list = data?.customers || [];
@@ -62,6 +70,9 @@ export default function CustomerAnalysisPage() {
         const plist = (c.platforms || [p]).map((x) => x.toLowerCase());
         return p === sp || plist.includes(sp);
       });
+    }
+    if (repeatOnly) {
+      list = list.filter((c) => (c.orderCount || c.orders?.length || 1) > 1);
     }
     if (search.trim()) {
       const q = search.trim().toLowerCase();
@@ -75,9 +86,14 @@ export default function CustomerAnalysisPage() {
           (c.platform && c.platform.toLowerCase().includes(q))
       );
     }
+    if (orderSortDirection === "asc") {
+      list = [...list].sort((a, b) => (a.orderCount || a.orders?.length || 1) - (b.orderCount || b.orders?.length || 1));
+    } else {
+      list = [...list].sort((a, b) => (b.orderCount || b.orders?.length || 1) - (a.orderCount || a.orders?.length || 1));
+    }
     const start = (currentPage - 1) * pageSize;
     return list.slice(start, start + pageSize);
-  }, [data?.customers, search, selectedPlatform, currentPage, pageSize]);
+  }, [data?.customers, search, selectedPlatform, repeatOnly, orderSortDirection, currentPage, pageSize]);
 
   const filteredSkuMatrix = useMemo(() => {
     if (!insightsData?.skuPerformanceMatrix) return [];
@@ -490,92 +506,209 @@ export default function CustomerAnalysisPage() {
         </div>
       </div>
 
-      {/* 4 Premium Stat KPI Cards */}
+      {/* 4 Premium Stat KPI Cards (Interactive & Clickable Filters) */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 210px), 1fr))", gap: 16, marginBottom: 24 }}>
         {/* Total Unique Customers */}
-        <div className="premium-glass" style={{ padding: "22px 20px", borderTop: "3px solid #4F46E5", background: "#FFFFFF" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-              Total Unique Buyers
-            </span>
-            <div style={{ width: 32, height: 32, borderRadius: "10px", background: "#EEF2FF", border: "1px solid #C7D2FE", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" strokeWidth="2.2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
+        {(() => {
+          const isActive = !repeatOnly;
+          return (
+            <div
+              onClick={() => {
+                setRepeatOnly(false);
+                setCurrentPage(1);
+                scrollToTable();
+                showToast(`Showing all unique buyers (${data?.summary?.totalCustomers || 0})`, "info");
+              }}
+              className="premium-glass"
+              style={{
+                padding: "20px 20px 16px",
+                borderTop: "3px solid #4F46E5",
+                background: isActive ? "#EEF2FF" : "#FFFFFF",
+                borderRadius: "16px",
+                cursor: "pointer",
+                border: isActive ? "2px solid #4F46E5" : "1px solid #E2E8F0",
+                boxShadow: isActive ? "0 8px 24px rgba(79, 70, 229, 0.22)" : "0 2px 8px rgba(15, 23, 42, 0.04)",
+                transform: isActive ? "translateY(-2px)" : "none",
+                transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: "0.72rem", fontWeight: 700, color: isActive ? "#4338CA" : "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  Total Unique Buyers
+                </span>
+                <div style={{ width: 32, height: 32, borderRadius: "10px", background: "#EEF2FF", border: "1px solid #C7D2FE", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" strokeWidth="2.2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                </div>
+              </div>
+              <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#0F172A", marginTop: 8, fontFamily: "var(--font-display)" }}>
+                {data?.summary?.totalCustomers || 0}
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
+                <span style={{ fontSize: "0.76rem", color: "#4F46E5", fontWeight: 600 }}>
+                  Total unique buyer profiles stored
+                </span>
+                <span style={{ fontSize: "0.68rem", fontWeight: 700, color: isActive ? "#4F46E5" : "#94A3B8", background: isActive ? "#E0E7FF" : "#F1F5F9", padding: "2px 8px", borderRadius: "10px" }}>
+                  {isActive ? "⚡ Active: All Buyers" : "Click to view all"}
+                </span>
+              </div>
             </div>
-          </div>
-          <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#0F172A", marginTop: 8, fontFamily: "var(--font-display)" }}>
-            {data?.summary?.totalCustomers || 0}
-          </div>
-          <span style={{ fontSize: "0.76rem", color: "#4F46E5", fontWeight: 600, marginTop: 4, display: "block" }}>
-            Total unique buyer profiles stored
-          </span>
-        </div>
+          );
+        })()}
 
         {/* Repeat Customers Count */}
-        <div className="premium-glass" style={{ padding: "22px 20px", borderTop: "3px solid #D97706", background: "#FFFFFF" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-              Repeat Buyers (2+ Orders)
-            </span>
-            <div style={{ width: 32, height: 32, borderRadius: "10px", background: "#FEF3C7", border: "1px solid #FDE68A", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2.2">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-              </svg>
+        {(() => {
+          const isActive = repeatOnly;
+          return (
+            <div
+              onClick={() => {
+                const next = !repeatOnly;
+                setRepeatOnly(next);
+                setCurrentPage(1);
+                scrollToTable();
+                showToast(next ? `Filtered: Repeat Buyers with 2+ Orders (${data?.summary?.repeatCustomersCount || 0})` : "Filter cleared: Showing all buyers", "info");
+              }}
+              className="premium-glass"
+              style={{
+                padding: "20px 20px 16px",
+                borderTop: "3px solid #D97706",
+                background: isActive ? "#FFFBEB" : "#FFFFFF",
+                borderRadius: "16px",
+                cursor: "pointer",
+                border: isActive ? "2px solid #D97706" : "1px solid #E2E8F0",
+                boxShadow: isActive ? "0 8px 24px rgba(217, 119, 6, 0.22)" : "0 2px 8px rgba(15, 23, 42, 0.04)",
+                transform: isActive ? "translateY(-2px)" : "none",
+                transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: "0.72rem", fontWeight: 700, color: isActive ? "#B45309" : "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  Repeat Buyers (2+ Orders)
+                </span>
+                <div style={{ width: 32, height: 32, borderRadius: "10px", background: "#FEF3C7", border: "1px solid #FDE68A", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2.2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
+                </div>
+              </div>
+              <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#D97706", marginTop: 8, fontFamily: "var(--font-display)" }}>
+                {data?.summary?.repeatCustomersCount || 0}
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
+                <span style={{ fontSize: "0.76rem", color: "#B45309", fontWeight: 600 }}>
+                  Multi-order repeat customers
+                </span>
+                <span style={{ fontSize: "0.68rem", fontWeight: 700, color: isActive ? "#D97706" : "#94A3B8", background: isActive ? "#FEF3C7" : "#F1F5F9", padding: "2px 8px", borderRadius: "10px" }}>
+                  {isActive ? "⚡ Filter Active" : "Click to filter repeat"}
+                </span>
+              </div>
             </div>
-          </div>
-          <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#D97706", marginTop: 8, fontFamily: "var(--font-display)" }}>
-            {data?.summary?.repeatCustomersCount || 0}
-          </div>
-          <span style={{ fontSize: "0.76rem", color: "#B45309", fontWeight: 600, marginTop: 4, display: "block" }}>
-            Multi-order repeat customers
-          </span>
-        </div>
+          );
+        })()}
 
         {/* Repeat Rate % */}
-        <div className="premium-glass" style={{ padding: "22px 20px", borderTop: "3px solid #059669", background: "#FFFFFF" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-              Repeat Retention Rate
-            </span>
-            <div style={{ width: 32, height: 32, borderRadius: "10px", background: "#D1FAE5", border: "1px solid #A7F3D0", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.2">
-                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-                <polyline points="17 6 23 6 23 12" />
-              </svg>
+        {(() => {
+          const isActive = repeatOnly;
+          return (
+            <div
+              onClick={() => {
+                setRepeatOnly(true);
+                setCurrentPage(1);
+                scrollToTable();
+                showToast(`Filtered: Retention Buyers Cohort (${data?.summary?.repeatRate || 0}%)`, "info");
+              }}
+              className="premium-glass"
+              style={{
+                padding: "20px 20px 16px",
+                borderTop: "3px solid #059669",
+                background: isActive ? "#ECFDF5" : "#FFFFFF",
+                borderRadius: "16px",
+                cursor: "pointer",
+                border: isActive ? "2px solid #059669" : "1px solid #E2E8F0",
+                boxShadow: isActive ? "0 8px 24px rgba(5, 150, 105, 0.22)" : "0 2px 8px rgba(15, 23, 42, 0.04)",
+                transform: isActive ? "translateY(-2px)" : "none",
+                transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: "0.72rem", fontWeight: 700, color: isActive ? "#047857" : "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  Repeat Retention Rate
+                </span>
+                <div style={{ width: 32, height: 32, borderRadius: "10px", background: "#D1FAE5", border: "1px solid #A7F3D0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.2">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                    <polyline points="17 6 23 6 23 12" />
+                  </svg>
+                </div>
+              </div>
+              <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#059669", marginTop: 8, fontFamily: "var(--font-display)" }}>
+                {data?.summary?.repeatRate || 0}%
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
+                <span style={{ fontSize: "0.76rem", color: "#047857", fontWeight: 600 }}>
+                  Lifetime customer retention ratio
+                </span>
+                <span style={{ fontSize: "0.68rem", fontWeight: 700, color: isActive ? "#059669" : "#94A3B8", background: isActive ? "#D1FAE5" : "#F1F5F9", padding: "2px 8px", borderRadius: "10px" }}>
+                  {isActive ? `⚡ Active: ${data?.summary?.repeatRate || 0}%` : "Click to view retention cohort"}
+                </span>
+              </div>
             </div>
-          </div>
-          <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#059669", marginTop: 8, fontFamily: "var(--font-display)" }}>
-            {data?.summary?.repeatRate || 0}%
-          </div>
-          <span style={{ fontSize: "0.76rem", color: "#047857", fontWeight: 600, marginTop: 4, display: "block" }}>
-            Lifetime customer retention ratio
-          </span>
-        </div>
+          );
+        })()}
 
         {/* Total Orders Processed */}
-        <div className="premium-glass" style={{ padding: "22px 20px", borderTop: "3px solid #0284C7", background: "#FFFFFF" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-              Total Orders Logged
-            </span>
-            <div style={{ width: 32, height: 32, borderRadius: "10px", background: "#E0F2FE", border: "1px solid #BAE6FD", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0284C7" strokeWidth="2.2">
-                <line x1="16.5" y1="9.4" x2="7.5" y2="4.21" />
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                <line x1="12" y1="22.08" x2="12" y2="12" />
-              </svg>
+        {(() => {
+          const isHighestSorted = orderSortDirection === "desc";
+          return (
+            <div
+              onClick={() => {
+                const nextSort = orderSortDirection === "desc" ? "asc" : "desc";
+                setOrderSortDirection(nextSort);
+                scrollToTable();
+                showToast(nextSort === "desc" ? `Sorted: Highest Orders Volume First (${data?.summary?.totalOrdersProcessed || 0} Orders)` : `Sorted: Lowest Orders First`, "info");
+              }}
+              className="premium-glass"
+              style={{
+                padding: "20px 20px 16px",
+                borderTop: "3px solid #0284C7",
+                background: isHighestSorted ? "#F0F9FF" : "#FFFFFF",
+                borderRadius: "16px",
+                cursor: "pointer",
+                border: isHighestSorted ? "2px solid #0284C7" : "1px solid #E2E8F0",
+                boxShadow: isHighestSorted ? "0 8px 24px rgba(2, 132, 199, 0.22)" : "0 2px 8px rgba(15, 23, 42, 0.04)",
+                transform: isHighestSorted ? "translateY(-2px)" : "none",
+                transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: "0.72rem", fontWeight: 700, color: isHighestSorted ? "#0369A1" : "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  Total Orders Logged
+                </span>
+                <div style={{ width: 32, height: 32, borderRadius: "10px", background: "#E0F2FE", border: "1px solid #BAE6FD", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0284C7" strokeWidth="2.2">
+                    <line x1="16.5" y1="9.4" x2="7.5" y2="4.21" />
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                    <line x1="12" y1="22.08" x2="12" y2="12" />
+                  </svg>
+                </div>
+              </div>
+              <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#0284C7", marginTop: 8, fontFamily: "var(--font-display)" }}>
+                {data?.summary?.totalOrdersProcessed || 0}
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
+                <span style={{ fontSize: "0.76rem", color: "#0369A1", fontWeight: 600 }}>
+                  Total shipping parcels logged in DB
+                </span>
+                <span style={{ fontSize: "0.68rem", fontWeight: 700, color: isHighestSorted ? "#0284C7" : "#94A3B8", background: isHighestSorted ? "#E0F2FE" : "#F1F5F9", padding: "2px 8px", borderRadius: "10px" }}>
+                  {isHighestSorted ? "⚡ Highest Orders First" : "⚡ Lowest Orders First"}
+                </span>
+              </div>
             </div>
-          </div>
-          <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#0284C7", marginTop: 8, fontFamily: "var(--font-display)" }}>
-            {data?.summary?.totalOrdersProcessed || 0}
-          </div>
-          <span style={{ fontSize: "0.76rem", color: "#0369A1", fontWeight: 600, marginTop: 4, display: "block" }}>
-            Total shipping parcels logged in DB
-          </span>
-        </div>
+          );
+        })()}
       </div>
 
       {/* EXECUTIVE SMART ACTION HUB & PRODUCT PAUSE DECISION MATRIX */}
@@ -993,7 +1126,7 @@ export default function CustomerAnalysisPage() {
       </div>
 
       {/* Customer Directory Table with Dedicated District Column */}
-      <div className="premium-glass" style={{ padding: 0, overflow: "hidden" }}>
+      <div id="customer-directory-table" className="premium-glass" style={{ padding: 0, overflow: "hidden" }}>
         <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--glass-border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--aurora-1)" strokeWidth="2">

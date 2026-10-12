@@ -67,7 +67,14 @@ export default function ReturnsPage() {
     return () => clearTimeout(t);
   }, [toast]);
 
-    // Instant SWR Cache Initialization (0ms display on load)
+  const scrollToTable = () => {
+    if (typeof document !== "undefined") {
+      const el = document.getElementById("returns-directory-table");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  // Instant SWR Cache Initialization (0ms display on load)
   useEffect(() => {
     try {
       const cached = sessionStorage.getItem("cached_returns_data");
@@ -331,95 +338,216 @@ export default function ReturnsPage() {
         </div>
       </div>
 
-      {/* 4 Premium Stat KPI Cards */}
+      {/* 4 Premium Stat KPI Cards (Interactive & Clickable Filters) */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 210px), 1fr))", gap: 16, marginBottom: 24 }}>
         {/* Total Returns Count */}
-        <div className="premium-glass" style={{ padding: "22px 20px", borderTop: "3px solid #D97706", background: "#FFFFFF" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-              Total Return Parcels
-            </span>
-            <div style={{ width: 32, height: 32, borderRadius: "10px", background: "#FEF3C7", border: "1px solid #FDE68A", display: "flex", alignItems: "center", justifyContent: "center", color: "#D97706" }}>
-              <PackageIcon size={16} />
+        {(() => {
+          const isActive = selectedType === "ALL" && selectedSku === "ALL";
+          return (
+            <div
+              onClick={() => {
+                setSelectedType("ALL");
+                setSelectedSku("ALL");
+                setCurrentPage(1);
+                scrollToTable();
+                showToast(`Showing all return parcels (${summary.totalReturns || 0})`, "info");
+              }}
+              className="premium-glass"
+              style={{
+                padding: "20px 20px 16px",
+                borderTop: "3px solid #D97706",
+                background: isActive ? "#FFFBEB" : "#FFFFFF",
+                borderRadius: "16px",
+                cursor: "pointer",
+                border: isActive ? "2px solid #D97706" : "1px solid #E2E8F0",
+                boxShadow: isActive ? "0 8px 24px rgba(217, 119, 6, 0.22)" : "0 2px 8px rgba(15, 23, 42, 0.04)",
+                transform: isActive ? "translateY(-2px)" : "none",
+                transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: "0.72rem", fontWeight: 700, color: isActive ? "#B45309" : "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  Total Return Parcels
+                </span>
+                <div style={{ width: 32, height: 32, borderRadius: "10px", background: "#FEF3C7", border: "1px solid #FDE68A", display: "flex", alignItems: "center", justifyContent: "center", color: "#D97706" }}>
+                  <PackageIcon size={16} />
+                </div>
+              </div>
+              <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#D97706", marginTop: 8, fontFamily: "var(--font-display)", minHeight: 48, display: "flex", alignItems: "center" }}>
+                {loading && !data ? (
+                  <SkeletonBar width={80} height={36} radius={8} />
+                ) : (
+                  summary.totalReturns || 0
+                )}
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
+                <span style={{ fontSize: "0.76rem", color: "#B45309", fontWeight: 600 }}>
+                  Total reverse logistics parcels
+                </span>
+                <span style={{ fontSize: "0.68rem", fontWeight: 700, color: isActive ? "#D97706" : "#94A3B8", background: isActive ? "#FEF3C7" : "#F1F5F9", padding: "2px 8px", borderRadius: "10px" }}>
+                  {isActive ? "⚡ Active" : "Click to view all"}
+                </span>
+              </div>
             </div>
-          </div>
-          <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#D97706", marginTop: 8, fontFamily: "var(--font-display)", minHeight: 48, display: "flex", alignItems: "center" }}>
-            {loading && !data ? (
-              <SkeletonBar width={80} height={36} radius={8} />
-            ) : (
-              summary.totalReturns || 0
-            )}
-          </div>
-          <span style={{ fontSize: "0.76rem", color: "#B45309", fontWeight: 600, marginTop: 4, display: "block" }}>
-            Total reverse logistics parcels stored
-          </span>
-        </div>
+          );
+        })()}
 
         {/* Customer Returns (First Return) */}
-        <div className="premium-glass" style={{ padding: "22px 20px", borderTop: "3px solid #DC2626", background: "#FFFFFF" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-              Customer Returns
-            </span>
-            <div style={{ width: 32, height: 32, borderRadius: "10px", background: "#FEE2E2", border: "1px solid #FCA5A5", display: "flex", alignItems: "center", justifyContent: "center", color: "#DC2626" }}>
-              <RefreshIcon size={16} />
+        {(() => {
+          const isActive = selectedType === "Customer Return";
+          return (
+            <div
+              onClick={() => {
+                setSelectedType(isActive ? "ALL" : "Customer Return");
+                setCurrentPage(1);
+                scrollToTable();
+                showToast(isActive ? "Filter cleared: Showing All Returns" : `Filtered: Customer Returns (${summary.customerReturnsCount || 0})`, "info");
+              }}
+              className="premium-glass"
+              style={{
+                padding: "20px 20px 16px",
+                borderTop: "3px solid #DC2626",
+                background: isActive ? "#FEF2F2" : "#FFFFFF",
+                borderRadius: "16px",
+                cursor: "pointer",
+                border: isActive ? "2px solid #DC2626" : "1px solid #E2E8F0",
+                boxShadow: isActive ? "0 8px 24px rgba(220, 38, 38, 0.22)" : "0 2px 8px rgba(15, 23, 42, 0.04)",
+                transform: isActive ? "translateY(-2px)" : "none",
+                transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: "0.72rem", fontWeight: 700, color: isActive ? "#B91C1C" : "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  Customer Returns
+                </span>
+                <div style={{ width: 32, height: 32, borderRadius: "10px", background: "#FEE2E2", border: "1px solid #FCA5A5", display: "flex", alignItems: "center", justifyContent: "center", color: "#DC2626" }}>
+                  <RefreshIcon size={16} />
+                </div>
+              </div>
+              <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#DC2626", marginTop: 8, fontFamily: "var(--font-display)", minHeight: 48, display: "flex", alignItems: "center" }}>
+                {loading && !data ? (
+                  <SkeletonBar width={80} height={36} radius={8} />
+                ) : (
+                  summary.customerReturnsCount || 0
+                )}
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
+                <span style={{ fontSize: "0.76rem", color: "#B91C1C", fontWeight: 600 }}>
+                  Buyer initiated customer returns
+                </span>
+                <span style={{ fontSize: "0.68rem", fontWeight: 700, color: isActive ? "#DC2626" : "#94A3B8", background: isActive ? "#FEE2E2" : "#F1F5F9", padding: "2px 8px", borderRadius: "10px" }}>
+                  {isActive ? "⚡ Filter Active" : "Click to filter"}
+                </span>
+              </div>
             </div>
-          </div>
-          <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#DC2626", marginTop: 8, fontFamily: "var(--font-display)", minHeight: 48, display: "flex", alignItems: "center" }}>
-            {loading && !data ? (
-              <SkeletonBar width={80} height={36} radius={8} />
-            ) : (
-              summary.customerReturnsCount || 0
-            )}
-          </div>
-          <span style={{ fontSize: "0.76rem", color: "#B91C1C", fontWeight: 600, marginTop: 4, display: "block" }}>
-            Buyer initiated customer returns
-          </span>
-        </div>
+          );
+        })()}
 
         {/* Courier Returns (RTO) */}
-        <div className="premium-glass" style={{ padding: "22px 20px", borderTop: "3px solid #0284C7", background: "#FFFFFF" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-              Courier RTO (Undelivered)
-            </span>
-            <div style={{ width: 32, height: 32, borderRadius: "10px", background: "#E0F2FE", border: "1px solid #BAE6FD", display: "flex", alignItems: "center", justifyContent: "center", color: "#0284C7" }}>
-              <TruckIcon size={16} />
+        {(() => {
+          const isActive = selectedType === "RTO";
+          return (
+            <div
+              onClick={() => {
+                setSelectedType(isActive ? "ALL" : "RTO");
+                setCurrentPage(1);
+                scrollToTable();
+                showToast(isActive ? "Filter cleared: Showing All Returns" : `Filtered: Courier RTO Returns (${summary.rtoCount || 0})`, "info");
+              }}
+              className="premium-glass"
+              style={{
+                padding: "20px 20px 16px",
+                borderTop: "3px solid #0284C7",
+                background: isActive ? "#F0F9FF" : "#FFFFFF",
+                borderRadius: "16px",
+                cursor: "pointer",
+                border: isActive ? "2px solid #0284C7" : "1px solid #E2E8F0",
+                boxShadow: isActive ? "0 8px 24px rgba(2, 132, 199, 0.22)" : "0 2px 8px rgba(15, 23, 42, 0.04)",
+                transform: isActive ? "translateY(-2px)" : "none",
+                transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: "0.72rem", fontWeight: 700, color: isActive ? "#0369A1" : "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  Courier RTO (Undelivered)
+                </span>
+                <div style={{ width: 32, height: 32, borderRadius: "10px", background: "#E0F2FE", border: "1px solid #BAE6FD", display: "flex", alignItems: "center", justifyContent: "center", color: "#0284C7" }}>
+                  <TruckIcon size={16} />
+                </div>
+              </div>
+              <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#0284C7", marginTop: 8, fontFamily: "var(--font-display)", minHeight: 48, display: "flex", alignItems: "center" }}>
+                {loading && !data ? (
+                  <SkeletonBar width={80} height={36} radius={8} />
+                ) : (
+                  summary.rtoCount || 0
+                )}
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
+                <span style={{ fontSize: "0.76rem", color: "#0369A1", fontWeight: 600 }}>
+                  Undelivered courier RTO returns
+                </span>
+                <span style={{ fontSize: "0.68rem", fontWeight: 700, color: isActive ? "#0284C7" : "#94A3B8", background: isActive ? "#E0F2FE" : "#F1F5F9", padding: "2px 8px", borderRadius: "10px" }}>
+                  {isActive ? "⚡ Filter Active" : "Click to filter"}
+                </span>
+              </div>
             </div>
-          </div>
-          <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#0284C7", marginTop: 8, fontFamily: "var(--font-display)", minHeight: 48, display: "flex", alignItems: "center" }}>
-            {loading && !data ? (
-              <SkeletonBar width={80} height={36} radius={8} />
-            ) : (
-              summary.rtoCount || 0
-            )}
-          </div>
-          <span style={{ fontSize: "0.76rem", color: "#0369A1", fontWeight: 600, marginTop: 4, display: "block" }}>
-            Undelivered courier RTO returns
-          </span>
-        </div>
+          );
+        })()}
 
         {/* Top Returned SKU */}
-        <div className="premium-glass" style={{ padding: "22px 20px", borderTop: "3px solid #7C3AED", background: "#FFFFFF" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-              Top Returned SKU
-            </span>
-            <div style={{ width: 32, height: 32, borderRadius: "10px", background: "#F3E8FF", border: "1px solid #E9D5FF", display: "flex", alignItems: "center", justifyContent: "center", color: "#7C3AED" }}>
-              <AlertTriangleIcon size={16} />
+        {(() => {
+          const topSkuName = summary.topReturnedSku?.name;
+          const isActive = !!(topSkuName && selectedSku === topSkuName);
+          return (
+            <div
+              onClick={() => {
+                if (!topSkuName) return;
+                setSelectedSku(isActive ? "ALL" : topSkuName);
+                setCurrentPage(1);
+                scrollToTable();
+                showToast(isActive ? "SKU Filter cleared: Showing All SKUs" : `Filtered by Top Returned SKU: ${topSkuName}`, "info");
+              }}
+              className="premium-glass"
+              style={{
+                padding: "20px 20px 16px",
+                borderTop: "3px solid #7C3AED",
+                background: isActive ? "#FAF5FF" : "#FFFFFF",
+                borderRadius: "16px",
+                cursor: topSkuName ? "pointer" : "default",
+                border: isActive ? "2px solid #7C3AED" : "1px solid #E2E8F0",
+                boxShadow: isActive ? "0 8px 24px rgba(124, 58, 237, 0.22)" : "0 2px 8px rgba(15, 23, 42, 0.04)",
+                transform: isActive ? "translateY(-2px)" : "none",
+                transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: "0.72rem", fontWeight: 700, color: isActive ? "#6D28D9" : "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  Top Returned SKU
+                </span>
+                <div style={{ width: 32, height: 32, borderRadius: "10px", background: "#F3E8FF", border: "1px solid #E9D5FF", display: "flex", alignItems: "center", justifyContent: "center", color: "#7C3AED" }}>
+                  <AlertTriangleIcon size={16} />
+                </div>
+              </div>
+              <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#7C3AED", marginTop: 10, wordBreak: "break-all", minHeight: 28, display: "flex", alignItems: "center" }}>
+                {loading && !data ? (
+                  <SkeletonBar width={130} height={26} radius={6} />
+                ) : (
+                  topSkuName || "N/A"
+                )}
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
+                <span style={{ fontSize: "0.76rem", color: "#6D28D9", fontWeight: 600 }}>
+                  {summary.topReturnedSku ? `${summary.topReturnedSku.count} returns logged` : "No returns data"}
+                </span>
+                {topSkuName && (
+                  <span style={{ fontSize: "0.68rem", fontWeight: 700, color: isActive ? "#7C3AED" : "#94A3B8", background: isActive ? "#F3E8FF" : "#F1F5F9", padding: "2px 8px", borderRadius: "10px" }}>
+                    {isActive ? "⚡ SKU Filter Active" : "Click to filter SKU"}
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-          <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#7C3AED", marginTop: 10, wordBreak: "break-all", minHeight: 28, display: "flex", alignItems: "center" }}>
-            {loading && !data ? (
-              <SkeletonBar width={130} height={26} radius={6} />
-            ) : (
-              summary.topReturnedSku?.name || "N/A"
-            )}
-          </div>
-          <span style={{ fontSize: "0.76rem", color: "#6D28D9", fontWeight: 600, marginTop: 4, display: "block" }}>
-            {summary.topReturnedSku ? `${summary.topReturnedSku.count} returns logged` : "No returns data"}
-          </span>
-        </div>
+          );
+        })()}
       </div>
 
       {/* Controls Section: Search Bar + Type Filter + Upload Button */}
@@ -512,7 +640,7 @@ export default function ReturnsPage() {
       </div>
 
       {/* Returns Table Card */}
-      <div className="premium-glass" style={{ padding: 0, overflow: "hidden" }}>
+      <div id="returns-directory-table" className="premium-glass" style={{ padding: 0, overflow: "hidden" }}>
         <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--glass-border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <PackageIcon size={18} />
