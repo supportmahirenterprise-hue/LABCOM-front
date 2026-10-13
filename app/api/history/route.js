@@ -3,7 +3,7 @@ import { authOptions } from "../../../lib/auth";
 import { NextResponse } from "next/server";
 
 const BACKEND_URL = (
-  process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
+  process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.labelpro.in"
 ).replace(/\/+$/, "");
 
 export async function GET(req) {

@@ -11,7 +11,7 @@ import { ButtonSpinner } from "./components/Loader";
 import { getPendingStudioPdf, clearPendingStudioPdf } from "../lib/pdfTransfer";
 
 const BACKEND_URL = (
-  process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
+  process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.labelpro.in"
 ).replace(/\/+$/, "");
 
 import {

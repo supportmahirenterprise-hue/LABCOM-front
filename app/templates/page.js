@@ -9,7 +9,7 @@ import Modal from "../components/Modal";
 import { ZapIcon, CloseIcon, TrashIcon, ArrowLeftIcon } from "../components/Icons";
 
 const BACKEND_URL = (
-  process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
+  process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.labelpro.in"
 ).replace(/\/+$/, "");
 
 export default function TemplatesPage() {

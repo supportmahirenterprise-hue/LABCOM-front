@@ -7,7 +7,7 @@ import Link from "next/link";
 import { AnalyticsSkeleton } from "../components/Loader";
 
 const BACKEND_URL = (
-  process.env.NEXT_PUBLIC_BACKEND_URL || "https://lp.lextrack.in"
+  process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.labelpro.in"
 ).replace(/\/+$/, "");
 
 import {
