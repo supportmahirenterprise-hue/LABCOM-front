@@ -50,12 +50,21 @@ export const metadata = {
     description:
       "India's first E-Commerce Label Studio: Duplicate Remover • Label Cropper • Label Sorter • Buyer & Return Analyser. Process Meesho, Flipkart, and Amazon shipping labels with zero duplicate dispatches.",
     siteName: "LabelPro.in",
+    images: [
+      {
+        url: `${siteUrl}/icon.png`,
+        width: 512,
+        height: 512,
+        alt: "LabelPro - India's First E-Commerce Label Studio",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "India's First E-Commerce Label Studio | Duplicate Remover • Label Cropper • Label Sorter",
     description:
       "India's first E-Commerce Label Studio: Duplicate Remover • Label Cropper • Label Sorter • Buyer & Return Analyser.",
+    images: [`${siteUrl}/icon.png`],
   },
   alternates: {
     canonical: siteUrl,
@@ -65,6 +74,7 @@ export const metadata = {
     shortcut: "/favicon.ico",
     apple: "/icon.png",
   },
+  manifest: "/manifest.json",
 };
 
 const jsonLdGraph = {

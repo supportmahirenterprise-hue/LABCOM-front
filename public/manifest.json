@@ -1,7 +1,7 @@
 {
-  "name": "LabelPro.in — Intelligent Shipping Label QR Stamper & Sorter",
-  "short_name": "LabelPro",
-  "description": "High-precision PDF shipping label QR code stamper, interactive field editor, district demand intelligence, and 1-click SKU batch sorter.",
+  "name": "India's First E-Commerce Label Studio | LabelPro.in",
+  "short_name": "LabelPro Studio",
+  "description": "India's first E-Commerce Label Studio: Duplicate Remover • Label Cropper • Label Sorter • Buyer & Return Analyser.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F8FAFC",
@@ -11,6 +11,11 @@
       "src": "/favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
+    },
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ]
 }

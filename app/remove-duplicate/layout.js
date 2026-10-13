@@ -26,6 +26,50 @@ export const metadata = {
   },
 };
 
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://labelpro.in",
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Duplicate Label Remover",
+          "item": "https://labelpro.in/remove-duplicate",
+        },
+      ],
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Duplicate Shipping Label Remover - LabelPro",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web-based",
+      "description":
+        "Cross-batch shipping label PDF duplicate remover for Meesho, Flipkart & Amazon. Eliminates double shipping losses in browser memory.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "INR",
+      },
+    },
+  ],
+};
+
 export default function RemoveDuplicateLayout({ children }) {
-  return children;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      {children}
+    </>
+  );
 }

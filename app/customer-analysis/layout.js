@@ -22,6 +22,50 @@ export const metadata = {
   },
 };
 
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://labelpro.in",
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Customer Intelligence & District Demand",
+          "item": "https://labelpro.in/customer-analysis",
+        },
+      ],
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Customer Intelligence & District Demand Analyser - LabelPro",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web-based",
+      "description":
+        "Analyze high-demand order hubs, district-level customer retention, and SKU performance for marketplace sellers.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "INR",
+      },
+    },
+  ],
+};
+
 export default function CustomerAnalysisLayout({ children }) {
-  return children;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      {children}
+    </>
+  );
 }
