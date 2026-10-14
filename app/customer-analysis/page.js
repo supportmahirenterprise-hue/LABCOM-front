@@ -115,7 +115,7 @@ export default function CustomerAnalysisPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login?callbackUrl=/customer-analysis");
     }
   }, [status, router]);
 

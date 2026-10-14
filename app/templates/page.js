@@ -37,7 +37,7 @@ export default function TemplatesPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login?callbackUrl=/templates");
     }
   }, [status, router]);
 

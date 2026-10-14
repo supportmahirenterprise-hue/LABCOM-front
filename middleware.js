@@ -35,6 +35,7 @@ export async function middleware(req) {
 export const config = {
   matcher: [
     "/",
+    "/remove-duplicate/:path*",
     "/customer-analysis/:path*",
     "/returns/:path*",
     "/analytics/:path*",

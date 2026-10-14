@@ -33,6 +33,12 @@ export default function RemoveDuplicatePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login?callbackUrl=/remove-duplicate");
+    }
+  }, [status, router]);
+
   // Dual PDF Upload State
   const [file1, setFile1] = useState(null);
   const [file2, setFile2] = useState(null);

@@ -219,7 +219,7 @@ export function Sidebar() {
           </>
         ) : (
           <button
-            onClick={() => signIn("credentials", { callbackUrl: "/", email: "seller@labelpro.in" })}
+            onClick={() => signIn("credentials", { callbackUrl: pathname || "/", email: "seller@labelpro.in" })}
             style={{
               width: "100%",
               padding: "9px 12px",

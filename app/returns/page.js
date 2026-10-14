@@ -53,7 +53,7 @@ export default function ReturnsPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login?callbackUrl=/returns");
     }
   }, [status, router]);
 

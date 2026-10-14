@@ -37,7 +37,7 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login?callbackUrl=/analytics");
     }
   }, [status, router]);
 
