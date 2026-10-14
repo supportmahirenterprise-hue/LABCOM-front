@@ -178,7 +178,7 @@ export default function TemplatesPage() {
     }
   }
 
-  if (status === "loading" || loading) {
+  if (status === "loading" || status === "unauthenticated" || loading) {
     return <TemplatesSkeleton />;
   }
 

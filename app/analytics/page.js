@@ -122,7 +122,7 @@ export default function AnalyticsPage() {
     }
   }
 
-  if (status === "loading" || loading) {
+  if (status === "loading" || status === "unauthenticated" || loading) {
     return <AnalyticsSkeleton />;
   }
 

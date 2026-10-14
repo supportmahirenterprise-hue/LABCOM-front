@@ -226,7 +226,7 @@ export default function SettingsPage() {
     }
   }
 
-  if (status === "loading" || loading) {
+  if (status === "loading" || status === "unauthenticated" || loading) {
     return <SettingsSkeleton />;
   }
 

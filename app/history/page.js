@@ -112,7 +112,7 @@ export default function HistoryPage() {
     fetchHistory();
   }, [status, session?.user?.email]);
 
-  if (status === "loading" || loading) {
+  if (status === "loading" || status === "unauthenticated" || loading) {
     return <HistorySkeleton />;
   }
 

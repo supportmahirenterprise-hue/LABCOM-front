@@ -7,7 +7,7 @@ import Link from "next/link";
 import QRCode from "qrcode";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import Modal from "./components/Modal";
-import { ButtonSpinner } from "./components/Loader";
+import { ButtonSpinner, PageLoader } from "./components/Loader";
 import { getPendingStudioPdf, clearPendingStudioPdf } from "../lib/pdfTransfer";
 
 const BACKEND_URL = (
@@ -1666,6 +1666,14 @@ export default function Home() {
   const qrCenterYPt = numQrY + numQrSize / 2;
   const startYPt = qrCenterYPt + totalTextHeightPt / 2 - numFontSize * 0.85;
   const simTextTop = Math.max(0, Math.min(canvasH - simFontSize, canvasH - (startYPt * scale) - simFontSize));
+
+  if (status === "loading" || status === "unauthenticated") {
+    return (
+      <div style={{ minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <PageLoader title="Verifying Access..." subtitle="Checking your seller account credentials..." />
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: "100vh", paddingBottom: 40, position: "relative", width: "100%", maxWidth: "100%", overflowX: "hidden" }}>

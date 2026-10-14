@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Modal from "../components/Modal";
-import { SkeletonBar, ButtonSpinner, TableSkeletonRows } from "../components/Loader";
+import { SkeletonBar, ButtonSpinner, TableSkeletonRows, PageLoader } from "../components/Loader";
 import {
   PackageIcon,
   RefreshIcon,
@@ -219,6 +219,14 @@ export default function ReturnsPage() {
   const summary = data?.summary || {};
   const pagination = data?.pagination || {};
   // Modal scroll lock is handled centrally by Modal.js
+
+  if (status === "loading" || status === "unauthenticated") {
+    return (
+      <div style={{ minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <PageLoader title="Verifying Access..." subtitle="Checking your seller account credentials..." />
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: "100vh", paddingBottom: 60, position: "relative", width: "100%", maxWidth: "100%" }}>
