@@ -199,7 +199,25 @@ export function Sidebar() {
               </div>
             </div>
             <button
-              onClick={() => signOut({ callbackUrl: "/login" })}
+              onClick={async () => {
+                try {
+                  if (typeof window !== "undefined") {
+                    sessionStorage.clear();
+                    Object.keys(localStorage).forEach((key) => {
+                      if (
+                        key.startsWith("cached_") ||
+                        key.startsWith("user_") ||
+                        (session?.user?.email && key.includes(session.user.email))
+                      ) {
+                        localStorage.removeItem(key);
+                      }
+                    });
+                  }
+                } catch (e) {
+                  console.error("Storage clear error on signOut:", e);
+                }
+                await signOut({ callbackUrl: "/login" });
+              }}
               style={{
                 width: "100%",
                 marginTop: 10,
@@ -218,8 +236,8 @@ export function Sidebar() {
             </button>
           </>
         ) : (
-          <button
-            onClick={() => signIn("credentials", { callbackUrl: pathname || "/", email: "seller@labelpro.in" })}
+          <Link
+            href={`/login?callbackUrl=${encodeURIComponent(pathname || "/")}`}
             style={{
               width: "100%",
               padding: "9px 12px",
@@ -236,10 +254,11 @@ export function Sidebar() {
               gap: 6,
               boxShadow: "0 4px 14px rgba(79, 70, 229, 0.25)",
               transition: "all 0.2s ease",
+              textDecoration: "none",
             }}
           >
-            <ZapIcon /> Quick Demo Login
-          </button>
+            Sign In
+          </Link>
         )}
       </div>
     </aside>

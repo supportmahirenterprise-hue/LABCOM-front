@@ -37,18 +37,18 @@ export default function SettingsPage() {
   }, [status, router]);
 
   // Store Profile (Optional)
-  const [storeName, setStoreName] = useState("MAHIR ENTERPRISE");
-  const [phone, setPhone] = useState("+91 96647 20473");
-  const [supportEmail, setSupportEmail] = useState("support.mahirenterprise@gmail.com");
-  const [storeUrl, setStoreUrl] = useState("https://www.meesho.com/themahirenterprise");
-  const [instagramHandle, setInstagramHandle] = useState("@mahir.enterprise_");
+  const [storeName, setStoreName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [supportEmail, setSupportEmail] = useState("");
+  const [storeUrl, setStoreUrl] = useState("");
+  const [instagramHandle, setInstagramHandle] = useState("");
   const [customNote, setCustomNote] = useState("");
 
   // Default Stamping & Sorting Preferences
   const [enableQr, setEnableQr] = useState(true);
-  const [qrText, setQrText] = useState("https://www.meesho.com/themahirenterprise");
+  const [qrText, setQrText] = useState("");
   const [detailText, setDetailText] = useState(
-    "Scan to Follow Meesho Store!\nOrder: {orderNo}\nSKU: {sku}"
+    "Scan for Store Updates & Offers!\nOrder: {orderNo}\nSKU: {sku}"
   );
   const [qrX, setQrX] = useState(14);
   const [qrY, setQrY] = useState(14);
@@ -59,11 +59,11 @@ export default function SettingsPage() {
   const [downloadSummary, setDownloadSummary] = useState(false);
 
   // WhatsApp Dispatcher Configuration
-  const [enableWhatsApp, setEnableWhatsApp] = useState(true);
-  const [waApiKey, setWaApiKey] = useState("wa_c6854599bd4b7a54cad78edbdd6ace51");
-  const [waReceiverNumber, setWaReceiverNumber] = useState("919664720473");
-  const [pdfReceiverNumber, setPdfReceiverNumber] = useState("919664720473");
-  const [imageReceiverNumber, setImageReceiverNumber] = useState("919664720473");
+  const [enableWhatsApp, setEnableWhatsApp] = useState(false);
+  const [waApiKey, setWaApiKey] = useState("");
+  const [waReceiverNumber, setWaReceiverNumber] = useState("");
+  const [pdfReceiverNumber, setPdfReceiverNumber] = useState("");
+  const [imageReceiverNumber, setImageReceiverNumber] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
   const [testingWa, setTestingWa] = useState(false);
 
@@ -196,7 +196,12 @@ export default function SettingsPage() {
     setTestingWa(true);
     try {
       const userEmail = session?.user?.email || "";
-      const targetNum = waReceiverNumber || "919664720473";
+      const targetNum = waReceiverNumber || pdfReceiverNumber || imageReceiverNumber;
+      if (!targetNum || targetNum.trim().replace(/\D/g, "").length < 10) {
+        showToast("Please enter a valid WhatsApp receiver number first", "error");
+        setTestingWa(false);
+        return;
+      }
       const testRes = await fetch(`${BACKEND_URL}/api/whatsapp/send-media`, {
         method: "POST",
         headers: {

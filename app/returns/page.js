@@ -69,19 +69,23 @@ export default function ReturnsPage() {
 
 
 
-  // Instant SWR Cache Initialization (0ms display on load)
+  // Instant SWR Cache Initialization (0ms display on load, strictly scoped to logged-in user)
   useEffect(() => {
     try {
-      const cached = sessionStorage.getItem("cached_returns_data");
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (parsed && parsed.returns) {
-          setData(parsed);
-          setLoading(false);
+      // Clean up legacy shared cache
+      sessionStorage.removeItem("cached_returns_data");
+      if (session?.user?.email) {
+        const cached = sessionStorage.getItem("cached_returns_data_" + session.user.email);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && parsed.returns) {
+            setData(parsed);
+            setLoading(false);
+          }
         }
       }
     } catch (e) {}
-  }, []);
+  }, [session?.user?.email]);
 
   async function fetchReturnsData(force = false) {
     if (!session?.user?.email) return;
@@ -111,7 +115,7 @@ export default function ReturnsPage() {
         setData(json);
         try {
           if (currentPage === 1 && !search.trim() && selectedType === "ALL" && selectedState === "ALL" && selectedSku === "ALL") {
-            sessionStorage.setItem("cached_returns_data", JSON.stringify(json));
+            sessionStorage.setItem("cached_returns_data_" + userEmail, JSON.stringify(json));
           }
         } catch (e) {}
       } else {
@@ -161,6 +165,10 @@ export default function ReturnsPage() {
         try {
           sessionStorage.removeItem("cached_returns_data");
           sessionStorage.removeItem("cached_customer_analysis");
+          if (session?.user?.email) {
+            sessionStorage.removeItem("cached_returns_data_" + session.user.email);
+            sessionStorage.removeItem("cached_customer_analysis_" + session.user.email);
+          }
         } catch (e) {}
         setShowUploadModal(false);
         setCurrentPage(1);
@@ -188,6 +196,10 @@ export default function ReturnsPage() {
         try {
           sessionStorage.removeItem("cached_returns_data");
           sessionStorage.removeItem("cached_customer_analysis");
+          if (session?.user?.email) {
+            sessionStorage.removeItem("cached_returns_data_" + session.user.email);
+            sessionStorage.removeItem("cached_customer_analysis_" + session.user.email);
+          }
         } catch (e) {}
         if (selectedReturn?.id === id) setSelectedReturn(null);
         fetchReturnsData();

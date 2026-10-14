@@ -119,22 +119,26 @@ export default function CustomerAnalysisPage() {
     }
   }, [status, router]);
 
-  // Instant SWR Cache Initialization (0ms display on load)
+  // Instant SWR Cache Initialization (0ms display on load, strictly scoped to logged-in user)
   useEffect(() => {
     try {
-      const cached = sessionStorage.getItem("cached_customer_analysis");
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (parsed.data) {
-          setData(parsed.data);
-          setLoading(false);
-        }
-        if (parsed.insights) {
-          setInsightsData(parsed.insights);
+      // Remove legacy shared cache to prevent any cross-user data leakage
+      sessionStorage.removeItem("cached_customer_analysis");
+      if (session?.user?.email) {
+        const cached = sessionStorage.getItem("cached_customer_analysis_" + session.user.email);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed.data) {
+            setData(parsed.data);
+            setLoading(false);
+          }
+          if (parsed.insights) {
+            setInsightsData(parsed.insights);
+          }
         }
       }
     } catch (e) {}
-  }, []);
+  }, [session?.user?.email]);
 
   function showToast(message, type = "success") {
     setToast({ message, type });
@@ -179,7 +183,7 @@ export default function CustomerAnalysisPage() {
         fetch(`${BACKEND_URL}/api/customer-analysis?${queryParams.toString()}`, {
           headers: { "x-user-email": userEmail },
         }),
-        fetch(`${BACKEND_URL}/api/insights/dashboard${force === true ? "?refresh=true" : ""}`, {
+        fetch(`${BACKEND_URL}/api/insights/dashboard?email=${encodeURIComponent(userEmail)}${force === true ? "&refresh=true" : ""}`, {
           headers: { "x-user-email": userEmail },
         }).catch(() => null),
       ]);
@@ -202,7 +206,7 @@ export default function CustomerAnalysisPage() {
       if (latestCustomerData) {
         try {
           sessionStorage.setItem(
-            "cached_customer_analysis",
+            "cached_customer_analysis_" + userEmail,
             JSON.stringify({ data: latestCustomerData, insights: latestInsightsData || insightsData })
           );
         } catch (e) {}

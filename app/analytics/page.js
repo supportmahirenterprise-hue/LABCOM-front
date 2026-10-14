@@ -88,11 +88,11 @@ export default function AnalyticsPage() {
     try {
       const userEmail = session.user.email;
       const sampleSkus = [
-        "CHHANDO_4_pieces",
-        "KERI_6_piece",
-        "kaka_kuva_4_pieces",
-        "LOVE_BIRDS_4_pieces",
-        "Lovender_Goto_7_pieces",
+        "PREMIUM_COTTON_SHIRT",
+        "DESIGNER_PRINTED_SAREE",
+        "CASUAL_SUMMER_DRESS",
+        "OVERSIZED_HOODIE_BLACK",
+        "SLIM_FIT_DENIM_JEANS",
       ];
       const randomSku = sampleSkus[Math.floor(Math.random() * sampleSkus.length)];
       const randomOrder = `324${Math.floor(10000000000000 + Math.random() * 90000000000000)}`;
@@ -107,7 +107,7 @@ export default function AnalyticsPage() {
           email: userEmail,
           orderNo: randomOrder,
           sku: randomSku,
-          targetUrl: "https://www.meesho.com/themahirenterprise",
+          targetUrl: "https://labelpro.in",
         }),
       });
 

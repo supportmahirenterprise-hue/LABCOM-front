@@ -459,35 +459,39 @@ export default function Home() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  // Load user settings from Node.js backend on login (with instant localStorage fallback)
+  // Load user settings from Node.js backend on login (strictly scoped to authenticated user)
   useEffect(() => {
-    // 1. Instant local cache read to eliminate initial flicker
     try {
-      const cachedStr = typeof window !== "undefined" ? localStorage.getItem("user_stamp_settings") : null;
-      if (cachedStr) {
-        const s = JSON.parse(cachedStr);
-        if (s.enableQr !== undefined) setEnableQr(s.enableQr);
-        if (s.useNativeScript !== undefined) setUseNativeScript(s.useNativeScript);
-        if (s.storeName !== undefined) setStoreName(s.storeName);
-        if (s.stampStyle !== undefined) setStampStyle(s.stampStyle);
-        if (s.qrText !== undefined) setQrText(s.qrText);
-        if (s.detailText !== undefined) setDetailText(s.detailText);
-        if (s.qrX !== undefined) setQrX(s.qrX);
-        if (s.qrY !== undefined) setQrY(s.qrY);
-        if (s.qrSize !== undefined) setQrSize(s.qrSize);
-        if (s.fontSize !== undefined) setFontSize(s.fontSize);
-        if (s.sortBy !== undefined) setSortBy(s.sortBy);
-        if (s.sortOrder !== undefined) setSortOrder(s.sortOrder);
-        if (s.downloadSummary !== undefined) setDownloadSummary(s.downloadSummary);
-        if (s.sendWhatsApp !== undefined) setSendWhatsApp(s.sendWhatsApp);
-        else if (s.enableWhatsApp !== undefined) setSendWhatsApp(s.enableWhatsApp);
-        if (s.cropEnabled !== undefined) setCropEnabled(s.cropEnabled);
-        if (s.cropPreset !== undefined) setCropPreset(s.cropPreset);
-        if (s.cropMode !== undefined) setCropMode(s.cropMode);
-        if (s.cropTop !== undefined) setCropTop(s.cropTop);
-        if (s.cropBottom !== undefined) setCropBottom(s.cropBottom);
-        if (s.cropLeft !== undefined) setCropLeft(s.cropLeft);
-        if (s.cropRight !== undefined) setCropRight(s.cropRight);
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("user_stamp_settings"); // purge legacy shared cache
+      }
+      if (session?.user?.email && typeof window !== "undefined") {
+        const cachedStr = localStorage.getItem("user_stamp_settings_" + session.user.email);
+        if (cachedStr) {
+          const s = JSON.parse(cachedStr);
+          if (s.enableQr !== undefined) setEnableQr(s.enableQr);
+          if (s.useNativeScript !== undefined) setUseNativeScript(s.useNativeScript);
+          if (s.storeName !== undefined) setStoreName(s.storeName);
+          if (s.stampStyle !== undefined) setStampStyle(s.stampStyle);
+          if (s.qrText !== undefined) setQrText(s.qrText);
+          if (s.detailText !== undefined) setDetailText(s.detailText);
+          if (s.qrX !== undefined) setQrX(s.qrX);
+          if (s.qrY !== undefined) setQrY(s.qrY);
+          if (s.qrSize !== undefined) setQrSize(s.qrSize);
+          if (s.fontSize !== undefined) setFontSize(s.fontSize);
+          if (s.sortBy !== undefined) setSortBy(s.sortBy);
+          if (s.sortOrder !== undefined) setSortOrder(s.sortOrder);
+          if (s.downloadSummary !== undefined) setDownloadSummary(s.downloadSummary);
+          if (s.sendWhatsApp !== undefined) setSendWhatsApp(s.sendWhatsApp);
+          else if (s.enableWhatsApp !== undefined) setSendWhatsApp(s.enableWhatsApp);
+          if (s.cropEnabled !== undefined) setCropEnabled(s.cropEnabled);
+          if (s.cropPreset !== undefined) setCropPreset(s.cropPreset);
+          if (s.cropMode !== undefined) setCropMode(s.cropMode);
+          if (s.cropTop !== undefined) setCropTop(s.cropTop);
+          if (s.cropBottom !== undefined) setCropBottom(s.cropBottom);
+          if (s.cropLeft !== undefined) setCropLeft(s.cropLeft);
+          if (s.cropRight !== undefined) setCropRight(s.cropRight);
+        }
       }
     } catch (e) {}
 
@@ -530,7 +534,7 @@ export default function Home() {
             if (s.cropRight !== undefined) setCropRight(s.cropRight);
 
             try {
-              localStorage.setItem("user_stamp_settings", JSON.stringify(s));
+              localStorage.setItem("user_stamp_settings_" + userEmail, JSON.stringify(s));
             } catch (e) {}
           }
         }
@@ -579,7 +583,7 @@ export default function Home() {
         };
 
         try {
-          localStorage.setItem("user_stamp_settings", JSON.stringify(payload));
+          localStorage.setItem("user_stamp_settings_" + userEmail, JSON.stringify(payload));
         } catch (e) {}
 
         await fetch(`/api/user/settings`, {

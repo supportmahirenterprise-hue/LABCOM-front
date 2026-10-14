@@ -112,35 +112,7 @@ export default function LoginPage() {
           Continue with Google
         </button>
 
-        <div style={{ display: "flex", alignItems: "center", margin: "16px 0", color: "#94A3B8" }}>
-          <div style={{ flex: 1, height: 1, background: "#E2E8F0" }} />
-          <span style={{ padding: "0 10px", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>or</span>
-          <div style={{ flex: 1, height: 1, background: "#E2E8F0" }} />
-        </div>
 
-        {/* Instant Demo Login Button */}
-        <button
-          style={{
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 8,
-            padding: "11px 16px",
-            fontSize: "0.88rem",
-            fontWeight: 600,
-            background: "linear-gradient(135deg, #4F46E5 0%, #0284C7 100%)",
-            color: "#FFFFFF",
-            border: "none",
-            borderRadius: "12px",
-            cursor: "pointer",
-            boxShadow: "0 4px 14px rgba(79, 70, 229, 0.25)",
-            transition: "all 0.2s ease",
-          }}
-          onClick={() => signIn("credentials", { callbackUrl, email: "seller@labelpro.in" })}
-        >
-          ⚡ Quick Demo Login
-        </button>
 
         <p style={{ marginTop: 22, fontSize: "0.72rem", color: "#94A3B8", lineHeight: 1.5 }}>
           By continuing, you agree to our{" "}
