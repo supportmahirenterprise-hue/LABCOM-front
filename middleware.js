@@ -4,10 +4,10 @@ import { getToken } from "next-auth/jwt";
 export async function middleware(req) {
   const { pathname } = req.nextUrl;
 
-  // 1. Allow search engine crawlers through so SEO and Sitelinks indexing works 100%
+  // 1. Allow search engine crawlers and AI bots through so SEO, Sitelinks, and LLM indexing work 100%
   const userAgent = req.headers.get("user-agent") || "";
   const isSearchBot =
-    /googlebot|bingbot|baiduspider|yandexbot|duckduckbot|slurp|facebookexternalhit|twitterbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|whatsapp|gptbot|claudebot|perplexitybot/i.test(
+    /googlebot|bingbot|baiduspider|yandexbot|duckduckbot|slurp|facebookexternalhit|twitterbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|whatsapp|gptbot|chatgpt-user|claudebot|perplexitybot|applebot|bytespider|ccbot|anthropic-ai|cohere-ai|oai-searchbot|ahrefsbot|semrushbot|dotbot|rogerbot|screaming frog/i.test(
       userAgent
     );
   if (isSearchBot) {

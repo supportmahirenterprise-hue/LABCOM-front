@@ -160,13 +160,19 @@ export function SettingsSkeleton() {
 export function TemplatesSkeleton() {
   return (
     <div style={{ minHeight: "100vh", paddingBottom: 60, width: "100%" }}>
-      {/* Header Skeleton */}
+      {/* Header */}
       <div style={{ marginBottom: 28 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <SkeletonBar width={260} height={32} radius={8} />
-          <SkeletonBar width={110} height={24} radius={9999} />
+          <h1 className="heading-display" style={{ fontSize: "1.6rem", color: "#0F172A", margin: 0 }}>
+            Label Presets & Templates
+          </h1>
+          <span className="tag-pill active" style={{ fontSize: "0.72rem" }}>
+            Custom Presets
+          </span>
         </div>
-        <SkeletonBar width={420} height={16} radius={4} style={{ marginTop: 10, maxWidth: "100%" }} />
+        <p style={{ fontSize: "0.85rem", color: "#64748B", marginTop: 6, marginBottom: 0 }}>
+          Save and switch between different QR positions, custom printed lines, and sorting presets with 1-click.
+        </p>
       </div>
 
       {/* Create Template Form Skeleton */}
@@ -206,13 +212,19 @@ export function TemplatesSkeleton() {
 export function AnalyticsSkeleton() {
   return (
     <div style={{ minHeight: "100vh", paddingBottom: 60, width: "100%" }}>
-      {/* Header Skeleton */}
+      {/* Header */}
       <div style={{ marginBottom: 28 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <SkeletonBar width={280} height={32} radius={8} />
-          <SkeletonBar width={130} height={24} radius={9999} />
+          <h1 className="heading-display" style={{ fontSize: "1.6rem", color: "#0F172A", margin: 0 }}>
+            QR Scan Analytics & Insights
+          </h1>
+          <span className="tag-pill active" style={{ fontSize: "0.72rem", padding: "4px 12px" }}>
+            Live Tracking Engine
+          </span>
         </div>
-        <SkeletonBar width={480} height={16} radius={4} style={{ marginTop: 10, maxWidth: "100%" }} />
+        <p style={{ fontSize: "0.85rem", color: "#64748B", marginTop: 6, marginBottom: 0 }}>
+          Real-time conversion metrics on how many buyers scan your package QR codes, date-wise engagement, and top-converting SKUs.
+        </p>
       </div>
 
       {/* 4 Stat KPI Cards Skeleton */}

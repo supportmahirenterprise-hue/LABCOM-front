@@ -94,9 +94,9 @@ export function Sidebar() {
           L
         </div>
         <div>
-          <h1 className="heading-display" style={{ fontSize: "1.15rem", color: "#0F172A", margin: 0, lineHeight: 1.2, fontWeight: 700, letterSpacing: "-0.01em" }}>
+          <span className="heading-display logo-brand-text" style={{ fontSize: "1.15rem", color: "#0F172A", margin: 0, lineHeight: 1.2, fontWeight: 700, letterSpacing: "-0.01em", display: "block" }}>
             LabelPro
-          </h1>
+          </span>
           <p style={{ fontSize: "0.62rem", color: "#4F46E5", margin: 0, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700 }}>
             E-Commerce Studio
           </p>

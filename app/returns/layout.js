@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Return Entry & Reverse Logistics Management (RTO Tracker) | LabelPro.in",
+  title: "RTO Tracker & Reverse Logistics Return Manager",
   description:
     "Upload supplier CSVs to auto-match customer delivery addresses, track Customer Returns vs Courier RTO parcels, and minimize delivery losses.",
   keywords: [
@@ -10,12 +10,27 @@ export const metadata = {
     "supplier return csv upload",
   ],
   openGraph: {
-    title: "Return Entry & Reverse Logistics Management | LabelPro.in",
+    title: "RTO Tracker & Reverse Logistics Return Manager",
     description:
       "Auto-match delivery addresses, track Customer Returns vs Courier RTOs, and minimize delivery losses.",
     url: "https://labelpro.in/returns",
     siteName: "LabelPro.in",
     type: "website",
+    images: [
+      {
+        url: "https://labelpro.in/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Reverse Logistics & RTO Manager - LabelPro",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "RTO Tracker & Reverse Logistics Return Manager | LabelPro.in",
+    description:
+      "Auto-match delivery addresses, track Customer Returns vs Courier RTOs, and minimize delivery losses.",
+    images: ["https://labelpro.in/og-image.png"],
   },
   alternates: {
     canonical: "https://labelpro.in/returns",

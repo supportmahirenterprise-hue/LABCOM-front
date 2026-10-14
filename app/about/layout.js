@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "About LabelPro | India's First E-Commerce Label Studio",
+  title: "About LabelPro — Warehouse Automation for Indian Sellers",
   description:
     "Learn about LabelPro: India's first intelligent e-commerce shipping label studio. Built for Meesho, Flipkart & Amazon sellers with 0ms client-side processing, duplicate removal, and customer intelligence.",
   keywords: [
@@ -10,12 +10,27 @@ export const metadata = {
     "thermal label cropping platform",
   ],
   openGraph: {
-    title: "About LabelPro | India's First E-Commerce Label Studio",
+    title: "About LabelPro — Warehouse Automation for Indian Sellers",
     description:
       "Learn about LabelPro: India's first intelligent e-commerce shipping label studio. Built for Meesho, Flipkart & Amazon sellers.",
     url: "https://labelpro.in/about",
-    siteName: "LabelPro",
+    siteName: "LabelPro.in",
     type: "website",
+    images: [
+      {
+        url: "https://labelpro.in/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "About LabelPro - E-Commerce Label Studio",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About LabelPro — Warehouse Automation for Indian Sellers | LabelPro.in",
+    description:
+      "India's first intelligent e-commerce shipping label studio built for marketplace sellers.",
+    images: ["https://labelpro.in/og-image.png"],
   },
   alternates: {
     canonical: "https://labelpro.in/about",

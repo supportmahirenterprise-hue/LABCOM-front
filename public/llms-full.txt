@@ -1,0 +1,82 @@
+# LabelPro.in — Complete Engine Specification & Developer Reference
+> Canonical URL: https://labelpro.in
+> Product Category: E-Commerce Shipping Logistics Automation
+> Primary Target Audience: Meesho, Flipkart, Amazon, and Indian D2C marketplace sellers
+
+## 1. System Overview
+LabelPro is India's first client-side shipping label operating engine. It is designed to solve the critical operational bottlenecks Indian e-commerce sellers face daily:
+1. Double-dispatch losses caused by overlapping PDF batches.
+2. Inefficient packing caused by unsorted marketplace PDFs (mixed SKUs and courier partners).
+3. Thermal printer distortion caused by incorrect aspect ratios (converting A4 marketplace PDFs to 4x6 thermal inch format).
+4. Lack of customer retention channels on marketplace packages.
+5. High RTO (Return to Origin) rates and untracked customer returns.
+
+---
+
+## 2. Core Modules & Technical Details
+
+### 2.1 Duplicate Label Remover (/remove-duplicate)
+- **Problem Solved**: Indian sellers frequently generate shipping label batches at different times of the day (morning, afternoon, evening). Inadvertently, orders downloaded in batch 1 get downloaded again in batch 2. Printing and dispatching both leads to double delivery of goods, lost inventory, and courier penalty fees.
+- **Algorithm**:
+  - Employs 100% in-browser text layer extraction using PDF.js and PDF-Lib.
+  - Extracts sub-strings matching marketplace order identifiers:
+    - Meesho Order Number: 12-14 digits or alphanumeric sequence (e.g. `123456789012_1`).
+    - Flipkart Order ID: `OD...` (e.g. `OD123456789012345000`).
+    - Amazon Order ID: `XXX-XXXXXXX-XXXXXXX` (3-7-7 digit format).
+  - Cross-references identifiers across Batch 1 and Batch 2 in $O(N)$ hash-set lookups.
+  - Generates three clean output modes:
+    - Clean Mode A: Strip any order from PDF 1 that already exists in PDF 2.
+    - Clean Mode B: Strip any order from PDF 2 that already exists in PDF 1.
+    - Merge Unique: Combine all distinct orders from both PDFs into one consolidated vector PDF.
+  - Direct 1-click pipeline handoff to the 4x6 Thermal Label Cropper.
+
+### 2.2 4x6 Thermal Label Studio & QR Stamper (/)
+- **Cropping Engine**:
+  - Automatically crops A4 full-page marketplace invoices/manifests to standard 4x6 inch (101.6mm x 152.4mm) thermal label size.
+  - Vector preservation: Barcodes (Code 128, QR Code, Datamatrix) remain 100% crisp vector paths; zero pixelation or barcode scanner rejection.
+- **Dynamic QR Code Stamper**:
+  - Stamps marketing QR codes onto empty label corners (e.g. bottom-right or top-right).
+  - Use cases:
+    - WhatsApp Quick-Reorder links (pre-filled text: "Hi, I want to reorder...").
+    - Instagram store follower boosters.
+    - Meesho/Amazon shop front links.
+    - Customer feedback and unboxing review forms.
+  - Multilingual Thank-You Badges: Supports English, Hindi, Gujarati, Marathi, Tamil, Telugu, Bengali, and Kannada.
+
+### 2.3 Smart Batch SKU & Courier Sorter
+- **Warehouse Velocity**: Automatically parses the product SKU or Courier Partner (Delhivery, Shadowfax, Xpressbees, DTDC, BlueDart, Ecom Express, Amazon ATS, eKart) from each label.
+- Re-orders the PDF pages so identical products are grouped sequentially.
+- Enables single-pass warehouse picking (picker grabs 50 units of SKU 'RED-KURTI-M' at once rather than crisscrossing the warehouse 50 times).
+
+### 2.4 District Demand & Customer Retention Analyser (/customer-analysis)
+- Parses shipping pincodes and district names (*jila*) from label addresses.
+- Correlates against 700+ Indian district databases.
+- Identifies geographic demand concentration (e.g., high order frequency in Surat, Jaipur, Pune, Bengaluru).
+- Flags repeat buyers and calculates customer lifetime reorder intervals.
+
+### 2.5 Reverse Logistics & RTO Tracker (/returns)
+- Reconciles marketplace supplier return CSV sheets against historical dispatch records.
+- Classifies parcels into Customer Return (opened/attempted delivery) vs Courier RTO (undelivered / customer unreachable).
+- SKU Pause Matrix: Flags high-return SKUs exceeding a 20% return threshold so sellers can pause unprofitable ad campaigns.
+
+---
+
+## 3. Privacy & Security Architecture
+- **Zero Server Upload of Labels**: Unlike cloud converters that upload PDFs to remote servers, LabelPro processes all PDF documents inside the user's browser runtime memory (WebAssembly & JavaScript).
+- **Compliance**: Adheres to the Indian Digital Personal Data Protection (DPDP) Act 2023 and the Information Technology Act 2000. Customer names, delivery addresses, and phone numbers are never stored on any external database.
+
+---
+
+## 4. Supported Thermal Printers
+- TVS Electronics (LP 46 Neo, LP 46 Plus)
+- Zebra Technologies (ZD220, ZD230, ZT411)
+- Xprinter (XP-420B, XP-470B)
+- TSC (DA210, DA220, TE244)
+- HPRT, Everycom, Rollo, and all standard 203 DPI / 300 DPI thermal barcode printers.
+
+---
+
+## 5. Contact & Support
+- Web: https://labelpro.in
+- Support: support@labelpro.in
+- Developer/API Integrations: https://labelpro.in/contact

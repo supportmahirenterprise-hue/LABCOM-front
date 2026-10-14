@@ -1671,13 +1671,6 @@ export default function Home() {
   const startYPt = qrCenterYPt + totalTextHeightPt / 2 - numFontSize * 0.85;
   const simTextTop = Math.max(0, Math.min(canvasH - simFontSize, canvasH - (startYPt * scale) - simFontSize));
 
-  if (status === "loading" || status === "unauthenticated") {
-    return (
-      <div style={{ minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <PageLoader title="Verifying Access..." subtitle="Checking your seller account credentials..." />
-      </div>
-    );
-  }
 
   return (
     <div style={{ minHeight: "100vh", paddingBottom: 40, position: "relative", width: "100%", maxWidth: "100%", overflowX: "hidden" }}>
@@ -4266,6 +4259,156 @@ export default function Home() {
           </div>
         </div>
       </Modal>
+
+      {/* Semantic SEO & Knowledge Hub Section for Search Engines & Marketplace Sellers */}
+      <section
+        style={{
+          marginTop: 64,
+          paddingTop: 48,
+          borderTop: "1px solid #E2E8F0",
+          color: "#334155",
+        }}
+        aria-label="E-Commerce Shipping Label Information & Guides"
+      >
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 16px" }}>
+          <div style={{ textAlign: "center", marginBottom: 40 }}>
+            <span
+              style={{
+                fontSize: "0.75rem",
+                fontWeight: 700,
+                color: "#4F46E5",
+                background: "#EEF2FF",
+                padding: "4px 12px",
+                borderRadius: "9999px",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+              }}
+            >
+              Seller Workflow Automation
+            </span>
+            <h2
+              style={{
+                fontSize: "1.75rem",
+                fontWeight: 800,
+                color: "#0F172A",
+                marginTop: 12,
+                marginBottom: 8,
+                letterSpacing: "-0.02em",
+              }}
+            >
+              India&apos;s #1 E-Commerce Shipping Label Studio & Duplicate Remover
+            </h2>
+            <p style={{ fontSize: "0.95rem", color: "#64748B", maxWidth: 760, margin: "0 auto" }}>
+              Automate 4x6 thermal label cropping for Meesho, Flipkart &amp; Amazon, eliminate costly double dispatches, and sort warehouse batches in 1-click with 100% in-browser privacy.
+            </p>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: 24,
+              marginBottom: 48,
+            }}
+          >
+            <div
+              style={{
+                background: "#FFFFFF",
+                borderRadius: 16,
+                padding: 24,
+                border: "1px solid #E2E8F0",
+                boxShadow: "0 4px 16px -2px rgba(15, 23, 42, 0.04)",
+              }}
+            >
+              <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#0F172A", marginTop: 0, marginBottom: 10 }}>
+                Zero Double-Dispatches
+              </h3>
+              <p style={{ fontSize: "0.88rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                Cross-compare two PDF label batches or scan internal order repetitions. Eliminate duplicate orders before printing to save packaging material, courier penalty fees, and double delivery inventory losses.
+              </p>
+            </div>
+
+            <div
+              style={{
+                background: "#FFFFFF",
+                borderRadius: 16,
+                padding: 24,
+                border: "1px solid #E2E8F0",
+                boxShadow: "0 4px 16px -2px rgba(15, 23, 42, 0.04)",
+              }}
+            >
+              <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#0F172A", marginTop: 0, marginBottom: 10 }}>
+                4x6 Thermal Vector Cropping
+              </h3>
+              <p style={{ fontSize: "0.88rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                Crop full-page A4 marketplace PDFs into standardized 4x6 inch (101.6mm x 152.4mm) thermal rolls. Preserves vector sharpness so courier barcodes and tracking numbers scan flawlessly.
+              </p>
+            </div>
+
+            <div
+              style={{
+                background: "#FFFFFF",
+                borderRadius: 16,
+                padding: 24,
+                border: "1px solid #E2E8F0",
+                boxShadow: "0 4px 16px -2px rgba(15, 23, 42, 0.04)",
+              }}
+            >
+              <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#0F172A", marginTop: 0, marginBottom: 10 }}>
+                Smart SKU &amp; Courier Sorting
+              </h3>
+              <p style={{ fontSize: "0.88rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                Automatically group identical SKUs together in your PDF sequence. Pick items in bulk from warehouse shelves and pack identical orders continuously for 10x fulfillment velocity.
+              </p>
+            </div>
+          </div>
+
+          {/* Seller Frequently Asked Questions */}
+          <div style={{ background: "#F8FAFC", borderRadius: 20, padding: 32, border: "1px solid #E2E8F0" }}>
+            <h2 style={{ fontSize: "1.35rem", fontWeight: 800, color: "#0F172A", marginTop: 0, marginBottom: 20 }}>
+              Frequently Asked Questions (FAQ)
+            </h2>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div>
+                <h3 style={{ fontSize: "0.98rem", fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>
+                  How does LabelPro remove duplicate shipping labels?
+                </h3>
+                <p style={{ fontSize: "0.88rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                  LabelPro reads the embedded text layer of your PDF shipping labels directly inside your browser. It extracts marketplace order identifiers (such as Meesho order numbers or Flipkart OD tracking IDs) and cross-references them against previous batches, stripping duplicate occurrences instantly.
+                </p>
+              </div>
+
+              <div>
+                <h3 style={{ fontSize: "0.98rem", fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>
+                  Is my customer address data safe and secure?
+                </h3>
+                <p style={{ fontSize: "0.88rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                  Yes, 100%. All PDF processing, text extraction, cropping, and QR stamping take place locally inside your browser memory using WebAssembly and PDF-Lib. Your customer names, phone numbers, and delivery addresses never leave your computer or get uploaded to any external server.
+                </p>
+              </div>
+
+              <div>
+                <h3 style={{ fontSize: "0.98rem", fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>
+                  Which thermal barcode printers are supported?
+                </h3>
+                <p style={{ fontSize: "0.88rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                  LabelPro standardizes output to standard 4x6 inch thermal format (203 DPI and 300 DPI). It is compatible with all leading thermal barcode printers including TVS (LP 46), Zebra (ZD220, ZD230), Xprinter (XP-420B), TSC (DA210, DA220), Everycom, Rollo, and HPRT.
+                </p>
+              </div>
+
+              <div>
+                <h3 style={{ fontSize: "0.98rem", fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>
+                  Can I crop labels for multiple marketplaces in the same session?
+                </h3>
+                <p style={{ fontSize: "0.88rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                  Yes. LabelPro includes intelligent marketplace detection that auto-recognizes Meesho, Flipkart (eKart, Instakart), and Amazon (ATS, Easy Ship) label formats and applies the exact crop boundaries required for each.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

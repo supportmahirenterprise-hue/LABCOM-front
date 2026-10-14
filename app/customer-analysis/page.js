@@ -243,13 +243,11 @@ export default function CustomerAnalysisPage() {
 
 
 
-  if (status === "loading" || status === "unauthenticated") {
-    return (
-      <div style={{ minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <PageLoader title="Verifying Access..." subtitle="Checking your seller account credentials..." />
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login?callbackUrl=/customer-analysis");
+    }
+  }, [status, router]);
 
   return (
     <div style={{ minHeight: "100vh", paddingBottom: 60, position: "relative", width: "100%", maxWidth: "100%" }}>
