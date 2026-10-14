@@ -28,7 +28,7 @@ export default function TermsOfServicePage() {
           <p style={{ fontSize: "0.92rem", color: "#475569", margin: 0, maxWidth: 850, lineHeight: 1.6 }}>
             Please read these Terms carefully before accessing or using LabelPro Print Engine (operated by <b>Mahir Enterprise</b>). By accessing our platform, generating PDF documents, using QR stamping, or processing logistics manifests, you agree to be unconditionally bound by these Terms and our full limitation of liability.
           </p>
-          <div style={{ marginTop: 16, fontSize: "0.78rem", color: "#94A3B8", fontWeight: 600 }}>
+          <div style={{ marginTop: 16, fontSize: "0.78rem", color: "#475569", fontWeight: 600 }}>
             Effective Date: <b>{lastUpdated}</b> • Entity: <b>Mahir Enterprise</b> • Jurisdiction: <b>Ratanvav / Porbandar, Gujarat, India</b>
           </div>
         </div>

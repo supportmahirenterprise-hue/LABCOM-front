@@ -25,14 +25,6 @@ export default function LoginPage() {
     }
   }, [status, router, callbackUrl]);
 
-  if (status === "loading") {
-    return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F8FAFC", color: "#0F172A" }}>
-        <p>Loading...</p>
-      </div>
-    );
-  }
-
   return (
     <div
       style={{
@@ -66,13 +58,14 @@ export default function LoginPage() {
         <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#0F172A", marginBottom: 8 }}>
           Welcome to LabelPro.in
         </h1>
-        <p style={{ fontSize: "0.85rem", color: "#64748B", marginBottom: 28 }}>
+        <p style={{ fontSize: "0.88rem", color: "#334155", marginBottom: 28, fontWeight: 500 }}>
           Log in to access your intelligent shipping label engine.
         </p>
 
 
         {/* Google Login */}
         <button
+          aria-label="Continue with Google"
           style={{
             width: "100%",
             display: "flex",
@@ -91,7 +84,7 @@ export default function LoginPage() {
           }}
           onClick={() => signIn("google", { callbackUrl })}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <path
               d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
               fill="#4285F4"
@@ -114,10 +107,10 @@ export default function LoginPage() {
 
 
 
-        <p style={{ marginTop: 22, fontSize: "0.72rem", color: "#94A3B8", lineHeight: 1.5 }}>
+        <p style={{ marginTop: 22, fontSize: "0.78rem", color: "#334155", lineHeight: 1.5, fontWeight: 500 }}>
           By continuing, you agree to our{" "}
-          <a href="/terms" style={{ color: "#4F46E5", textDecoration: "underline" }}>Terms</a> and{" "}
-          <a href="/privacy" style={{ color: "#4F46E5", textDecoration: "underline" }}>Privacy Policy</a>.
+          <a href="/terms" style={{ color: "#3730A3", textDecoration: "underline", fontWeight: 600 }}>Terms</a> and{" "}
+          <a href="/privacy" style={{ color: "#3730A3", textDecoration: "underline", fontWeight: 600 }}>Privacy Policy</a>.
         </p>
       </div>
     </div>

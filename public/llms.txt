@@ -1,48 +1,26 @@
 # LabelPro — India's First E-Commerce Label Studio
-> Duplicate Remover • Label Cropper • Label Sorter • Buyer & Return Analyser
 
-LabelPro (https://labelpro.in) is India's first intelligent e-commerce shipping label operating platform built specifically for Meesho, Flipkart, and Amazon marketplace sellers. It eliminates double-dispatch packaging losses, automates 4x6 thermal shipping label cropping, sorts warehouse batches by SKU/courier, and uncovers district-level buyer repeat demand.
+> Duplicate Remover • 4x6 Thermal Label Cropper • Smart SKU Sorter • Buyer & Return Analyser
 
-## Primary Modules & Direct Sitelinks
-1. **Duplicate Label Remover** (`https://labelpro.in/remove-duplicate`):
-   - Cross-batch shipping label PDF comparator.
-   - Compares two PDF label batches or scans internal order repetitions within a single PDF.
-   - Eliminates duplicate order numbers instantly in browser memory before labels are printed.
-   - Prevents double-shipping financial losses, courier penalty charges, and duplicate packaging waste.
-   - Seamless 1-click handoff to Thermal Studio with zero blank pages.
+LabelPro (https://labelpro.in) is India's first intelligent e-commerce shipping label operating platform built specifically for Meesho, Flipkart, and Amazon marketplace sellers. It eliminates double-dispatch packaging losses, automates 4x6 thermal shipping label cropping, sorts warehouse batches by SKU/courier, and uncovers district-level buyer repeat demand with 100% in-browser privacy.
 
-2. **Thermal Label Studio & QR Stamper** (`https://labelpro.in/`):
-   - Instant 4x6 thermal cropping preset for Meesho, Flipkart & Amazon shipping labels.
-   - Client-side dynamic QR code stamper (WhatsApp reorder links, Instagram boosters, branded review cards).
-   - High-definition badge styling with localized thank-you greetings across 8 Indian languages.
-   - 100% vector PDF preservation with crystal-clear courier barcodes and AWB lines.
+## Core Tools and Utilities
 
-3. **Smart Batch SKU & Courier Sorter**:
-   - 1-click automatic sorting by SKU Code (group identical products together for lightning-fast warehouse packing).
-   - Sort by Order Date, Order Number, Quantity, or Customer Delivery Location.
-
-4. **Customer Intelligence & District Demand Analyser** (`https://labelpro.in/customer-analysis`):
-   - Visual district demand heatmap across Indian states and districts (*jile*).
-   - Identifies high-performing sales hubs vs untapped regional markets.
-   - Calculates customer retention rate and repeat buyer loyalty metrics.
-
-5. **Reverse Logistics & RTO Return Manager** (`https://labelpro.in/returns`):
-   - Upload marketplace return CSV reports to auto-match delivery addresses.
-   - Separates genuine Customer Returns from Courier RTO (Return to Origin) undelivered packages.
-   - Executive SKU Pause Matrix flags products with >20% return rates to prevent ongoing ad burn.
-
-6. **QR Scan & Conversion Analytics** (`https://labelpro.in/analytics`):
-   - Real-time conversion tracking for buyer engagement via package QR scans.
-   - Identifies highest-converting product SKUs and repeat customer acquisition channels.
-
-## Key Differentiators & Privacy Guarantee
-- **100% Client-Side In-Browser Processing**: All PDF parsing, text extraction, duplicate filtering, and rendering occur inside client browser memory using WebAssembly & PDF-Lib. Sensitive customer names, phone numbers, and delivery addresses never leave the seller's computer.
-- **Cross-Marketplace Compatibility**: Automatically recognizes label formats from Meesho, Flipkart (eKart, Instakart), and Amazon (ATS, Easy Ship).
-- **Zero Cost & No Installation Required**: Accessible from any modern browser with instant download capabilities.
+- [Duplicate Label Remover](https://labelpro.in/remove-duplicate): In-browser cross-batch shipping label PDF comparator and internal repetition deduplicator for Meesho, Flipkart, and Amazon marketplace sellers.
+- [Thermal Label Studio](https://labelpro.in/): Instant 4x6 thermal label cropping engine and dynamic marketing QR code stamper with crystal-clear vector barcode preservation.
+- [District Demand & Customer Intelligence](https://labelpro.in/customer-analysis): Visual customer retention tracking, repeat buyer analytics, and pincode/district demand heatmap across Indian states.
+- [Reverse Logistics & RTO Manager](https://labelpro.in/returns): Marketplace return CSV reconciler, customer returns vs courier RTO classifier, and SKU pause matrix to prevent ongoing advertising loss.
+- [QR Scan Analytics & Conversions](https://labelpro.in/analytics): Real-time conversion tracking for customer engagement via packaging QR codes.
+- [Custom Label Presets & Templates](https://labelpro.in/templates): Marketplace label crop presets and reusable branding templates.
 
 ## Company & Support
-- About: https://labelpro.in/about
-- Support: https://labelpro.in/contact
-- Privacy Policy: https://labelpro.in/privacy
-- Terms of Service: https://labelpro.in/terms
-- Legal Disclaimer: https://labelpro.in/disclaimer
+
+- [About LabelPro](https://labelpro.in/about): Company background, mission, warehouse automation technology, and in-browser security architecture.
+- [Contact & Seller Support](https://labelpro.in/contact): Support email, helpdesk, and technical assistance for Indian e-commerce merchants.
+- [Privacy Policy](https://labelpro.in/privacy): 100% client-side data privacy policy in compliance with DPDP Act 2023 and IT Act 2000.
+- [Terms of Service](https://labelpro.in/terms): Seller agreement, fair use policy, and terms of service.
+- [Legal Disclaimer](https://labelpro.in/disclaimer): Marketplace fair use and third-party trademark acknowledgments.
+
+## Optional Reference
+
+- [Full LLM Specification](https://labelpro.in/llms-full.txt): Comprehensive technical specifications, algorithmic workflows, supported thermal printers, and developer documentation.

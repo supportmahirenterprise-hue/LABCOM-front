@@ -307,12 +307,7 @@ function parseDdMmYyyy(str) {
 export default function Home() {
   const { data: session, status } = useSession();
   const router = useRouter();
-
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-    }
-  }, [status, router]);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const [file, setFile] = useState(null);
   const [files, setFiles] = useState([]);
@@ -371,6 +366,10 @@ export default function Home() {
   const [detectedLabelFormat, setDetectedLabelFormat] = useState(null); // "thermal_4x6" | "a4_sheet" | "custom"
 
   function handleSelectCropPreset(preset) {
+    if (status !== "authenticated") {
+      setShowAuthModal(true);
+      return;
+    }
     setCropPreset(preset);
     setCropEnabled(true);
     setCropMode("custom");
@@ -390,6 +389,10 @@ export default function Home() {
   }
 
   function toggleCropEnabled() {
+    if (status !== "authenticated") {
+      setShowAuthModal(true);
+      return;
+    }
     if (cropEnabled) {
       setCropEnabled(false);
       showToast("PDF Cropping turned OFF. Labels will download as full-size sheets.", "info");
@@ -401,6 +404,10 @@ export default function Home() {
   }
 
   function handleSaveCrop() {
+    if (status !== "authenticated") {
+      setShowAuthModal(true);
+      return;
+    }
     setCropEnabled(true);
     setCropMode("custom");
     setShowCropModal(false);
@@ -413,6 +420,10 @@ export default function Home() {
   }
 
   function handleResetDefaults() {
+    if (status !== "authenticated") {
+      setShowAuthModal(true);
+      return;
+    }
     setQrX(DEFAULT_STAMP_SETTINGS.qrX);
     setQrY(DEFAULT_STAMP_SETTINGS.qrY);
     setQrSize(DEFAULT_STAMP_SETTINGS.qrSize);
@@ -889,6 +900,10 @@ export default function Home() {
   }
 
   async function handleFileSelect(fileInputOrList, nativeOverride) {
+    if (status !== "authenticated") {
+      setShowAuthModal(true);
+      return;
+    }
     if (!fileInputOrList || isBusy) return;
     const fileList = Array.isArray(fileInputOrList)
       ? fileInputOrList
@@ -1070,6 +1085,10 @@ export default function Home() {
   }, []);
 
   function handleNativeScriptToggle(val) {
+    if (status !== "authenticated") {
+      setShowAuthModal(true);
+      return;
+    }
     setUseNativeScript(val);
     const targetFiles = files && files.length > 0 ? files : (file ? [file] : []);
     if (targetFiles.length > 0) {
@@ -1107,6 +1126,10 @@ export default function Home() {
   }
 
   async function handleGenerate(options = {}) {
+    if (status !== "authenticated") {
+      setShowAuthModal(true);
+      return;
+    }
     if (isBusy) return;
     const isSample = Boolean(options.sampleOnly);
     const isHd = Boolean(options.hdQuality);
@@ -1719,6 +1742,67 @@ export default function Home() {
         </div>
       )}
 
+      {/* Visitor Preview Mode CTA Banner */}
+      {status !== "authenticated" && (
+        <div
+          style={{
+            background: "linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%)",
+            border: "1px solid #C7D2FE",
+            borderRadius: "14px",
+            padding: "16px 20px",
+            marginBottom: 20,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 14,
+            boxShadow: "0 4px 14px rgba(79, 70, 229, 0.08)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: "50%",
+                background: "#4F46E5",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#FFFFFF",
+                flexShrink: 0,
+              }}
+            >
+              <SparklesIcon size={20} color="#FFFFFF" />
+            </div>
+            <div>
+              <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "#1E1B4B" }}>
+                India&apos;s #1 E-Commerce Label Studio (Free Forever)
+              </div>
+              <div style={{ fontSize: "0.8rem", color: "#4338CA", marginTop: 2 }}>
+                Auto-crop 4x6 thermal shipping labels, sort SKUs, add marketing QR codes, and remove duplicates for Meesho, Flipkart &amp; Amazon.
+              </div>
+            </div>
+          </div>
+          <Link
+            href="/login"
+            className="btn-primary"
+            style={{
+              padding: "10px 20px",
+              fontSize: "0.86rem",
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              borderRadius: "10px",
+              fontWeight: 700,
+            }}
+          >
+            Sign In / Register Free →
+          </Link>
+        </div>
+      )}
+
       {/* Workspace Header */}
       <div
         style={{
@@ -1902,9 +1986,20 @@ export default function Home() {
 
               <div
                 className={`dropzone ${files.length > 0 || file ? "active" : ""}`}
+                onClick={() => {
+                  if (status !== "authenticated") {
+                    setShowAuthModal(true);
+                    return;
+                  }
+                  fileInputRef.current?.click();
+                }}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => {
                   e.preventDefault();
+                  if (status !== "authenticated") {
+                    setShowAuthModal(true);
+                    return;
+                  }
                   if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
                     handleFileSelect(e.dataTransfer.files);
                   }
@@ -2218,7 +2313,7 @@ export default function Home() {
                         {previewQrDataUrl ? (
                           <img
                             src={previewQrDataUrl}
-                            alt="QR"
+                            alt="Marketing QR Code Preview"
                             style={{ width: 30, height: 30, objectFit: "contain", flexShrink: 0 }}
                           />
                         ) : (
@@ -2281,7 +2376,7 @@ export default function Home() {
                       }}
                     >
                       {previewQrDataUrl ? (
-                        <img src={previewQrDataUrl} alt="QR" style={{ width: Math.min(32, simQrSize), height: Math.min(32, simQrSize), objectFit: "contain", flexShrink: 0 }} />
+                        <img src={previewQrDataUrl} alt="Marketing QR Code Preview" style={{ width: Math.min(32, simQrSize), height: Math.min(32, simQrSize), objectFit: "contain", flexShrink: 0 }} />
                       ) : (
                         <div style={{ width: Math.min(32, simQrSize), height: Math.min(32, simQrSize), background: "#000", borderRadius: 2, flexShrink: 0 }} />
                       )}
@@ -2786,7 +2881,7 @@ export default function Home() {
                 {/* Right: QR Code + Text */}
                 <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                   {previewQrDataUrl ? (
-                    <img src={previewQrDataUrl} alt="QR" style={{ width: 54, height: 54, objectFit: "contain", flexShrink: 0 }} />
+                    <img src={previewQrDataUrl} alt="Marketing QR Code Preview" style={{ width: 54, height: 54, objectFit: "contain", flexShrink: 0 }} />
                   ) : (
                     <div style={{ width: 54, height: 54, background: "#000000", borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", color: "#FFF", fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
                       QR
@@ -4409,6 +4504,149 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Sign In Required Modal (Triggered on Action for Public Visitors) */}
+      {showAuthModal && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(15, 23, 42, 0.75)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 99999,
+            padding: 20,
+          }}
+          onClick={() => setShowAuthModal(false)}
+        >
+          <div
+            className="premium-glass"
+            style={{
+              background: "#FFFFFF",
+              borderRadius: "24px",
+              maxWidth: 480,
+              width: "100%",
+              padding: "32px 28px",
+              boxShadow: "0 25px 60px -12px rgba(15, 23, 42, 0.4)",
+              border: "1px solid #C7D2FE",
+              position: "relative",
+              animation: "modalPopIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setShowAuthModal(false)}
+              style={{
+                position: "absolute",
+                top: 18,
+                right: 18,
+                background: "#F1F5F9",
+                border: "none",
+                borderRadius: "50%",
+                width: 32,
+                height: 32,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                color: "#64748B",
+              }}
+              aria-label="Close"
+            >
+              <CloseIcon size={16} />
+            </button>
+
+            <div style={{ textAlign: "center", marginBottom: 20 }}>
+              <div
+                style={{
+                  width: 58,
+                  height: 58,
+                  borderRadius: "50%",
+                  background: "linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%)",
+                  border: "1px solid #C7D2FE",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 14px",
+                  boxShadow: "0 8px 16px rgba(79, 70, 229, 0.15)",
+                }}
+              >
+                <SparklesIcon size={28} color="#4F46E5" />
+              </div>
+              <h3 style={{ margin: 0, fontSize: "1.3rem", fontWeight: 800, color: "#0F172A" }}>
+                Sign In to LabelPro Studio
+              </h3>
+              <p style={{ margin: "8px 0 0 0", fontSize: "0.85rem", color: "#64748B", lineHeight: 1.5 }}>
+                Create a free account or sign in to crop thermal labels, sort SKUs, add marketing QR codes, and download high-resolution PDFs.
+              </p>
+            </div>
+
+            <div
+              style={{
+                background: "#F8FAFC",
+                border: "1px solid #E2E8F0",
+                borderRadius: "14px",
+                padding: "14px 16px",
+                marginBottom: 22,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, fontSize: "0.82rem", color: "#334155" }}>
+                <CheckCircleIcon size={16} color="#16A34A" />
+                <span><strong>100% In-Browser Privacy:</strong> Zero files uploaded to server</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, fontSize: "0.82rem", color: "#334155" }}>
+                <CheckCircleIcon size={16} color="#16A34A" />
+                <span><strong>Multi-Marketplace:</strong> Meesho, Flipkart &amp; Amazon supported</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: "0.82rem", color: "#334155" }}>
+                <CheckCircleIcon size={16} color="#16A34A" />
+                <span><strong>Free Forever:</strong> Unlimited label cropping, sorting &amp; stamping</span>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <Link
+                href="/login"
+                className="btn-primary"
+                style={{
+                  padding: "12px 20px",
+                  fontSize: "0.92rem",
+                  fontWeight: 700,
+                  textDecoration: "none",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  borderRadius: "12px",
+                  boxShadow: "0 6px 18px rgba(79, 70, 229, 0.28)",
+                }}
+              >
+                Continue to Sign In / Register (Free) <ArrowRightIcon size={16} />
+              </Link>
+              <button
+                type="button"
+                onClick={() => setShowAuthModal(false)}
+                className="btn-secondary"
+                style={{
+                  padding: "10px 18px",
+                  fontSize: "0.82rem",
+                  background: "#F1F5F9",
+                  border: "none",
+                  borderRadius: "12px",
+                  color: "#64748B",
+                  cursor: "pointer",
+                }}
+              >
+                Cancel &amp; Explore Studio First
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

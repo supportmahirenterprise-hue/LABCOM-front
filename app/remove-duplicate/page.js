@@ -33,12 +33,6 @@ export default function RemoveDuplicatePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login?callbackUrl=/remove-duplicate");
-    }
-  }, [status, router]);
-
   // Dual PDF Upload State
   const [file1, setFile1] = useState(null);
   const [file2, setFile2] = useState(null);
@@ -47,6 +41,7 @@ export default function RemoveDuplicatePage() {
   const [file1Platform, setFile1Platform] = useState(null); // "meesho" | "flipkart" | "amazon" | "generic"
   const [file2Platform, setFile2Platform] = useState(null);
   const [showMismatchModal, setShowMismatchModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // Clean Mode: "clean_pdf1" (clean PDF 1 using PDF 2), "clean_pdf2" (clean PDF 2 using PDF 1), "merge_unique" (merge all unique)
   const [cleanMode, setCleanMode] = useState("clean_pdf1");
@@ -335,6 +330,10 @@ export default function RemoveDuplicatePage() {
 
   // Swap Files if user uploaded them in reverse
   function handleSwapFiles() {
+    if (status !== "authenticated") {
+      setShowAuthModal(true);
+      return;
+    }
     const tempFile = file1;
     const tempCount = file1PagesCount;
     const tempPlat = file1Platform;
@@ -839,6 +838,10 @@ export default function RemoveDuplicatePage() {
 
   // Main Handle Click: "Find & Remove Duplicates"
   async function handleFindAndRemoveDuplicates() {
+    if (status !== "authenticated") {
+      setShowAuthModal(true);
+      return;
+    }
     if (!file1 && !file2) {
       showToast("Please upload at least one PDF to clean duplicate shipping labels", "error");
       return;
@@ -949,6 +952,10 @@ export default function RemoveDuplicatePage() {
 
   // Handle Mode Change (Re-calculates instantly if pages already extracted)
   function handleCleanModeChange(newMode) {
+    if (status !== "authenticated") {
+      setShowAuthModal(true);
+      return;
+    }
     setCleanMode(newMode);
     if (cachedPdf1Pages || cachedPdf2Pages) {
       executeDeduplication(
@@ -965,6 +972,10 @@ export default function RemoveDuplicatePage() {
 
   // Action 1: Download Clean Unique PDF
   function handleDownloadUniquePdf() {
+    if (status !== "authenticated") {
+      setShowAuthModal(true);
+      return;
+    }
     if (!cleanedPdfUrl || !comparisonResults || comparisonResults.totalUnique === 0) {
       showToast("No unique labels available to download (0 labels)", "warning");
       return;
@@ -987,6 +998,10 @@ export default function RemoveDuplicatePage() {
 
   // Action 2: Process with Studio (Pass to Studio via IndexedDB & redirect)
   async function handleProcessWithStudio() {
+    if (status !== "authenticated") {
+      setShowAuthModal(true);
+      return;
+    }
     if (!cleanedPdfBlob || !comparisonResults || comparisonResults.totalUnique === 0) {
       showToast("No unique labels available to transfer to Studio (0 labels)", "warning");
       return;
@@ -1121,6 +1136,67 @@ export default function RemoveDuplicatePage() {
         </span>
       </div>
 
+      {/* Visitor Preview Mode CTA Banner */}
+      {status !== "authenticated" && (
+        <div
+          style={{
+            background: "linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%)",
+            border: "1px solid #C7D2FE",
+            borderRadius: "14px",
+            padding: "14px 20px",
+            marginBottom: 20,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 12,
+            boxShadow: "0 4px 14px rgba(79, 70, 229, 0.08)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: "50%",
+                background: "#4F46E5",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#FFFFFF",
+                flexShrink: 0,
+              }}
+            >
+              <SparklesIcon size={18} color="#FFFFFF" />
+            </div>
+            <div>
+              <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "#1E1B4B" }}>
+                India&apos;s #1 Duplicate Shipping Label Remover (Free)
+              </div>
+              <div style={{ fontSize: "0.78rem", color: "#4338CA", marginTop: 2 }}>
+                Sign in or register free to clean duplicate Meesho, Flipkart &amp; Amazon labels in browser memory.
+              </div>
+            </div>
+          </div>
+          <Link
+            href="/login?callbackUrl=/remove-duplicate"
+            className="btn-primary"
+            style={{
+              padding: "9px 18px",
+              fontSize: "0.82rem",
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              borderRadius: "10px",
+              fontWeight: 700,
+            }}
+          >
+            Sign In / Register Free →
+          </Link>
+        </div>
+      )}
+
       {/* Dual PDF Upload Cards Section */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 340px), 1fr))", gap: 20, marginBottom: 20 }}>
         {/* PDF 1: Batch 1 / Master Batch */}
@@ -1179,7 +1255,13 @@ export default function RemoveDuplicatePage() {
 
           {!file1 ? (
             <div
-              onClick={() => file1InputRef.current?.click()}
+              onClick={() => {
+                if (status !== "authenticated") {
+                  setShowAuthModal(true);
+                  return;
+                }
+                file1InputRef.current?.click();
+              }}
               style={{
                 background: "#F8FAFC",
                 border: "2px dashed #CBD5E1",
@@ -1198,7 +1280,7 @@ export default function RemoveDuplicatePage() {
               <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "#0F172A" }}>
                 Click to upload PDF 1 (Batch 1)
               </div>
-              <div style={{ fontSize: "0.74rem", color: "#94A3B8", marginTop: 4 }}>
+              <div style={{ fontSize: "0.74rem", color: "#475569", marginTop: 4 }}>
                 Supports Meesho, Amazon, Flipkart, or any Courier shipping labels
               </div>
             </div>
@@ -1223,7 +1305,13 @@ export default function RemoveDuplicatePage() {
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <button
                   type="button"
-                  onClick={() => file1InputRef.current?.click()}
+                  onClick={() => {
+                    if (status !== "authenticated") {
+                      setShowAuthModal(true);
+                      return;
+                    }
+                    file1InputRef.current?.click();
+                  }}
                   className="btn-secondary"
                   style={{ padding: "6px 12px", fontSize: "0.75rem", background: "#FFFFFF" }}
                 >
@@ -1309,7 +1397,13 @@ export default function RemoveDuplicatePage() {
 
           {!file2 ? (
             <div
-              onClick={() => file2InputRef.current?.click()}
+              onClick={() => {
+                if (status !== "authenticated") {
+                  setShowAuthModal(true);
+                  return;
+                }
+                file2InputRef.current?.click();
+              }}
               style={{
                 background: "#F8FAFC",
                 border: "2px dashed #CBD5E1",
@@ -1328,7 +1422,7 @@ export default function RemoveDuplicatePage() {
               <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "#0F172A" }}>
                 Click to upload PDF 2 (Optional)
               </div>
-              <div style={{ fontSize: "0.74rem", color: "#94A3B8", marginTop: 4 }}>
+              <div style={{ fontSize: "0.74rem", color: "#475569", marginTop: 4 }}>
                 Leave empty to clean internal duplicates inside PDF 1 only
               </div>
             </div>
@@ -1353,7 +1447,13 @@ export default function RemoveDuplicatePage() {
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <button
                   type="button"
-                  onClick={() => file2InputRef.current?.click()}
+                  onClick={() => {
+                    if (status !== "authenticated") {
+                      setShowAuthModal(true);
+                      return;
+                    }
+                    file2InputRef.current?.click();
+                  }}
                   className="btn-secondary"
                   style={{ padding: "6px 12px", fontSize: "0.75rem", background: "#FFFFFF" }}
                 >
@@ -2161,6 +2261,148 @@ export default function RemoveDuplicatePage() {
                 }}
               >
                 Theek Hai, Samajh Gaya
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Sign In Required Modal (Triggered on Action for Public Visitors) */}
+      {showAuthModal && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(15, 23, 42, 0.75)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 99999,
+            padding: 20,
+          }}
+          onClick={() => setShowAuthModal(false)}
+        >
+          <div
+            className="premium-glass"
+            style={{
+              background: "#FFFFFF",
+              borderRadius: "24px",
+              maxWidth: 480,
+              width: "100%",
+              padding: "32px 28px",
+              boxShadow: "0 25px 60px -12px rgba(15, 23, 42, 0.4)",
+              border: "1px solid #C7D2FE",
+              position: "relative",
+              animation: "modalPopIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setShowAuthModal(false)}
+              style={{
+                position: "absolute",
+                top: 18,
+                right: 18,
+                background: "#F1F5F9",
+                border: "none",
+                borderRadius: "50%",
+                width: 32,
+                height: 32,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                color: "#64748B",
+              }}
+              aria-label="Close"
+            >
+              <CloseIcon size={16} />
+            </button>
+
+            <div style={{ textAlign: "center", marginBottom: 20 }}>
+              <div
+                style={{
+                  width: 58,
+                  height: 58,
+                  borderRadius: "50%",
+                  background: "linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%)",
+                  border: "1px solid #C7D2FE",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 14px",
+                  boxShadow: "0 8px 16px rgba(79, 70, 229, 0.15)",
+                }}
+              >
+                <SparklesIcon size={28} color="#4F46E5" />
+              </div>
+              <h3 style={{ margin: 0, fontSize: "1.3rem", fontWeight: 800, color: "#0F172A" }}>
+                Sign In to Remove Duplicate Labels
+              </h3>
+              <p style={{ margin: "8px 0 0 0", fontSize: "0.85rem", color: "#64748B", lineHeight: 1.5 }}>
+                Create a free Veloura LabelPro account or sign in to clean duplicate shipping labels, prevent double shipping losses, and download verified PDFs.
+              </p>
+            </div>
+
+            <div
+              style={{
+                background: "#F8FAFC",
+                border: "1px solid #E2E8F0",
+                borderRadius: "14px",
+                padding: "14px 16px",
+                marginBottom: 22,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, fontSize: "0.82rem", color: "#334155" }}>
+                <CheckCircleIcon size={16} color="#16A34A" />
+                <span><strong>100% In-Browser Privacy:</strong> Zero files uploaded to server</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, fontSize: "0.82rem", color: "#334155" }}>
+                <CheckCircleIcon size={16} color="#16A34A" />
+                <span><strong>Multi-Marketplace:</strong> Meesho, Flipkart &amp; Amazon supported</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: "0.82rem", color: "#334155" }}>
+                <CheckCircleIcon size={16} color="#16A34A" />
+                <span><strong>Free Forever:</strong> Unlimited label deduplication &amp; cropping</span>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <Link
+                href="/login?callbackUrl=/remove-duplicate"
+                className="btn-primary"
+                style={{
+                  padding: "12px 20px",
+                  fontSize: "0.92rem",
+                  fontWeight: 700,
+                  textDecoration: "none",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  borderRadius: "12px",
+                  boxShadow: "0 6px 18px rgba(79, 70, 229, 0.28)",
+                }}
+              >
+                Continue to Sign In / Register (Free) <ArrowRightIcon size={16} />
+              </Link>
+              <button
+                type="button"
+                onClick={() => setShowAuthModal(false)}
+                className="btn-secondary"
+                style={{
+                  padding: "10px 18px",
+                  fontSize: "0.82rem",
+                  background: "#F1F5F9",
+                  border: "none",
+                  borderRadius: "12px",
+                  color: "#64748B",
+                  cursor: "pointer",
+                }}
+              >
+                Cancel &amp; Explore First
               </button>
             </div>
           </div>

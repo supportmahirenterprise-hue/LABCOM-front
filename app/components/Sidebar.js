@@ -105,7 +105,7 @@ export function Sidebar() {
 
       {/* Navigation Links (Google Sitelinks Hierarchy) */}
       <nav aria-label="Main Sitelinks Navigation" style={{ flex: 1, padding: "16px 12px", display: "flex", flexDirection: "column", gap: 3, overflowY: "auto" }}>
-        <div style={{ fontSize: "0.62rem", fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.12em", paddingLeft: 10, marginBottom: 6 }}>
+        <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.12em", paddingLeft: 10, marginBottom: 6 }}>
           Operations
         </div>
         {NAV_ITEMS.map((item) => {
@@ -123,17 +123,17 @@ export function Sidebar() {
                 gap: 10,
                 padding: "8px 12px",
                 borderRadius: "10px",
-                color: isActive ? "#4F46E5" : "#64748B",
+                color: isActive ? "#4338CA" : "#334155",
                 background: isActive ? "#EEF2FF" : "transparent",
                 border: isActive ? "1px solid #C7D2FE" : "1px solid transparent",
                 textDecoration: "none",
-                fontWeight: isActive ? 600 : 500,
+                fontWeight: isActive ? 700 : 500,
                 fontSize: "0.85rem",
                 boxShadow: isActive ? "0 2px 8px rgba(79, 70, 229, 0.08)" : "none",
                 transition: "all 0.15s ease",
               }}
             >
-              <span style={{ display: "flex", alignItems: "center", justifyContent: "center", color: isActive ? "#4F46E5" : "#94A3B8" }}>
+              <span style={{ display: "flex", alignItems: "center", justifyContent: "center", color: isActive ? "#4338CA" : "#475569" }}>
                 <IconComponent />
               </span>
               {item.label}
@@ -141,7 +141,7 @@ export function Sidebar() {
           );
         })}
 
-        <div style={{ fontSize: "0.62rem", fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.12em", paddingLeft: 10, marginTop: 14, marginBottom: 6 }}>
+        <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.12em", paddingLeft: 10, marginTop: 14, marginBottom: 6 }}>
           Company &amp; Legal
         </div>
         {LEGAL_ITEMS.map((item) => {
@@ -159,16 +159,16 @@ export function Sidebar() {
                 gap: 10,
                 padding: "7px 12px",
                 borderRadius: "10px",
-                color: isActive ? "#4F46E5" : "#64748B",
+                color: isActive ? "#4338CA" : "#475569",
                 background: isActive ? "#EEF2FF" : "transparent",
                 border: isActive ? "1px solid #C7D2FE" : "1px solid transparent",
                 textDecoration: "none",
-                fontWeight: isActive ? 600 : 500,
+                fontWeight: isActive ? 700 : 500,
                 fontSize: "0.82rem",
                 transition: "all 0.15s ease",
               }}
             >
-              <span style={{ display: "flex", alignItems: "center", justifyContent: "center", color: isActive ? "#4F46E5" : "#94A3B8" }}>
+              <span style={{ display: "flex", alignItems: "center", justifyContent: "center", color: isActive ? "#4338CA" : "#64748B" }}>
                 <IconComponent />
               </span>
               {item.label}

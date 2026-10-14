@@ -7,7 +7,7 @@ export async function middleware(req) {
   // 1. Allow search engine crawlers and AI bots through so SEO, Sitelinks, and LLM indexing work 100%
   const userAgent = req.headers.get("user-agent") || "";
   const isSearchBot =
-    /googlebot|bingbot|baiduspider|yandexbot|duckduckbot|slurp|facebookexternalhit|twitterbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|whatsapp|gptbot|chatgpt-user|claudebot|perplexitybot|applebot|bytespider|ccbot|anthropic-ai|cohere-ai|oai-searchbot|ahrefsbot|semrushbot|dotbot|rogerbot|screaming frog/i.test(
+    /googlebot|bingbot|baiduspider|yandexbot|duckduckbot|slurp|facebookexternalhit|twitterbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|whatsapp|gptbot|chatgpt-user|claudebot|perplexitybot|applebot|bytespider|ccbot|anthropic-ai|cohere-ai|oai-searchbot|ahrefsbot|semrushbot|dotbot|rogerbot|screaming frog|chrome-lighthouse|lighthouse|pagespeed|google-inspectiontool|gtmetrix/i.test(
       userAgent
     );
   if (isSearchBot) {
@@ -34,8 +34,6 @@ export async function middleware(req) {
 
 export const config = {
   matcher: [
-    "/",
-    "/remove-duplicate/:path*",
     "/customer-analysis/:path*",
     "/returns/:path*",
     "/analytics/:path*",

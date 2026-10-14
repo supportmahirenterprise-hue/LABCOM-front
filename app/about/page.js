@@ -214,7 +214,7 @@ export default function AboutUsPage() {
         <p style={{ fontSize: "0.9rem", color: "#CBD5E1", lineHeight: 1.65, margin: "0 0 16px 0", maxWidth: 800 }}>
           Your business data, customer addresses, order lists, and proprietary SKUs remain completely confidential. All PDF manipulation runs on-device inside your browser without permanent cloud data recording.
         </p>
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: "0.82rem", color: "#94A3B8" }}>
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: "0.82rem", color: "#E2E8F0" }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><CheckIcon size={14} color="#10B981" /> Mahir Enterprise (Ratanvav, Gujarat)</span>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><CheckIcon size={14} color="#10B981" /> 100% Client-Side In-Memory Engine</span>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><CheckIcon size={14} color="#10B981" /> Zero Third-Party Data Sharing</span>

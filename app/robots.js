@@ -6,7 +6,7 @@ export default function robots() {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/_next/", "/settings", "/login"],
+        disallow: ["/api/", "/settings", "/login"],
       },
       {
         userAgent: [
@@ -25,7 +25,7 @@ export default function robots() {
           "OAI-SearchBot",
         ],
         allow: "/",
-        disallow: ["/api/", "/_next/", "/settings", "/login"],
+        disallow: ["/api/", "/settings", "/login"],
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,

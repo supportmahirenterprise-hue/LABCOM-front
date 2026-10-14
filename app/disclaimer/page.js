@@ -28,7 +28,7 @@ export default function DisclaimerPage() {
           <p style={{ fontSize: "0.92rem", color: "#475569", margin: 0, maxWidth: 850, lineHeight: 1.6 }}>
             This disclaimer establishes the non-affiliation status, intellectual property boundaries, and hardware compatibility limitations of LabelPro Print Engine (operated by <b>Mahir Enterprise</b>, Ratanvav, Gujarat).
           </p>
-          <div style={{ marginTop: 16, fontSize: "0.78rem", color: "#94A3B8", fontWeight: 600 }}>
+          <div style={{ marginTop: 16, fontSize: "0.78rem", color: "#475569", fontWeight: 600 }}>
             Last Reviewed: <b>{lastUpdated}</b> • Entity: <b>Mahir Enterprise</b>
           </div>
         </div>

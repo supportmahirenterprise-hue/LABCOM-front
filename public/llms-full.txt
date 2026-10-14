@@ -77,6 +77,6 @@ LabelPro is India's first client-side shipping label operating engine. It is des
 ---
 
 ## 5. Contact & Support
-- Web: https://labelpro.in
-- Support: support@labelpro.in
-- Developer/API Integrations: https://labelpro.in/contact
+- [LabelPro Homepage](https://labelpro.in)
+- Email: support@labelpro.in
+- [Developer & Support Contact](https://labelpro.in/contact)

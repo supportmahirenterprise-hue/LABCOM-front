@@ -28,7 +28,7 @@ export default function PrivacyPolicyPage() {
           <p style={{ fontSize: "0.92rem", color: "#475569", margin: 0, maxWidth: 850, lineHeight: 1.6 }}>
             LabelPro Print Engine (operated by <b>Mahir Enterprise</b>, Ratanvav, Gujarat, India) operates with a strict zero-retention, client-side first architecture. This policy details our absolute commitment to seller privacy, ephemeral document processing, and the complete limitation of liability regarding third-party logistics and marketplace data.
           </p>
-          <div style={{ marginTop: 16, fontSize: "0.78rem", color: "#94A3B8", fontWeight: 600 }}>
+          <div style={{ marginTop: 16, fontSize: "0.78rem", color: "#475569", fontWeight: 600 }}>
             Effective Date: <b>{lastUpdated}</b> • Version: <b>4.2 (Zero-PII Storage Standard)</b> • Entity: <b>Mahir Enterprise</b>
           </div>
         </div>
