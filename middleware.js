@@ -40,5 +40,6 @@ export const config = {
     "/templates/:path*",
     "/history/:path*",
     "/settings/:path*",
+    "/admin/:path*",
   ],
 };

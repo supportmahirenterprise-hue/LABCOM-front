@@ -15,8 +15,19 @@ export async function GET(req) {
       return NextResponse.json({ error: "Unauthorized / Missing email" }, { status: 401 });
     }
 
+    const cleanEmail = userEmail.toLowerCase().trim();
     const db = await getDb();
-    const settings = await db.collection("user_settings").findOne({ email: userEmail.toLowerCase().trim() });
+
+    // Check if account is suspended / blocked by SuperAdmin
+    const userDoc = await db.collection("users").findOne({ email: cleanEmail });
+    const settings = await db.collection("user_settings").findOne({ email: cleanEmail });
+
+    if ((userDoc && userDoc.isBlocked === true) || (settings && settings.isBlocked === true)) {
+      return NextResponse.json(
+        { error: "Your account has been suspended by administrator. Please contact support." },
+        { status: 403 }
+      );
+    }
 
     return NextResponse.json({ settings: settings || null });
   } catch (error) {
@@ -37,6 +48,18 @@ export async function POST(req) {
     }
 
     const cleanEmail = userEmail.toLowerCase().trim();
+    const db = await getDb();
+
+    // Check if account is suspended / blocked by SuperAdmin
+    const userDoc = await db.collection("users").findOne({ email: cleanEmail });
+    const existingSettings = await db.collection("user_settings").findOne({ email: cleanEmail });
+
+    if ((userDoc && userDoc.isBlocked === true) || (existingSettings && existingSettings.isBlocked === true)) {
+      return NextResponse.json(
+        { error: "Your account has been suspended by administrator. Please contact support." },
+        { status: 403 }
+      );
+    }
 
     const allowedFields = [
       "storeName",
@@ -89,8 +112,6 @@ export async function POST(req) {
     } else if (updateDoc.enableWhatsApp !== undefined && updateDoc.sendWhatsApp === undefined) {
       updateDoc.sendWhatsApp = updateDoc.enableWhatsApp;
     }
-
-    const db = await getDb();
 
     await db.collection("user_settings").updateOne(
       { email: cleanEmail },

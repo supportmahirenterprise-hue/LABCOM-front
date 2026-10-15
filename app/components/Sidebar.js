@@ -19,11 +19,13 @@ import {
   ScaleIcon,
   ZapIcon,
 } from "./Icons";
+import { isSuperAdmin } from "../../lib/admin";
 
 export function Sidebar() {
   const { data: session } = useSession();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const isSuperAdminUser = isSuperAdmin(session?.user?.email);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -254,6 +256,42 @@ export function Sidebar() {
                 );
               })}
 
+              {isSuperAdminUser && (
+                <>
+                  <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "#6366F1", textTransform: "uppercase", letterSpacing: "0.12em", paddingLeft: 10, marginTop: 14, marginBottom: 6, display: "flex", alignItems: "center", gap: 5 }}>
+                    <ShieldIcon /> SuperAdmin
+                  </div>
+                  <Link
+                    href="/admin"
+                    onClick={() => setMobileOpen(false)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 10,
+                      padding: "9px 12px",
+                      borderRadius: "10px",
+                      color: pathname === "/admin" ? "#4338CA" : "#4F46E5",
+                      background: pathname === "/admin" ? "#EEF2FF" : "rgba(99, 102, 241, 0.08)",
+                      border: pathname === "/admin" ? "1px solid #C7D2FE" : "1px solid rgba(99, 102, 241, 0.2)",
+                      textDecoration: "none",
+                      fontWeight: 700,
+                      fontSize: "0.85rem",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ display: "flex", alignItems: "center", color: "#4F46E5" }}>
+                        <ShieldIcon />
+                      </span>
+                      <span>Admin Dashboard</span>
+                    </div>
+                    <span style={{ fontSize: "0.62rem", background: "linear-gradient(135deg, #4F46E5 0%, #0284C7 100%)", color: "#FFFFFF", padding: "1px 6px", borderRadius: "999px", fontWeight: 700, letterSpacing: "0.05em" }}>
+                      ROOT
+                    </span>
+                  </Link>
+                </>
+              )}
+
               <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.12em", paddingLeft: 10, marginTop: 14, marginBottom: 6 }}>
                 Company &amp; Legal
               </div>
@@ -468,6 +506,44 @@ export function Sidebar() {
               </Link>
             );
           })}
+
+          {isSuperAdminUser && (
+            <>
+              <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "#6366F1", textTransform: "uppercase", letterSpacing: "0.12em", paddingLeft: 10, marginTop: 14, marginBottom: 6, display: "flex", alignItems: "center", gap: 5 }}>
+                <ShieldIcon /> SuperAdmin
+              </div>
+              <Link
+                href="/admin"
+                title="SuperAdmin Command Center"
+                prefetch={true}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 10,
+                  padding: "8px 12px",
+                  borderRadius: "10px",
+                  color: pathname === "/admin" ? "#4338CA" : "#4F46E5",
+                  background: pathname === "/admin" ? "#EEF2FF" : "rgba(99, 102, 241, 0.08)",
+                  border: pathname === "/admin" ? "1px solid #C7D2FE" : "1px solid rgba(99, 102, 241, 0.2)",
+                  textDecoration: "none",
+                  fontWeight: 700,
+                  fontSize: "0.84rem",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ display: "flex", alignItems: "center", color: "#4F46E5" }}>
+                    <ShieldIcon />
+                  </span>
+                  <span>Admin Dashboard</span>
+                </div>
+                <span style={{ fontSize: "0.62rem", background: "linear-gradient(135deg, #4F46E5 0%, #0284C7 100%)", color: "#FFFFFF", padding: "1px 6px", borderRadius: "999px", fontWeight: 700, letterSpacing: "0.05em" }}>
+                  ROOT
+                </span>
+              </Link>
+            </>
+          )}
 
           <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.12em", paddingLeft: 10, marginTop: 14, marginBottom: 6 }}>
             Company &amp; Legal
