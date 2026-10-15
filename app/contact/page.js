@@ -193,7 +193,7 @@ export default function ContactUsPage() {
                     className="input-field"
                     value={formData.storeName}
                     onChange={(e) => setFormData({ ...formData, storeName: e.target.value })}
-                    placeholder="e.g. Mahir Enterprise"
+                    placeholder="e.g. Your Store Name"
                     style={{ fontSize: "0.85rem", padding: "10px 12px" }}
                   />
                 </div>

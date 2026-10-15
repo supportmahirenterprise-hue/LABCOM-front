@@ -310,7 +310,7 @@ export default function SettingsPage() {
               </label>
               <input
                 className="input-field"
-                placeholder="e.g. Mahir Enterprise / Urban Trends"
+                placeholder="e.g. Your Store Name / Brand"
                 value={storeName}
                 onChange={(e) => setStoreName(e.target.value)}
               />
