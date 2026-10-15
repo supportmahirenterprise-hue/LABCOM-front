@@ -2357,7 +2357,7 @@ export default function RemoveDuplicatePage() {
           <span>✨ Free Forever</span>
         </div>
 
-        {/* Actions: 1-Click Google Sign In + Sign In / Register Link */}
+        {/* Actions: 1-Click Google Sign In */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {/* Primary 1-Click Google Sign In */}
           <button
@@ -2369,8 +2369,8 @@ export default function RemoveDuplicatePage() {
               alignItems: "center",
               justifyContent: "center",
               gap: 10,
-              padding: "11px 16px",
-              fontSize: "0.9rem",
+              padding: "12px 16px",
+              fontSize: "0.92rem",
               fontWeight: 600,
               background: "#FFFFFF",
               color: "#0F172A",
@@ -2389,26 +2389,6 @@ export default function RemoveDuplicatePage() {
             </svg>
             Continue with Google
           </button>
-
-          {/* Direct Link to Login (matches test suite expectations) */}
-          <Link
-            href="/login?callbackUrl=/remove-duplicate"
-            className="btn-primary"
-            style={{
-              padding: "10px 16px",
-              fontSize: "0.86rem",
-              fontWeight: 700,
-              textDecoration: "none",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
-              borderRadius: "12px",
-              boxShadow: "0 4px 14px rgba(79, 70, 229, 0.22)",
-            }}
-          >
-            Continue to Sign In / Register (Free) <ArrowRightIcon size={14} />
-          </Link>
 
           {/* Cancel Button */}
           <button
