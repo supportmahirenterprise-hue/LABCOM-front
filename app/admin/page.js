@@ -114,6 +114,16 @@ function ArrowUpDownIcon({ size = 12, color = "currentColor" }) {
   );
 }
 
+function DownloadIcon({ size = 14, color = "currentColor" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" y1="15" x2="12" y2="3" />
+    </svg>
+  );
+}
+
 function PhoneIcon({ size = 16, color = "currentColor" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -303,6 +313,16 @@ export default function AdminPage() {
 
   // Block action loading state
   const [blockingEmail, setBlockingEmail] = useState("");
+
+  // Drill-down Records Modal State
+  const [drilldown, setDrilldown] = useState({
+    isOpen: false,
+    type: "customers", // "customers" | "orders" | "returns" | "scans"
+    user: null,
+    records: [],
+    loading: false,
+    search: "",
+  });
 
   const [sessionEmail, setSessionEmail] = useState("");
 
@@ -542,6 +562,162 @@ export default function AdminPage() {
     }
   };
 
+  const handleOpenDrilldown = async (targetUser, type) => {
+    setDrilldown({
+      isOpen: true,
+      type,
+      user: targetUser,
+      records: [],
+      loading: true,
+      search: "",
+    });
+
+    try {
+      const email = targetUser.email || "";
+      const res = await fetch(
+        `/api/admin/drilldown?targetEmail=${encodeURIComponent(email)}&type=${type}`,
+        {
+          headers: {
+            "x-user-email": activeEmail,
+          },
+        }
+      );
+      const data = await res.json();
+      if (data.success) {
+        setDrilldown((prev) => ({
+          ...prev,
+          records: data.records || [],
+          loading: false,
+        }));
+      } else {
+        setDrilldown((prev) => ({ ...prev, loading: false }));
+      }
+    } catch (err) {
+      console.error("Failed to fetch drilldown records:", err);
+      setDrilldown((prev) => ({ ...prev, loading: false }));
+    }
+  };
+
+  const handleExportDrilldownCsv = () => {
+    if (!drilldown.records || drilldown.records.length === 0) return;
+    let csvContent = "";
+    if (drilldown.type === "customers") {
+      csvContent = "Customer Name,Mobile,State,Address,Total Orders,First Order,Last Order\n";
+      drilldown.records.forEach((r) => {
+        const row = [
+          `"${(r.name || "").replace(/"/g, '""')}"`,
+          `"${(r.mobileNumber || "").replace(/"/g, '""')}"`,
+          `"${(r.state || "").replace(/"/g, '""')}"`,
+          `"${(r.address || "").replace(/"/g, '""')}"`,
+          r.orderCount || 1,
+          `"${r.firstOrderDate || ""}"`,
+          `"${r.lastOrderDate || ""}"`,
+        ];
+        csvContent += row.join(",") + "\n";
+      });
+    } else if (drilldown.type === "orders") {
+      csvContent = "Order No,SubOrder No,Order Date,Customer Name,SKU,Qty,Payment Type,State\n";
+      drilldown.records.forEach((r) => {
+        const row = [
+          `"${(r.orderNo || "").replace(/"/g, '""')}"`,
+          `"${(r.subOrderNo || "").replace(/"/g, '""')}"`,
+          `"${(r.orderDate || "").replace(/"/g, '""')}"`,
+          `"${(r.customerName || "").replace(/"/g, '""')}"`,
+          `"${(r.sku || "").replace(/"/g, '""')}"`,
+          r.qty || 1,
+          `"${(r.paymentType || "").replace(/"/g, '""')}"`,
+          `"${(r.state || "").replace(/"/g, '""')}"`,
+        ];
+        csvContent += row.join(",") + "\n";
+      });
+    } else if (drilldown.type === "returns") {
+      csvContent = "Order No,SubOrder No,AWB Number,Courier Partner,Return Type,SKU,State,Return Date\n";
+      drilldown.records.forEach((r) => {
+        const row = [
+          `"${(r.orderNo || "").replace(/"/g, '""')}"`,
+          `"${(r.subOrderNo || "").replace(/"/g, '""')}"`,
+          `"${(r.awbNumber || "").replace(/"/g, '""')}"`,
+          `"${(r.courierPartner || "").replace(/"/g, '""')}"`,
+          `"${(r.returnType || "").replace(/"/g, '""')}"`,
+          `"${(r.sku || "").replace(/"/g, '""')}"`,
+          `"${(r.state || "").replace(/"/g, '""')}"`,
+          `"${(r.returnCreatedDate || r.dispatchDate || "").replace(/"/g, '""')}"`,
+        ];
+        csvContent += row.join(",") + "\n";
+      });
+    } else if (drilldown.type === "scans") {
+      csvContent = "Order No,SKU,Target URL,Device,Scan Date,Created At\n";
+      drilldown.records.forEach((r) => {
+        const row = [
+          `"${(r.orderNo || "").replace(/"/g, '""')}"`,
+          `"${(r.sku || "").replace(/"/g, '""')}"`,
+          `"${(r.targetUrl || "").replace(/"/g, '""')}"`,
+          r.isMobile ? "Mobile" : "Desktop",
+          `"${(r.date || "").replace(/"/g, '""')}"`,
+          `"${(r.createdAt || "").replace(/"/g, '""')}"`,
+        ];
+        csvContent += row.join(",") + "\n";
+      });
+    }
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute(
+      "download",
+      `${drilldown.user?.name || "seller"}_${drilldown.type}_export_${Date.now()}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const filteredDrilldownRecords = useMemo(() => {
+    if (!drilldown.records) return [];
+    if (!drilldown.search.trim()) return drilldown.records;
+    const q = drilldown.search.toLowerCase().trim();
+    return drilldown.records.filter((r) => {
+      if (drilldown.type === "customers") {
+        return (
+          (r.name || "").toLowerCase().includes(q) ||
+          (r.mobileNumber || "").toLowerCase().includes(q) ||
+          (r.address || "").toLowerCase().includes(q) ||
+          (r.state || "").toLowerCase().includes(q)
+        );
+      }
+      if (drilldown.type === "orders") {
+        return (
+          (r.orderNo || "").toLowerCase().includes(q) ||
+          (r.customerName || "").toLowerCase().includes(q) ||
+          (r.sku || "").toLowerCase().includes(q) ||
+          (r.state || "").toLowerCase().includes(q) ||
+          (r.paymentType || "").toLowerCase().includes(q)
+        );
+      }
+      if (drilldown.type === "returns") {
+        return (
+          (r.orderNo || "").toLowerCase().includes(q) ||
+          (r.subOrderNo || "").toLowerCase().includes(q) ||
+          (r.awbNumber || "").toLowerCase().includes(q) ||
+          (r.courierPartner || "").toLowerCase().includes(q) ||
+          (r.customerName || "").toLowerCase().includes(q) ||
+          (r.sku || "").toLowerCase().includes(q) ||
+          (r.returnType || "").toLowerCase().includes(q)
+        );
+      }
+      if (drilldown.type === "scans") {
+        return (
+          (r.orderNo || "").toLowerCase().includes(q) ||
+          (r.sku || "").toLowerCase().includes(q) ||
+          (r.userAgent || "").toLowerCase().includes(q) ||
+          (r.targetUrl || "").toLowerCase().includes(q)
+        );
+      }
+      return true;
+    });
+  }, [drilldown.records, drilldown.search, drilldown.type]);
+
   // KPI Card Configs
   const KPI_CONFIGS = useMemo(() => [
     {
@@ -641,7 +817,7 @@ export default function AdminPage() {
     let list = users.filter((u) => {
       // Status filter
       if (statusFilter === "ACTIVE" && u.isBlocked) return false;
-      if (statusFilter === "BLOCKED" && !u.isBlocked) return false;
+      if (statusFilter === "BLOCKED" && (!u.isBlocked || u.isSystem)) return false;
 
       // Query filter
       if (searchQuery.trim()) {
@@ -692,7 +868,17 @@ export default function AdminPage() {
         } else if (selectedKpi === "users") {
           if (a.isSuperAdmin && !b.isSuperAdmin) return -1;
           if (!a.isSuperAdmin && b.isSuperAdmin) return 1;
+          if (a.isSystem && !b.isSystem) return 1;
+          if (!a.isSystem && b.isSystem) return -1;
         }
+        return (a.name || a.email).localeCompare(b.name || b.email);
+      });
+    } else {
+      list = [...list].sort((a, b) => {
+        if (a.isSuperAdmin && !b.isSuperAdmin) return -1;
+        if (!a.isSuperAdmin && b.isSuperAdmin) return 1;
+        if (a.isSystem && !b.isSystem) return 1;
+        if (!a.isSystem && b.isSystem) return -1;
         return (a.name || a.email).localeCompare(b.name || b.email);
       });
     }
@@ -1317,17 +1503,29 @@ export default function AdminPage() {
                                 width: 36,
                                 height: 36,
                                 borderRadius: "50%",
-                                background: isPrimaryAdmin ? "#EEF2FF" : "#F1F5F9",
-                                color: isPrimaryAdmin ? "#4F46E5" : "#475569",
+                                background: user.isSystem
+                                  ? "#F1F5F9"
+                                  : isPrimaryAdmin
+                                  ? "#EEF2FF"
+                                  : "#F1F5F9",
+                                color: user.isSystem
+                                  ? "#64748B"
+                                  : isPrimaryAdmin
+                                  ? "#4F46E5"
+                                  : "#475569",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
                                 fontWeight: 800,
                                 fontSize: "0.85rem",
-                                border: isPrimaryAdmin ? "1.5px solid #C7D2FE" : "1px solid #CBD5E1",
+                                border: user.isSystem
+                                  ? "1.5px dashed #94A3B8"
+                                  : isPrimaryAdmin
+                                  ? "1.5px solid #C7D2FE"
+                                  : "1px solid #CBD5E1",
                               }}
                             >
-                              {(user.name || user.email)[0].toUpperCase()}
+                              {user.isSystem ? <LayersIcon size={16} /> : (user.name || user.email)[0].toUpperCase()}
                             </div>
                           )}
                           <div>
@@ -1348,7 +1546,22 @@ export default function AdminPage() {
                                   SUPERADMIN
                                 </span>
                               )}
-                              {selectedKpi && activeKpiConfig?.metricKey && (
+                              {user.isSystem && (
+                                <span
+                                  style={{
+                                    fontSize: "0.62rem",
+                                    padding: "2px 6px",
+                                    borderRadius: "999px",
+                                    background: "#E2E8F0",
+                                    color: "#334155",
+                                    fontWeight: 800,
+                                    letterSpacing: "0.05em",
+                                  }}
+                                >
+                                  SYSTEM
+                                </span>
+                              )}
+                              {selectedKpi && activeKpiConfig?.metricKey && !user.isSystem && (
                                 <span
                                   style={{
                                     fontSize: "0.66rem",
@@ -1395,88 +1608,114 @@ export default function AdminPage() {
 
                       {/* Status */}
                       <td style={{ padding: "14px" }}>
-                        <span
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 5,
-                            padding: "3px 9px",
-                            borderRadius: "999px",
-                            background: isBlocked ? "#FEF2F2" : "#F0FDF4",
-                            color: isBlocked ? "#B91C1C" : "#15803D",
-                            fontSize: "0.72rem",
-                            fontWeight: 700,
-                            letterSpacing: "0.02em",
-                            border: isBlocked ? "1px solid #FCA5A5" : "1px solid #86EFAC",
-                          }}
-                        >
-                          <span style={{ width: 6, height: 6, borderRadius: "50%", background: isBlocked ? "#DC2626" : "#16A34A" }} />
-                          {isBlocked ? "BLOCKED" : "ACTIVE"}
-                        </span>
+                        {user.isSystem ? (
+                          <span
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 5,
+                              padding: "3px 9px",
+                              borderRadius: "999px",
+                              background: "#F8FAFC",
+                              color: "#475569",
+                              fontSize: "0.72rem",
+                              fontWeight: 700,
+                              border: "1px solid #CBD5E1",
+                            }}
+                          >
+                            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#64748B" }} />
+                            STORAGE
+                          </span>
+                        ) : (
+                          <span
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 5,
+                              padding: "3px 9px",
+                              borderRadius: "999px",
+                              background: isBlocked ? "#FEF2F2" : "#F0FDF4",
+                              color: isBlocked ? "#B91C1C" : "#15803D",
+                              fontSize: "0.72rem",
+                              fontWeight: 700,
+                              letterSpacing: "0.02em",
+                              border: isBlocked ? "1px solid #FCA5A5" : "1px solid #86EFAC",
+                            }}
+                          >
+                            <span style={{ width: 6, height: 6, borderRadius: "50%", background: isBlocked ? "#DC2626" : "#16A34A" }} />
+                            {isBlocked ? "BLOCKED" : "ACTIVE"}
+                          </span>
+                        )}
                       </td>
 
                       {/* Settings Overview Badges */}
                       <td style={{ padding: "14px" }}>
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
-                          <span
-                            title={user.settings?.enableQr ? "QR Code Branding: Active" : "QR Code Branding: Inactive"}
-                            style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: 4,
-                              fontSize: "0.7rem",
-                              fontWeight: 600,
-                              padding: "2px 7px",
-                              borderRadius: "6px",
-                              background: user.settings?.enableQr ? "#EEF2FF" : "#F1F5F9",
-                              color: user.settings?.enableQr ? "#4338CA" : "#94A3B8",
-                              border: user.settings?.enableQr ? "1px solid #C7D2FE" : "1px solid #E2E8F0",
-                            }}
-                          >
-                            <QrCodeIcon size={11} />
-                            <span>QR {user.settings?.enableQr ? "ON" : "OFF"}</span>
+                        {user.isSystem ? (
+                          <span style={{ fontSize: "0.74rem", color: "#64748B", fontStyle: "italic" }}>
+                            CSV &amp; Guest Sessions
                           </span>
-                          <span
-                            title={user.settings?.enableWhatsApp ? "WhatsApp Automation: Active" : "WhatsApp Automation: Inactive"}
-                            style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: 4,
-                              fontSize: "0.7rem",
-                              fontWeight: 600,
-                              padding: "2px 7px",
-                              borderRadius: "6px",
-                              background: user.settings?.enableWhatsApp ? "#F0FDF4" : "#F1F5F9",
-                              color: user.settings?.enableWhatsApp ? "#15803D" : "#94A3B8",
-                              border: user.settings?.enableWhatsApp ? "1px solid #BBF7D0" : "1px solid #E2E8F0",
-                            }}
-                          >
-                            <MessageSquareIcon size={11} />
-                            <span>WA {user.settings?.enableWhatsApp ? "ON" : "OFF"}</span>
-                          </span>
-                          <span
-                            title={`Sort preference: ${user.settings?.sortBy || "SKU"}`}
-                            style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: 3,
-                              fontSize: "0.7rem",
-                              fontWeight: 600,
-                              padding: "2px 7px",
-                              borderRadius: "6px",
-                              background: "#F8FAFC",
-                              color: "#475569",
-                              border: "1px solid #E2E8F0",
-                              textTransform: "uppercase",
-                            }}
-                          >
-                            <ArrowUpDownIcon size={10} />
-                            <span>{user.settings?.sortBy || "SKU"}</span>
-                          </span>
-                        </div>
+                        ) : (
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+                            <span
+                              title={user.settings?.enableQr ? "QR Code Branding: Active" : "QR Code Branding: Inactive"}
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 4,
+                                fontSize: "0.7rem",
+                                fontWeight: 600,
+                                padding: "2px 7px",
+                                borderRadius: "6px",
+                                background: user.settings?.enableQr ? "#EEF2FF" : "#F1F5F9",
+                                color: user.settings?.enableQr ? "#4338CA" : "#94A3B8",
+                                border: user.settings?.enableQr ? "1px solid #C7D2FE" : "1px solid #E2E8F0",
+                              }}
+                            >
+                              <QrCodeIcon size={11} />
+                              <span>QR {user.settings?.enableQr ? "ON" : "OFF"}</span>
+                            </span>
+                            <span
+                              title={user.settings?.enableWhatsApp ? "WhatsApp Automation: Active" : "WhatsApp Automation: Inactive"}
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 4,
+                                fontSize: "0.7rem",
+                                fontWeight: 600,
+                                padding: "2px 7px",
+                                borderRadius: "6px",
+                                background: user.settings?.enableWhatsApp ? "#F0FDF4" : "#F1F5F9",
+                                color: user.settings?.enableWhatsApp ? "#15803D" : "#94A3B8",
+                                border: user.settings?.enableWhatsApp ? "1px solid #BBF7D0" : "1px solid #E2E8F0",
+                              }}
+                            >
+                              <MessageSquareIcon size={11} />
+                              <span>WA {user.settings?.enableWhatsApp ? "ON" : "OFF"}</span>
+                            </span>
+                            <span
+                              title={`Sort preference: ${user.settings?.sortBy || "SKU"}`}
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 3,
+                                fontSize: "0.7rem",
+                                fontWeight: 600,
+                                padding: "2px 7px",
+                                borderRadius: "6px",
+                                background: "#F8FAFC",
+                                color: "#475569",
+                                border: "1px solid #E2E8F0",
+                                textTransform: "uppercase",
+                              }}
+                            >
+                              <ArrowUpDownIcon size={10} />
+                              <span>{user.settings?.sortBy || "SKU"}</span>
+                            </span>
+                          </div>
+                        )}
                       </td>
 
-                      {/* Telemetry Stats (Clickable to Filter & Rank) */}
+                      {/* Telemetry Stats (Clickable to Drill-down Records List) */}
                       <td style={{ padding: "14px" }}>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
                           {/* Orders Button */}
@@ -1484,9 +1723,9 @@ export default function AdminPage() {
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleKpiClick("orders");
+                              handleOpenDrilldown(user, "orders");
                             }}
-                            title={`Orders: ${user.stats?.ordersCount || 0}. Click to filter and rank by Orders.`}
+                            title={`Click to view all ${user.stats?.ordersCount || 0} processed orders`}
                             style={{
                               display: "inline-flex",
                               alignItems: "center",
@@ -1494,8 +1733,8 @@ export default function AdminPage() {
                               padding: "3px 8px",
                               borderRadius: "7px",
                               background: selectedKpi === "orders" ? "#E0F2FE" : "#F8FAFC",
-                              border: selectedKpi === "orders" ? "1.5px solid #0284C7" : "1px solid #E2E8F0",
-                              color: selectedKpi === "orders" ? "#0369A1" : "#475569",
+                              border: selectedKpi === "orders" ? "1.5px solid #0284C7" : "1px solid #CBD5E1",
+                              color: selectedKpi === "orders" ? "#0369A1" : "#334155",
                               fontWeight: selectedKpi === "orders" ? 700 : 600,
                               fontSize: "0.75rem",
                               fontFamily: "var(--font-mono)",
@@ -1513,9 +1752,9 @@ export default function AdminPage() {
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleKpiClick("returns");
+                              handleOpenDrilldown(user, "returns");
                             }}
-                            title={`Returns: ${user.stats?.returnsCount || 0}. Click to filter and rank by Returns.`}
+                            title={`Click to view all ${user.stats?.returnsCount || 0} return alerts`}
                             style={{
                               display: "inline-flex",
                               alignItems: "center",
@@ -1523,8 +1762,8 @@ export default function AdminPage() {
                               padding: "3px 8px",
                               borderRadius: "7px",
                               background: selectedKpi === "returns" ? "#FEE2E2" : "#F8FAFC",
-                              border: selectedKpi === "returns" ? "1.5px solid #DC2626" : "1px solid #E2E8F0",
-                              color: selectedKpi === "returns" ? "#B91C1C" : "#475569",
+                              border: selectedKpi === "returns" ? "1.5px solid #DC2626" : "1px solid #CBD5E1",
+                              color: selectedKpi === "returns" ? "#B91C1C" : "#334155",
                               fontWeight: selectedKpi === "returns" ? 700 : 600,
                               fontSize: "0.75rem",
                               fontFamily: "var(--font-mono)",
@@ -1542,9 +1781,9 @@ export default function AdminPage() {
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleKpiClick("customers");
+                              handleOpenDrilldown(user, "customers");
                             }}
-                            title={`Customers: ${user.stats?.customersCount || 0}. Click to filter and rank by Customers.`}
+                            title={`Click to view all ${user.stats?.customersCount || 0} customer addresses`}
                             style={{
                               display: "inline-flex",
                               alignItems: "center",
@@ -1552,8 +1791,8 @@ export default function AdminPage() {
                               padding: "3px 8px",
                               borderRadius: "7px",
                               background: selectedKpi === "customers" ? "#DCFCE7" : "#F8FAFC",
-                              border: selectedKpi === "customers" ? "1.5px solid #16A34A" : "1px solid #E2E8F0",
-                              color: selectedKpi === "customers" ? "#15803D" : "#475569",
+                              border: selectedKpi === "customers" ? "1.5px solid #16A34A" : "1px solid #CBD5E1",
+                              color: selectedKpi === "customers" ? "#15803D" : "#334155",
                               fontWeight: selectedKpi === "customers" ? 700 : 600,
                               fontSize: "0.75rem",
                               fontFamily: "var(--font-mono)",
@@ -1571,9 +1810,9 @@ export default function AdminPage() {
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleKpiClick("scans");
+                              handleOpenDrilldown(user, "scans");
                             }}
-                            title={`QR Scans: ${user.stats?.scansCount || 0}. Click to filter and rank by Scans.`}
+                            title={`Click to view all ${user.stats?.scansCount || 0} QR scans`}
                             style={{
                               display: "inline-flex",
                               alignItems: "center",
@@ -1581,8 +1820,8 @@ export default function AdminPage() {
                               padding: "3px 8px",
                               borderRadius: "7px",
                               background: selectedKpi === "scans" ? "#F3E8FF" : "#F8FAFC",
-                              border: selectedKpi === "scans" ? "1.5px solid #9333EA" : "1px solid #E2E8F0",
-                              color: selectedKpi === "scans" ? "#7E22CE" : "#475569",
+                              border: selectedKpi === "scans" ? "1.5px solid #9333EA" : "1px solid #CBD5E1",
+                              color: selectedKpi === "scans" ? "#7E22CE" : "#334155",
                               fontWeight: selectedKpi === "scans" ? 700 : 600,
                               fontSize: "0.75rem",
                               fontFamily: "var(--font-mono)",
@@ -1599,56 +1838,62 @@ export default function AdminPage() {
 
                       {/* Actions */}
                       <td style={{ padding: "14px", textAlign: "right", whiteSpace: "nowrap" }}>
-                        <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "flex-end", gap: 8 }}>
-                          {/* Edit Settings Button */}
-                          <button
-                            type="button"
-                            onClick={() => handleOpenEdit(user)}
-                            style={{
-                              padding: "6px 12px",
-                              borderRadius: "8px",
-                              background: "#FFFFFF",
-                              color: "#334155",
-                              border: "1px solid #CBD5E1",
-                              fontSize: "0.78rem",
-                              fontWeight: 600,
-                              cursor: "pointer",
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: 6,
-                              transition: "all 0.15s ease",
-                            }}
-                          >
-                            <SettingsIcon size={13} />
-                            <span>Settings</span>
-                          </button>
-
-                          {/* Block / Unblock Button (Disabled for primary admin) */}
-                          {!isPrimaryAdmin && (
+                        {user.isSystem ? (
+                          <span style={{ fontSize: "0.75rem", color: "#94A3B8", fontStyle: "italic" }}>
+                            Platform Aggregate
+                          </span>
+                        ) : (
+                          <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "flex-end", gap: 8 }}>
+                            {/* Edit Settings Button */}
                             <button
                               type="button"
-                              onClick={() => handleToggleBlock(user)}
-                              disabled={isBlockingThis}
+                              onClick={() => handleOpenEdit(user)}
                               style={{
                                 padding: "6px 12px",
                                 borderRadius: "8px",
-                                background: isBlocked ? "#F0FDF4" : "#FFFFFF",
-                                color: isBlocked ? "#16A34A" : "#DC2626",
-                                border: isBlocked ? "1px solid #BBF7D0" : "1px solid #FECACA",
+                                background: "#FFFFFF",
+                                color: "#334155",
+                                border: "1px solid #CBD5E1",
                                 fontSize: "0.78rem",
                                 fontWeight: 600,
-                                cursor: isBlockingThis ? "not-allowed" : "pointer",
+                                cursor: "pointer",
                                 display: "inline-flex",
                                 alignItems: "center",
-                                gap: 5,
+                                gap: 6,
                                 transition: "all 0.15s ease",
                               }}
                             >
-                              <UserXIcon size={13} color={isBlocked ? "#16A34A" : "#DC2626"} />
-                              <span>{isBlockingThis ? "Saving..." : isBlocked ? "Unblock" : "Block"}</span>
+                              <SettingsIcon size={13} />
+                              <span>Settings</span>
                             </button>
-                          )}
-                        </div>
+
+                            {/* Block / Unblock Button (Disabled for primary admin) */}
+                            {!isPrimaryAdmin && (
+                              <button
+                                type="button"
+                                onClick={() => handleToggleBlock(user)}
+                                disabled={isBlockingThis}
+                                style={{
+                                  padding: "6px 12px",
+                                  borderRadius: "8px",
+                                  background: isBlocked ? "#F0FDF4" : "#FFFFFF",
+                                  color: isBlocked ? "#16A34A" : "#DC2626",
+                                  border: isBlocked ? "1px solid #BBF7D0" : "1px solid #FECACA",
+                                  fontSize: "0.78rem",
+                                  fontWeight: 600,
+                                  cursor: isBlockingThis ? "not-allowed" : "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 5,
+                                  transition: "all 0.15s ease",
+                                }}
+                              >
+                                <UserXIcon size={13} color={isBlocked ? "#16A34A" : "#DC2626"} />
+                                <span>{isBlockingThis ? "Saving..." : isBlocked ? "Unblock" : "Block"}</span>
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </td>
                     </tr>
                   );
@@ -1658,6 +1903,455 @@ export default function AdminPage() {
           </table>
         </div>
       </div>
+
+      {/* ========================================================================= */}
+      {/* TELEMETRY DRILL-DOWN RECORDS MODAL                                        */}
+      {/* ========================================================================= */}
+      <Modal
+        isOpen={drilldown.isOpen}
+        onClose={() => setDrilldown((prev) => ({ ...prev, isOpen: false }))}
+        maxWidth={980}
+        style={{ padding: 0, overflow: "hidden" }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            background: "#FFFFFF",
+            borderRadius: "24px",
+            maxHeight: "88vh",
+            overflow: "hidden",
+          }}
+        >
+          {/* Header */}
+          <div
+            style={{
+              padding: "20px 24px",
+              background: "linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 100%)",
+              borderBottom: "1px solid #E2E8F0",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 16,
+              flexWrap: "wrap",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: "14px",
+                  background:
+                    drilldown.type === "customers"
+                      ? "#DCFCE7"
+                      : drilldown.type === "orders"
+                      ? "#E0F2FE"
+                      : drilldown.type === "returns"
+                      ? "#FEE2E2"
+                      : "#F3E8FF",
+                  color:
+                    drilldown.type === "customers"
+                      ? "#15803D"
+                      : drilldown.type === "orders"
+                      ? "#0369A1"
+                      : drilldown.type === "returns"
+                      ? "#B91C1C"
+                      : "#7E22CE",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  border: `1.5px solid ${
+                    drilldown.type === "customers"
+                      ? "#86EFAC"
+                      : drilldown.type === "orders"
+                      ? "#7DD3FC"
+                      : drilldown.type === "returns"
+                      ? "#FCA5A5"
+                      : "#D8B4FE"
+                  }`,
+                }}
+              >
+                {drilldown.type === "customers" ? (
+                  <UsersIcon size={22} />
+                ) : drilldown.type === "orders" ? (
+                  <PackageIcon size={22} />
+                ) : drilldown.type === "returns" ? (
+                  <RotateCcwIcon size={22} />
+                ) : (
+                  <QrCodeIcon size={22} />
+                )}
+              </div>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 800, color: "#0F172A" }}>
+                    {drilldown.type === "customers"
+                      ? "Customer Addresses Directory"
+                      : drilldown.type === "orders"
+                      ? "Processed Orders & Labels"
+                      : drilldown.type === "returns"
+                      ? "RTO & Customer Returns"
+                      : "QR Engagement Scans"}
+                  </h3>
+                  <span
+                    style={{
+                      fontSize: "0.72rem",
+                      fontWeight: 800,
+                      padding: "2px 8px",
+                      borderRadius: "999px",
+                      background: "#F1F5F9",
+                      color: "#334155",
+                      border: "1px solid #CBD5E1",
+                      fontFamily: "var(--font-mono)",
+                    }}
+                  >
+                    {drilldown.records.length} Records
+                  </span>
+                </div>
+                <p style={{ margin: "3px 0 0", fontSize: "0.8rem", color: "#64748B" }}>
+                  Seller: <strong style={{ color: "#0F172A" }}>{drilldown.user?.name || "Seller"}</strong>
+                  {drilldown.user?.storeName && ` (${drilldown.user.storeName})`} • {drilldown.user?.email}
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              {drilldown.records.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleExportDrilldownCsv}
+                  style={{
+                    padding: "7px 14px",
+                    background: "#F8FAFC",
+                    border: "1px solid #CBD5E1",
+                    borderRadius: "10px",
+                    fontSize: "0.8rem",
+                    fontWeight: 600,
+                    color: "#334155",
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  <DownloadIcon size={14} />
+                  <span>Export CSV</span>
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setDrilldown((prev) => ({ ...prev, isOpen: false }))}
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: "10px",
+                  border: "1px solid #E2E8F0",
+                  background: "#FFFFFF",
+                  color: "#64748B",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  fontSize: "1rem",
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          {/* Search bar inside Modal */}
+          <div
+            style={{
+              padding: "12px 24px",
+              background: "#F8FAFC",
+              borderBottom: "1px solid #E2E8F0",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
+            }}
+          >
+            <div style={{ position: "relative", flex: 1, maxWidth: 400 }}>
+              <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "#94A3B8" }}>
+                <SearchIcon size={14} />
+              </span>
+              <input
+                type="text"
+                placeholder={
+                  drilldown.type === "customers"
+                    ? "Filter by customer name, phone, state, address..."
+                    : drilldown.type === "orders"
+                    ? "Filter by order no, customer, SKU, state..."
+                    : drilldown.type === "returns"
+                    ? "Filter by order no, AWB, courier, SKU..."
+                    : "Filter scans by order, SKU, device..."
+                }
+                value={drilldown.search}
+                onChange={(e) => setDrilldown((prev) => ({ ...prev, search: e.target.value }))}
+                style={{
+                  width: "100%",
+                  padding: "7px 30px 7px 30px",
+                  fontSize: "0.82rem",
+                  border: "1px solid #CBD5E1",
+                  borderRadius: "8px",
+                  outline: "none",
+                  background: "#FFFFFF",
+                }}
+              />
+              {drilldown.search && (
+                <button
+                  type="button"
+                  onClick={() => setDrilldown((prev) => ({ ...prev, search: "" }))}
+                  style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", border: "none", background: "none", color: "#94A3B8", cursor: "pointer" }}
+                >
+                  <XIcon size={14} />
+                </button>
+              )}
+            </div>
+
+            <span style={{ fontSize: "0.78rem", color: "#64748B", fontWeight: 600 }}>
+              Showing <strong>{filteredDrilldownRecords.length}</strong> of <strong>{drilldown.records.length}</strong>
+            </span>
+          </div>
+
+          {/* Table Container */}
+          <div style={{ flex: 1, overflowY: "auto", minHeight: 320, maxHeight: "56vh", padding: 0 }}>
+            {drilldown.loading ? (
+              <div style={{ padding: "60px 20px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12 }}>
+                <div style={{ width: 36, height: 36, border: "3px solid #EEF2FF", borderTop: "3px solid #4F46E5", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+                <span style={{ fontSize: "0.85rem", color: "#64748B", fontWeight: 600 }}>
+                  Retrieving telemetry records from database...
+                </span>
+              </div>
+            ) : filteredDrilldownRecords.length === 0 ? (
+              <div style={{ padding: "60px 20px", textAlign: "center", color: "#64748B" }}>
+                <p style={{ fontWeight: 700, margin: 0, color: "#0F172A" }}>
+                  {drilldown.search ? `No records found matching "${drilldown.search}"` : "No records found for this seller."}
+                </p>
+                {drilldown.search && (
+                  <button
+                    type="button"
+                    onClick={() => setDrilldown((prev) => ({ ...prev, search: "" }))}
+                    style={{ marginTop: 8, padding: "5px 12px", background: "#EEF2FF", color: "#4F46E5", border: "none", borderRadius: "6px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer" }}
+                  >
+                    Clear Search
+                  </button>
+                )}
+              </div>
+            ) : (
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.82rem", textAlign: "left" }}>
+                <thead>
+                  <tr style={{ background: "#F8FAFC", borderBottom: "1px solid #E2E8F0", color: "#475569", position: "sticky", top: 0, zIndex: 2 }}>
+                    <th style={{ padding: "10px 14px", width: 50, fontWeight: 700 }}>#</th>
+                    {drilldown.type === "customers" && (
+                      <>
+                        <th style={{ padding: "10px 14px", fontWeight: 700 }}>Customer Name</th>
+                        <th style={{ padding: "10px 14px", fontWeight: 700 }}>Mobile</th>
+                        <th style={{ padding: "10px 14px", fontWeight: 700 }}>State &amp; Address</th>
+                        <th style={{ padding: "10px 14px", fontWeight: 700, textAlign: "center" }}>Orders</th>
+                        <th style={{ padding: "10px 14px", fontWeight: 700, textAlign: "right" }}>Last Order Date</th>
+                      </>
+                    )}
+                    {drilldown.type === "orders" && (
+                      <>
+                        <th style={{ padding: "10px 14px", fontWeight: 700 }}>Order ID</th>
+                        <th style={{ padding: "10px 14px", fontWeight: 700 }}>Date</th>
+                        <th style={{ padding: "10px 14px", fontWeight: 700 }}>Customer</th>
+                        <th style={{ padding: "10px 14px", fontWeight: 700 }}>SKU</th>
+                        <th style={{ padding: "10px 14px", fontWeight: 700, textAlign: "center" }}>Qty</th>
+                        <th style={{ padding: "10px 14px", fontWeight: 700 }}>State</th>
+                        <th style={{ padding: "10px 14px", fontWeight: 700, textAlign: "right" }}>Payment</th>
+                      </>
+                    )}
+                    {drilldown.type === "returns" && (
+                      <>
+                        <th style={{ padding: "10px 14px", fontWeight: 700 }}>Order / SubOrder</th>
+                        <th style={{ padding: "10px 14px", fontWeight: 700 }}>AWB Tracking</th>
+                        <th style={{ padding: "10px 14px", fontWeight: 700 }}>Courier</th>
+                        <th style={{ padding: "10px 14px", fontWeight: 700 }}>Return Type</th>
+                        <th style={{ padding: "10px 14px", fontWeight: 700 }}>SKU</th>
+                        <th style={{ padding: "10px 14px", fontWeight: 700, textAlign: "right" }}>Date</th>
+                      </>
+                    )}
+                    {drilldown.type === "scans" && (
+                      <>
+                        <th style={{ padding: "10px 14px", fontWeight: 700 }}>Order No</th>
+                        <th style={{ padding: "10px 14px", fontWeight: 700 }}>SKU</th>
+                        <th style={{ padding: "10px 14px", fontWeight: 700 }}>Target URL</th>
+                        <th style={{ padding: "10px 14px", fontWeight: 700 }}>Device</th>
+                        <th style={{ padding: "10px 14px", fontWeight: 700, textAlign: "right" }}>Scan Time</th>
+                      </>
+                    )}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredDrilldownRecords.map((r, idx) => (
+                    <tr
+                      key={r._id || idx}
+                      style={{ borderBottom: "1px solid #F1F5F9", transition: "background 0.12s ease" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "#F8FAFC")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                    >
+                      <td style={{ padding: "10px 14px", color: "#94A3B8", fontFamily: "var(--font-mono)", fontSize: "0.75rem" }}>
+                        {idx + 1}
+                      </td>
+
+                      {drilldown.type === "customers" && (
+                        <>
+                          <td style={{ padding: "10px 14px", fontWeight: 600, color: "#0F172A" }}>
+                            {r.name || "Customer"}
+                          </td>
+                          <td style={{ padding: "10px 14px", fontFamily: "var(--font-mono)", color: "#475569" }}>
+                            {r.mobileNumber || "—"}
+                          </td>
+                          <td style={{ padding: "10px 14px", maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={r.address || ""}>
+                            <span style={{ fontWeight: 600, color: "#0F172A" }}>{r.state || "India"}</span>
+                            {r.address && <span style={{ color: "#64748B" }}> • {r.address}</span>}
+                          </td>
+                          <td style={{ padding: "10px 14px", textAlign: "center" }}>
+                            <span style={{ padding: "2px 8px", borderRadius: "6px", background: "#DCFCE7", color: "#15803D", fontWeight: 700, fontSize: "0.75rem" }}>
+                              {r.orderCount || (r.orders ? r.orders.length : 1)}
+                            </span>
+                          </td>
+                          <td style={{ padding: "10px 14px", textAlign: "right", color: "#64748B", fontSize: "0.76rem" }}>
+                            {r.lastOrderDate || r.firstOrderDate || (r.updatedAt ? new Date(r.updatedAt).toLocaleDateString("en-IN") : "—")}
+                          </td>
+                        </>
+                      )}
+
+                      {drilldown.type === "orders" && (
+                        <>
+                          <td style={{ padding: "10px 14px", fontFamily: "var(--font-mono)", fontWeight: 700, color: "#0284C7" }}>
+                            {r.orderNo || r.subOrderNo || "—"}
+                          </td>
+                          <td style={{ padding: "10px 14px", color: "#64748B", fontSize: "0.76rem" }}>
+                            {r.orderDate || (r.createdAt ? new Date(r.createdAt).toLocaleDateString("en-IN") : "—")}
+                          </td>
+                          <td style={{ padding: "10px 14px", fontWeight: 600, color: "#0F172A" }}>
+                            {r.customerName || "Customer"}
+                          </td>
+                          <td style={{ padding: "10px 14px", fontFamily: "var(--font-mono)", color: "#334155" }}>
+                            {r.sku || "—"}
+                          </td>
+                          <td style={{ padding: "10px 14px", textAlign: "center", fontWeight: 700 }}>
+                            {r.qty || 1}
+                          </td>
+                          <td style={{ padding: "10px 14px", color: "#475569" }}>
+                            {r.state || "—"}
+                          </td>
+                          <td style={{ padding: "10px 14px", textAlign: "right" }}>
+                            <span style={{
+                              padding: "2px 7px",
+                              borderRadius: "6px",
+                              fontSize: "0.7rem",
+                              fontWeight: 700,
+                              background: r.paymentType === "Prepaid" ? "#F0FDF4" : "#FEF3C7",
+                              color: r.paymentType === "Prepaid" ? "#15803D" : "#B45309",
+                            }}>
+                              {r.paymentType || "COD"}
+                            </span>
+                          </td>
+                        </>
+                      )}
+
+                      {drilldown.type === "returns" && (
+                        <>
+                          <td style={{ padding: "10px 14px", fontFamily: "var(--font-mono)", fontWeight: 700, color: "#DC2626" }}>
+                            {r.orderNo || r.subOrderNo || "—"}
+                          </td>
+                          <td style={{ padding: "10px 14px", fontFamily: "var(--font-mono)", color: "#334155" }}>
+                            {r.awbNumber ? (
+                              r.trackingLink ? (
+                                <a href={r.trackingLink} target="_blank" rel="noopener noreferrer" style={{ color: "#4F46E5", textDecoration: "underline" }}>
+                                  {r.awbNumber}
+                                </a>
+                              ) : (
+                                r.awbNumber
+                              )
+                            ) : (
+                              "—"
+                            )}
+                          </td>
+                          <td style={{ padding: "10px 14px", color: "#475569" }}>
+                            {r.courierPartner || "—"}
+                          </td>
+                          <td style={{ padding: "10px 14px" }}>
+                            <span style={{ padding: "2px 7px", borderRadius: "6px", fontSize: "0.7rem", fontWeight: 700, background: "#FEE2E2", color: "#B91C1C" }}>
+                              {r.returnType || "Return"}
+                            </span>
+                          </td>
+                          <td style={{ padding: "10px 14px", fontFamily: "var(--font-mono)", color: "#334155" }}>
+                            {r.sku || "—"}
+                          </td>
+                          <td style={{ padding: "10px 14px", textAlign: "right", color: "#64748B", fontSize: "0.76rem" }}>
+                            {r.returnCreatedDate || r.deliveredDate || r.dispatchDate || (r.createdAt ? new Date(r.createdAt).toLocaleDateString("en-IN") : "—")}
+                          </td>
+                        </>
+                      )}
+
+                      {drilldown.type === "scans" && (
+                        <>
+                          <td style={{ padding: "10px 14px", fontFamily: "var(--font-mono)", fontWeight: 700, color: "#9333EA" }}>
+                            {r.orderNo || "—"}
+                          </td>
+                          <td style={{ padding: "10px 14px", fontFamily: "var(--font-mono)", color: "#334155" }}>
+                            {r.sku || "—"}
+                          </td>
+                          <td style={{ padding: "10px 14px", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            <a href={r.targetUrl} target="_blank" rel="noopener noreferrer" style={{ color: "#4F46E5", textDecoration: "underline" }}>
+                              {r.targetUrl || "—"}
+                            </a>
+                          </td>
+                          <td style={{ padding: "10px 14px", color: "#475569", fontSize: "0.76rem" }}>
+                            {r.isMobile ? "Mobile Device" : "Desktop"}
+                          </td>
+                          <td style={{ padding: "10px 14px", textAlign: "right", color: "#64748B", fontSize: "0.76rem" }}>
+                            {r.date || (r.createdAt ? new Date(r.createdAt).toLocaleString("en-IN") : "—")}
+                          </td>
+                        </>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div
+            style={{
+              padding: "14px 24px",
+              background: "#F8FAFC",
+              borderTop: "1px solid #E2E8F0",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <span style={{ fontSize: "0.78rem", color: "#64748B" }}>
+              Press <kbd style={{ padding: "2px 6px", background: "#FFFFFF", border: "1px solid #CBD5E1", borderRadius: "4px", fontSize: "0.7rem", fontFamily: "var(--font-mono)" }}>Esc</kbd> to close
+            </span>
+            <button
+              type="button"
+              onClick={() => setDrilldown((prev) => ({ ...prev, isOpen: false }))}
+              style={{
+                padding: "7px 18px",
+                background: "#0F172A",
+                color: "#FFFFFF",
+                border: "none",
+                borderRadius: "8px",
+                fontSize: "0.8rem",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* ========================================================================= */}
       {/* LUXURY SETTINGS EDIT STUDIO MODAL (FOR SELECTED SELLER)                   */}
