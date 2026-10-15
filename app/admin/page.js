@@ -375,9 +375,6 @@ export default function AdminPage() {
       if (usersData.success) {
         setUsers(usersData.users);
       }
-      if (isManualRefresh) {
-        showToast("Live data refreshed successfully!");
-      }
     } catch (err) {
       console.error("SuperAdmin fetchData error:", err);
       setError(err.message || "Failed to fetch SuperAdmin data.");
@@ -634,11 +631,8 @@ export default function AdminPage() {
     if (selectedKpi === kpiId) {
       setSelectedKpi(null);
       setOnlyActiveActivity(false);
-      showToast("KPI filter cleared. Showing default directory view.");
     } else {
       setSelectedKpi(kpiId);
-      const conf = KPI_CONFIGS.find((c) => c.id === kpiId);
-      showToast(`Filter applied: ${conf?.label || kpiId} (Sorted highest first)`);
     }
   };
 
@@ -1085,7 +1079,6 @@ export default function AdminPage() {
               onClick={() => {
                 setSelectedKpi(null);
                 setOnlyActiveActivity(false);
-                showToast("Metric filter cleared. Restored default directory.");
               }}
               style={{
                 display: "inline-flex",
