@@ -9,10 +9,15 @@ const BACKEND_URL = (
 export async function GET(req) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !session.user?.email) {
+    const { searchParams } = new URL(req.url);
+    const queryEmail = searchParams.get("email");
+    const headerEmail = req.headers.get("x-user-email");
+    const userEmail = session?.user?.email || queryEmail || headerEmail || "";
+
+    if (!userEmail) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const userEmail = session.user.email;
+
     const res = await fetch(
       `${BACKEND_URL}/api/templates?email=${encodeURIComponent(userEmail)}`,
       {
@@ -29,11 +34,14 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !session.user?.email) {
+    const headerEmail = req.headers.get("x-user-email");
+    const body = await req.json();
+    const userEmail = session?.user?.email || body.email || headerEmail || "";
+
+    if (!userEmail) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const userEmail = session.user.email;
-    const body = await req.json();
+
     const res = await fetch(`${BACKEND_URL}/api/templates`, {
       method: "POST",
       headers: {
@@ -52,11 +60,15 @@ export async function POST(req) {
 export async function DELETE(req) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !session.user?.email) {
+    const { searchParams } = new URL(req.url);
+    const queryEmail = searchParams.get("email");
+    const headerEmail = req.headers.get("x-user-email");
+    const userEmail = session?.user?.email || queryEmail || headerEmail || "";
+
+    if (!userEmail) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const userEmail = session.user.email;
-    const { searchParams } = new URL(req.url);
+
     const id = searchParams.get("id");
     const res = await fetch(
       `${BACKEND_URL}/api/templates?id=${id}&email=${encodeURIComponent(userEmail)}`,
