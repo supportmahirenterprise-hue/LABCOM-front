@@ -74,6 +74,46 @@ function StoreIcon({ size = 16, color = "currentColor" }) {
   );
 }
 
+function PackageIcon({ size = 14, color = "currentColor" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="m7.5 4.27 9 5.15" />
+      <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+      <path d="m3.3 7 8.7 5 8.7-5" />
+      <path d="M12 22V12" />
+    </svg>
+  );
+}
+
+function RotateCcwIcon({ size = 14, color = "currentColor" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+      <path d="M3 3v5h5" />
+    </svg>
+  );
+}
+
+function UserXIcon({ size = 14, color = "currentColor" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <line x1="17" y1="8" x2="22" y2="13" />
+      <line x1="22" y1="8" x2="17" y2="13" />
+    </svg>
+  );
+}
+
+function ArrowUpDownIcon({ size = 12, color = "currentColor" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="m7 15 5 5 5-5" />
+      <path d="m7 9 5-5 5 5" />
+    </svg>
+  );
+}
+
 function PhoneIcon({ size = 16, color = "currentColor" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -536,10 +576,7 @@ export default function AdminPage() {
       accentBorder: "#BBF7D0",
       ringColor: "rgba(22, 163, 74, 0.25)",
       filterTitle: "Top Sellers Ranked by Buyer Database",
-      featureHref: "/customer-analysis",
-      featureLabel: "Open Customer Analysis ↗",
       metricKey: "customersCount",
-      metricIcon: "👥",
       metricName: "Customers",
     },
     {
@@ -554,10 +591,7 @@ export default function AdminPage() {
       accentBorder: "#FECACA",
       ringColor: "rgba(220, 38, 38, 0.25)",
       filterTitle: "Sellers Ranked by Return Volume & RTOs",
-      featureHref: "/returns",
-      featureLabel: "Open Returns Entry ↗",
       metricKey: "returnsCount",
-      metricIcon: "🔄",
       metricName: "Returns",
     },
     {
@@ -572,10 +606,7 @@ export default function AdminPage() {
       accentBorder: "#BAE6FD",
       ringColor: "rgba(2, 132, 199, 0.25)",
       filterTitle: "Top Sellers Ranked by Processed Orders & Labels",
-      featureHref: "/",
-      featureLabel: "Open Label Studio ↗",
       metricKey: "ordersCount",
-      metricIcon: "📦",
       metricName: "Orders",
     },
     {
@@ -590,10 +621,7 @@ export default function AdminPage() {
       accentBorder: "#E9D5FF",
       ringColor: "rgba(147, 51, 234, 0.25)",
       filterTitle: "Top Sellers Ranked by QR Engagement",
-      featureHref: "/analytics",
-      featureLabel: "Open QR Analytics ↗",
       metricKey: "scansCount",
-      metricIcon: "🔲",
       metricName: "Scans",
     },
   ], [stats]);
@@ -875,15 +903,15 @@ export default function AdminPage() {
                   : isHovered
                   ? `1.5px solid ${config.accentBorder}`
                   : "1px solid #E2E8F0",
-                borderRadius: "20px",
-                padding: "20px",
+                borderRadius: "18px",
+                padding: "18px 20px",
                 boxShadow: isSelected
-                  ? `0 12px 30px -4px ${config.ringColor}, 0 0 0 3px ${config.ringColor}`
+                  ? `0 10px 25px -4px ${config.ringColor}, 0 0 0 2px ${config.ringColor}`
                   : isHovered
-                  ? "0 12px 25px -4px rgba(15, 23, 42, 0.08)"
-                  : "0 4px 15px rgba(15, 23, 42, 0.03)",
-                transform: isSelected || isHovered ? "translateY(-4px)" : "translateY(0)",
-                transition: "all 0.22s cubic-bezier(0.16, 1, 0.3, 1)",
+                  ? "0 8px 20px -4px rgba(15, 23, 42, 0.06)"
+                  : "0 2px 10px rgba(15, 23, 42, 0.03)",
+                transform: isSelected || isHovered ? "translateY(-3px)" : "translateY(0)",
+                transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
                 cursor: "pointer",
                 display: "flex",
                 flexDirection: "column",
@@ -897,75 +925,37 @@ export default function AdminPage() {
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
                   <span
                     style={{
-                      fontSize: "0.76rem",
-                      fontWeight: 800,
+                      fontSize: "0.74rem",
+                      fontWeight: 700,
                       color: isSelected ? config.accentColor : "#64748B",
                       textTransform: "uppercase",
-                      letterSpacing: "0.08em",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
+                      letterSpacing: "0.06em",
                     }}
                   >
-                    <span>{config.label}</span>
+                    {config.label}
                   </span>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    {isSelected ? (
-                      <span
-                        style={{
-                          fontSize: "0.68rem",
-                          fontWeight: 800,
-                          padding: "3px 8px",
-                          borderRadius: "999px",
-                          background: config.accentColor,
-                          color: "#FFFFFF",
-                          letterSpacing: "0.04em",
-                          boxShadow: `0 2px 8px ${config.ringColor}`,
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 3,
-                        }}
-                      >
-                        ✓ ACTIVE
-                      </span>
-                    ) : isHovered ? (
-                      <span
-                        style={{
-                          fontSize: "0.68rem",
-                          fontWeight: 700,
-                          padding: "3px 8px",
-                          borderRadius: "999px",
-                          background: config.accentBg,
-                          color: config.accentColor,
-                        }}
-                      >
-                        Click to filter ▾
-                      </span>
-                    ) : null}
-
-                    <div
-                      style={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: "10px",
-                        background: config.accentBg,
-                        color: config.accentColor,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        transition: "all 0.2s ease",
-                        transform: isHovered || isSelected ? "scale(1.08)" : "scale(1)",
-                      }}
-                    >
-                      <CardIcon />
-                    </div>
+                  <div
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: "10px",
+                      background: config.accentBg,
+                      color: config.accentColor,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      transition: "transform 0.2s ease",
+                      transform: isHovered || isSelected ? "scale(1.06)" : "scale(1)",
+                    }}
+                  >
+                    <CardIcon />
                   </div>
                 </div>
 
                 <div
                   style={{
-                    fontSize: "2.1rem",
+                    fontSize: "2rem",
                     fontWeight: 800,
                     color: isSelected ? config.accentColor : "#0F172A",
                     lineHeight: 1.1,
@@ -993,32 +983,6 @@ export default function AdminPage() {
                     </p>
                   )}
                 </div>
-              </div>
-
-              <div
-                style={{
-                  marginTop: 14,
-                  paddingTop: 10,
-                  borderTop: isSelected ? `1px solid ${config.accentBorder}` : "1px solid #F1F5F9",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  fontSize: "0.72rem",
-                  fontWeight: 700,
-                  color: isSelected ? config.accentColor : isHovered ? config.accentColor : "#94A3B8",
-                  transition: "color 0.15s ease",
-                }}
-              >
-                <span>
-                  {isSelected
-                    ? "● Filter active (tap to reset)"
-                    : isHovered
-                    ? "Filter & rank sellers →"
-                    : "Tap to filter"}
-                </span>
-                <span style={{ fontSize: "0.85rem", transform: isHovered ? "translateX(2px)" : "none", transition: "transform 0.15s ease" }}>
-                  {isSelected ? "✕" : "→"}
-                </span>
               </div>
             </div>
           );
@@ -1113,29 +1077,6 @@ export default function AdminPage() {
                 />
                 <span>Only sellers with active records (&gt; 0)</span>
               </label>
-            )}
-
-            {/* Direct Module Link */}
-            {activeKpiConfig.featureHref && (
-              <Link
-                href={activeKpiConfig.featureHref}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "7px 14px",
-                  borderRadius: "10px",
-                  background: "#FFFFFF",
-                  color: activeKpiConfig.accentColor,
-                  border: `1px solid ${activeKpiConfig.accentBorder}`,
-                  fontSize: "0.8rem",
-                  fontWeight: 700,
-                  textDecoration: "none",
-                  transition: "all 0.15s ease",
-                }}
-              >
-                <span>{activeKpiConfig.featureLabel}</span>
-              </Link>
             )}
 
             {/* Reset Filter Button */}
@@ -1418,18 +1359,17 @@ export default function AdminPage() {
                                 <span
                                   style={{
                                     fontSize: "0.66rem",
-                                    padding: "2px 7px",
-                                    borderRadius: "6px",
-                                    background: activeKpiConfig.accentBg,
-                                    color: activeKpiConfig.accentColor,
-                                    border: `1px solid ${activeKpiConfig.accentBorder}`,
-                                    fontWeight: 800,
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    gap: 3,
+                                    padding: "1px 6px",
+                                    borderRadius: "4px",
+                                    background: "#F1F5F9",
+                                    color: "#334155",
+                                    border: "1px solid #CBD5E1",
+                                    fontWeight: 700,
+                                    fontFamily: "var(--font-mono)",
+                                    flexShrink: 0,
                                   }}
                                 >
-                                  {index === 0 ? "🏆 Rank #1" : index === 1 ? "🥈 Rank #2" : index === 2 ? "🥉 Rank #3" : `#${index + 1}`}
+                                  #{index + 1}
                                 </span>
                               )}
                             </div>
@@ -1442,194 +1382,225 @@ export default function AdminPage() {
 
                       {/* Store Name */}
                       <td style={{ padding: "14px", overflow: "hidden" }}>
-                        <span
-                          style={{
-                            display: "inline-block",
-                            maxWidth: "100%",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                            padding: "4px 10px",
-                            borderRadius: "8px",
-                            background: "#F8FAFC",
-                            border: "1px solid #E2E8F0",
-                            color: "#0F172A",
-                            fontWeight: 600,
-                            fontSize: "0.82rem",
-                          }}
-                          title={user.storeName || "Not set"}
-                        >
-                          {user.storeName || "Not set"}
-                        </span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>
+                          <StoreIcon size={14} color="#64748B" />
+                          <span
+                            style={{
+                              fontWeight: 600,
+                              color: user.storeName ? "#0F172A" : "#94A3B8",
+                              fontSize: "0.84rem",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                            title={user.storeName || "Not configured"}
+                          >
+                            {user.storeName || "Not configured"}
+                          </span>
+                        </div>
                       </td>
 
                       {/* Status */}
                       <td style={{ padding: "14px" }}>
-                        {isBlocked ? (
-                          <span
-                            style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: 4,
-                              padding: "4px 10px",
-                              borderRadius: "999px",
-                              background: "#FEF2F2",
-                              color: "#DC2626",
-                              fontSize: "0.74rem",
-                              fontWeight: 700,
-                              border: "1px solid #FECACA",
-                            }}
-                          >
-                            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#DC2626" }} />
-                            BLOCKED
-                          </span>
-                        ) : (
-                          <span
-                            style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: 4,
-                              padding: "4px 10px",
-                              borderRadius: "999px",
-                              background: "#F0FDF4",
-                              color: "#16A34A",
-                              fontSize: "0.74rem",
-                              fontWeight: 700,
-                              border: "1px solid #BBF7D0",
-                            }}
-                          >
-                            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#16A34A" }} />
-                            ACTIVE
-                          </span>
-                        )}
+                        <span
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 5,
+                            padding: "3px 9px",
+                            borderRadius: "999px",
+                            background: isBlocked ? "#FEF2F2" : "#F0FDF4",
+                            color: isBlocked ? "#B91C1C" : "#15803D",
+                            fontSize: "0.72rem",
+                            fontWeight: 700,
+                            letterSpacing: "0.02em",
+                            border: isBlocked ? "1px solid #FCA5A5" : "1px solid #86EFAC",
+                          }}
+                        >
+                          <span style={{ width: 6, height: 6, borderRadius: "50%", background: isBlocked ? "#DC2626" : "#16A34A" }} />
+                          {isBlocked ? "BLOCKED" : "ACTIVE"}
+                        </span>
                       </td>
 
                       {/* Settings Overview Badges */}
                       <td style={{ padding: "14px" }}>
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
                           <span
-                            title="QR Code Branding"
+                            title={user.settings?.enableQr ? "QR Code Branding: Active" : "QR Code Branding: Inactive"}
                             style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 4,
                               fontSize: "0.7rem",
+                              fontWeight: 600,
                               padding: "2px 7px",
                               borderRadius: "6px",
                               background: user.settings?.enableQr ? "#EEF2FF" : "#F1F5F9",
                               color: user.settings?.enableQr ? "#4338CA" : "#94A3B8",
-                              fontWeight: 600,
+                              border: user.settings?.enableQr ? "1px solid #C7D2FE" : "1px solid #E2E8F0",
                             }}
                           >
-                            QR: {user.settings?.enableQr ? "ON" : "OFF"}
+                            <QrCodeIcon size={11} />
+                            <span>QR {user.settings?.enableQr ? "ON" : "OFF"}</span>
                           </span>
                           <span
-                            title="WhatsApp Automation"
+                            title={user.settings?.enableWhatsApp ? "WhatsApp Automation: Active" : "WhatsApp Automation: Inactive"}
                             style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 4,
                               fontSize: "0.7rem",
+                              fontWeight: 600,
                               padding: "2px 7px",
                               borderRadius: "6px",
                               background: user.settings?.enableWhatsApp ? "#F0FDF4" : "#F1F5F9",
                               color: user.settings?.enableWhatsApp ? "#15803D" : "#94A3B8",
-                              fontWeight: 600,
+                              border: user.settings?.enableWhatsApp ? "1px solid #BBF7D0" : "1px solid #E2E8F0",
                             }}
                           >
-                            WA: {user.settings?.enableWhatsApp ? "ON" : "OFF"}
+                            <MessageSquareIcon size={11} />
+                            <span>WA {user.settings?.enableWhatsApp ? "ON" : "OFF"}</span>
                           </span>
                           <span
-                            title="Sort Preference"
+                            title={`Sort preference: ${user.settings?.sortBy || "SKU"}`}
                             style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 3,
                               fontSize: "0.7rem",
+                              fontWeight: 600,
                               padding: "2px 7px",
                               borderRadius: "6px",
                               background: "#F8FAFC",
                               color: "#475569",
                               border: "1px solid #E2E8F0",
-                              fontWeight: 600,
                               textTransform: "uppercase",
                             }}
                           >
-                            Sort: {user.settings?.sortBy || "SKU"}
+                            <ArrowUpDownIcon size={10} />
+                            <span>{user.settings?.sortBy || "SKU"}</span>
                           </span>
                         </div>
                       </td>
 
-                      {/* Telemetry Stats */}
+                      {/* Telemetry Stats (Clickable to Filter & Rank) */}
                       <td style={{ padding: "14px" }}>
-                        <div style={{ fontSize: "0.78rem", display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-                          <span
-                            title="Orders processed"
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+                          {/* Orders Button */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleKpiClick("orders");
+                            }}
+                            title={`Orders: ${user.stats?.ordersCount || 0}. Click to filter and rank by Orders.`}
                             style={{
                               display: "inline-flex",
                               alignItems: "center",
                               gap: 4,
-                              padding: selectedKpi === "orders" ? "3px 8px" : "2px 6px",
-                              borderRadius: "8px",
-                              background: selectedKpi === "orders" ? "#F0F9FF" : "#F8FAFC",
+                              padding: "3px 8px",
+                              borderRadius: "7px",
+                              background: selectedKpi === "orders" ? "#E0F2FE" : "#F8FAFC",
                               border: selectedKpi === "orders" ? "1.5px solid #0284C7" : "1px solid #E2E8F0",
-                              color: selectedKpi === "orders" ? "#0284C7" : "#475569",
-                              fontWeight: selectedKpi === "orders" ? 800 : 500,
-                              boxShadow: selectedKpi === "orders" ? "0 2px 6px rgba(2, 132, 199, 0.15)" : "none",
+                              color: selectedKpi === "orders" ? "#0369A1" : "#475569",
+                              fontWeight: selectedKpi === "orders" ? 700 : 600,
+                              fontSize: "0.75rem",
+                              fontFamily: "var(--font-mono)",
+                              cursor: "pointer",
                               transition: "all 0.15s ease",
+                              boxShadow: selectedKpi === "orders" ? "0 2px 6px rgba(2, 132, 199, 0.2)" : "none",
                             }}
                           >
-                            📦 {user.stats?.ordersCount || 0}
-                            {selectedKpi === "orders" && <strong style={{ fontSize: "0.68rem" }}>ORDERS</strong>}
-                          </span>
-                          <span
-                            title="Returns recorded"
+                            <PackageIcon size={12} color={selectedKpi === "orders" ? "#0284C7" : "#64748B"} />
+                            <span>{user.stats?.ordersCount || 0}</span>
+                          </button>
+
+                          {/* Returns Button */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleKpiClick("returns");
+                            }}
+                            title={`Returns: ${user.stats?.returnsCount || 0}. Click to filter and rank by Returns.`}
                             style={{
                               display: "inline-flex",
                               alignItems: "center",
                               gap: 4,
-                              padding: selectedKpi === "returns" ? "3px 8px" : "2px 6px",
-                              borderRadius: "8px",
-                              background: selectedKpi === "returns" ? "#FEF2F2" : "#F8FAFC",
+                              padding: "3px 8px",
+                              borderRadius: "7px",
+                              background: selectedKpi === "returns" ? "#FEE2E2" : "#F8FAFC",
                               border: selectedKpi === "returns" ? "1.5px solid #DC2626" : "1px solid #E2E8F0",
-                              color: selectedKpi === "returns" ? "#DC2626" : "#475569",
-                              fontWeight: selectedKpi === "returns" ? 800 : 500,
-                              boxShadow: selectedKpi === "returns" ? "0 2px 6px rgba(220, 38, 38, 0.15)" : "none",
+                              color: selectedKpi === "returns" ? "#B91C1C" : "#475569",
+                              fontWeight: selectedKpi === "returns" ? 700 : 600,
+                              fontSize: "0.75rem",
+                              fontFamily: "var(--font-mono)",
+                              cursor: "pointer",
                               transition: "all 0.15s ease",
+                              boxShadow: selectedKpi === "returns" ? "0 2px 6px rgba(220, 38, 38, 0.2)" : "none",
                             }}
                           >
-                            🔄 {user.stats?.returnsCount || 0}
-                            {selectedKpi === "returns" && <strong style={{ fontSize: "0.68rem" }}>RETURNS</strong>}
-                          </span>
-                          <span
-                            title="Customers tracked"
+                            <RotateCcwIcon size={12} color={selectedKpi === "returns" ? "#DC2626" : "#64748B"} />
+                            <span>{user.stats?.returnsCount || 0}</span>
+                          </button>
+
+                          {/* Customers Button */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleKpiClick("customers");
+                            }}
+                            title={`Customers: ${user.stats?.customersCount || 0}. Click to filter and rank by Customers.`}
                             style={{
                               display: "inline-flex",
                               alignItems: "center",
                               gap: 4,
-                              padding: selectedKpi === "customers" ? "3px 8px" : "2px 6px",
-                              borderRadius: "8px",
-                              background: selectedKpi === "customers" ? "#F0FDF4" : "#F8FAFC",
+                              padding: "3px 8px",
+                              borderRadius: "7px",
+                              background: selectedKpi === "customers" ? "#DCFCE7" : "#F8FAFC",
                               border: selectedKpi === "customers" ? "1.5px solid #16A34A" : "1px solid #E2E8F0",
-                              color: selectedKpi === "customers" ? "#16A34A" : "#475569",
-                              fontWeight: selectedKpi === "customers" ? 800 : 500,
-                              boxShadow: selectedKpi === "customers" ? "0 2px 6px rgba(22, 163, 74, 0.15)" : "none",
+                              color: selectedKpi === "customers" ? "#15803D" : "#475569",
+                              fontWeight: selectedKpi === "customers" ? 700 : 600,
+                              fontSize: "0.75rem",
+                              fontFamily: "var(--font-mono)",
+                              cursor: "pointer",
                               transition: "all 0.15s ease",
+                              boxShadow: selectedKpi === "customers" ? "0 2px 6px rgba(22, 163, 74, 0.2)" : "none",
                             }}
                           >
-                            👥 {user.stats?.customersCount || 0}
-                            {selectedKpi === "customers" && <strong style={{ fontSize: "0.68rem" }}>CUSTOMERS</strong>}
-                          </span>
-                          <span
-                            title="QR Scans recorded"
+                            <UsersIcon size={12} color={selectedKpi === "customers" ? "#16A34A" : "#64748B"} />
+                            <span>{user.stats?.customersCount || 0}</span>
+                          </button>
+
+                          {/* Scans Button */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleKpiClick("scans");
+                            }}
+                            title={`QR Scans: ${user.stats?.scansCount || 0}. Click to filter and rank by Scans.`}
                             style={{
                               display: "inline-flex",
                               alignItems: "center",
                               gap: 4,
-                              padding: selectedKpi === "scans" ? "3px 8px" : "2px 6px",
-                              borderRadius: "8px",
-                              background: selectedKpi === "scans" ? "#FAF5FF" : "#F8FAFC",
+                              padding: "3px 8px",
+                              borderRadius: "7px",
+                              background: selectedKpi === "scans" ? "#F3E8FF" : "#F8FAFC",
                               border: selectedKpi === "scans" ? "1.5px solid #9333EA" : "1px solid #E2E8F0",
-                              color: selectedKpi === "scans" ? "#9333EA" : "#475569",
-                              fontWeight: selectedKpi === "scans" ? 800 : 500,
-                              boxShadow: selectedKpi === "scans" ? "0 2px 6px rgba(147, 51, 234, 0.15)" : "none",
+                              color: selectedKpi === "scans" ? "#7E22CE" : "#475569",
+                              fontWeight: selectedKpi === "scans" ? 700 : 600,
+                              fontSize: "0.75rem",
+                              fontFamily: "var(--font-mono)",
+                              cursor: "pointer",
                               transition: "all 0.15s ease",
+                              boxShadow: selectedKpi === "scans" ? "0 2px 6px rgba(147, 51, 234, 0.2)" : "none",
                             }}
                           >
-                            🔲 {user.stats?.scansCount || 0}
-                            {selectedKpi === "scans" && <strong style={{ fontSize: "0.68rem" }}>SCANS</strong>}
-                          </span>
+                            <QrCodeIcon size={12} color={selectedKpi === "scans" ? "#9333EA" : "#64748B"} />
+                            <span>{user.stats?.scansCount || 0}</span>
+                          </button>
                         </div>
                       </td>
 
@@ -1643,11 +1614,11 @@ export default function AdminPage() {
                             style={{
                               padding: "6px 12px",
                               borderRadius: "8px",
-                              background: "#EEF2FF",
-                              color: "#4338CA",
-                              border: "1px solid #C7D2FE",
+                              background: "#FFFFFF",
+                              color: "#334155",
+                              border: "1px solid #CBD5E1",
                               fontSize: "0.78rem",
-                              fontWeight: 700,
+                              fontWeight: 600,
                               cursor: "pointer",
                               display: "inline-flex",
                               alignItems: "center",
@@ -1655,8 +1626,8 @@ export default function AdminPage() {
                               transition: "all 0.15s ease",
                             }}
                           >
-                            <SettingsIcon />
-                            <span>Edit Settings</span>
+                            <SettingsIcon size={13} />
+                            <span>Settings</span>
                           </button>
 
                           {/* Block / Unblock Button (Disabled for primary admin) */}
@@ -1668,20 +1639,20 @@ export default function AdminPage() {
                               style={{
                                 padding: "6px 12px",
                                 borderRadius: "8px",
-                                background: isBlocked ? "#F0FDF4" : "#FEF2F2",
+                                background: isBlocked ? "#F0FDF4" : "#FFFFFF",
                                 color: isBlocked ? "#16A34A" : "#DC2626",
                                 border: isBlocked ? "1px solid #BBF7D0" : "1px solid #FECACA",
                                 fontSize: "0.78rem",
-                                fontWeight: 700,
+                                fontWeight: 600,
                                 cursor: isBlockingThis ? "not-allowed" : "pointer",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 5,
                                 transition: "all 0.15s ease",
                               }}
                             >
-                              {isBlockingThis
-                                ? "Updating..."
-                                : isBlocked
-                                ? "Unblock User"
-                                : "Block User"}
+                              <UserXIcon size={13} color={isBlocked ? "#16A34A" : "#DC2626"} />
+                              <span>{isBlockingThis ? "Saving..." : isBlocked ? "Unblock" : "Block"}</span>
                             </button>
                           )}
                         </div>
