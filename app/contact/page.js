@@ -166,11 +166,13 @@ export default function ContactUsPage() {
               )}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "#334155", marginBottom: 6 }}>
+                  <label htmlFor="contact-name" style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "#334155", marginBottom: 6 }}>
                     Your Name *
                   </label>
                   <input
                     type="text"
+                    id="contact-name"
+                    aria-label="Your Name"
                     required
                     className="input-field"
                     value={formData.name}
@@ -181,11 +183,13 @@ export default function ContactUsPage() {
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "#334155", marginBottom: 6 }}>
+                  <label htmlFor="contact-store" style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "#334155", marginBottom: 6 }}>
                     Store / Brand Name
                   </label>
                   <input
                     type="text"
+                    id="contact-store"
+                    aria-label="Store or Brand Name"
                     className="input-field"
                     value={formData.storeName}
                     onChange={(e) => setFormData({ ...formData, storeName: e.target.value })}
@@ -197,11 +201,13 @@ export default function ContactUsPage() {
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "#334155", marginBottom: 6 }}>
+                  <label htmlFor="contact-email" style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "#334155", marginBottom: 6 }}>
                     Email Address *
                   </label>
                   <input
                     type="email"
+                    id="contact-email"
+                    aria-label="Email Address"
                     required
                     className="input-field"
                     value={formData.email}
@@ -212,11 +218,13 @@ export default function ContactUsPage() {
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "#334155", marginBottom: 6 }}>
+                  <label htmlFor="contact-phone" style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "#334155", marginBottom: 6 }}>
                     Phone / WhatsApp *
                   </label>
                   <input
                     type="tel"
+                    id="contact-phone"
+                    aria-label="Phone or WhatsApp Number"
                     required
                     className="input-field"
                     value={formData.phone}
@@ -228,10 +236,12 @@ export default function ContactUsPage() {
               </div>
 
               <div>
-                <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "#334155", marginBottom: 6 }}>
+                <label htmlFor="contact-category" style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "#334155", marginBottom: 6 }}>
                   Inquiry Category
                 </label>
                 <select
+                  id="contact-category"
+                  aria-label="Inquiry Category"
                   className="input-field"
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
@@ -246,11 +256,13 @@ export default function ContactUsPage() {
               </div>
 
               <div>
-                <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "#334155", marginBottom: 6 }}>
+                <label htmlFor="contact-subject" style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "#334155", marginBottom: 6 }}>
                   Subject *
                 </label>
                 <input
                   type="text"
+                  id="contact-subject"
+                  aria-label="Message Subject"
                   required
                   className="input-field"
                   value={formData.subject}
@@ -261,10 +273,12 @@ export default function ContactUsPage() {
               </div>
 
               <div>
-                <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "#334155", marginBottom: 6 }}>
+                <label htmlFor="contact-message" style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "#334155", marginBottom: 6 }}>
                   Detailed Message *
                 </label>
                 <textarea
+                  id="contact-message"
+                  aria-label="Detailed Message"
                   required
                   className="input-field"
                   rows={4}

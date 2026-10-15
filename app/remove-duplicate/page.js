@@ -1249,6 +1249,7 @@ export default function RemoveDuplicatePage() {
             type="file"
             accept="application/pdf"
             ref={file1InputRef}
+            aria-label="Upload Batch 1 PDF shipping labels"
             onChange={handleFile1Change}
             style={{ display: "none" }}
           />
@@ -1391,6 +1392,7 @@ export default function RemoveDuplicatePage() {
             type="file"
             accept="application/pdf"
             ref={file2InputRef}
+            aria-label="Upload Batch 2 PDF shipping labels"
             onChange={handleFile2Change}
             style={{ display: "none" }}
           />
@@ -2038,6 +2040,7 @@ export default function RemoveDuplicatePage() {
                 </span>
                 <input
                   type="text"
+                  aria-label="Filter results by Order Number, SKU, State or Reason"
                   placeholder="Filter by Order No, SKU, State, Reason..."
                   value={tableSearch}
                   onChange={(e) => setTableSearch(e.target.value)}

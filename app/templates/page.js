@@ -253,9 +253,9 @@ export default function TemplatesPage() {
           >
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12, gap: 12 }}>
-                <h3 className="heading-display" style={{ fontSize: "1.05rem", color: "var(--text-pure)", margin: 0, flex: 1 }}>
+                <h2 className="heading-display" style={{ fontSize: "1.05rem", color: "var(--text-pure)", margin: 0, flex: 1 }}>
                   {tpl.name}
-                </h3>
+                </h2>
                 <span
                   className={tpl.enableQr ? "tag-pill badge-emerald" : "tag-pill badge-slate"}
                   style={{

@@ -1,8 +1,16 @@
 import "./globals.css";
 import { Providers } from "./components/Providers";
 import { Sidebar } from "./components/Sidebar";
+import Script from "next/script";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://labelpro.in";
+
+export const viewport = {
+  themeColor: "#4F46E5",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata = {
   metadataBase: new URL(siteUrl),
@@ -212,11 +220,18 @@ export default function RootLayout({ children }) {
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&family=JetBrains+Mono:wght@500;600&display=swap"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdGraph) }}
         />
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" async={false}></script>
+        <Script
+          src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"
+          strategy="lazyOnload"
+        />
       </head>
       <body>
         <div className="ambient-bg" />

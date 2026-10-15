@@ -245,9 +245,9 @@ export default function AnalyticsPage() {
       <div className="premium-glass" style={{ marginBottom: 24, overflowX: "auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 10 }}>
           <div>
-            <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "#0F172A", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
+            <h2 className="heading-display" style={{ fontSize: "1.15rem", color: "#0F172A", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
               <CalendarIcon /> Date-wise Scan Volume (Last 7 Days)
-            </h3>
+            </h2>
             <p style={{ fontSize: "0.82rem", color: "#64748B", margin: 0 }}>
               Daily breakdown of how many buyers scanned parcel QR codes.
             </p>
@@ -293,9 +293,9 @@ export default function AnalyticsPage() {
         <div className="premium-glass">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <div>
-              <h3 className="heading-display" style={{ fontSize: "1.1rem", color: "#0F172A", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <h2 className="heading-display" style={{ fontSize: "1.1rem", color: "#0F172A", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
                 <TagIcon /> Top Converting SKUs
-              </h3>
+              </h2>
               <p style={{ fontSize: "0.8rem", color: "#64748B", margin: 0 }}>
                 Products that generate the most repeat QR scans.
               </p>
@@ -341,9 +341,9 @@ export default function AnalyticsPage() {
         <div className="premium-glass">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <div>
-              <h3 className="heading-display" style={{ fontSize: "1.1rem", color: "#0F172A", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <h2 className="heading-display" style={{ fontSize: "1.1rem", color: "#0F172A", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
                 <TargetIcon /> Destination Channels
-              </h3>
+              </h2>
               <p style={{ fontSize: "0.8rem", color: "#64748B", margin: 0 }}>
                 Distribution of where scanned customers are directed.
               </p>

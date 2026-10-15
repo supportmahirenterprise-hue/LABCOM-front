@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
 :root {
   /* Core Canvas & Surfaces (Matching Sidebar Theme 1:1) */
   --bg-onyx: #F8FAFC;
@@ -19,10 +17,10 @@
   --accent-rose: #DC2626;
   --accent-purple: #7C3AED;
   
-  /* High-Contrast Typography Tokens */
+  /* High-Contrast Typography Tokens (WCAG AA & AAA 100% compliant) */
   --text-pure: #0F172A;
-  --text-silver: #475569;
-  --text-dim: #94A3B8;
+  --text-silver: #334155;
+  --text-dim: #475569;
   
   /* Typography Families */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -703,40 +701,80 @@ input, textarea, select, [contenteditable="true"] {
 @media (max-width: 900px) {
   .layout-wrapper {
     flex-direction: column;
-    padding: 14px;
-    gap: 16px;
+    padding: 10px;
+    gap: 12px;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
   }
 
   .sidebar-desktop {
-    width: 100% !important;
-    height: auto !important;
-    position: relative !important;
-    top: 0 !important;
+    display: none !important;
+  }
+
+  .mobile-header-bar {
+    display: flex !important;
   }
 
   .premium-glass {
-    padding: 20px 16px;
+    padding: 16px 14px;
     border-radius: 16px;
   }
 
   .action-dock {
     flex-direction: column;
     align-items: stretch;
-    padding: 18px 16px;
-    gap: 14px;
+    padding: 14px 12px;
+    gap: 10px;
     width: 100%;
   }
 
   .action-dock-buttons {
     flex-direction: column !important;
     width: 100% !important;
-    gap: 10px !important;
+    gap: 8px !important;
   }
 
   .action-dock-buttons button {
     width: 100% !important;
     min-width: 0 !important;
     justify-content: center !important;
+  }
+
+  .simulator-layout-wrap {
+    flex-direction: column !important;
+    align-items: center !important;
+    width: 100% !important;
+    gap: 16px !important;
+  }
+
+  .stamp-sliders-wrap {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .heading-display {
+    word-break: break-word;
+  }
+
+  /* Prevent auto-zoom on mobile form elements */
+  .input-field,
+  .table-input,
+  input[type="text"],
+  input[type="search"],
+  select {
+    font-size: 16px !important;
+  }
+
+  button, input, select, a {
+    touch-action: manipulation;
+  }
+}
+
+@media (min-width: 901px) {
+  .mobile-header-bar,
+  .mobile-drawer-overlay {
+    display: none !important;
   }
 }
 

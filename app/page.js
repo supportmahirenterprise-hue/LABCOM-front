@@ -9,11 +9,6 @@ import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import Modal from "./components/Modal";
 import { ButtonSpinner, PageLoader } from "./components/Loader";
 import { getPendingStudioPdf, clearPendingStudioPdf } from "../lib/pdfTransfer";
-
-const BACKEND_URL = (
-  process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.labelpro.in"
-).replace(/\/+$/, "");
-
 import {
   FilePdfIcon,
   FileTextIcon,
@@ -80,6 +75,10 @@ import {
   WhatsAppIcon,
   RefreshCwIcon,
 } from "./components/Icons";
+
+const BACKEND_URL = (
+  process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.labelpro.in"
+).replace(/\/+$/, "");
 
 function drawShopIconCanvas(ctx, x, y, size) {
   ctx.save();
@@ -1922,7 +1921,7 @@ export default function Home() {
           <div className="premium-glass" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                <h3 className="heading-display" style={{ fontSize: "1.1rem", color: "var(--text-pure)", margin: 0 }}>
+                <h2 className="heading-display" style={{ fontSize: "1.1rem", color: "var(--text-pure)", margin: 0 }}>
                   Shipping Label PDF
                   {pages.length > 0 && (
                     <>
@@ -1965,7 +1964,7 @@ export default function Home() {
                       )}
                     </>
                   )}
-                </h3>
+                </h2>
                 <span className="tag-pill" style={{ fontSize: "0.72rem" }}>
                   Step 1: Upload
                 </span>
@@ -1976,6 +1975,7 @@ export default function Home() {
                 ref={fileInputRef}
                 accept="application/pdf"
                 multiple
+                aria-label="Upload PDF shipping labels"
                 style={{ display: "none" }}
                 onChange={(e) => {
                   if (e.target.files && e.target.files.length > 0) {
@@ -2097,9 +2097,9 @@ export default function Home() {
           {/* Thermal Label Studio Canvas */}
           <div className="premium-glass">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 8 }}>
-              <h3 className="heading-display" style={{ fontSize: "1.1rem", color: "var(--text-pure)", margin: 0 }}>
+              <h2 className="heading-display" style={{ fontSize: "1.1rem", color: "var(--text-pure)", margin: 0 }}>
                 Live Stamp Preview
-              </h3>
+              </h2>
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                 <span className="tag-pill active" style={{ fontSize: "0.72rem", padding: "4px 10px" }}>
                   <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--aurora-1)", boxShadow: "var(--shadow-glow)" }} />
@@ -2462,6 +2462,7 @@ export default function Home() {
                     min="0"
                     max="300"
                     value={qrX}
+                    aria-label="QR Code Horizontal Position X"
                     onChange={(e) => setQrX(Number(e.target.value))}
                   />
                 </div>
@@ -2477,6 +2478,7 @@ export default function Home() {
                     min="0"
                     max="500"
                     value={qrY}
+                    aria-label="QR Code Vertical Position Y"
                     onChange={(e) => setQrY(Number(e.target.value))}
                   />
                 </div>
@@ -2492,6 +2494,7 @@ export default function Home() {
                     min="30"
                     max="180"
                     value={qrSize}
+                    aria-label="QR Code Size Dimension"
                     onChange={(e) => setQrSize(Number(e.target.value))}
                   />
                 </div>
@@ -2507,6 +2510,7 @@ export default function Home() {
                     min="4"
                     max="72"
                     value={fontSize}
+                    aria-label="Store Name Font Size"
                     onChange={(e) => setFontSize(Number(e.target.value))}
                   />
                 </div>
@@ -2519,9 +2523,9 @@ export default function Home() {
         <div className="premium-glass" style={{ marginBottom: 24, padding: "20px 24px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
             <div>
-              <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 6px 0" }}>
+              <h2 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 6px 0" }}>
                 Crop out the tax invoice
-              </h3>
+              </h2>
               <p style={{ fontSize: "0.82rem", color: "var(--text-silver)", margin: 0, maxWidth: 450, lineHeight: 1.45 }}>
                 Print labels only — smaller, cleaner sheets. Only the download changes.
               </p>
@@ -2572,9 +2576,9 @@ export default function Home() {
         <div className="premium-glass" style={{ marginBottom: 24 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
             <div>
-              <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 4px 0" }}>
+              <h2 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 4px 0" }}>
                 Store Growth & QR Stamp Setup
-              </h3>
+              </h2>
               <p style={{ fontSize: "0.82rem", color: "var(--text-silver)", margin: 0 }}>
                 {enableQr
                   ? "Encode your Meesho or Instagram store link into every parcel label to boost followers and repeat orders."
@@ -2602,6 +2606,7 @@ export default function Home() {
                   type="checkbox"
                   disabled={isBusy}
                   checked={useNativeScript}
+                  aria-label="Print regional greetings in native language script"
                   onChange={(e) => handleNativeScriptToggle(e.target.checked)}
                   style={{
                     width: 16,
@@ -2633,6 +2638,7 @@ export default function Home() {
                   type="checkbox"
                   disabled={isBusy}
                   checked={enableQr}
+                  aria-label="Enable Dynamic QR Code on Labels"
                   onChange={(e) => setEnableQr(e.target.checked)}
                   style={{
                     width: 16,
@@ -2701,12 +2707,14 @@ export default function Home() {
 
             {stampStyle === "badge" && (
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 12, flexWrap: "wrap" }}>
-                <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", minWidth: 120 }}>
+                <label htmlFor="store-name-input" style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", minWidth: 120 }}>
                   Store / Brand Name:
                 </label>
                 <div style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
                   <input
                     type="text"
+                    id="store-name-input"
+                    aria-label="Store or Brand Name"
                     maxLength={25}
                     className="input-field"
                     value={storeName}
@@ -2796,10 +2804,12 @@ export default function Home() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: 20, marginBottom: 24 }}>
             {/* QR Content */}
             <div>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-pure)", marginBottom: 8 }}>
+              <label htmlFor="qr-text-input" style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-pure)", marginBottom: 8 }}>
                 QR Code Scannable URL / Content
               </label>
               <input
+                id="qr-text-input"
+                aria-label="QR Code Scannable URL or Text Content"
                 className="input-field input-field-mono"
                 value={qrText}
                 onFocus={() => setActiveInput("qrText")}
@@ -2916,9 +2926,9 @@ export default function Home() {
         <div className="premium-glass" style={{ marginBottom: 24 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 20 }}>
             <div>
-              <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 4px 0" }}>
+              <h2 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 4px 0" }}>
                 Multi-Field Batch Sorter & Search Filter
-              </h3>
+              </h2>
               <p style={{ fontSize: "0.82rem", color: "var(--text-silver)", margin: 0 }}>
                 Automatically group and sort label pages by SKU, Quantity, Order Date, or Customer Name.
               </p>
@@ -2952,6 +2962,7 @@ export default function Home() {
                   type="checkbox"
                   disabled={isBusy}
                   checked={sendWhatsApp}
+                  aria-label="Pre-fill WhatsApp reorder link"
                   onChange={(e) => setSendWhatsApp(e.target.checked)}
                   style={{ width: 16, height: 16, accentColor: "#16a34a", cursor: isBusy ? "not-allowed" : "pointer" }}
                 />
@@ -2988,6 +2999,7 @@ export default function Home() {
                   type="checkbox"
                   disabled={isBusy}
                   checked={downloadSummary}
+                  aria-label="Download Summary Excel or Sheet"
                   onChange={(e) => setDownloadSummary(e.target.checked)}
                   style={{ width: 16, height: 16, accentColor: "#10b981", cursor: isBusy ? "not-allowed" : "pointer" }}
                 />
@@ -3000,10 +3012,12 @@ export default function Home() {
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 20 }}>
             <div>
-              <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
+              <label htmlFor="sort-by-select" style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
                 Sort Pages By Field
               </label>
               <select
+                id="sort-by-select"
+                aria-label="Sort Pages By Field"
                 className="input-field"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
@@ -3023,6 +3037,8 @@ export default function Home() {
               </label>
               <div style={{ display: "flex", gap: 10 }}>
                 <button
+                  type="button"
+                  aria-label="Sort Ascending"
                   className="btn-secondary"
                   style={{
                     flex: 1,
@@ -3037,6 +3053,8 @@ export default function Home() {
                   <SortAscIcon /> Ascending
                 </button>
                 <button
+                  type="button"
+                  aria-label="Sort Descending"
                   className="btn-secondary"
                   style={{
                     flex: 1,
@@ -3054,10 +3072,12 @@ export default function Home() {
             </div>
 
             <div>
-              <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
+              <label htmlFor="instant-search-input" style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
                 Instant Search Filter
               </label>
               <input
+                id="instant-search-input"
+                aria-label="Instant Search Filter SKU, Order No, Customer"
                 className="input-field"
                 placeholder="Search SKU, Order No, Customer..."
                 value={searchQuery}
@@ -4243,6 +4263,7 @@ export default function Home() {
                   min="0"
                   max="80"
                   value={cropTop}
+                  aria-label="Top Crop Percentage"
                   onChange={(e) => {
                     setCropTop(Number(e.target.value));
                     setCropPreset("manual");
@@ -4261,6 +4282,7 @@ export default function Home() {
                   min="0"
                   max="80"
                   value={cropBottom}
+                  aria-label="Bottom Crop Percentage"
                   onChange={(e) => {
                     setCropBottom(Number(e.target.value));
                     setCropPreset("manual");
@@ -4279,6 +4301,7 @@ export default function Home() {
                   min="0"
                   max="40"
                   value={cropLeft}
+                  aria-label="Left Crop Percentage"
                   onChange={(e) => {
                     setCropLeft(Number(e.target.value));
                     setCropPreset("manual");
@@ -4297,6 +4320,7 @@ export default function Home() {
                   min="0"
                   max="40"
                   value={cropRight}
+                  aria-label="Right Crop Percentage"
                   onChange={(e) => {
                     setCropRight(Number(e.target.value));
                     setCropPreset("manual");

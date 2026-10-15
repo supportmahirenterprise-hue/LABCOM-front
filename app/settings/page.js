@@ -291,9 +291,9 @@ export default function SettingsPage() {
         <div className="premium-glass">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <div>
-              <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <h2 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
                 <StoreIcon size={18} /> Seller & Store Profile
-              </h3>
+              </h2>
               <p style={{ fontSize: "0.8rem", color: "var(--text-silver)", margin: 0 }}>
                 These optional details help you identify your store and can be stamped onto package slips.
               </p>
@@ -358,9 +358,9 @@ export default function SettingsPage() {
         <div className="premium-glass" style={{ marginBottom: 24 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 10 }}>
             <div>
-              <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 4px 0" }}>
+              <h2 className="heading-display" style={{ fontSize: "1.15rem", color: "var(--text-pure)", margin: "0 0 4px 0" }}>
                 Global Default QR & Layout Setup
-              </h3>
+              </h2>
               <p style={{ fontSize: "0.82rem", color: "var(--text-silver)", margin: 0 }}>
                 These parameters will be automatically pre-filled every time you upload a shipping PDF.
               </p>
@@ -492,9 +492,9 @@ export default function SettingsPage() {
         <div className="premium-glass" style={{ marginBottom: 24 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 10 }}>
             <div>
-              <h3 className="heading-display" style={{ fontSize: "1.15rem", color: "#0F172A", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <h2 className="heading-display" style={{ fontSize: "1.15rem", color: "#0F172A", margin: "0 0 4px 0", display: "inline-flex", alignItems: "center", gap: 8 }}>
                 <WhatsAppIcon size={18} color="#16A34A" /> WhatsApp Automatic Media Dispatcher
-              </h3>
+              </h2>
               <p style={{ fontSize: "0.82rem", color: "#64748B", margin: 0 }}>
                 Configure your personal WhatsApp API Key and Receiver Number for automatic media dispatch.
               </p>
