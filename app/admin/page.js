@@ -324,11 +324,38 @@ export default function AdminPage() {
     search: "",
   });
 
-  const [sessionEmail, setSessionEmail] = useState("");
+  const [sessionEmail, setSessionEmail] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const p = new URLSearchParams(window.location.search);
+        const qEmail = p.get("email");
+        if (qEmail && isSuperAdmin(qEmail)) return qEmail;
+        const cached = localStorage.getItem("adminEmail");
+        if (cached && isSuperAdmin(cached)) return cached;
+      } catch (e) {}
+    }
+    return "";
+  });
+  const [authTimedOut, setAuthTimedOut] = useState(false);
+
+  useEffect(() => {
+    // Safety watchdog: prevent hanging indefinitely on "loading" status if NextAuth session stalls
+    const timer = setTimeout(() => {
+      setAuthTimedOut(true);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (session?.user?.email) {
       setSessionEmail(session.user.email);
+      try {
+        if (isSuperAdmin(session.user.email)) {
+          localStorage.setItem("adminEmail", session.user.email);
+        } else {
+          localStorage.removeItem("adminEmail");
+        }
+      } catch (e) {}
     } else {
       if (typeof window !== "undefined") {
         const p = new URLSearchParams(window.location.search);
@@ -342,6 +369,9 @@ export default function AdminPage() {
         .then((data) => {
           if (data?.user?.email) {
             setSessionEmail(data.user.email);
+            if (isSuperAdmin(data.user.email)) {
+              localStorage.setItem("adminEmail", data.user.email);
+            }
           }
         })
         .catch(() => {});
@@ -363,18 +393,24 @@ export default function AdminPage() {
     if (isManualRefresh) setRefreshing(true);
     setError("");
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
     try {
       const email = emailParam || activeEmail;
       const [statsRes, usersRes] = await Promise.all([
         fetch(`/api/admin/stats${email ? `?email=${encodeURIComponent(email)}` : ""}`, {
           headers: email ? { "x-user-email": email } : {},
           cache: "no-store",
+          signal: controller.signal,
         }),
         fetch(`/api/admin/users${email ? `?email=${encodeURIComponent(email)}` : ""}`, {
           headers: email ? { "x-user-email": email } : {},
           cache: "no-store",
+          signal: controller.signal,
         }),
       ]);
+      clearTimeout(timeoutId);
 
       if (!statsRes.ok || !usersRes.ok) {
         if (statsRes.status === 403 || usersRes.status === 403) {
@@ -397,8 +433,9 @@ export default function AdminPage() {
       }
     } catch (err) {
       console.error("SuperAdmin fetchData error:", err);
-      setError(err.message || "Failed to fetch SuperAdmin data.");
+      setError(err.name === "AbortError" ? "Telemetry sync timed out. Please retry." : (err.message || "Failed to fetch SuperAdmin data."));
     } finally {
+      clearTimeout(timeoutId);
       setLoading(false);
       setRefreshing(false);
     }
@@ -407,10 +444,10 @@ export default function AdminPage() {
   useEffect(() => {
     if (isAdmin) {
       fetchData(false, activeEmail);
-    } else if (status === "unauthenticated" && !sessionEmail) {
+    } else if ((status === "unauthenticated" || authTimedOut) && !sessionEmail) {
       setLoading(false);
     }
-  }, [status, isAdmin, activeEmail, sessionEmail]);
+  }, [status, isAdmin, activeEmail, sessionEmail, authTimedOut]);
 
   // Open Edit Modal for a user
   const handleOpenEdit = (user) => {
@@ -887,13 +924,37 @@ export default function AdminPage() {
   }, [users, statusFilter, searchQuery, selectedKpi, onlyActiveActivity]);
 
   // Loading State
-  if ((status === "loading" && !sessionEmail) || (loading && isAdmin)) {
+  const isAuthResolving = status === "loading" && !sessionEmail && !authTimedOut;
+  const isDataLoading = loading && isAdmin;
+
+  if (isAuthResolving || isDataLoading) {
     return (
       <div style={{ minHeight: "80vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
-        <div style={{ width: 44, height: 44, border: "4px solid #EEF2FF", borderTop: "4px solid #4F46E5", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
-        <p style={{ color: "#475569", fontWeight: 600, fontSize: "0.95rem" }}>
-          Authenticating SuperAdmin Telemetry...
-        </p>
+        <style dangerouslySetInnerHTML={{ __html: `
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        ` }} />
+        <div
+          style={{
+            width: 48,
+            height: 48,
+            border: "4px solid rgba(79, 70, 229, 0.15)",
+            borderTop: "4px solid #4F46E5",
+            borderRadius: "50%",
+            animation: "spin 0.8s linear infinite",
+            boxShadow: "0 0 16px rgba(79, 70, 229, 0.12)",
+          }}
+        />
+        <div style={{ textAlign: "center" }}>
+          <p style={{ color: "#1E293B", fontWeight: 700, fontSize: "1rem", margin: "0 0 4px 0", letterSpacing: "-0.01em" }}>
+            Authenticating SuperAdmin Telemetry...
+          </p>
+          <p style={{ color: "#64748B", fontSize: "0.82rem", margin: 0, fontWeight: 500 }}>
+            Verifying root security clearance and live metrics...
+          </p>
+        </div>
       </div>
     );
   }
@@ -913,9 +974,9 @@ export default function AdminPage() {
             This root portal is strictly reserved for the primary platform SuperAdmin (<strong>vishal.nexios@gmail.com</strong>).
             Your current logged in account does not hold root administrative clearance.
           </p>
-          <div style={{ display: "flex", justifyContent: "center", gap: 12 }}>
+          <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
             <Link
-              href="/"
+              href="/login?callbackUrl=/admin"
               style={{
                 padding: "10px 20px",
                 background: "#4F46E5",
@@ -924,6 +985,22 @@ export default function AdminPage() {
                 fontSize: "0.88rem",
                 fontWeight: 600,
                 textDecoration: "none",
+                display: "inline-block",
+              }}
+            >
+              Sign In as SuperAdmin
+            </Link>
+            <Link
+              href="/"
+              style={{
+                padding: "10px 20px",
+                background: "#F1F5F9",
+                color: "#475569",
+                borderRadius: "12px",
+                fontSize: "0.88rem",
+                fontWeight: 600,
+                textDecoration: "none",
+                display: "inline-block",
               }}
             >
               Return to Studio
@@ -959,6 +1036,47 @@ export default function AdminPage() {
         >
           {toast.type === "error" ? <AlertTriangleIcon /> : <CheckCircleIcon />}
           <span>{toast.message}</span>
+        </div>
+      )}
+
+      {/* SuperAdmin Telemetry Error Notice */}
+      {error && (
+        <div
+          className="premium-glass"
+          style={{
+            background: "#FEF2F2",
+            border: "1px solid #FCA5A5",
+            borderRadius: "16px",
+            padding: "14px 20px",
+            marginBottom: 20,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 16,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ color: "#DC2626", display: "flex" }}><AlertTriangleIcon /></div>
+            <div>
+              <p style={{ margin: 0, fontWeight: 700, color: "#991B1B", fontSize: "0.88rem" }}>Telemetry Notice</p>
+              <p style={{ margin: "2px 0 0 0", color: "#B91C1C", fontSize: "0.82rem" }}>{error}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => fetchData(true, activeEmail)}
+            style={{
+              padding: "7px 14px",
+              background: "#DC2626",
+              color: "#FFFFFF",
+              border: "none",
+              borderRadius: "10px",
+              fontSize: "0.82rem",
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            Retry Sync
+          </button>
         </div>
       )}
 
