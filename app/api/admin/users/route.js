@@ -25,7 +25,7 @@ export async function GET(req) {
     const db = await getDb();
 
     // Fetch collections
-    const [rawUsers, rawSettings, customerAgg, returnsAgg, ordersAgg, scansAgg] =
+    const [rawUsers, rawSettings, customerAgg, returnsAgg, returnEntriesAgg, ordersAgg, scansAgg] =
       await Promise.all([
         db.collection("users").find({}).toArray(),
         db.collection("user_settings").find({}).toArray(),
@@ -36,6 +36,11 @@ export async function GET(req) {
           .catch(() => []),
         db
           .collection("returns")
+          .aggregate([{ $group: { _id: "$userEmail", count: { $sum: 1 } } }])
+          .toArray()
+          .catch(() => []),
+        db
+          .collection("return_entries")
           .aggregate([{ $group: { _id: "$userEmail", count: { $sum: 1 } } }])
           .toArray()
           .catch(() => []),
@@ -58,7 +63,16 @@ export async function GET(req) {
 
     const returnCountMap = new Map();
     returnsAgg.forEach((r) => {
-      if (r._id) returnCountMap.set(r._id.toLowerCase().trim(), r.count);
+      if (r._id) {
+        const k = r._id.toLowerCase().trim();
+        returnCountMap.set(k, (returnCountMap.get(k) || 0) + r.count);
+      }
+    });
+    returnEntriesAgg.forEach((r) => {
+      if (r._id) {
+        const k = r._id.toLowerCase().trim();
+        returnCountMap.set(k, (returnCountMap.get(k) || 0) + r.count);
+      }
     });
 
     const orderCountMap = new Map();

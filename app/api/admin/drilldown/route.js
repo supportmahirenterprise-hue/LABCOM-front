@@ -107,7 +107,7 @@ export async function GET(req) {
           ],
         };
       } else {
-        filter = { sellerEmail: targetEmail };
+        filter = { $or: [{ sellerEmail: targetEmail }, { userEmail: targetEmail }] };
       }
       records = await db
         .collection("qr_scans")
