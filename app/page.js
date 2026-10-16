@@ -398,13 +398,22 @@ export default function Home() {
       setShowAuthModal(true);
       return;
     }
-    if (cropEnabled) {
-      setCropEnabled(false);
+    const nextVal = !cropEnabled;
+    setCropEnabled(nextVal);
+    if (!nextVal) {
       showToast("PDF Cropping turned OFF. Labels will download as full-size sheets.", "info");
     } else {
-      setCropEnabled(true);
       setCropMode("custom");
       showToast("PDF Cropping turned ON! Generated labels will be cropped.", "success");
+    }
+    if (session?.user?.email && typeof window !== "undefined") {
+      try {
+        const cachedStr = localStorage.getItem("user_stamp_settings_" + session.user.email);
+        const parsed = cachedStr ? JSON.parse(cachedStr) : {};
+        parsed.cropEnabled = nextVal;
+        if (nextVal) parsed.cropMode = "custom";
+        localStorage.setItem("user_stamp_settings_" + session.user.email, JSON.stringify(parsed));
+      } catch (e) {}
     }
   }
 
@@ -417,11 +426,38 @@ export default function Home() {
     setCropMode("custom");
     setShowCropModal(false);
     showToast("Crop settings saved! Download will generate cropped thermal labels.", "success");
+    if (session?.user?.email && typeof window !== "undefined") {
+      try {
+        const cachedStr = localStorage.getItem("user_stamp_settings_" + session.user.email);
+        const parsed = cachedStr ? JSON.parse(cachedStr) : {};
+        parsed.cropEnabled = true;
+        parsed.cropMode = "custom";
+        parsed.cropPreset = cropPreset;
+        parsed.cropTop = cropTop;
+        parsed.cropBottom = cropBottom;
+        parsed.cropLeft = cropLeft;
+        parsed.cropRight = cropRight;
+        localStorage.setItem("user_stamp_settings_" + session.user.email, JSON.stringify(parsed));
+      } catch (e) {}
+    }
   }
 
   function handleDisableCrop() {
+    if (status !== "authenticated") {
+      setShowAuthModal(true);
+      return;
+    }
     setCropEnabled(false);
+    setShowCropModal(false);
     showToast("Label cropping turned OFF.", "info");
+    if (session?.user?.email && typeof window !== "undefined") {
+      try {
+        const cachedStr = localStorage.getItem("user_stamp_settings_" + session.user.email);
+        const parsed = cachedStr ? JSON.parse(cachedStr) : {};
+        parsed.cropEnabled = false;
+        localStorage.setItem("user_stamp_settings_" + session.user.email, JSON.stringify(parsed));
+      } catch (e) {}
+    }
   }
 
   function handleResetDefaults() {
@@ -958,13 +994,8 @@ export default function Home() {
             const { width: p1W, height: p1H } = p1.getSize();
             if (p1W > 380 || p1H > 550) {
               setDetectedLabelFormat("a4_sheet");
-              setCropEnabled(true);
-              setCropPreset("label_only");
-              setCropTop(0);
-              setCropBottom(58);
             } else if (p1W >= 240 && p1W <= 360 && p1H >= 360 && p1H <= 520) {
               setDetectedLabelFormat("thermal_4x6");
-              setCropEnabled(false);
             } else {
               setDetectedLabelFormat("custom");
             }
