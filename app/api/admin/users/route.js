@@ -115,6 +115,23 @@ export async function GET(req) {
       }
     });
 
+    // Ensure any user email that has data in collections is recognized as a user
+    const allAggs = [...customerAgg, ...returnsAgg, ...returnEntriesAgg, ...ordersAgg, ...scansAgg];
+    allAggs.forEach((agg) => {
+      if (agg._id && typeof agg._id === "string") {
+        const clean = agg._id.toLowerCase().trim();
+        if (clean && clean.includes("@") && !usersMap.has(clean)) {
+          usersMap.set(clean, {
+            email: clean,
+            name: clean.split("@")[0],
+            isBlocked: false,
+            role: isSuperAdmin(clean) ? "superadmin" : "user",
+            createdAt: null,
+          });
+        }
+      }
+    });
+
     const enrichedUsers = Array.from(usersMap.values()).map((user) => {
       const cleanEmail = (user.email || "").toLowerCase().trim();
       const settings = settingsMap.get(cleanEmail) || {};
@@ -175,66 +192,10 @@ export async function GET(req) {
       };
     });
 
-    // Calculate unassigned sums to account for guest / legacy imports
-    let registeredCustSum = 0;
-    let registeredRetSum = 0;
-    let registeredOrdSum = 0;
-    let registeredScanSum = 0;
-
-    enrichedUsers.forEach((u) => {
-      registeredCustSum += u.stats?.customersCount || 0;
-      registeredRetSum += u.stats?.returnsCount || 0;
-      registeredOrdSum += u.stats?.ordersCount || 0;
-      registeredScanSum += u.stats?.scansCount || 0;
-    });
-
-    const [totalCustDb, totalRet1Db, totalRet2Db, totalOrdDb, totalScanDb] = await Promise.all([
-      db.collection("customers").countDocuments(),
-      db.collection("returns").countDocuments(),
-      db.collection("return_entries").countDocuments(),
-      db.collection("orders").countDocuments(),
-      db.collection("qr_scans").countDocuments(),
-    ]);
-
-    const unassignedOrders = Math.max(0, totalOrdDb - registeredOrdSum);
-    const unassignedCustomers = Math.max(0, totalCustDb - registeredCustSum);
-    const unassignedReturns = Math.max(0, (totalRet1Db + totalRet2Db) - registeredRetSum);
-    const unassignedScans = Math.max(0, totalScanDb - registeredScanSum);
-
-    if (unassignedOrders > 0 || unassignedCustomers > 0 || unassignedReturns > 0) {
-      enrichedUsers.push({
-        id: "unassigned_system",
-        email: "unassigned@system",
-        name: "Guest & Legacy Imports",
-        image: "",
-        role: "system",
-        isSuperAdmin: false,
-        isBlocked: false,
-        isSystem: true,
-        createdAt: null,
-        lastLoginAt: null,
-        storeName: "Unassigned / Guest Data",
-        stats: {
-          customersCount: unassignedCustomers,
-          returnsCount: unassignedReturns,
-          ordersCount: unassignedOrders,
-          scansCount: unassignedScans,
-        },
-        settings: {
-          storeName: "Unassigned / Guest Data",
-          enableQr: false,
-          enableWhatsApp: false,
-          sortBy: "date",
-        },
-      });
-    }
-
-    // Sort: SuperAdmin first, then real users by date, and system rows last
+    // Sort: SuperAdmin first, then real users by date
     enrichedUsers.sort((a, b) => {
       if (a.isSuperAdmin && !b.isSuperAdmin) return -1;
       if (!a.isSuperAdmin && b.isSuperAdmin) return 1;
-      if (a.isSystem && !b.isSystem) return 1;
-      if (!a.isSystem && b.isSystem) return -1;
       const dateA = new Date(a.lastLoginAt || a.createdAt || 0).getTime();
       const dateB = new Date(b.lastLoginAt || b.createdAt || 0).getTime();
       return dateB - dateA;

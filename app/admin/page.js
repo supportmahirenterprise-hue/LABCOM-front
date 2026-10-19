@@ -854,7 +854,7 @@ export default function AdminPage() {
     let list = users.filter((u) => {
       // Status filter
       if (statusFilter === "ACTIVE" && u.isBlocked) return false;
-      if (statusFilter === "BLOCKED" && (!u.isBlocked || u.isSystem)) return false;
+      if (statusFilter === "BLOCKED" && !u.isBlocked) return false;
 
       // Query filter
       if (searchQuery.trim()) {
@@ -905,8 +905,6 @@ export default function AdminPage() {
         } else if (selectedKpi === "users") {
           if (a.isSuperAdmin && !b.isSuperAdmin) return -1;
           if (!a.isSuperAdmin && b.isSuperAdmin) return 1;
-          if (a.isSystem && !b.isSystem) return 1;
-          if (!a.isSystem && b.isSystem) return -1;
         }
         return (a.name || a.email).localeCompare(b.name || b.email);
       });
@@ -914,8 +912,6 @@ export default function AdminPage() {
       list = [...list].sort((a, b) => {
         if (a.isSuperAdmin && !b.isSuperAdmin) return -1;
         if (!a.isSuperAdmin && b.isSuperAdmin) return 1;
-        if (a.isSystem && !b.isSystem) return 1;
-        if (!a.isSystem && b.isSystem) return -1;
         return (a.name || a.email).localeCompare(b.name || b.email);
       });
     }
@@ -1621,29 +1617,17 @@ export default function AdminPage() {
                                 width: 36,
                                 height: 36,
                                 borderRadius: "50%",
-                                background: user.isSystem
-                                  ? "#F1F5F9"
-                                  : isPrimaryAdmin
-                                  ? "#EEF2FF"
-                                  : "#F1F5F9",
-                                color: user.isSystem
-                                  ? "#64748B"
-                                  : isPrimaryAdmin
-                                  ? "#4F46E5"
-                                  : "#475569",
+                                background: isPrimaryAdmin ? "#EEF2FF" : "#F1F5F9",
+                                color: isPrimaryAdmin ? "#4F46E5" : "#475569",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
                                 fontWeight: 800,
                                 fontSize: "0.85rem",
-                                border: user.isSystem
-                                  ? "1.5px dashed #94A3B8"
-                                  : isPrimaryAdmin
-                                  ? "1.5px solid #C7D2FE"
-                                  : "1px solid #CBD5E1",
+                                border: isPrimaryAdmin ? "1.5px solid #C7D2FE" : "1px solid #CBD5E1",
                               }}
                             >
-                              {user.isSystem ? <LayersIcon size={16} /> : (user.name || user.email)[0].toUpperCase()}
+                              {(user.name || user.email)[0].toUpperCase()}
                             </div>
                           )}
                           <div>
@@ -1664,22 +1648,7 @@ export default function AdminPage() {
                                   SUPERADMIN
                                 </span>
                               )}
-                              {user.isSystem && (
-                                <span
-                                  style={{
-                                    fontSize: "0.62rem",
-                                    padding: "2px 6px",
-                                    borderRadius: "999px",
-                                    background: "#E2E8F0",
-                                    color: "#334155",
-                                    fontWeight: 800,
-                                    letterSpacing: "0.05em",
-                                  }}
-                                >
-                                  SYSTEM
-                                </span>
-                              )}
-                              {selectedKpi && activeKpiConfig?.metricKey && !user.isSystem && (
+                              {selectedKpi && activeKpiConfig?.metricKey && (
                                 <span
                                   style={{
                                     fontSize: "0.66rem",
@@ -1726,111 +1695,85 @@ export default function AdminPage() {
 
                       {/* Status */}
                       <td style={{ padding: "14px" }}>
-                        {user.isSystem ? (
-                          <span
-                            style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: 5,
-                              padding: "3px 9px",
-                              borderRadius: "999px",
-                              background: "#F8FAFC",
-                              color: "#475569",
-                              fontSize: "0.72rem",
-                              fontWeight: 700,
-                              border: "1px solid #CBD5E1",
-                            }}
-                          >
-                            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#64748B" }} />
-                            STORAGE
-                          </span>
-                        ) : (
-                          <span
-                            style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: 5,
-                              padding: "3px 9px",
-                              borderRadius: "999px",
-                              background: isBlocked ? "#FEF2F2" : "#F0FDF4",
-                              color: isBlocked ? "#B91C1C" : "#15803D",
-                              fontSize: "0.72rem",
-                              fontWeight: 700,
-                              letterSpacing: "0.02em",
-                              border: isBlocked ? "1px solid #FCA5A5" : "1px solid #86EFAC",
-                            }}
-                          >
-                            <span style={{ width: 6, height: 6, borderRadius: "50%", background: isBlocked ? "#DC2626" : "#16A34A" }} />
-                            {isBlocked ? "BLOCKED" : "ACTIVE"}
-                          </span>
-                        )}
+                        <span
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 5,
+                            padding: "3px 9px",
+                            borderRadius: "999px",
+                            background: isBlocked ? "#FEF2F2" : "#F0FDF4",
+                            color: isBlocked ? "#B91C1C" : "#15803D",
+                            fontSize: "0.72rem",
+                            fontWeight: 700,
+                            letterSpacing: "0.02em",
+                            border: isBlocked ? "1px solid #FCA5A5" : "1px solid #86EFAC",
+                          }}
+                        >
+                          <span style={{ width: 6, height: 6, borderRadius: "50%", background: isBlocked ? "#DC2626" : "#16A34A" }} />
+                          {isBlocked ? "BLOCKED" : "ACTIVE"}
+                        </span>
                       </td>
 
                       {/* Settings Overview Badges */}
                       <td style={{ padding: "14px" }}>
-                        {user.isSystem ? (
-                          <span style={{ fontSize: "0.74rem", color: "#64748B", fontStyle: "italic" }}>
-                            CSV &amp; Guest Sessions
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+                          <span
+                            title={user.settings?.enableQr ? "QR Code Branding: Active" : "QR Code Branding: Inactive"}
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 4,
+                              fontSize: "0.7rem",
+                              fontWeight: 600,
+                              padding: "2px 7px",
+                              borderRadius: "6px",
+                              background: user.settings?.enableQr ? "#EEF2FF" : "#F1F5F9",
+                              color: user.settings?.enableQr ? "#4338CA" : "#94A3B8",
+                              border: user.settings?.enableQr ? "1px solid #C7D2FE" : "1px solid #E2E8F0",
+                            }}
+                          >
+                            <QrCodeIcon size={11} />
+                            <span>QR {user.settings?.enableQr ? "ON" : "OFF"}</span>
                           </span>
-                        ) : (
-                          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
-                            <span
-                              title={user.settings?.enableQr ? "QR Code Branding: Active" : "QR Code Branding: Inactive"}
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: 4,
-                                fontSize: "0.7rem",
-                                fontWeight: 600,
-                                padding: "2px 7px",
-                                borderRadius: "6px",
-                                background: user.settings?.enableQr ? "#EEF2FF" : "#F1F5F9",
-                                color: user.settings?.enableQr ? "#4338CA" : "#94A3B8",
-                                border: user.settings?.enableQr ? "1px solid #C7D2FE" : "1px solid #E2E8F0",
-                              }}
-                            >
-                              <QrCodeIcon size={11} />
-                              <span>QR {user.settings?.enableQr ? "ON" : "OFF"}</span>
-                            </span>
-                            <span
-                              title={user.settings?.enableWhatsApp ? "WhatsApp Automation: Active" : "WhatsApp Automation: Inactive"}
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: 4,
-                                fontSize: "0.7rem",
-                                fontWeight: 600,
-                                padding: "2px 7px",
-                                borderRadius: "6px",
-                                background: user.settings?.enableWhatsApp ? "#F0FDF4" : "#F1F5F9",
-                                color: user.settings?.enableWhatsApp ? "#15803D" : "#94A3B8",
-                                border: user.settings?.enableWhatsApp ? "1px solid #BBF7D0" : "1px solid #E2E8F0",
-                              }}
-                            >
-                              <MessageSquareIcon size={11} />
-                              <span>WA {user.settings?.enableWhatsApp ? "ON" : "OFF"}</span>
-                            </span>
-                            <span
-                              title={`Sort preference: ${user.settings?.sortBy || "SKU"}`}
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: 3,
-                                fontSize: "0.7rem",
-                                fontWeight: 600,
-                                padding: "2px 7px",
-                                borderRadius: "6px",
-                                background: "#F8FAFC",
-                                color: "#475569",
-                                border: "1px solid #E2E8F0",
-                                textTransform: "uppercase",
-                              }}
-                            >
-                              <ArrowUpDownIcon size={10} />
-                              <span>{user.settings?.sortBy || "SKU"}</span>
-                            </span>
-                          </div>
-                        )}
+                          <span
+                            title={user.settings?.enableWhatsApp ? "WhatsApp Automation: Active" : "WhatsApp Automation: Inactive"}
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 4,
+                              fontSize: "0.7rem",
+                              fontWeight: 600,
+                              padding: "2px 7px",
+                              borderRadius: "6px",
+                              background: user.settings?.enableWhatsApp ? "#F0FDF4" : "#F1F5F9",
+                              color: user.settings?.enableWhatsApp ? "#15803D" : "#94A3B8",
+                              border: user.settings?.enableWhatsApp ? "1px solid #BBF7D0" : "1px solid #E2E8F0",
+                            }}
+                          >
+                            <MessageSquareIcon size={11} />
+                            <span>WA {user.settings?.enableWhatsApp ? "ON" : "OFF"}</span>
+                          </span>
+                          <span
+                            title={`Sort preference: ${user.settings?.sortBy || "SKU"}`}
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 3,
+                              fontSize: "0.7rem",
+                              fontWeight: 600,
+                              padding: "2px 7px",
+                              borderRadius: "6px",
+                              background: "#F8FAFC",
+                              color: "#475569",
+                              border: "1px solid #E2E8F0",
+                              textTransform: "uppercase",
+                            }}
+                          >
+                            <ArrowUpDownIcon size={10} />
+                            <span>{user.settings?.sortBy || "SKU"}</span>
+                          </span>
+                        </div>
                       </td>
 
                       {/* Telemetry Stats (Clickable to Drill-down Records List) */}
@@ -1956,62 +1899,56 @@ export default function AdminPage() {
 
                       {/* Actions */}
                       <td style={{ padding: "14px", textAlign: "right", whiteSpace: "nowrap" }}>
-                        {user.isSystem ? (
-                          <span style={{ fontSize: "0.75rem", color: "#94A3B8", fontStyle: "italic" }}>
-                            Platform Aggregate
-                          </span>
-                        ) : (
-                          <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "flex-end", gap: 8 }}>
-                            {/* Edit Settings Button */}
+                        <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "flex-end", gap: 8 }}>
+                          {/* Edit Settings Button */}
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEdit(user)}
+                            style={{
+                              padding: "6px 12px",
+                              borderRadius: "8px",
+                              background: "#FFFFFF",
+                              color: "#334155",
+                              border: "1px solid #CBD5E1",
+                              fontSize: "0.78rem",
+                              fontWeight: 600,
+                              cursor: "pointer",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 6,
+                              transition: "all 0.15s ease",
+                            }}
+                          >
+                            <SettingsIcon size={13} />
+                            <span>Settings</span>
+                          </button>
+
+                          {/* Block / Unblock Button (Disabled for primary admin) */}
+                          {!isPrimaryAdmin && (
                             <button
                               type="button"
-                              onClick={() => handleOpenEdit(user)}
+                              onClick={() => handleToggleBlock(user)}
+                              disabled={isBlockingThis}
                               style={{
                                 padding: "6px 12px",
                                 borderRadius: "8px",
-                                background: "#FFFFFF",
-                                color: "#334155",
-                                border: "1px solid #CBD5E1",
+                                background: isBlocked ? "#F0FDF4" : "#FFFFFF",
+                                color: isBlocked ? "#16A34A" : "#DC2626",
+                                border: isBlocked ? "1px solid #BBF7D0" : "1px solid #FECACA",
                                 fontSize: "0.78rem",
                                 fontWeight: 600,
-                                cursor: "pointer",
+                                cursor: isBlockingThis ? "not-allowed" : "pointer",
                                 display: "inline-flex",
                                 alignItems: "center",
-                                gap: 6,
+                                gap: 5,
                                 transition: "all 0.15s ease",
                               }}
                             >
-                              <SettingsIcon size={13} />
-                              <span>Settings</span>
+                              <UserXIcon size={13} color={isBlocked ? "#16A34A" : "#DC2626"} />
+                              <span>{isBlockingThis ? "Saving..." : isBlocked ? "Unblock" : "Block"}</span>
                             </button>
-
-                            {/* Block / Unblock Button (Disabled for primary admin) */}
-                            {!isPrimaryAdmin && (
-                              <button
-                                type="button"
-                                onClick={() => handleToggleBlock(user)}
-                                disabled={isBlockingThis}
-                                style={{
-                                  padding: "6px 12px",
-                                  borderRadius: "8px",
-                                  background: isBlocked ? "#F0FDF4" : "#FFFFFF",
-                                  color: isBlocked ? "#16A34A" : "#DC2626",
-                                  border: isBlocked ? "1px solid #BBF7D0" : "1px solid #FECACA",
-                                  fontSize: "0.78rem",
-                                  fontWeight: 600,
-                                  cursor: isBlockingThis ? "not-allowed" : "pointer",
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  gap: 5,
-                                  transition: "all 0.15s ease",
-                                }}
-                              >
-                                <UserXIcon size={13} color={isBlocked ? "#16A34A" : "#DC2626"} />
-                                <span>{isBlockingThis ? "Saving..." : isBlocked ? "Unblock" : "Block"}</span>
-                              </button>
-                            )}
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );
