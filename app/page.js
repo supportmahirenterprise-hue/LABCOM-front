@@ -74,6 +74,8 @@ import {
   SettingsIcon,
   WhatsAppIcon,
   RefreshCwIcon,
+  PlusIcon,
+  PlusCircleIcon,
 } from "./components/Icons";
 
 const BACKEND_URL = (
@@ -497,7 +499,16 @@ export default function Home() {
   const [showMixedMarketplaceModal, setShowMixedMarketplaceModal] = useState(false);
 
   const fileInputRef = useRef(null);
+  const addMoreFileInputRef = useRef(null);
   const isInitialLoadDone = useRef(false);
+
+  // LaterPro WhatsApp Configuration Modal & State
+  const [showLaterProModal, setShowLaterProModal] = useState(false);
+  const [userWaApiKey, setUserWaApiKey] = useState("");
+  const [userWaReceiverNumber, setUserWaReceiverNumber] = useState("");
+  const [laterProApiKeyInput, setLaterProApiKeyInput] = useState("");
+  const [laterProReceiverInput, setLaterProReceiverInput] = useState("");
+  const [savingLaterPro, setSavingLaterPro] = useState(false);
 
   const isBusy = loadingPreview || loadingGenerate || loadingSample || loadingHdGenerate;
 
@@ -584,6 +595,16 @@ export default function Home() {
             if (s.cropBottom !== undefined) setCropBottom(s.cropBottom);
             if (s.cropLeft !== undefined) setCropLeft(s.cropLeft);
             if (s.cropRight !== undefined) setCropRight(s.cropRight);
+
+            if (s.waApiKey) {
+              setUserWaApiKey(s.waApiKey);
+              setLaterProApiKeyInput(s.waApiKey);
+            }
+            if (s.pdfReceiverNumber || s.waReceiverNumber) {
+              const num = s.pdfReceiverNumber || s.waReceiverNumber;
+              setUserWaReceiverNumber(num);
+              setLaterProReceiverInput(num);
+            }
 
             try {
               localStorage.setItem("user_stamp_settings_" + userEmail, JSON.stringify(s));
@@ -940,15 +961,143 @@ export default function Home() {
     }
   }
 
+  async function handleSaveLaterProCredentials(e) {
+    if (e) e.preventDefault();
+    if (!laterProApiKeyInput.trim()) {
+      showToast("Please enter your Personal Secret API Key from LaterPro", "error");
+      return;
+    }
+    setSavingLaterPro(true);
+    try {
+      const userEmail = session?.user?.email || "";
+      const res = await fetch("/api/user/settings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-email": userEmail,
+        },
+        body: JSON.stringify({
+          email: userEmail,
+          waApiKey: laterProApiKeyInput.trim(),
+          waReceiverNumber: laterProReceiverInput.trim(),
+          pdfReceiverNumber: laterProReceiverInput.trim(),
+          enableWhatsApp: true,
+          sendWhatsApp: true,
+        }),
+      });
+      if (!res.ok) {
+        throw new Error("Failed to save LaterPro settings");
+      }
+      setUserWaApiKey(laterProApiKeyInput.trim());
+      setUserWaReceiverNumber(laterProReceiverInput.trim());
+      setSendWhatsApp(true);
+      setShowLaterProModal(false);
+      showToast("LaterPro WhatsApp API connected successfully!", "success");
+    } catch (err) {
+      showToast(err.message || "Failed to save LaterPro settings", "error");
+    } finally {
+      setSavingLaterPro(false);
+    }
+  }
+
+  async function handleAddMoreFiles(fileInputOrList) {
+    if (status !== "authenticated") {
+      setShowAuthModal(true);
+      return;
+    }
+    if (!fileInputOrList || isBusy) return;
+    const rawFiles = Array.isArray(fileInputOrList)
+      ? fileInputOrList
+      : (fileInputOrList instanceof FileList ? Array.from(fileInputOrList) : [fileInputOrList]);
+    if (rawFiles.length === 0) return;
+
+    // Filter only PDF files
+    const pdfFiles = rawFiles.filter(
+      (f) => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf")
+    );
+    if (pdfFiles.length === 0) {
+      showToast("Please select valid PDF shipping label file(s).", "error");
+      return;
+    }
+
+    const currentFiles = files && files.length > 0 ? files : (file ? [file] : []);
+    const existingFileNames = new Set(currentFiles.map((f) => f.name.toLowerCase()));
+    const existingFileKeys = new Set(
+      currentFiles.map((f) => `${f.name.toLowerCase()}___${f.size}`)
+    );
+
+    const duplicateFileNames = [];
+    const uniqueNewFiles = [];
+
+    for (const f of pdfFiles) {
+      const key = `${f.name.toLowerCase()}___${f.size}`;
+      if (existingFileKeys.has(key) || existingFileNames.has(f.name.toLowerCase())) {
+        duplicateFileNames.push(f.name);
+      } else {
+        uniqueNewFiles.push(f);
+        existingFileKeys.add(key);
+        existingFileNames.add(f.name.toLowerCase());
+      }
+    }
+
+    if (duplicateFileNames.length > 0) {
+      const dupMsg =
+        duplicateFileNames.length === 1
+          ? `Duplicate PDF: "${duplicateFileNames[0]}" is already uploaded!`
+          : `Duplicate PDFs skipped: ${duplicateFileNames.join(", ")} already uploaded!`;
+      setError(dupMsg);
+      showToast(dupMsg, "error");
+    }
+
+    if (uniqueNewFiles.length === 0) {
+      return;
+    }
+
+    const combinedFiles = [...currentFiles, ...uniqueNewFiles];
+    showToast(`Adding ${uniqueNewFiles.length} new PDF(s)... Total: ${combinedFiles.length} PDFs`, "info");
+    await handleFileSelect(combinedFiles);
+  }
+
   async function handleFileSelect(fileInputOrList, nativeOverride) {
     if (status !== "authenticated") {
       setShowAuthModal(true);
       return;
     }
     if (!fileInputOrList || isBusy) return;
-    const fileList = Array.isArray(fileInputOrList)
+    const rawList = Array.isArray(fileInputOrList)
       ? fileInputOrList
       : (fileInputOrList instanceof FileList ? Array.from(fileInputOrList) : [fileInputOrList]);
+    if (rawList.length === 0) return;
+
+    // Filter valid PDFs
+    const pdfOnly = rawList.filter(
+      (f) => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf")
+    );
+    if (pdfOnly.length === 0) {
+      showToast("Please upload valid PDF file(s).", "error");
+      return;
+    }
+
+    // Deduplicate within the incoming batch itself
+    const seenIncoming = new Set();
+    const cleanFileList = [];
+    const internalDuplicates = [];
+    for (const f of pdfOnly) {
+      const key = `${f.name.toLowerCase()}___${f.size}`;
+      if (seenIncoming.has(key)) {
+        internalDuplicates.push(f.name);
+      } else {
+        seenIncoming.add(key);
+        cleanFileList.push(f);
+      }
+    }
+    if (internalDuplicates.length > 0) {
+      const dupNotice = `Duplicate file(s) skipped in batch: ${internalDuplicates.join(", ")}`;
+      setError(dupNotice);
+      showToast(dupNotice, "error");
+    }
+
+    const fileList = cleanFileList;
     if (fileList.length === 0) return;
 
     const isNative = nativeOverride !== undefined ? nativeOverride : useNativeScript;
@@ -2108,6 +2257,80 @@ export default function Home() {
               </div>
             </div>
 
+            {/* Add More PDF Button Action Area */}
+            {(file || files.length > 0) && (
+              <div style={{ marginTop: 14 }}>
+                <input
+                  type="file"
+                  ref={addMoreFileInputRef}
+                  accept="application/pdf"
+                  multiple
+                  aria-label="Add more PDF shipping labels"
+                  style={{ display: "none" }}
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files.length > 0) {
+                      handleAddMoreFiles(e.target.files);
+                      e.target.value = "";
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  id="add-more-pdf-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (status !== "authenticated") {
+                      setShowAuthModal(true);
+                      return;
+                    }
+                    addMoreFileInputRef.current?.click();
+                  }}
+                  disabled={loadingPreview || isBusy}
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 8,
+                    padding: "11px 18px",
+                    background: "rgba(79, 70, 229, 0.08)",
+                    border: "1.5px dashed #4F46E5",
+                    borderRadius: "12px",
+                    color: "#4F46E5",
+                    fontWeight: 700,
+                    fontSize: "0.88rem",
+                    cursor: (loadingPreview || isBusy) ? "not-allowed" : "pointer",
+                    transition: "all 0.2s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!loadingPreview && !isBusy) {
+                      e.currentTarget.style.background = "rgba(79, 70, 229, 0.16)";
+                      e.currentTarget.style.borderColor = "#4338CA";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "rgba(79, 70, 229, 0.08)";
+                    e.currentTarget.style.borderColor = "#4F46E5";
+                  }}
+                >
+                  <PlusCircleIcon size={18} color="#4F46E5" />
+                  <span>+ Add More PDF Files</span>
+                  <span
+                    style={{
+                      fontSize: "0.72rem",
+                      background: "rgba(79, 70, 229, 0.18)",
+                      color: "#4F46E5",
+                      padding: "2px 8px",
+                      borderRadius: "10px",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Multi-PDF Supported
+                  </span>
+                </button>
+              </div>
+            )}
+
             <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid var(--glass-border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
               <span style={{ fontSize: "0.75rem", color: "var(--text-dim)" }}>
                 Auto-regex parses Order ID, SKU, Date & Quantity
@@ -2999,7 +3222,13 @@ export default function Home() {
                   disabled={isBusy}
                   checked={sendWhatsApp}
                   aria-label="Pre-fill WhatsApp reorder link"
-                  onChange={(e) => setSendWhatsApp(e.target.checked)}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setSendWhatsApp(checked);
+                    if (checked && !userWaApiKey) {
+                      setShowLaterProModal(true);
+                    }
+                  }}
                   style={{ width: 16, height: 16, accentColor: "#16a34a", cursor: isBusy ? "not-allowed" : "pointer" }}
                 />
                 <span
@@ -3015,6 +3244,35 @@ export default function Home() {
                   <WhatsAppIcon size={16} color={sendWhatsApp ? "#16a34a" : "var(--text-silver)"} /> Send WhatsApp
                 </span>
               </label>
+
+              {/* LaterPro WhatsApp Setup Guide & Credential Trigger */}
+              <button
+                type="button"
+                id="laterpro-guide-trigger-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowLaterProModal(true);
+                }}
+                title="LaterPro WhatsApp Setup & API Key Guide"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "7px 14px",
+                  background: userWaApiKey ? "rgba(16, 185, 129, 0.1)" : "rgba(245, 158, 11, 0.12)",
+                  border: `1px solid ${userWaApiKey ? "rgba(16, 185, 129, 0.3)" : "rgba(245, 158, 11, 0.4)"}`,
+                  borderRadius: "var(--radius-full)",
+                  color: userWaApiKey ? "#059669" : "#D97706",
+                  fontSize: "0.78rem",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  transition: "all 0.18s ease",
+                }}
+              >
+                <span style={{ width: 7, height: 7, borderRadius: "50%", background: userWaApiKey ? "#10B981" : "#F59E0B" }} />
+                <span>{userWaApiKey ? "LaterPro Connected" : "LaterPro Setup"}</span>
+                <ExternalLinkIcon size={12} color={userWaApiKey ? "#059669" : "#D97706"} />
+              </button>
 
               <label
                 style={{
@@ -3616,6 +3874,162 @@ export default function Home() {
           >
             Understood, Continue
           </button>
+        </div>
+      </Modal>
+
+      {/* LaterPro WhatsApp API Configuration & Onboarding Modal */}
+      <Modal
+        isOpen={showLaterProModal}
+        onClose={() => setShowLaterProModal(false)}
+        maxWidth={640}
+        style={{
+          borderRadius: "20px",
+          boxShadow: "0 25px 60px -12px rgba(15, 23, 42, 0.25)",
+          border: "1px solid rgba(16, 185, 129, 0.3)",
+          background: "#FFFFFF",
+          padding: "24px 28px",
+        }}
+      >
+        <div>
+          {/* Header */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16, borderBottom: "1px solid #F1F5F9", paddingBottom: 14 }}>
+            <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+              <div style={{ width: 44, height: 44, borderRadius: "12px", background: "#D1FAE5", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <WhatsAppIcon size={24} color="#059669" />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 800, color: "#0F172A" }}>
+                  Connect WhatsApp Auto-Dispatch via LaterPro
+                </h3>
+                <p style={{ margin: "3px 0 0", fontSize: "0.8rem", color: "#64748B" }}>
+                  Send generated Stamped Label PDFs & Summary sheets directly to your WhatsApp
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowLaterProModal(false)}
+              style={{ background: "#F1F5F9", border: "1px solid #E2E8F0", borderRadius: "50%", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748B" }}
+            >
+              <CloseIcon size={16} />
+            </button>
+          </div>
+
+          {/* 3 Step Guide Cards matching User Request */}
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#065F46", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ background: "#059669", color: "#FFFFFF", padding: "2px 7px", borderRadius: "4px", fontSize: "0.7rem", fontWeight: 800 }}>3 EASY STEPS</span>
+              Follow these steps to connect your WhatsApp in 1 minute:
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {/* Step 1 */}
+              <div style={{ display: "flex", gap: 12, alignItems: "flex-start", background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: "10px", padding: "12px 14px" }}>
+                <span style={{ minWidth: 24, height: 24, borderRadius: "50%", background: "#E0F2FE", color: "#0284C7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.8rem", fontWeight: 800 }}>1</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
+                    <span style={{ fontSize: "0.86rem", fontWeight: 700, color: "#0F172A" }}>Go to laterpro.in & Log In</span>
+                    <a
+                      href="https://laterpro.in/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: "0.76rem", fontWeight: 700, color: "#0284C7", textDecoration: "none", background: "#FFFFFF", border: "1px solid #BAE6FD", padding: "3px 10px", borderRadius: "6px" }}
+                    >
+                      Open laterpro.in <ExternalLinkIcon size={12} color="#0284C7" />
+                    </a>
+                  </div>
+                  <p style={{ margin: "4px 0 0", fontSize: "0.76rem", color: "#64748B", lineHeight: 1.4 }}>
+                    Visit <b>https://laterpro.in/</b> and sign in or create your free account using Google or Email.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div style={{ display: "flex", gap: 12, alignItems: "flex-start", background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: "10px", padding: "12px 14px" }}>
+                <span style={{ minWidth: 24, height: 24, borderRadius: "50%", background: "#DCFCE7", color: "#16A34A", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.8rem", fontWeight: 800 }}>2</span>
+                <div style={{ flex: 1 }}>
+                  <span style={{ fontSize: "0.86rem", fontWeight: 700, color: "#0F172A" }}>Scan WhatsApp QR in "Session & QR"</span>
+                  <p style={{ margin: "4px 0 0", fontSize: "0.76rem", color: "#64748B", lineHeight: 1.4 }}>
+                    In the left sidebar, click <b>Session & QR</b>. Open WhatsApp on your phone &rarr; <b>Linked Devices &rarr; Link a Device</b>, and point camera at the QR code.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 3 */}
+              <div style={{ display: "flex", gap: 12, alignItems: "flex-start", background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: "10px", padding: "12px 14px" }}>
+                <span style={{ minWidth: 24, height: 24, borderRadius: "50%", background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.8rem", fontWeight: 800 }}>3</span>
+                <div style={{ flex: 1 }}>
+                  <span style={{ fontSize: "0.86rem", fontWeight: 700, color: "#0F172A" }}>Copy Personal Secret Key from "API Key & Docs"</span>
+                  <p style={{ margin: "4px 0 0", fontSize: "0.76rem", color: "#64748B", lineHeight: 1.4 }}>
+                    In the left sidebar, click <b>API Key & Docs</b>. Under <i>Personal API Credentials</i>, click <b>Copy Key</b> (starts with <code style={{ background: "#F1F5F9", padding: "1px 4px", borderRadius: "3px" }}>wa_...</code>) and paste it below.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Input Form */}
+          <form onSubmit={handleSaveLaterProCredentials} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div>
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#334155", marginBottom: 6 }}>
+                Personal Secret API Key (x-api-key) <span style={{ color: "#DC2626" }}>*</span>
+              </label>
+              <input
+                type="text"
+                className="input-field"
+                placeholder="wa_c6854599bd4b7a54cad78edbdd6ace51"
+                value={laterProApiKeyInput}
+                onChange={(e) => setLaterProApiKeyInput(e.target.value)}
+                required
+                style={{ width: "100%", padding: "10px 14px", fontSize: "0.86rem", borderRadius: "8px", border: "1px solid #CBD5E1" }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#334155", marginBottom: 6 }}>
+                Receiver WhatsApp Phone Number (with Country Code)
+              </label>
+              <input
+                type="text"
+                className="input-field"
+                placeholder="e.g. 919664720473"
+                value={laterProReceiverInput}
+                onChange={(e) => setLaterProReceiverInput(e.target.value)}
+                style={{ width: "100%", padding: "10px 14px", fontSize: "0.86rem", borderRadius: "8px", border: "1px solid #CBD5E1" }}
+              />
+              <span style={{ fontSize: "0.72rem", color: "#64748B", marginTop: 4, display: "block" }}>
+                Target phone number to receive your final Stamped Label PDFs & Summary report.
+              </span>
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10, paddingTop: 14, borderTop: "1px solid #F1F5F9" }}>
+              <Link
+                href="/settings"
+                onClick={() => setShowLaterProModal(false)}
+                style={{ fontSize: "0.82rem", color: "#4F46E5", textDecoration: "none", fontWeight: 600 }}
+              >
+                Go to Full Settings &rarr;
+              </Link>
+              <div style={{ display: "flex", gap: 10 }}>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => setShowLaterProModal(false)}
+                  style={{ padding: "8px 18px", fontSize: "0.84rem" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  disabled={savingLaterPro}
+                  style={{ padding: "8px 24px", fontSize: "0.84rem", background: "#059669", borderColor: "#059669" }}
+                >
+                  {savingLaterPro ? "Connecting..." : "Save & Connect WhatsApp"}
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
       </Modal>
 

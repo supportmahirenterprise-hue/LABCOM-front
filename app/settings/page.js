@@ -20,6 +20,7 @@ import {
   WhatsAppIcon,
   LockIcon,
   ArrowLeftIcon,
+  ExternalLinkIcon,
 } from "../components/Icons";
 
 const BACKEND_URL = (
@@ -539,6 +540,81 @@ export default function SettingsPage() {
                 {enableWhatsApp ? "WhatsApp Auto-Dispatch: Enabled" : "WhatsApp Auto-Dispatch: Disabled"}
               </span>
             </label>
+
+            {/* LaterPro WhatsApp Setup Instructions Guide */}
+            <div
+              style={{
+                gridColumn: "1 / -1",
+                background: "linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(6, 95, 70, 0.04) 100%)",
+                border: "1px solid rgba(16, 185, 129, 0.25)",
+                borderRadius: "var(--radius-md)",
+                padding: "16px 20px",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, marginBottom: 12 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ background: "#059669", color: "#FFFFFF", padding: "3px 8px", borderRadius: "6px", fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.5px" }}>
+                    LATERPRO API
+                  </span>
+                  <span style={{ fontSize: "0.9rem", fontWeight: 700, color: "#065F46" }}>
+                    How to get your WhatsApp Secret Key
+                  </span>
+                </div>
+                <a
+                  href="https://laterpro.in/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    fontSize: "0.78rem",
+                    fontWeight: 700,
+                    color: "#059669",
+                    background: "#FFFFFF",
+                    border: "1px solid #A7F3D0",
+                    padding: "6px 12px",
+                    borderRadius: "8px",
+                    textDecoration: "none",
+                    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+                  }}
+                >
+                  Open laterpro.in <ExternalLinkIcon size={14} color="#059669" />
+                </a>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12, marginTop: 8 }}>
+                <div style={{ background: "#FFFFFF", padding: "12px 14px", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                    <span style={{ width: 22, height: 22, borderRadius: "50%", background: "#E0F2FE", color: "#0284C7", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "0.75rem", fontWeight: 800 }}>1</span>
+                    <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#0F172A" }}>Login to LaterPro</span>
+                  </div>
+                  <p style={{ fontSize: "0.74rem", color: "#64748B", margin: 0, lineHeight: 1.4 }}>
+                    Go to <b style={{ color: "#0F172A" }}>https://laterpro.in/</b> and sign in or create your account using Google or Email.
+                  </p>
+                </div>
+
+                <div style={{ background: "#FFFFFF", padding: "12px 14px", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                    <span style={{ width: 22, height: 22, borderRadius: "50%", background: "#DCFCE7", color: "#16A34A", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "0.75rem", fontWeight: 800 }}>2</span>
+                    <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#0F172A" }}>Scan WhatsApp QR</span>
+                  </div>
+                  <p style={{ fontSize: "0.74rem", color: "#64748B", margin: 0, lineHeight: 1.4 }}>
+                    Click <b style={{ color: "#059669" }}>Session & QR</b> in the sidebar, open WhatsApp on your phone & scan the QR code to connect.
+                  </p>
+                </div>
+
+                <div style={{ background: "#FFFFFF", padding: "12px 14px", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                    <span style={{ width: 22, height: 22, borderRadius: "50%", background: "#FEF3C7", color: "#D97706", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "0.75rem", fontWeight: 800 }}>3</span>
+                    <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#0F172A" }}>Copy Personal Secret Key</span>
+                  </div>
+                  <p style={{ fontSize: "0.74rem", color: "#64748B", margin: 0, lineHeight: 1.4 }}>
+                    Click <b style={{ color: "#D97706" }}>API Key & Docs</b> in the sidebar, click <b style={{ color: "#0F172A" }}>Copy Key</b>, and paste it below.
+                  </p>
+                </div>
+              </div>
+            </div>
 
             {/* PDF Receiver Phone Number */}
             <div>
