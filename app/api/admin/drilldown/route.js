@@ -29,6 +29,28 @@ export async function GET(req) {
       targetEmail === "guest" ||
       targetEmail === "legacy.imports";
 
+    const BACKEND_URL = (
+      process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.labelpro.in"
+    ).replace(/\/+$/, "");
+
+    try {
+      const backendRes = await fetch(
+        `${BACKEND_URL}/api/admin/drilldown?targetEmail=${encodeURIComponent(targetEmail)}&type=${encodeURIComponent(type)}&email=${encodeURIComponent(callerEmail)}`,
+        {
+          headers: { "x-user-email": callerEmail },
+          cache: "no-store",
+        }
+      );
+      if (backendRes.ok) {
+        const backendData = await backendRes.json();
+        if (backendData && backendData.success) {
+          return NextResponse.json(backendData);
+        }
+      }
+    } catch (e) {
+      // Fallback to local DB
+    }
+
     const db = await getDb();
     let records = [];
 

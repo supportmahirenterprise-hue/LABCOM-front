@@ -22,6 +22,29 @@ export async function GET(req) {
       );
     }
 
+    const BACKEND_URL = (
+      process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.labelpro.in"
+    ).replace(/\/+$/, "");
+
+    // 1. Try fetching from core backend engine first for instant response
+    try {
+      const backendRes = await fetch(
+        `${BACKEND_URL}/api/admin/stats?email=${encodeURIComponent(email)}`,
+        {
+          headers: { "x-user-email": email },
+          cache: "no-store",
+        }
+      );
+      if (backendRes.ok) {
+        const backendData = await backendRes.json();
+        if (backendData && backendData.success) {
+          return NextResponse.json(backendData);
+        }
+      }
+    } catch (e) {
+      // Fallback to direct database query below
+    }
+
     const db = await getDb();
 
     // Query collections in parallel for maximum speed

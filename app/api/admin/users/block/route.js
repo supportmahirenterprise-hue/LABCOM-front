@@ -34,6 +34,31 @@ export async function POST(req) {
       );
     }
 
+    const BACKEND_URL = (
+      process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.labelpro.in"
+    ).replace(/\/+$/, "");
+
+    // Try updating via core backend engine first
+    try {
+      const backendRes = await fetch(`${BACKEND_URL}/api/admin/users/block`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-email": adminEmail,
+        },
+        body: JSON.stringify({ email: targetEmail, isBlocked: shouldBlock }),
+      });
+      if (backendRes.ok) {
+        const backendData = await backendRes.json();
+        if (backendData && backendData.success) {
+          setInMemoryUserBlocked(targetEmail, shouldBlock);
+          return NextResponse.json(backendData);
+        }
+      }
+    } catch (e) {
+      // Fallback to direct DB update
+    }
+
     const db = await getDb();
 
     // Update in users collection

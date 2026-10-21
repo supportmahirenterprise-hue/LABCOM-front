@@ -26,6 +26,26 @@ export async function GET(req) {
       );
     }
 
+    const BACKEND_URL = (
+      process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.labelpro.in"
+    ).replace(/\/+$/, "");
+
+    try {
+      const backendRes = await fetch(
+        `${BACKEND_URL}/api/user/settings?email=${encodeURIComponent(cleanEmail)}`,
+        {
+          headers: { "x-user-email": cleanEmail },
+          cache: "no-store",
+        }
+      );
+      if (backendRes.ok) {
+        const backendData = await backendRes.json();
+        return NextResponse.json(backendData);
+      }
+    } catch (e) {
+      // fallback to local db
+    }
+
     const db = await getDb();
     const settings = await db.collection("user_settings").findOne({ email: cleanEmail });
     return NextResponse.json({ settings: settings || null });
@@ -54,6 +74,27 @@ export async function POST(req) {
         { error: "Your account has been suspended by administrator. Please contact support." },
         { status: 403 }
       );
+    }
+
+    const BACKEND_URL_POST = (
+      process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.labelpro.in"
+    ).replace(/\/+$/, "");
+
+    try {
+      const backendRes = await fetch(`${BACKEND_URL_POST}/api/user/settings`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-email": cleanEmail,
+        },
+        body: JSON.stringify({ email: cleanEmail, ...body }),
+      });
+      if (backendRes.ok) {
+        const backendData = await backendRes.json();
+        return NextResponse.json(backendData);
+      }
+    } catch (e) {
+      // fallback to local db
     }
 
     const db = await getDb();
