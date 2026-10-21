@@ -3,6 +3,7 @@ import { authOptions } from "../../../../../lib/auth";
 import { NextResponse } from "next/server";
 import { getDb } from "../../../../../lib/mongodb";
 import { isSuperAdmin } from "../../../../../lib/admin";
+import { setInMemoryUserBlocked } from "../../../../../lib/blockGuard";
 
 export async function POST(req) {
   try {
@@ -59,6 +60,19 @@ export async function POST(req) {
       },
       { upsert: true }
     );
+
+    // Also update in-memory cache instantly for zero-latency active session eviction
+    setInMemoryUserBlocked(targetEmail, shouldBlock);
+
+    // Non-blocking sync to backend service if running
+    try {
+      const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5001").replace(/\/+$/, "");
+      fetch(`${backendUrl}/api/internal/block-sync`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: targetEmail, isBlocked: shouldBlock }),
+      }).catch(() => {});
+    } catch (e) {}
 
     return NextResponse.json({
       success: true,

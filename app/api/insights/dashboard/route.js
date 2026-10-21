@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../../../lib/auth";
 import { NextResponse } from "next/server";
+import { isUserBlockedSync } from "../../../../lib/blockGuard";
 
 const BACKEND_URL = (
   process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.labelpro.in"
@@ -10,6 +11,13 @@ export async function GET(req) {
   try {
     const session = await getServerSession(authOptions);
     const userEmail = session?.user?.email || "seller@labelpro.in";
+
+    if (session?.user?.email && isUserBlockedSync(session.user.email)) {
+      return NextResponse.json(
+        { error: "ACCOUNT_SUSPENDED", message: "Account has been restricted by an administrator." },
+        { status: 403 }
+      );
+    }
 
     const res = await fetch(`${BACKEND_URL}/api/insights/dashboard`, {
       headers: { "x-user-email": userEmail },

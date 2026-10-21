@@ -37,6 +37,13 @@ export async function middleware(req) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // 4. If token is marked blocked, immediately evict and redirect to login
+  if (token.isBlocked) {
+    const loginUrl = new URL("/login", req.url);
+    loginUrl.searchParams.set("error", "account_blocked");
+    return NextResponse.redirect(loginUrl);
+  }
+
   return NextResponse.next();
 }
 

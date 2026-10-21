@@ -8,6 +8,7 @@ export default function LoginPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [callbackUrl, setCallbackUrl] = useState("/");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -16,14 +17,22 @@ export default function LoginPage() {
       if (cb && cb.startsWith("/")) {
         setCallbackUrl(cb);
       }
+      const err = params.get("error");
+      if (err === "account_blocked" || err === "AccessDenied" || err === "blocked") {
+        setErrorMessage(
+          "Your account has been restricted by an administrator. Active sessions have been revoked. Please contact support."
+        );
+      } else if (err) {
+        setErrorMessage("Sign in failed. Please check your credentials or contact support.");
+      }
     }
   }, []);
 
   useEffect(() => {
-    if (status === "authenticated") {
+    if (status === "authenticated" && !errorMessage) {
       router.push(callbackUrl);
     }
-  }, [status, router, callbackUrl]);
+  }, [status, router, callbackUrl, errorMessage]);
 
   return (
     <div
@@ -58,9 +67,43 @@ export default function LoginPage() {
         <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#0F172A", marginBottom: 8 }}>
           Welcome to LabelPro.in
         </h1>
-        <p style={{ fontSize: "0.88rem", color: "#334155", marginBottom: 28, fontWeight: 500 }}>
+        <p style={{ fontSize: "0.88rem", color: "#334155", marginBottom: errorMessage ? 18 : 28, fontWeight: 500 }}>
           Log in to access your intelligent shipping label engine.
         </p>
+
+        {/* Account Blocked / Error Alert */}
+        {errorMessage && (
+          <div
+            style={{
+              background: "#FEF2F2",
+              border: "1.5px solid #FCA5A5",
+              borderRadius: "14px",
+              padding: "12px 16px",
+              marginBottom: 20,
+              textAlign: "left",
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 10,
+              animation: "fadeIn 0.2s ease-out",
+            }}
+          >
+            <div style={{ color: "#DC2626", marginTop: 2, flexShrink: 0 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+            </div>
+            <div>
+              <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#991B1B" }}>
+                Account Suspended
+              </div>
+              <div style={{ fontSize: "0.78rem", color: "#B91C1C", marginTop: 2, lineHeight: 1.4 }}>
+                {errorMessage}
+              </div>
+            </div>
+          </div>
+        )}
 
 
         {/* Google Login */}

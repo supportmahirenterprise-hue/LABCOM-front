@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../../lib/auth";
 import { NextResponse } from "next/server";
+import { isUserBlockedSync } from "../../../lib/blockGuard";
 
 const BACKEND_URL = (
   process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.labelpro.in"
@@ -16,6 +17,13 @@ export async function GET(req) {
 
     if (!userEmail) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (isUserBlockedSync(userEmail)) {
+      return NextResponse.json(
+        { error: "ACCOUNT_SUSPENDED", message: "Account has been restricted by an administrator." },
+        { status: 403 }
+      );
     }
 
     const res = await fetch(
@@ -40,6 +48,13 @@ export async function POST(req) {
 
     if (!userEmail) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (isUserBlockedSync(userEmail)) {
+      return NextResponse.json(
+        { error: "ACCOUNT_SUSPENDED", message: "Account has been restricted by an administrator." },
+        { status: 403 }
+      );
     }
 
     const res = await fetch(`${BACKEND_URL}/api/templates`, {
@@ -67,6 +82,13 @@ export async function DELETE(req) {
 
     if (!userEmail) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (isUserBlockedSync(userEmail)) {
+      return NextResponse.json(
+        { error: "ACCOUNT_SUSPENDED", message: "Account has been restricted by an administrator." },
+        { status: 403 }
+      );
     }
 
     const id = searchParams.get("id");

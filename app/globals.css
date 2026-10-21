@@ -881,3 +881,37 @@ input, textarea, select, [contenteditable="true"] {
   border-radius: 20px;
   box-shadow: var(--shadow-card);
 }
+
+/* Responsive AdSense & Custom Ads Engine */
+.ads-right-skyscraper {
+  display: none !important;
+}
+
+@media (min-width: 1400px) {
+  .ads-right-skyscraper {
+    display: flex !important;
+    flex-direction: column;
+    width: 176px;
+    position: sticky;
+    top: 24px;
+    flex-shrink: 0;
+    align-self: flex-start;
+    margin-left: 12px;
+    z-index: 10;
+  }
+}
+
+.ads-bottom-banner {
+  box-sizing: border-box;
+}
+
+.ads-sidebar-banner {
+  box-sizing: border-box;
+}
+
+@media (min-width: 860px) {
+  .whatsapp-three-inputs-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+

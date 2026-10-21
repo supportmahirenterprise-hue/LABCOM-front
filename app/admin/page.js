@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState, useMemo } from "react";
 import { isSuperAdmin } from "../../lib/admin";
 import Modal from "../components/Modal";
+import AdsSettingsView from "./components/AdsSettingsView";
 import {
   ShieldIcon,
   UsersIcon,
@@ -290,6 +291,9 @@ function ToggleSwitch({ checked, onChange, label, description, badge = "", activ
 export default function AdminPage() {
   const { data: session, status } = useSession();
 
+  // Top-Level Admin View Tab: "sellers" | "ads"
+  const [currentAdminTab, setCurrentAdminTab] = useState("sellers");
+
   const [stats, setStats] = useState(null);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -311,8 +315,9 @@ export default function AdminPage() {
   const [activeSettingsTab, setActiveSettingsTab] = useState("store"); // "store" | "qr" | "whatsapp" | "crop"
   const [showWaKey, setShowWaKey] = useState(false);
 
-  // Block action loading state
+  // Block action loading & confirmation modal state
   const [blockingEmail, setBlockingEmail] = useState("");
+  const [blockConfirmModal, setBlockConfirmModal] = useState(null); // { user, actionName }
 
   // Drill-down Records Modal State
   const [drilldown, setDrilldown] = useState({
@@ -538,18 +543,18 @@ export default function AdminPage() {
     }
   };
 
-  // Toggle Block User
-  const handleToggleBlock = async (user) => {
+  // Initiate Block/Unblock via Custom Styled Confirmation Dialog
+  const handleInitiateToggleBlock = (user) => {
     const isTargetBlocked = Boolean(user.isBlocked);
     const actionName = isTargetBlocked ? "UNBLOCK" : "BLOCK";
+    setBlockConfirmModal({ user, actionName });
+  };
 
-    if (
-      !window.confirm(
-        `Are you sure you want to ${actionName} seller account: "${user.email}"?`
-      )
-    ) {
-      return;
-    }
+  // Confirm and Execute Block/Unblock User
+  const handleConfirmToggleBlock = async () => {
+    if (!blockConfirmModal?.user) return;
+    const { user, actionName } = blockConfirmModal;
+    const isTargetBlocked = Boolean(user.isBlocked);
 
     setBlockingEmail(user.email);
     try {
@@ -592,6 +597,7 @@ export default function AdminPage() {
       });
 
       showToast(data.message || `User status updated.`);
+      setBlockConfirmModal(null);
     } catch (err) {
       showToast(err.message, "error");
     } finally {
@@ -1155,7 +1161,69 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* KPI Cards Grid (Interactive & Clickable for Sorting & Filtering) */}
+      {/* SuperAdmin Top Navigation Tabs */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          marginBottom: 24,
+          borderBottom: "1.5px solid #E2E8F0",
+          paddingBottom: 14,
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => setCurrentAdminTab("sellers")}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "10px 20px",
+            borderRadius: "12px",
+            fontSize: "0.88rem",
+            fontWeight: 700,
+            cursor: "pointer",
+            background: currentAdminTab === "sellers" ? "#4F46E5" : "#FFFFFF",
+            color: currentAdminTab === "sellers" ? "#FFFFFF" : "#475569",
+            border: currentAdminTab === "sellers" ? "1px solid #4F46E5" : "1.5px solid #CBD5E1",
+            boxShadow: currentAdminTab === "sellers" ? "0 4px 14px rgba(79, 70, 229, 0.25)" : "none",
+            transition: "all 0.15s ease",
+          }}
+        >
+          <UsersIcon size={16} />
+          <span>Platform Sellers &amp; Operations</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setCurrentAdminTab("ads")}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "10px 20px",
+            borderRadius: "12px",
+            fontSize: "0.88rem",
+            fontWeight: 700,
+            cursor: "pointer",
+            background: currentAdminTab === "ads" ? "linear-gradient(135deg, #0284C7 0%, #0369A1 100%)" : "#FFFFFF",
+            color: currentAdminTab === "ads" ? "#FFFFFF" : "#475569",
+            border: currentAdminTab === "ads" ? "1px solid #0284C7" : "1.5px solid #CBD5E1",
+            boxShadow: currentAdminTab === "ads" ? "0 4px 14px rgba(2, 132, 199, 0.25)" : "none",
+            transition: "all 0.15s ease",
+          }}
+        >
+          <SparklesIcon size={16} color={currentAdminTab === "ads" ? "#FFFFFF" : "#0284C7"} />
+          <span>Google AdSense &amp; Ads Engine</span>
+        </button>
+      </div>
+
+      {currentAdminTab === "ads" ? (
+        <AdsSettingsView adminEmail={activeEmail} showToast={showToast} />
+      ) : (
+        <>
+          {/* KPI Cards Grid (Interactive & Clickable for Sorting & Filtering) */}
       <div
         style={{
           display: "grid",
@@ -1927,7 +1995,7 @@ export default function AdminPage() {
                           {!isPrimaryAdmin && (
                             <button
                               type="button"
-                              onClick={() => handleToggleBlock(user)}
+                              onClick={() => handleInitiateToggleBlock(user)}
                               disabled={isBlockingThis}
                               style={{
                                 padding: "6px 12px",
@@ -1958,6 +2026,8 @@ export default function AdminPage() {
           </table>
         </div>
       </div>
+    </>
+  )}
 
       {/* ========================================================================= */}
       {/* TELEMETRY DRILL-DOWN RECORDS MODAL                                        */}
@@ -1974,7 +2044,9 @@ export default function AdminPage() {
             flexDirection: "column",
             background: "#FFFFFF",
             borderRadius: "24px",
-            maxHeight: "88vh",
+            height: "82vh",
+            maxHeight: "85vh",
+            minHeight: "560px",
             overflow: "hidden",
           }}
         >
@@ -2171,8 +2243,8 @@ export default function AdminPage() {
             </span>
           </div>
 
-          {/* Table Container */}
-          <div style={{ flex: 1, overflowY: "auto", minHeight: 320, maxHeight: "56vh", padding: 0 }}>
+          {/* Table Container - Fixed Flex to prevent modal height jumping on search */}
+          <div style={{ flex: 1, overflowY: "auto", minHeight: 0, padding: 0 }}>
             {drilldown.loading ? (
               <div style={{ padding: "60px 20px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12 }}>
                 <div style={{ width: 36, height: 36, border: "3px solid #EEF2FF", borderTop: "3px solid #4F46E5", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
@@ -2204,7 +2276,7 @@ export default function AdminPage() {
                       <>
                         <th style={{ padding: "10px 14px", fontWeight: 700 }}>Customer Name</th>
                         <th style={{ padding: "10px 14px", fontWeight: 700 }}>Mobile</th>
-                        <th style={{ padding: "10px 14px", fontWeight: 700 }}>State &amp; Address</th>
+                        <th style={{ padding: "10px 14px", fontWeight: 700, minWidth: 260 }}>State &amp; Address</th>
                         <th style={{ padding: "10px 14px", fontWeight: 700, textAlign: "center" }}>Orders</th>
                         <th style={{ padding: "10px 14px", fontWeight: 700, textAlign: "right" }}>Last Order Date</th>
                       </>
@@ -2255,22 +2327,24 @@ export default function AdminPage() {
 
                       {drilldown.type === "customers" && (
                         <>
-                          <td style={{ padding: "10px 14px", fontWeight: 600, color: "#0F172A" }}>
+                          <td style={{ padding: "10px 14px", fontWeight: 600, color: "#0F172A", whiteSpace: "nowrap" }}>
                             {r.name || "Customer"}
                           </td>
-                          <td style={{ padding: "10px 14px", fontFamily: "var(--font-mono)", color: "#475569" }}>
+                          <td style={{ padding: "10px 14px", fontFamily: "var(--font-mono)", color: "#475569", whiteSpace: "nowrap" }}>
                             {r.mobileNumber || "—"}
                           </td>
-                          <td style={{ padding: "10px 14px", maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={r.address || ""}>
-                            <span style={{ fontWeight: 600, color: "#0F172A" }}>{r.state || "India"}</span>
-                            {r.address && <span style={{ color: "#64748B" }}> • {r.address}</span>}
+                          <td style={{ padding: "12px 14px", minWidth: 260, maxWidth: 440, whiteSpace: "normal", wordBreak: "break-word", lineHeight: 1.45 }} title={r.address || ""}>
+                            <span style={{ fontWeight: 700, color: "#0F172A", display: "inline-block", marginRight: 4 }}>
+                              {r.state || "India"}
+                            </span>
+                            {r.address && <span style={{ color: "#475569" }}>• {r.address}</span>}
                           </td>
                           <td style={{ padding: "10px 14px", textAlign: "center" }}>
                             <span style={{ padding: "2px 8px", borderRadius: "6px", background: "#DCFCE7", color: "#15803D", fontWeight: 700, fontSize: "0.75rem" }}>
                               {r.orderCount || (r.orders ? r.orders.length : 1)}
                             </span>
                           </td>
-                          <td style={{ padding: "10px 14px", textAlign: "right", color: "#64748B", fontSize: "0.76rem" }}>
+                          <td style={{ padding: "10px 14px", textAlign: "right", color: "#64748B", fontSize: "0.76rem", whiteSpace: "nowrap" }}>
                             {r.lastOrderDate || r.firstOrderDate || (r.updatedAt ? new Date(r.updatedAt).toLocaleDateString("en-IN") : "—")}
                           </td>
                         </>
@@ -2406,6 +2480,173 @@ export default function AdminPage() {
             </button>
           </div>
         </div>
+      </Modal>
+
+      {/* ========================================================================= */}
+      {/* CUSTOM CONFIRM BLOCK / UNBLOCK MODAL                                      */}
+      {/* ========================================================================= */}
+      <Modal
+        isOpen={Boolean(blockConfirmModal)}
+        onClose={() => !blockingEmail && setBlockConfirmModal(null)}
+        maxWidth={460}
+      >
+        {blockConfirmModal && (
+          <div style={{ padding: "8px 4px", display: "flex", flexDirection: "column", gap: 16 }}>
+            {/* Warning Icon & Title Header */}
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <div
+                style={{
+                  width: 50,
+                  height: 50,
+                  borderRadius: "16px",
+                  background: blockConfirmModal.actionName === "BLOCK" ? "#FEE2E2" : "#DCFCE7",
+                  color: blockConfirmModal.actionName === "BLOCK" ? "#DC2626" : "#16A34A",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  boxShadow: blockConfirmModal.actionName === "BLOCK" ? "0 4px 12px rgba(220, 38, 38, 0.15)" : "0 4px 12px rgba(22, 163, 74, 0.15)",
+                }}
+              >
+                {blockConfirmModal.actionName === "BLOCK" ? (
+                  <UserXIcon size={24} color="#DC2626" />
+                ) : (
+                  <CheckCircleIcon size={24} />
+                )}
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 800, color: "#0F172A", letterSpacing: "-0.01em" }}>
+                  {blockConfirmModal.actionName === "BLOCK" ? "Block Seller Account" : "Unblock Seller Account"}
+                </h3>
+                <p style={{ margin: "3px 0 0", fontSize: "0.8rem", color: "#64748B" }}>
+                  {blockConfirmModal.actionName === "BLOCK"
+                    ? "Restrict portal access and revoke label processing privileges."
+                    : "Restore active status and re-enable platform access."}
+                </p>
+              </div>
+            </div>
+
+            {/* Target Account Summary Card */}
+            <div
+              style={{
+                background: "#F8FAFC",
+                border: "1.5px solid #E2E8F0",
+                borderRadius: "14px",
+                padding: "14px 16px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 6,
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                  Target Seller Account
+                </span>
+                <span
+                  style={{
+                    fontSize: "0.68rem",
+                    fontWeight: 800,
+                    padding: "2px 8px",
+                    borderRadius: "999px",
+                    background: blockConfirmModal.actionName === "BLOCK" ? "#FEF2F2" : "#F0FDF4",
+                    color: blockConfirmModal.actionName === "BLOCK" ? "#DC2626" : "#16A34A",
+                    border: blockConfirmModal.actionName === "BLOCK" ? "1px solid #FECACA" : "1px solid #BBF7D0",
+                  }}
+                >
+                  {blockConfirmModal.actionName === "BLOCK" ? "ACTION: BLOCK" : "ACTION: RESTORE"}
+                </span>
+              </div>
+              <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#0F172A" }}>
+                {blockConfirmModal.user.name || "Seller"}
+                {blockConfirmModal.user.storeName && (
+                  <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#4F46E5", marginLeft: 6 }}>
+                    ({blockConfirmModal.user.storeName})
+                  </span>
+                )}
+              </div>
+              <div style={{ fontSize: "0.82rem", color: "#475569", fontFamily: "var(--font-mono)", wordBreak: "break-all" }}>
+                {blockConfirmModal.user.email}
+              </div>
+            </div>
+
+            {/* Warning Message Box */}
+            <div
+              style={{
+                background: blockConfirmModal.actionName === "BLOCK" ? "#FFFBEB" : "#F0FDF4",
+                border: `1px solid ${blockConfirmModal.actionName === "BLOCK" ? "#FDE68A" : "#BBF7D0"}`,
+                borderRadius: "12px",
+                padding: "10px 14px",
+                fontSize: "0.8rem",
+                color: blockConfirmModal.actionName === "BLOCK" ? "#B45309" : "#15803D",
+                lineHeight: 1.45,
+              }}
+            >
+              {blockConfirmModal.actionName === "BLOCK"
+                ? "⚠️ Blocked users are immediately prevented from logging into LabelPro, uploading PDFs, and receiving automated dispatches."
+                : "✅ This user will immediately regain full access to LabelPro studio, returns analyzer, and all active features."}
+            </div>
+
+            {/* Modal Actions */}
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 4 }}>
+              <button
+                type="button"
+                onClick={() => setBlockConfirmModal(null)}
+                disabled={Boolean(blockingEmail)}
+                style={{
+                  padding: "9px 18px",
+                  borderRadius: "10px",
+                  background: "#FFFFFF",
+                  color: "#475569",
+                  border: "1.5px solid #CBD5E1",
+                  fontSize: "0.85rem",
+                  fontWeight: 600,
+                  cursor: blockingEmail ? "not-allowed" : "pointer",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmToggleBlock}
+                disabled={Boolean(blockingEmail)}
+                style={{
+                  padding: "9px 20px",
+                  borderRadius: "10px",
+                  background: blockConfirmModal.actionName === "BLOCK"
+                    ? "linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)"
+                    : "linear-gradient(135deg, #16A34A 0%, #15803D 100%)",
+                  color: "#FFFFFF",
+                  border: "none",
+                  fontSize: "0.85rem",
+                  fontWeight: 700,
+                  cursor: blockingEmail ? "not-allowed" : "pointer",
+                  boxShadow: blockConfirmModal.actionName === "BLOCK"
+                    ? "0 4px 14px rgba(220, 38, 38, 0.3)"
+                    : "0 4px 14px rgba(22, 163, 74, 0.3)",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                {blockingEmail ? (
+                  <span className="spinner-ring-white" />
+                ) : blockConfirmModal.actionName === "BLOCK" ? (
+                  <UserXIcon size={15} color="#FFFFFF" />
+                ) : (
+                  <CheckIcon size={15} color="#FFFFFF" />
+                )}
+                <span>
+                  {blockingEmail
+                    ? "Processing..."
+                    : blockConfirmModal.actionName === "BLOCK"
+                    ? "Yes, Block Seller"
+                    : "Yes, Unblock Seller"}
+                </span>
+              </button>
+            </div>
+          </div>
+        )}
       </Modal>
 
       {/* ========================================================================= */}

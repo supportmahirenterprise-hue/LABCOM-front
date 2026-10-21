@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Providers } from "./components/Providers";
 import { Sidebar } from "./components/Sidebar";
+import AdSlot from "./components/AdSlot";
 import Script from "next/script";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://labelpro.in";
@@ -247,6 +248,7 @@ export default function RootLayout({ children }) {
             <div className="page-transition" style={{ flex: 1, minWidth: 0, width: "100%", maxWidth: "100%", display: "flex", flexDirection: "column", minHeight: "100%", position: "relative", zIndex: 1 }}>
               {children}
             </div>
+            <AdSlot slotKey="rightSkyscraper" />
           </div>
         </Providers>
       </body>

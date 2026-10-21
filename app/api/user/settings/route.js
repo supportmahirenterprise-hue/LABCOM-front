@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../../../lib/auth";
 import { NextResponse } from "next/server";
 import { getDb } from "../../../../lib/mongodb";
+import { isUserBlockedSync } from "../../../../lib/blockGuard";
 
 export async function GET(req) {
   try {
@@ -16,19 +17,17 @@ export async function GET(req) {
     }
 
     const cleanEmail = userEmail.toLowerCase().trim();
-    const db = await getDb();
 
-    // Check if account is suspended / blocked by SuperAdmin
-    const userDoc = await db.collection("users").findOne({ email: cleanEmail });
-    const settings = await db.collection("user_settings").findOne({ email: cleanEmail });
-
-    if ((userDoc && userDoc.isBlocked === true) || (settings && settings.isBlocked === true)) {
+    // High-performance zero-latency in-memory check (0 DB queries)
+    if (isUserBlockedSync(cleanEmail)) {
       return NextResponse.json(
         { error: "Your account has been suspended by administrator. Please contact support." },
         { status: 403 }
       );
     }
 
+    const db = await getDb();
+    const settings = await db.collection("user_settings").findOne({ email: cleanEmail });
     return NextResponse.json({ settings: settings || null });
   } catch (error) {
     console.error("GET user settings error:", error);
@@ -48,18 +47,16 @@ export async function POST(req) {
     }
 
     const cleanEmail = userEmail.toLowerCase().trim();
-    const db = await getDb();
 
-    // Check if account is suspended / blocked by SuperAdmin
-    const userDoc = await db.collection("users").findOne({ email: cleanEmail });
-    const existingSettings = await db.collection("user_settings").findOne({ email: cleanEmail });
-
-    if ((userDoc && userDoc.isBlocked === true) || (existingSettings && existingSettings.isBlocked === true)) {
+    // High-performance zero-latency in-memory check (0 DB queries)
+    if (isUserBlockedSync(cleanEmail)) {
       return NextResponse.json(
         { error: "Your account has been suspended by administrator. Please contact support." },
         { status: 403 }
       );
     }
+
+    const db = await getDb();
 
     const allowedFields = [
       "storeName",

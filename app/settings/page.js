@@ -616,59 +616,136 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            {/* PDF Receiver Phone Number */}
-            <div>
-              <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
-                <FilePdfIcon size={16} color="#DC2626" /> Stamped Label PDF Receiver WhatsApp Number (with Country Code)
-              </label>
-              <input
-                className="input-field"
-                placeholder="e.g. 919664720473"
-                value={pdfReceiverNumber}
-                onChange={(e) => setPdfReceiverNumber(e.target.value)}
-              />
-              <span style={{ fontSize: "0.74rem", color: "var(--text-dim)", marginTop: 4, display: "block" }}>
-                Target phone number where generated Stamped Label PDFs are dispatched.
-              </span>
-            </div>
+            {/* 3 WhatsApp Credential Inputs on the Exact Same Row */}
+            <div
+              style={{
+                gridColumn: "1 / -1",
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                gap: 16,
+                alignItems: "stretch",
+              }}
+              className="whatsapp-three-inputs-row"
+            >
+              {/* PDF Receiver Phone Number */}
+              <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                <div>
+                  <label
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 6,
+                      fontSize: "0.82rem",
+                      fontWeight: 600,
+                      color: "var(--text-silver)",
+                      marginBottom: 8,
+                      minHeight: 40,
+                      lineHeight: 1.35,
+                    }}
+                  >
+                    <span style={{ marginTop: 2, display: "inline-flex" }}>
+                      <FilePdfIcon size={16} color="#DC2626" />
+                    </span>
+                    <span>Stamped Label PDF Receiver WhatsApp Number (with Country Code)</span>
+                  </label>
+                  <input
+                    className="input-field"
+                    placeholder="e.g. 919664720473"
+                    value={pdfReceiverNumber}
+                    onChange={(e) => setPdfReceiverNumber(e.target.value)}
+                    style={{ width: "100%", height: 42 }}
+                  />
+                </div>
+                <span style={{ fontSize: "0.73rem", color: "var(--text-dim)", marginTop: 6, display: "block", lineHeight: 1.35 }}>
+                  Target phone number where generated Stamped Label PDFs are dispatched.
+                </span>
+              </div>
 
-            {/* Image Receiver Phone Number */}
-            <div>
-              <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
-                <ImageIcon size={16} color="#0284C7" /> Summary Report Image Receiver WhatsApp Number (with Country Code)
-              </label>
-              <input
-                className="input-field"
-                placeholder="e.g. 919664720473"
-                value={imageReceiverNumber}
-                onChange={(e) => setImageReceiverNumber(e.target.value)}
-              />
-              <span style={{ fontSize: "0.74rem", color: "var(--text-dim)", marginTop: 4, display: "block" }}>
-                Target phone number where Summary Canvas PNG report images are dispatched (Enter same number to receive both on single phone).
-              </span>
-            </div>
+              {/* Image Receiver Phone Number */}
+              <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                <div>
+                  <label
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 6,
+                      fontSize: "0.82rem",
+                      fontWeight: 600,
+                      color: "var(--text-silver)",
+                      marginBottom: 8,
+                      minHeight: 40,
+                      lineHeight: 1.35,
+                    }}
+                  >
+                    <span style={{ marginTop: 2, display: "inline-flex" }}>
+                      <ImageIcon size={16} color="#0284C7" />
+                    </span>
+                    <span>Summary Report Image Receiver WhatsApp Number (with Country Code)</span>
+                  </label>
+                  <input
+                    className="input-field"
+                    placeholder="e.g. 919664720473"
+                    value={imageReceiverNumber}
+                    onChange={(e) => setImageReceiverNumber(e.target.value)}
+                    style={{ width: "100%", height: 42 }}
+                  />
+                </div>
+                <span style={{ fontSize: "0.73rem", color: "var(--text-dim)", marginTop: 6, display: "block", lineHeight: 1.35 }}>
+                  Target phone number where Summary Canvas PNG report images are dispatched (Enter same number to receive both on single phone).
+                </span>
+              </div>
 
-            {/* Personal Secret API Key */}
-            <div>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 8 }}>
-                Personal Secret API Key (x-api-key)
-              </label>
-              <div style={{ position: "relative" }}>
-                <input
-                  type={showApiKey ? "text" : "password"}
-                  className="input-field"
-                  placeholder="wa_c6854599bd4b7a54cad78edbdd6ace51"
-                  value={waApiKey}
-                  onChange={(e) => setWaApiKey(e.target.value)}
-                  style={{ paddingRight: 40 }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowApiKey(!showApiKey)}
-                  style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--text-silver)", cursor: "pointer", fontSize: "0.9rem" }}
-                >
-                  {showApiKey ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
-                </button>
+              {/* Personal Secret API Key */}
+              <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                <div>
+                  <label
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 6,
+                      fontSize: "0.82rem",
+                      fontWeight: 600,
+                      color: "var(--text-silver)",
+                      marginBottom: 8,
+                      minHeight: 40,
+                      lineHeight: 1.35,
+                    }}
+                  >
+                    <span>Personal Secret API Key (x-api-key)</span>
+                  </label>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      type={showApiKey ? "text" : "password"}
+                      className="input-field"
+                      placeholder="wa_c6854599bd4b7a54cad78edbdd6ace51"
+                      value={waApiKey}
+                      onChange={(e) => setWaApiKey(e.target.value)}
+                      style={{ paddingRight: 40, width: "100%", height: 42 }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowApiKey(!showApiKey)}
+                      style={{
+                        position: "absolute",
+                        right: 10,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        background: "none",
+                        border: "none",
+                        color: "var(--text-silver)",
+                        cursor: "pointer",
+                        fontSize: "0.9rem",
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      {showApiKey ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
+                    </button>
+                  </div>
+                </div>
+                <span style={{ fontSize: "0.73rem", color: "var(--text-dim)", marginTop: 6, display: "block", lineHeight: 1.35 }}>
+                  Copied from LaterPro.in &rarr; API Key &amp; Docs tab. Secret bearer token for authentication.
+                </span>
               </div>
             </div>
           </div>

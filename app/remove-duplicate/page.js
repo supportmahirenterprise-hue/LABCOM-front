@@ -29,6 +29,7 @@ import {
   TagIcon,
   InfoIcon,
 } from "../components/Icons";
+import AdSlot from "../components/AdSlot";
 
 export default function RemoveDuplicatePage() {
   const { data: session, status } = useSession();
@@ -2129,6 +2130,9 @@ export default function RemoveDuplicatePage() {
           </div>
         </>
       )}
+
+      {/* Optional Policy-Compliant Bottom Banner Ad (Managed via Admin) */}
+      <AdSlot slotKey="bottomBanner" />
 
       {/* 🚫 Platform Mismatch Interactive Error Modal */}
       {showMismatchModal && (
