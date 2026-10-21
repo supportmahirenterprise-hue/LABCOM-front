@@ -40,10 +40,6 @@ export async function GET(req) {
           ...DEFAULT_ADS_CONFIG.slots.bottomBanner,
           ...(doc?.slots?.bottomBanner || {}),
         },
-        sidebarBanner: {
-          ...DEFAULT_ADS_CONFIG.slots.sidebarBanner,
-          ...(doc?.slots?.sidebarBanner || {}),
-        },
       },
     };
 
@@ -111,16 +107,6 @@ export async function POST(req) {
         slotId: typeof incoming.slots?.bottomBanner?.slotId === "string" ? incoming.slots.bottomBanner.slotId.trim() : "",
         customCode: typeof incoming.slots?.bottomBanner?.customCode === "string" ? incoming.slots.bottomBanner.customCode : "",
         minWidth: 0,
-      },
-      sidebarBanner: {
-        id: "sidebarBanner",
-        name: "Sidebar Ad Unit",
-        description: "Appears in desktop sidebar with clear separation from navigation and auth buttons.",
-        enabled: Boolean(incoming.slots?.sidebarBanner?.enabled),
-        mode: incoming.slots?.sidebarBanner?.mode === "custom" ? "custom" : "adsense",
-        slotId: typeof incoming.slots?.sidebarBanner?.slotId === "string" ? incoming.slots.sidebarBanner.slotId.trim() : "",
-        customCode: typeof incoming.slots?.sidebarBanner?.customCode === "string" ? incoming.slots.sidebarBanner.customCode : "",
-        minWidth: 900,
       },
     };
 

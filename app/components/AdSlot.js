@@ -237,54 +237,5 @@ export default function AdSlot({ slotKey = "rightSkyscraper", className = "", st
     );
   }
 
-  if (slotKey === "sidebarBanner") {
-    return (
-      <div
-        aria-label="Advertisement"
-        className={`ads-sidebar-banner ${className}`}
-        style={{
-          width: "100%",
-          margin: "18px 0 10px",
-          padding: "10px",
-          background: "#F8FAFC",
-          border: "1px dashed #CBD5E1",
-          borderRadius: "14px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          ...style,
-        }}
-      >
-        <div
-          style={{
-            fontSize: "0.6rem",
-            fontWeight: 800,
-            color: "#94A3B8",
-            textTransform: "uppercase",
-            letterSpacing: "0.1em",
-            marginBottom: 6,
-          }}
-        >
-          SPONSORED
-        </div>
-
-        <div style={{ width: "100%", display: "flex", justifyContent: "center", minHeight: 180 }}>
-          {slot?.mode === "custom" ? (
-            <div ref={containerRef} style={{ width: "100%", textAlign: "center" }} />
-          ) : (
-            <ins
-              className="adsbygoogle"
-              style={{ display: "block", width: "100%", minHeight: 180 }}
-              data-ad-client={publisherId}
-              data-ad-slot={slot?.slotId || undefined}
-              data-ad-format="rectangle"
-              data-full-width-responsive="true"
-            />
-          )}
-        </div>
-      </div>
-    );
-  }
-
   return null;
 }

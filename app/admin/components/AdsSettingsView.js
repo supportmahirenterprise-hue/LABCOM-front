@@ -142,16 +142,6 @@ const SLOT_DEFINITIONS = [
     policyNote: "Policy Compliant: Placed with 24px safety distance below output tables to avoid accidental clicks.",
     recommendedFormat: "horizontal",
   },
-  {
-    id: "sidebarBanner",
-    title: "Sidebar Ad Unit",
-    badge: "NAVIGATION PANEL",
-    location: "Desktop sidebar below legal menu",
-    dimensions: "250x250 px / Responsive",
-    minWidthText: "Desktop (sidebar open)",
-    policyNote: "Policy Warning: Must have clean isolation and never touch the Sign In or menu buttons.",
-    recommendedFormat: "rectangle",
-  },
 ];
 
 export default function AdsSettingsView({ adminEmail, showToast }) {
@@ -735,9 +725,9 @@ export default function AdsSettingsView({ adminEmail, showToast }) {
             {/* Simulated Frame */}
             <div
               style={{
-                width: activeSlotId === "rightSkyscraper" ? 160 : activeSlotId === "sidebarBanner" ? 250 : "100%",
+                width: activeSlotId === "rightSkyscraper" ? 160 : "100%",
                 maxWidth: 728,
-                minHeight: activeSlotId === "rightSkyscraper" ? 280 : activeSlotId === "sidebarBanner" ? 180 : 90,
+                minHeight: activeSlotId === "rightSkyscraper" ? 280 : 90,
                 background: "#FFFFFF",
                 border: "1.5px solid #CBD5E1",
                 borderRadius: "12px",

@@ -20,7 +20,6 @@ import {
   ZapIcon,
 } from "./Icons";
 import { isSuperAdmin } from "../../lib/admin";
-import AdSlot from "./AdSlot";
 
 export function Sidebar() {
   const { data: session } = useSession();
@@ -581,11 +580,6 @@ export function Sidebar() {
             );
           })}
         </nav>
-
-        {/* Optional Policy-Safe Sidebar Ad Unit (Controlled by SuperAdmin) */}
-        <div style={{ padding: "0 12px" }}>
-          <AdSlot slotKey="sidebarBanner" />
-        </div>
 
         {/* User Profile / Demo Login Section */}
         <div style={{ padding: "14px 16px", borderTop: "1px solid #F1F5F9", background: "#F8FAFC" }}>

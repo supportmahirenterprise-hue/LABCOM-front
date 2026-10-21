@@ -32,10 +32,6 @@ export async function GET() {
           ...DEFAULT_ADS_CONFIG.slots.bottomBanner,
           ...(doc.slots?.bottomBanner || {}),
         },
-        sidebarBanner: {
-          ...DEFAULT_ADS_CONFIG.slots.sidebarBanner,
-          ...(doc.slots?.sidebarBanner || {}),
-        },
       },
     };
 
