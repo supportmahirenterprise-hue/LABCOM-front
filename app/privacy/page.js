@@ -142,10 +142,55 @@ export default function PrivacyPolicyPage() {
           </div>
         </section>
 
-        {/* Section 6: Right to Erasure & Contact */}
+        {/* Section 6: Google AdSense, Third-Party Advertising & Cookies Policy */}
+        <section className="premium-glass" style={{ padding: "28px 32px", borderRadius: "18px", borderLeft: "4px solid #10B981" }}>
+          <h2 style={{ fontSize: "1.25rem", color: "#0F172A", fontWeight: 700, marginBottom: 14, display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ width: 28, height: 28, borderRadius: "8px", background: "#DCFCE7", color: "#15803D", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "0.85rem", fontWeight: 800 }}>6</span>
+            Third-Party Advertising, Google AdSense &amp; Cookies Policy
+          </h2>
+          <div style={{ fontSize: "0.88rem", color: "#334155", lineHeight: 1.7, display: "flex", flexDirection: "column", gap: 12 }}>
+            <p>
+              LabelPro uses third-party advertising partners, including <b>Google AdSense</b>, to serve advertisements when you visit our website. To comply with Google AdSense program policies, please note the following disclosures regarding cookies and advertising:
+            </p>
+            <ul style={{ paddingLeft: 22, display: "flex", flexDirection: "column", gap: 8 }}>
+              <li>
+                <b>Third-Party Cookies &amp; Beacons:</b> Third-party vendors, including Google, use cookies, web beacons, and similar tracking technologies to serve ads based on a user&apos;s prior visits to this website or other websites across the Internet.
+              </li>
+              <li>
+                <b>Personalized Advertising:</b> Google&apos;s use of advertising cookies (such as the DoubleClick cookie) enables it and its partners to serve relevant advertisements to users based on their visits to LabelPro and/or other websites on the Internet.
+              </li>
+              <li>
+                <b>User Opt-Out of Personalized Ads:</b> Users may opt out of personalized advertising by visiting Google&apos;s Ads Settings at{" "}
+                <a
+                  href="https://www.google.com/settings/ads"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "#4F46E5", fontWeight: 600, textDecoration: "underline" }}
+                >
+                  https://www.google.com/settings/ads
+                </a>
+                . Alternatively, users can opt out of a third-party vendor&apos;s use of cookies for personalized advertising by visiting{" "}
+                <a
+                  href="https://www.aboutads.info/choices/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "#4F46E5", fontWeight: 600, textDecoration: "underline" }}
+                >
+                  www.aboutads.info/choices/
+                </a>
+                .
+              </li>
+              <li>
+                <b>Browser Cookie Controls:</b> You can choose to disable or selectively turn off third-party cookies in your browser settings. However, doing so may affect how you are able to interact with certain web tools or features.
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        {/* Section 7: Right to Erasure & Contact */}
         <section className="premium-glass" style={{ padding: "28px 32px", borderRadius: "18px", background: "#F8FAFC" }}>
           <h2 style={{ fontSize: "1.25rem", color: "#0F172A", fontWeight: 700, marginBottom: 14, display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ width: 28, height: 28, borderRadius: "8px", background: "#EEF2FF", color: "#4F46E5", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "0.85rem", fontWeight: 800 }}>6</span>
+            <span style={{ width: 28, height: 28, borderRadius: "8px", background: "#EEF2FF", color: "#4F46E5", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "0.85rem", fontWeight: 800 }}>7</span>
             Data Protection Officer & Privacy Inquiries
           </h2>
           <p style={{ fontSize: "0.88rem", color: "#334155", lineHeight: 1.7, margin: "0 0 16px 0" }}>

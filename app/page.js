@@ -923,8 +923,12 @@ export default function Home() {
           const textContent = await page.getTextContent();
           const pageText = textContent.items.map((item) => item.str).join(" ");
 
-          const orderMatch = pageText.match(/(?:Order|Sub\s*Order|Order\s*ID|Order\s*No)[^\d]*(\d{10,20}(?:_\d+)?)/i) || pageText.match(/\b(\d{14,19}(?:_\d+)?)\b/);
-          const orderNo = orderMatch ? orderMatch[1] : `ORDER-${globalPageNum}`;
+          const orderMatch =
+            pageText.match(/(?:Order|Sub\s*Order|Order\s*ID|Order\s*No)[^\d]*(\d{10,20}(?:_\d+)?)/i) ||
+            pageText.match(/\bOD\d{14,}\b/i) ||
+            pageText.match(/\b\d{3}-\d{7}-\d{7}\b/) ||
+            pageText.match(/\b(\d{14,19}(?:_\d+)?)\b/);
+          const orderNo = orderMatch ? (orderMatch[1] || orderMatch[0]) : "";
 
           const skuMatch = pageText.match(/SKU[:\s]+([^\s\n,]+)/i) || pageText.match(/(?:SKU|Product|Item)[:\s]+([A-Za-z0-9_\-]+)/i);
           const sku = skuMatch ? skuMatch[1] : "LABEL-ITEM";
@@ -938,18 +942,27 @@ export default function Home() {
           const stateMatch = pageText.match(/(?:Gujarat|Rajasthan|Maharashtra|Delhi|Uttar Pradesh|Punjab|Haryana|Karnataka|Tamil Nadu|West Bengal|Bihar|Assam|Kerala|Madhya Pradesh|Odisha|Telangana|Andhra Pradesh)/i);
           const state = stateMatch ? stateMatch[0] : "";
 
-          extractedPages.push({
-            page: globalPageNum,
-            filePageIndex: i,
-            sourceFile: fileObj.name,
-            orderNo,
-            orderDate,
-            sku,
-            qty,
-            state,
-            customerName: `Customer Page #${globalPageNum}`,
-            invoiceNo: `INV-${100000 + globalPageNum}`,
-          });
+          let custName = "";
+          const nameMatch = pageText.match(/(?:Customer Address|Deliver To|Ship To|Buyer Address|Billing Address|Shipping Address)\s*[:\s]*([^\r\n,]+)/i);
+          if (nameMatch && nameMatch[1].trim().length > 2) {
+            custName = nameMatch[1].trim();
+          }
+
+          // STRICT: Only add if BOTH orderNo AND customerName are found!
+          if (orderNo && custName) {
+            extractedPages.push({
+              page: globalPageNum,
+              filePageIndex: i,
+              sourceFile: fileObj.name,
+              orderNo,
+              orderDate,
+              sku,
+              qty,
+              state,
+              customerName: custName,
+              invoiceNo: `INV-${100000 + globalPageNum}`,
+            });
+          }
           globalPageNum++;
         }
       }
@@ -1173,6 +1186,18 @@ export default function Home() {
             allExtractedPages = [...allExtractedPages, ...reindexedPages];
             allReturnWarnings = [...allReturnWarnings, ...(data.returnWarnings || [])];
             allDuplicateOrderWarnings = [...allDuplicateOrderWarnings, ...(data.duplicateOrderWarnings || [])];
+          } else {
+            const errData = await res.json().catch(() => ({}));
+            const errMsg = errData.error || "Kripya thik shipping label PDF upload karein (Order ID aur Customer Name nahi mila).";
+            setError(errMsg);
+            showToast(errMsg, "error");
+            setPages([]);
+            setFiles([]);
+            setFile(null);
+            setPdfPage1DataUrl(null);
+            setLoadingPreview(false);
+            setUploadProgress(0);
+            return;
           }
         } else {
           const totalChunks = Math.ceil(totalPagesInPdf / CHUNK_SIZE);
@@ -1200,6 +1225,18 @@ export default function Home() {
               allExtractedPages = [...allExtractedPages, ...reindexedPages];
               allReturnWarnings = [...allReturnWarnings, ...(data.returnWarnings || [])];
               allDuplicateOrderWarnings = [...allDuplicateOrderWarnings, ...(data.duplicateOrderWarnings || [])];
+            } else {
+              const errData = await res.json().catch(() => ({}));
+              const errMsg = errData.error || "Kripya thik shipping label PDF upload karein (Order ID aur Customer Name nahi mila).";
+              setError(errMsg);
+              showToast(errMsg, "error");
+              setPages([]);
+              setFiles([]);
+              setFile(null);
+              setPdfPage1DataUrl(null);
+              setLoadingPreview(false);
+              setUploadProgress(0);
+              return;
             }
           }
         }
@@ -1210,7 +1247,7 @@ export default function Home() {
       if (allExtractedPages && allExtractedPages.length > 0) {
         setPages(allExtractedPages);
 
-        const mCounts = { meesho: 0, flipkart: 0, amazon: 0 };
+        const mCounts = { meesho: 0, flipkart: 0, amazon: 0, glowroad: 0, shopsy: 0 };
         allExtractedPages.forEach((p) => {
           const pl = (p.platform || "meesho").toLowerCase();
           if (mCounts[pl] !== undefined) mCounts[pl]++;
@@ -1227,6 +1264,14 @@ export default function Home() {
         if (mPresent.length > 1) {
           setShowMixedMarketplaceModal(true);
         }
+      } else {
+        const errMsg = "Kripya thik shipping label PDF upload karein (Order ID aur Customer Name nahi mila).";
+        setError(errMsg);
+        showToast(errMsg, "error");
+        setPages([]);
+        setFiles([]);
+        setFile(null);
+        setPdfPage1DataUrl(null);
       }
 
       if (allDuplicateOrderWarnings.length > 0) {

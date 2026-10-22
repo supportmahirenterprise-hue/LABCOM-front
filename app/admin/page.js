@@ -659,16 +659,19 @@ export default function AdminPage() {
         csvContent += row.join(",") + "\n";
       });
     } else if (drilldown.type === "orders") {
-      csvContent = "Order No,SubOrder No,Order Date,Customer Name,SKU,Qty,Payment Type,State\n";
+      csvContent = "Order No,SubOrder No,Platform,Order Date,Customer Name,SKU,Qty,Payment Type,State\n";
       drilldown.records.forEach((r) => {
+        const ord = String(r.orderNo || r.subOrderNo || "");
+        const plat = (r.platform || (/^OD\d+/i.test(ord) ? "flipkart" : /^\d{3}-\d{7}-\d{7}$/.test(ord) ? "amazon" : "meesho")).toUpperCase();
         const row = [
           `"${(r.orderNo || "").replace(/"/g, '""')}"`,
           `"${(r.subOrderNo || "").replace(/"/g, '""')}"`,
-          `"${(r.orderDate || "").replace(/"/g, '""')}"`,
+          `"${plat}"`,
+          `"${(r.orderDate || (r.createdAt ? new Date(r.createdAt).toLocaleDateString("en-IN") : "")).replace(/"/g, '""')}"`,
           `"${(r.customerName || "").replace(/"/g, '""')}"`,
           `"${(r.sku || "").replace(/"/g, '""')}"`,
           r.qty || 1,
-          `"${(r.paymentType || "").replace(/"/g, '""')}"`,
+          `"${(r.paymentType || "COD").replace(/"/g, '""')}"`,
           `"${(r.state || "").replace(/"/g, '""')}"`,
         ];
         csvContent += row.join(",") + "\n";
@@ -732,6 +735,8 @@ export default function AdminPage() {
       if (drilldown.type === "orders") {
         return (
           (r.orderNo || "").toLowerCase().includes(q) ||
+          (r.subOrderNo || "").toLowerCase().includes(q) ||
+          (r.platform || "").toLowerCase().includes(q) ||
           (r.customerName || "").toLowerCase().includes(q) ||
           (r.sku || "").toLowerCase().includes(q) ||
           (r.state || "").toLowerCase().includes(q) ||
@@ -2210,7 +2215,7 @@ export default function AdminPage() {
                   drilldown.type === "customers"
                     ? "Filter by customer name, phone, state, address..."
                     : drilldown.type === "orders"
-                    ? "Filter by order no, customer, SKU, state..."
+                    ? "Filter by order no, platform, customer, SKU, state..."
                     : drilldown.type === "returns"
                     ? "Filter by order no, AWB, courier, SKU..."
                     : "Filter scans by order, SKU, device..."
@@ -2284,6 +2289,7 @@ export default function AdminPage() {
                     {drilldown.type === "orders" && (
                       <>
                         <th style={{ padding: "10px 14px", fontWeight: 700 }}>Order ID</th>
+                        <th style={{ padding: "10px 14px", fontWeight: 700 }}>Platform</th>
                         <th style={{ padding: "10px 14px", fontWeight: 700 }}>Date</th>
                         <th style={{ padding: "10px 14px", fontWeight: 700 }}>Customer</th>
                         <th style={{ padding: "10px 14px", fontWeight: 700 }}>SKU</th>
@@ -2354,6 +2360,46 @@ export default function AdminPage() {
                         <>
                           <td style={{ padding: "10px 14px", fontFamily: "var(--font-mono)", fontWeight: 700, color: "#0284C7" }}>
                             {r.orderNo || r.subOrderNo || "—"}
+                          </td>
+                          <td style={{ padding: "10px 14px" }}>
+                            {(() => {
+                              const ord = String(r.orderNo || r.subOrderNo || "");
+                              const plat = (r.platform || (/^OD\d+/i.test(ord) ? "flipkart" : /^\d{3}-\d{7}-\d{7}$/.test(ord) ? "amazon" : "meesho")).toLowerCase();
+
+                              if (plat === "flipkart") {
+                                return (
+                                  <span style={{ fontSize: "0.72rem", fontWeight: 800, padding: "2px 8px", borderRadius: 6, background: "#EFF6FF", color: "#1D4ED8", border: "1px solid #BFDBFE", display: "inline-block", textTransform: "capitalize" }}>
+                                    Flipkart
+                                  </span>
+                                );
+                              }
+                              if (plat === "amazon") {
+                                return (
+                                  <span style={{ fontSize: "0.72rem", fontWeight: 800, padding: "2px 8px", borderRadius: 6, background: "#FFFBEB", color: "#B45309", border: "1px solid #FDE68A", display: "inline-block", textTransform: "capitalize" }}>
+                                    Amazon
+                                  </span>
+                                );
+                              }
+                              if (plat === "glowroad") {
+                                return (
+                                  <span style={{ fontSize: "0.72rem", fontWeight: 800, padding: "2px 8px", borderRadius: 6, background: "#FAF5FF", color: "#7E22CE", border: "1px solid #E9D5FF", display: "inline-block", textTransform: "capitalize" }}>
+                                    Glowroad
+                                  </span>
+                                );
+                              }
+                              if (plat === "shopsy") {
+                                return (
+                                  <span style={{ fontSize: "0.72rem", fontWeight: 800, padding: "2px 8px", borderRadius: 6, background: "#F0FDFA", color: "#0F766E", border: "1px solid #99F6E4", display: "inline-block", textTransform: "capitalize" }}>
+                                    Shopsy
+                                  </span>
+                                );
+                              }
+                              return (
+                                <span style={{ fontSize: "0.72rem", fontWeight: 800, padding: "2px 8px", borderRadius: 6, background: "#FDF2F8", color: "#BE185D", border: "1px solid #FBCFE8", display: "inline-block", textTransform: "capitalize" }}>
+                                  Meesho
+                                </span>
+                              );
+                            })()}
                           </td>
                           <td style={{ padding: "10px 14px", color: "#64748B", fontSize: "0.76rem" }}>
                             {r.orderDate || (r.createdAt ? new Date(r.createdAt).toLocaleDateString("en-IN") : "—")}

@@ -2,6 +2,7 @@ import "./globals.css";
 import { Providers } from "./components/Providers";
 import { Sidebar } from "./components/Sidebar";
 import AdSlot from "./components/AdSlot";
+import CookieConsent from "./components/CookieConsent";
 import Script from "next/script";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://labelpro.in";
@@ -119,7 +120,7 @@ const jsonLdGraph = {
       "logo": `${siteUrl}/icon.png`,
       "contactPoint": {
         "@type": "ContactPoint",
-        "telephone": "+91-9876543210",
+        "telephone": "+91-9664720473",
         "contactType": "customer service",
         "areaServed": "IN",
         "availableLanguage": ["en", "hi"]
@@ -251,6 +252,7 @@ export default function RootLayout({ children }) {
             <AdSlot slotKey="rightSkyscraper" />
           </div>
         </Providers>
+        <CookieConsent />
       </body>
     </html>
   );

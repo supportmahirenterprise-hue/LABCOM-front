@@ -9,6 +9,10 @@ export default function robots() {
         disallow: ["/api/", "/settings", "/login", "/admin"],
       },
       {
+        userAgent: "Mediapartners-Google",
+        allow: "/",
+      },
+      {
         userAgent: [
           "GPTBot",
           "ChatGPT-User",
