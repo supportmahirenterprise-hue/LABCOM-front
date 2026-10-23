@@ -405,11 +405,17 @@ export default function ReturnsPage() {
 
         {/* Customer Returns (First Return) */}
         {(() => {
-          const isActive = selectedType === "Customer Return";
+          const isActive = selectedType === "Customer Return" && selectedSku === "ALL";
           return (
             <div
               onClick={() => {
-                setSelectedType(isActive ? "ALL" : "Customer Return");
+                if (isActive) {
+                  setSelectedType("ALL");
+                  setSelectedSku("ALL");
+                } else {
+                  setSelectedType("Customer Return");
+                  setSelectedSku("ALL");
+                }
                 setCurrentPage(1);
               }}
               className="premium-glass"
@@ -454,11 +460,17 @@ export default function ReturnsPage() {
 
         {/* Courier Returns (RTO) */}
         {(() => {
-          const isActive = selectedType === "RTO";
+          const isActive = selectedType === "RTO" && selectedSku === "ALL";
           return (
             <div
               onClick={() => {
-                setSelectedType(isActive ? "ALL" : "RTO");
+                if (isActive) {
+                  setSelectedType("ALL");
+                  setSelectedSku("ALL");
+                } else {
+                  setSelectedType("RTO");
+                  setSelectedSku("ALL");
+                }
                 setCurrentPage(1);
               }}
               className="premium-glass"
@@ -504,12 +516,18 @@ export default function ReturnsPage() {
         {/* Top Returned SKU */}
         {(() => {
           const topSkuName = summary.topReturnedSku?.name;
-          const isActive = !!(topSkuName && selectedSku === topSkuName);
+          const isActive = !!(topSkuName && selectedSku === topSkuName && selectedType === "ALL");
           return (
             <div
               onClick={() => {
                 if (!topSkuName) return;
-                setSelectedSku(isActive ? "ALL" : topSkuName);
+                if (isActive) {
+                  setSelectedSku("ALL");
+                  setSelectedType("ALL");
+                } else {
+                  setSelectedSku(topSkuName);
+                  setSelectedType("ALL");
+                }
                 setCurrentPage(1);
               }}
               className="premium-glass"
@@ -596,19 +614,19 @@ export default function ReturnsPage() {
             <div className="segmented-control">
               <button
                 className={`segmented-tab ${selectedType === "ALL" ? "active" : ""}`}
-                onClick={() => { setSelectedType("ALL"); setCurrentPage(1); }}
+                onClick={() => { setSelectedType("ALL"); setSelectedSku("ALL"); setCurrentPage(1); }}
               >
                 All Returns ({summary.totalReturns || 0})
               </button>
               <button
                 className={`segmented-tab ${selectedType === "Customer Return" ? "active" : ""}`}
-                onClick={() => { setSelectedType("Customer Return"); setCurrentPage(1); }}
+                onClick={() => { setSelectedType("Customer Return"); setSelectedSku("ALL"); setCurrentPage(1); }}
               >
                 Customer Returns ({summary.customerReturnsCount || 0})
               </button>
               <button
                 className={`segmented-tab ${selectedType === "RTO" ? "active" : ""}`}
-                onClick={() => { setSelectedType("RTO"); setCurrentPage(1); }}
+                onClick={() => { setSelectedType("RTO"); setSelectedSku("ALL"); setCurrentPage(1); }}
               >
                 Courier RTO ({summary.rtoCount || 0})
               </button>
@@ -620,7 +638,11 @@ export default function ReturnsPage() {
                 className="select-light"
                 value={selectedSku}
                 onChange={(e) => {
-                  setSelectedSku(e.target.value);
+                  const val = e.target.value;
+                  setSelectedSku(val);
+                  if (val !== "ALL") {
+                    setSelectedType("ALL");
+                  }
                   setCurrentPage(1);
                 }}
                 style={{
@@ -640,6 +662,35 @@ export default function ReturnsPage() {
                 ))}
               </select>
             </div>
+
+            {/* Clear Filters Button */}
+            {(selectedType !== "ALL" || selectedSku !== "ALL" || search.trim() !== "") && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedType("ALL");
+                  setSelectedSku("ALL");
+                  setSearch("");
+                  setCurrentPage(1);
+                }}
+                className="btn-secondary"
+                style={{
+                  padding: "6px 12px",
+                  fontSize: "0.78rem",
+                  color: "#DC2626",
+                  borderColor: "#FCA5A5",
+                  background: "#FEF2F2",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 5,
+                  cursor: "pointer",
+                  borderRadius: "8px",
+                }}
+              >
+                <CloseIcon size={12} />
+                Clear Filters
+              </button>
+            )}
           </div>
         </div>
       </div>

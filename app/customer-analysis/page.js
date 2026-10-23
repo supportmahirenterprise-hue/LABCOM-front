@@ -49,6 +49,7 @@ export default function CustomerAnalysisPage() {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [toast, setToast] = useState(null);
   const [orderSortDirection, setOrderSortDirection] = useState("desc");
+  const [activeStatCard, setActiveStatCard] = useState("all"); // "all" | "repeat" | "retention" | "orders"
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -56,7 +57,7 @@ export default function CustomerAnalysisPage() {
 
 
 
-  const paginatedCustomers = useMemo(() => {
+  const filteredCustomers = useMemo(() => {
     let list = data?.customers || [];
     if (selectedPlatform && selectedPlatform.toUpperCase() !== "ALL") {
       const sp = selectedPlatform.toLowerCase();
@@ -86,9 +87,15 @@ export default function CustomerAnalysisPage() {
     } else {
       list = [...list].sort((a, b) => (b.orderCount || b.orders?.length || 1) - (a.orderCount || a.orders?.length || 1));
     }
+    return list;
+  }, [data?.customers, search, selectedPlatform, repeatOnly, orderSortDirection]);
+
+  const totalFilteredPages = Math.max(1, Math.ceil((filteredCustomers.length || 0) / (pageSize || 25)));
+
+  const paginatedCustomers = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
-    return list.slice(start, start + pageSize);
-  }, [data?.customers, search, selectedPlatform, repeatOnly, orderSortDirection, currentPage, pageSize]);
+    return filteredCustomers.slice(start, start + pageSize);
+  }, [filteredCustomers, currentPage, pageSize]);
 
   const filteredSkuMatrix = useMemo(() => {
     if (!insightsData?.skuPerformanceMatrix) return [];
@@ -531,10 +538,11 @@ export default function CustomerAnalysisPage() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 210px), 1fr))", gap: 16, marginBottom: 24 }}>
         {/* Total Unique Customers */}
         {(() => {
-          const isActive = !repeatOnly;
+          const isActive = activeStatCard === "all";
           return (
             <div
               onClick={() => {
+                setActiveStatCard("all");
                 setRepeatOnly(false);
                 setCurrentPage(1);
               }}
@@ -583,12 +591,17 @@ export default function CustomerAnalysisPage() {
 
         {/* Repeat Customers Count */}
         {(() => {
-          const isActive = repeatOnly;
+          const isActive = activeStatCard === "repeat";
           return (
             <div
               onClick={() => {
-                const next = !repeatOnly;
-                setRepeatOnly(next);
+                if (activeStatCard === "repeat") {
+                  setActiveStatCard("all");
+                  setRepeatOnly(false);
+                } else {
+                  setActiveStatCard("repeat");
+                  setRepeatOnly(true);
+                }
                 setCurrentPage(1);
               }}
               className="premium-glass"
@@ -635,11 +648,17 @@ export default function CustomerAnalysisPage() {
 
         {/* Repeat Rate % */}
         {(() => {
-          const isActive = repeatOnly;
+          const isActive = activeStatCard === "retention";
           return (
             <div
               onClick={() => {
-                setRepeatOnly(true);
+                if (activeStatCard === "retention") {
+                  setActiveStatCard("all");
+                  setRepeatOnly(false);
+                } else {
+                  setActiveStatCard("retention");
+                  setRepeatOnly(true);
+                }
                 setCurrentPage(1);
               }}
               className="premium-glass"
@@ -687,28 +706,35 @@ export default function CustomerAnalysisPage() {
 
         {/* Total Orders Processed */}
         {(() => {
-          const isHighestSorted = orderSortDirection === "desc";
+          const isActive = activeStatCard === "orders";
           return (
             <div
               onClick={() => {
-                const nextSort = orderSortDirection === "desc" ? "asc" : "desc";
-                setOrderSortDirection(nextSort);
+                if (activeStatCard === "orders") {
+                  const nextSort = orderSortDirection === "desc" ? "asc" : "desc";
+                  setOrderSortDirection(nextSort);
+                } else {
+                  setActiveStatCard("orders");
+                  setRepeatOnly(false);
+                  setOrderSortDirection("desc");
+                }
+                setCurrentPage(1);
               }}
               className="premium-glass"
               style={{
                 padding: "20px 20px 16px",
                 borderTop: "3px solid #0284C7",
-                background: isHighestSorted ? "#F0F9FF" : "#FFFFFF",
+                background: isActive ? "#F0F9FF" : "#FFFFFF",
                 borderRadius: "16px",
                 cursor: "pointer",
-                border: isHighestSorted ? "2px solid #0284C7" : "1px solid #E2E8F0",
-                boxShadow: isHighestSorted ? "0 8px 24px rgba(2, 132, 199, 0.22)" : "0 2px 8px rgba(15, 23, 42, 0.04)",
-                transform: isHighestSorted ? "translateY(-2px)" : "none",
+                border: isActive ? "2px solid #0284C7" : "1px solid #E2E8F0",
+                boxShadow: isActive ? "0 8px 24px rgba(2, 132, 199, 0.22)" : "0 2px 8px rgba(15, 23, 42, 0.04)",
+                transform: isActive ? "translateY(-2px)" : "none",
                 transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
               }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: "0.72rem", fontWeight: 700, color: isHighestSorted ? "#0369A1" : "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                <span style={{ fontSize: "0.72rem", fontWeight: 700, color: isActive ? "#0369A1" : "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>
                   Total Orders Logged
                 </span>
                 <div style={{ width: 32, height: 32, borderRadius: "10px", background: "#E0F2FE", border: "1px solid #BAE6FD", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -731,8 +757,10 @@ export default function CustomerAnalysisPage() {
                 <span style={{ fontSize: "0.76rem", color: "#0369A1", fontWeight: 600 }}>
                   Total shipping parcels logged in DB
                 </span>
-                <span style={{ fontSize: "0.68rem", fontWeight: 700, color: isHighestSorted ? "#0284C7" : "#94A3B8", background: isHighestSorted ? "#E0F2FE" : "#F1F5F9", padding: "2px 8px", borderRadius: "10px" }}>
-                  {isHighestSorted ? "⚡ Highest Orders First" : "⚡ Lowest Orders First"}
+                <span style={{ fontSize: "0.68rem", fontWeight: 700, color: isActive ? "#0284C7" : "#94A3B8", background: isActive ? "#E0F2FE" : "#F1F5F9", padding: "2px 8px", borderRadius: "10px" }}>
+                  {isActive
+                    ? (orderSortDirection === "desc" ? "⚡ Highest Orders First" : "⚡ Lowest Orders First")
+                    : "Click to sort orders"}
                 </span>
               </div>
             </div>
@@ -1141,17 +1169,55 @@ export default function CustomerAnalysisPage() {
             <div className="segmented-control">
               <button
                 className={`segmented-tab ${!repeatOnly ? "active" : ""}`}
-                onClick={() => setRepeatOnly(false)}
+                onClick={() => {
+                  setRepeatOnly(false);
+                  setActiveStatCard("all");
+                }}
               >
                 All Buyers ({data?.summary?.totalCustomers || 0})
               </button>
               <button
                 className={`segmented-tab ${repeatOnly ? "active" : ""}`}
-                onClick={() => setRepeatOnly(true)}
+                onClick={() => {
+                  setRepeatOnly(true);
+                  setActiveStatCard("repeat");
+                }}
               >
                 Repeat Only ({data?.summary?.repeatCustomersCount || 0})
               </button>
             </div>
+
+            {/* Clear All Filters */}
+            {(selectedState !== "ALL" || selectedDistrict !== "ALL" || repeatOnly || search.trim() !== "" || selectedPlatform !== "ALL") && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedState("ALL");
+                  setSelectedDistrict("ALL");
+                  setRepeatOnly(false);
+                  setActiveStatCard("all");
+                  setSelectedPlatform("ALL");
+                  setSearch("");
+                  setCurrentPage(1);
+                }}
+                className="btn-secondary"
+                style={{
+                  padding: "6px 12px",
+                  fontSize: "0.78rem",
+                  color: "#DC2626",
+                  borderColor: "#FCA5A5",
+                  background: "#FEF2F2",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 5,
+                  cursor: "pointer",
+                  borderRadius: "8px",
+                }}
+              >
+                <CloseIcon size={12} />
+                Reset Filters
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -1336,13 +1402,13 @@ export default function CustomerAnalysisPage() {
             <div style={{ fontSize: "0.82rem", color: "#64748B" }}>
               Showing{" "}
               <strong style={{ color: "#4F46E5" }}>
-                {Math.min((currentPage - 1) * pageSize + 1, data.customers.length)}
+                {filteredCustomers.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}
               </strong>{" "}
               to{" "}
               <strong style={{ color: "#4F46E5" }}>
-                {Math.min(currentPage * pageSize, data.customers.length)}
+                {Math.min(currentPage * pageSize, filteredCustomers.length)}
               </strong>{" "}
-              of <strong style={{ color: "#0F172A" }}>{data.customers.length}</strong> customers
+              of <strong style={{ color: "#0F172A" }}>{filteredCustomers.length}</strong> customers
             </div>
 
             {/* Controls */}
@@ -1398,9 +1464,8 @@ export default function CustomerAnalysisPage() {
 
                 {/* Page Buttons List */}
                 {(() => {
-                  const totalPagesCount = Math.max(1, Math.ceil((data?.customers?.length || 0) / (pageSize || 25)));
-                  return Array.from({ length: totalPagesCount }, (_, i) => i + 1)
-                    .filter((p) => p === 1 || p === totalPagesCount || Math.abs(p - currentPage) <= 1)
+                  return Array.from({ length: totalFilteredPages }, (_, i) => i + 1)
+                    .filter((p) => p === 1 || p === totalFilteredPages || Math.abs(p - currentPage) <= 1)
                     .map((p, idx, arr) => {
                       const prevPage = arr[idx - 1];
                       const showEllipsis = prevPage && p - prevPage > 1;
@@ -1430,24 +1495,24 @@ export default function CustomerAnalysisPage() {
 
                 <button
                   className="btn-secondary"
-                  disabled={currentPage >= Math.max(1, Math.ceil((data?.customers?.length || 0) / (pageSize || 25)))}
-                  onClick={() => setCurrentPage((prev) => Math.min(Math.max(1, Math.ceil((data?.customers?.length || 0) / (pageSize || 25))), prev + 1))}
+                  disabled={currentPage >= totalFilteredPages}
+                  onClick={() => setCurrentPage((prev) => Math.min(totalFilteredPages, prev + 1))}
                   style={{
                     padding: "5px 12px",
                     fontSize: "0.8rem",
-                    opacity: currentPage >= Math.max(1, Math.ceil((data?.customers?.length || 0) / (pageSize || 25))) ? 0.4 : 1,
+                    opacity: currentPage >= totalFilteredPages ? 0.4 : 1,
                   }}
                 >
                   Next
                 </button>
                 <button
                   className="btn-secondary"
-                  disabled={currentPage >= Math.max(1, Math.ceil((data?.customers?.length || 0) / (pageSize || 25)))}
-                  onClick={() => setCurrentPage(Math.max(1, Math.ceil((data?.customers?.length || 0) / (pageSize || 25))))}
+                  disabled={currentPage >= totalFilteredPages}
+                  onClick={() => setCurrentPage(totalFilteredPages)}
                   style={{
                     padding: "5px 10px",
                     fontSize: "0.8rem",
-                    opacity: currentPage >= Math.max(1, Math.ceil((data?.customers?.length || 0) / (pageSize || 25))) ? 0.4 : 1,
+                    opacity: currentPage >= totalFilteredPages ? 0.4 : 1,
                   }}
                 >
                   »
