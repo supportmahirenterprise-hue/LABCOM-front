@@ -1881,6 +1881,9 @@ export default function Home() {
             waFormData.append("pdf", finalPdfBlob, stampedFileName);
             waFormData.append("pages", JSON.stringify(pages));
             waFormData.append("fileName", historyFileName);
+            if (userWaApiKey) {
+              waFormData.append("waApiKey", userWaApiKey);
+            }
             const waRes = await fetch(`${BACKEND_URL}/api/whatsapp/dispatch-final`, {
               method: "POST",
               headers: { "x-user-email": userEmail },
@@ -4099,7 +4102,7 @@ export default function Home() {
               <input
                 type="text"
                 className="input-field"
-                placeholder="wa_c6854599bd4b7a54cad78edbdd6ace51"
+                placeholder="Enter your LaterPro WhatsApp API Key (e.g. wa_...)"
                 value={laterProApiKeyInput}
                 onChange={(e) => setLaterProApiKeyInput(e.target.value)}
                 required

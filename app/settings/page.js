@@ -203,6 +203,11 @@ export default function SettingsPage() {
         setTestingWa(false);
         return;
       }
+      if (!waApiKey || !waApiKey.trim()) {
+        showToast("Please enter your LaterPro WhatsApp API Key first", "error");
+        setTestingWa(false);
+        return;
+      }
       const testRes = await fetch(`${BACKEND_URL}/api/whatsapp/send-media`, {
         method: "POST",
         headers: {
@@ -211,6 +216,7 @@ export default function SettingsPage() {
           "x-internal-secret": "core-engine-internal",
         },
         body: JSON.stringify({
+          waApiKey: waApiKey.trim(),
           number: targetNum,
           fileData:
             "data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PC9UaXRsZSAoVGVzdCk+PgplbmRvYmoKMiAwIG9iagocPDAvUGFnZXMgMyAwIFJdPj4KZW5kb2JqCjMgMCBvYmoKPDwvQ291bnQgMTAvS2lkcyBbNCAwIFJdPj4KZW5kb2JqCjQgMCBvYmoKPDwvVHlwZSAvUGFnZT4+CmVuZG9iagp0cmFpbGVyCjw8L1Jvb3QgMiAwIFI+PgolJUVPRg==",
@@ -220,10 +226,11 @@ export default function SettingsPage() {
         }),
       });
 
-      if (testRes.ok) {
+      const data = await testRes.json().catch(() => ({}));
+      if (testRes.ok && data?.success) {
         showToast(`Test WhatsApp message sent successfully to ${targetNum}!`, "success");
       } else {
-        throw new Error("Failed to send test WhatsApp message");
+        throw new Error(data?.error || "Failed to send test WhatsApp message");
       }
     } catch (err) {
       showToast(err.message || "Test WhatsApp send failed", "error");
@@ -717,7 +724,7 @@ export default function SettingsPage() {
                     <input
                       type={showApiKey ? "text" : "password"}
                       className="input-field"
-                      placeholder="wa_c6854599bd4b7a54cad78edbdd6ace51"
+                      placeholder="Enter your LaterPro WhatsApp API Key (e.g. wa_...)"
                       value={waApiKey}
                       onChange={(e) => setWaApiKey(e.target.value)}
                       style={{ paddingRight: 40, width: "100%", height: 42 }}

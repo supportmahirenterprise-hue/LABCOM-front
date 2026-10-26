@@ -3384,7 +3384,7 @@ export default function AdminPage() {
                       >
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
                           <label style={{ fontSize: "0.82rem", fontWeight: 700, color: "#0F172A" }}>
-                            LexTrack WhatsApp API Key
+                            LaterPro WhatsApp API Key
                           </label>
                           <span style={{ fontSize: "0.72rem", color: "#10B981", fontWeight: 700 }}>
                             Official Gateway Token
@@ -3395,7 +3395,7 @@ export default function AdminPage() {
                             type={showWaKey ? "text" : "password"}
                             value={settingsForm.waApiKey}
                             onChange={(e) => setSettingsForm({ ...settingsForm, waApiKey: e.target.value })}
-                            placeholder="wa_c6854599bd4b7a54cad78edbdd6ace51"
+                            placeholder="Enter LaterPro WhatsApp API Key (e.g. wa_...)"
                             style={{
                               width: "100%",
                               padding: "10px 42px 10px 14px",
@@ -3460,7 +3460,7 @@ export default function AdminPage() {
                             type="text"
                             value={settingsForm.waReceiverNumber}
                             onChange={(e) => setSettingsForm({ ...settingsForm, waReceiverNumber: e.target.value })}
-                            placeholder="8140148878"
+                            placeholder="Enter 10-digit phone number"
                             style={{
                               flex: 1,
                               padding: "10px 14px",
