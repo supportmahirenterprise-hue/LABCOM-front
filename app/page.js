@@ -930,8 +930,84 @@ export default function Home() {
             pageText.match(/\b(\d{14,19}(?:_\d+)?)\b/);
           const orderNo = orderMatch ? (orderMatch[1] || orderMatch[0]) : "";
 
-          const skuMatch = pageText.match(/SKU[:\s]+([^\s\n,]+)/i) || pageText.match(/(?:SKU|Product|Item)[:\s]+([A-Za-z0-9_\-]+)/i);
-          const sku = skuMatch ? skuMatch[1] : "LABEL-ITEM";
+          // Smart Client-Side SKU extraction (strictly filters out table headers like 'Size', 'Qty', 'Color')
+          let sku = "";
+          const isHeaderWord = (w) =>
+            !w || /^(size|qty|quantity|color|order|order\s*no|item|product|description|sl|s\.no|amount|price|details|id)$/i.test(w.trim());
+
+          // 1. Meesho table format: "SKU Size Qty Color Order No." followed by actual data row
+          const meeshoTableMatch = pageText.match(
+            /SKU\s+Size\s+Qty\s+Color\s+Order\s*No\.?\s*[:\s]*([\s\S]*?)\s+(?:Free\s*Size|Free|XXXL|XXL|XL|L|M|S|XS|NA|\d{2})\s+\d+/i
+          );
+          if (meeshoTableMatch && meeshoTableMatch[1]) {
+            const candidate = meeshoTableMatch[1].trim();
+            if (candidate && !isHeaderWord(candidate)) {
+              sku = candidate.slice(0, 50);
+            }
+          }
+
+          // 2. Meesho single token after "Order No."
+          if (!sku) {
+            const meeshoSingleMatch = pageText.match(
+              /SKU\s+Size\s+Qty\s+Color\s+Order\s*No\.?\s*[:\s]*([^\s\r\n]+)/i
+            );
+            if (meeshoSingleMatch && meeshoSingleMatch[1]) {
+              const candidate = meeshoSingleMatch[1].trim();
+              if (candidate && !isHeaderWord(candidate)) {
+                sku = candidate.slice(0, 50);
+              }
+            }
+          }
+
+          // 3. Meesho line with Size & Qty before sub-order number
+          if (!sku) {
+            const meeshoRowMatch = pageText.match(
+              /([A-Za-z0-9_\-\.\/]{2,40})\s+(?:Free\s*Size|Free|XXXL|XXL|XL|L|M|S|XS|NA|\d{2})\s+\d+\s*(?:[A-Za-z]+)?\s*\d{10,}/i
+            );
+            if (meeshoRowMatch && meeshoRowMatch[1]) {
+              const candidate = meeshoRowMatch[1].trim();
+              if (candidate && !isHeaderWord(candidate)) {
+                sku = candidate.slice(0, 50);
+              }
+            }
+          }
+
+          // 4. Flipkart SKU format: "SKU ID | Description QTY ... |"
+          if (!sku) {
+            const flipkartMatch = pageText.match(/SKU\s*ID\s*\|\s*Description\s*QTY\s+([^|]+?)\s*\|/i);
+            if (flipkartMatch && flipkartMatch[1]) {
+              const candidate = flipkartMatch[1].replace(/^\d+\s*/, "").trim();
+              if (candidate && !isHeaderWord(candidate)) {
+                sku = candidate.slice(0, 50);
+              }
+            }
+          }
+
+          // 5. Flipkart FSN
+          if (!sku) {
+            const fsnMatch = pageText.match(/\bFSN\b[:\s]+([A-Z0-9]+)/i);
+            if (fsnMatch && fsnMatch[1]) sku = fsnMatch[1].trim();
+          }
+
+          // 6. Amazon MSKU / ASIN
+          if (!sku) {
+            const amazonMatch = pageText.match(/\b(?:MSKU|ASIN)\b[:\s]+([A-Za-z0-9_\-\.\/]+)/i);
+            if (amazonMatch && amazonMatch[1]) {
+              const candidate = amazonMatch[1].trim();
+              if (candidate && !isHeaderWord(candidate)) sku = candidate;
+            }
+          }
+
+          // 7. General SKU regex (with strict header word rejection)
+          if (!sku) {
+            const skuCandidate =
+              pageText.match(/SKU[:\s]+([^\s\n,]+)/i) ||
+              pageText.match(/(?:SKU|Product|Item)[:\s]+([A-Za-z0-9_\-]+)/i);
+            if (skuCandidate && skuCandidate[1]) {
+              const candidate = skuCandidate[1].trim();
+              if (candidate && !isHeaderWord(candidate)) sku = candidate;
+            }
+          }
 
           const dateMatch = pageText.match(/(\d{2}[.\/]\d{2}[.\/]\d{4})/);
           const orderDate = dateMatch ? dateMatch[1] : "";
@@ -3487,6 +3563,7 @@ export default function Home() {
                               <input
                                 className="table-input"
                                 value={row[c.key] || ""}
+                                placeholder={c.key === "sku" && !row[c.key] ? "Detecting SKU..." : ""}
                                 onChange={(e) => updateCell(pIdx, c.key, e.target.value)}
                               />
                             )}
