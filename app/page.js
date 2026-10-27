@@ -357,7 +357,7 @@ export default function Home() {
       .then((url) => {
         if (isMounted) setPreviewQrDataUrl(url);
       })
-      .catch(() => {});
+      .catch(() => { });
     return () => {
       isMounted = false;
     };
@@ -419,7 +419,7 @@ export default function Home() {
         parsed.cropEnabled = nextVal;
         if (nextVal) parsed.cropMode = "custom";
         localStorage.setItem("user_stamp_settings_" + session.user.email, JSON.stringify(parsed));
-      } catch (e) {}
+      } catch (e) { }
     }
   }
 
@@ -444,7 +444,7 @@ export default function Home() {
         parsed.cropLeft = cropLeft;
         parsed.cropRight = cropRight;
         localStorage.setItem("user_stamp_settings_" + session.user.email, JSON.stringify(parsed));
-      } catch (e) {}
+      } catch (e) { }
     }
   }
 
@@ -462,7 +462,7 @@ export default function Home() {
         const parsed = cachedStr ? JSON.parse(cachedStr) : {};
         parsed.cropEnabled = false;
         localStorage.setItem("user_stamp_settings_" + session.user.email, JSON.stringify(parsed));
-      } catch (e) {}
+      } catch (e) { }
     }
   }
 
@@ -560,7 +560,7 @@ export default function Home() {
           if (s.cropRight !== undefined) setCropRight(s.cropRight);
         }
       }
-    } catch (e) {}
+    } catch (e) { }
 
     if (status !== "authenticated" || !session?.user?.email) return;
 
@@ -612,7 +612,7 @@ export default function Home() {
 
             try {
               localStorage.setItem("user_stamp_settings_" + userEmail, JSON.stringify(s));
-            } catch (e) {}
+            } catch (e) { }
           }
         }
       } catch (err) {
@@ -661,7 +661,7 @@ export default function Home() {
 
         try {
           localStorage.setItem("user_stamp_settings_" + userEmail, JSON.stringify(payload));
-        } catch (e) {}
+        } catch (e) { }
 
         await fetch(`/api/user/settings`, {
           method: "POST",
@@ -1483,8 +1483,8 @@ export default function Home() {
         isHd
           ? `Generating Standard Ultra-HD Quality (${targetFiles.length > 1 ? `${targetFiles.length} files` : "labels"})...`
           : targetFiles.length > 1
-          ? `Merging & generating ${targetFiles.length} PDF files in browser...`
-          : "Generating labels in browser (0ms instant speed)...",
+            ? `Merging & generating ${targetFiles.length} PDF files in browser...`
+            : "Generating labels in browser (0ms instant speed)...",
         "info"
       );
 
@@ -2199,7 +2199,7 @@ export default function Home() {
 
       {/* Main Container */}
       <main style={{ width: "100%" }}>
-        
+
         {/* Banner Alert Messages */}
         {error && (
           <div
@@ -2243,7 +2243,7 @@ export default function Home() {
 
         {/* Top 2-Column Workspace: File Ingestion (Left) & Thermal Studio Canvas (Right) */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))", gap: 20, marginBottom: 24, alignItems: "stretch" }}>
-          
+
           {/* File Ingestion Dropzone */}
           <div className="premium-glass" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
             <div>
@@ -2296,7 +2296,7 @@ export default function Home() {
                   Step 1: Upload
                 </span>
               </div>
-              
+
               <input
                 type="file"
                 ref={fileInputRef}
@@ -2577,7 +2577,7 @@ export default function Home() {
                           <div style={{ fontWeight: 700, fontSize: 6 }}>If undelivered, return to:</div>
                           <div style={{ fontWeight: 700, fontSize: 6.5 }}>{displayStoreName}</div>
                           <div style={{ fontSize: 5.5, color: "#333", lineHeight: 1.1 }}>
-                            Ratanvav, Gujarat, India - 360575
+                            Ratanvav, Gujarat, India - 364710
                           </div>
                         </div>
                       </div>
@@ -2593,7 +2593,7 @@ export default function Home() {
                               <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: -0.2 }}>Xpress Bees</div>
                               <span style={{ background: "#000", color: "#fff", fontSize: 5.5, padding: "0px 3px", fontWeight: 700, borderRadius: 1 }}>Pickup</span>
                               <div style={{ fontSize: 5.5, marginTop: 2 }}>
-                                Dest Code: <b>XX/X-00/0A/000</b><br/>
+                                Dest Code: <b>XX/X-00/0A/000</b><br />
                                 Return Code: <b>000000,0000000</b>
                               </div>
                             </div>
@@ -2985,7 +2985,7 @@ export default function Home() {
                   : "QR stamping is currently disabled. Label pages will only be sorted and organized."}
               </p>
             </div>
-            
+
             <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
               <label
                 style={{
@@ -3062,280 +3062,280 @@ export default function Home() {
 
           <div style={{ opacity: enableQr ? 1 : 0.4, pointerEvents: enableQr ? "auto" : "none", transition: "all 0.2s ease" }}>
 
-          {/* Stamp Design Style Selector */}
-          <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--glass-border)", borderRadius: "14px", padding: "18px 20px", marginBottom: 20 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
-              <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-silver)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                Select Stamp Design Layout
-              </span>
-              <div style={{ display: "flex", gap: 8 }}>
-                <button
-                  type="button"
-                  onClick={() => setStampStyle("badge")}
-                  style={{
-                    padding: "6px 14px",
-                    borderRadius: "var(--radius-md)",
-                    border: `1px solid ${stampStyle === "badge" ? "#6366f1" : "var(--glass-border)"}`,
-                    background: stampStyle === "badge" ? "rgba(99, 102, 241, 0.2)" : "rgba(255, 255, 255, 0.04)",
-                    color: stampStyle === "badge" ? "#ffffff" : "var(--text-silver)",
-                    fontWeight: stampStyle === "badge" ? 700 : 500,
-                    fontSize: "0.8rem",
-                    cursor: "pointer",
-                  }}
-                >
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><TagIcon size={14} /> Modern Store Pill Badge</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setStampStyle("classic")}
-                  style={{
-                    padding: "6px 14px",
-                    borderRadius: "var(--radius-md)",
-                    border: `1px solid ${stampStyle === "classic" ? "#6366f1" : "var(--glass-border)"}`,
-                    background: stampStyle === "classic" ? "rgba(99, 102, 241, 0.2)" : "rgba(255, 255, 255, 0.04)",
-                    color: stampStyle === "classic" ? "#ffffff" : "var(--text-silver)",
-                    fontWeight: stampStyle === "classic" ? 700 : 500,
-                    fontSize: "0.8rem",
-                    cursor: "pointer",
-                  }}
-                >
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><FileTextIcon size={14} /> Classic Minimal Stamp</span>
-                </button>
-              </div>
-            </div>
-
-            {stampStyle === "badge" && (
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 12, flexWrap: "wrap" }}>
-                <label htmlFor="store-name-input" style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", minWidth: 120 }}>
-                  Store / Brand Name:
-                </label>
-                <div style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
-                  <input
-                    type="text"
-                    id="store-name-input"
-                    aria-label="Store or Brand Name"
-                    maxLength={25}
-                    className="input-field"
-                    value={storeName}
-                    onChange={(e) => setStoreName(e.target.value)}
-                    placeholder={status === "authenticated" ? "e.g. YOUR STORE NAME" : "e.g. YOUR STORE"}
-                    style={{ width: 280, padding: "8px 54px 8px 12px", fontSize: "0.88rem", fontWeight: 700, letterSpacing: "0.03em" }}
-                  />
-                  <span
+            {/* Stamp Design Style Selector */}
+            <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--glass-border)", borderRadius: "14px", padding: "18px 20px", marginBottom: 20 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
+                <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-silver)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                  Select Stamp Design Layout
+                </span>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button
+                    type="button"
+                    onClick={() => setStampStyle("badge")}
                     style={{
-                      position: "absolute",
-                      right: 10,
-                      fontSize: "0.72rem",
-                      fontFamily: "var(--font-mono)",
-                      color: (storeName || "").length >= 22 ? "#f59e0b" : "var(--text-dim)",
-                      fontWeight: 600,
-                      pointerEvents: "none",
+                      padding: "6px 14px",
+                      borderRadius: "var(--radius-md)",
+                      border: `1px solid ${stampStyle === "badge" ? "#6366f1" : "var(--glass-border)"}`,
+                      background: stampStyle === "badge" ? "rgba(99, 102, 241, 0.2)" : "rgba(255, 255, 255, 0.04)",
+                      color: stampStyle === "badge" ? "#ffffff" : "var(--text-silver)",
+                      fontWeight: stampStyle === "badge" ? 700 : 500,
+                      fontSize: "0.8rem",
+                      cursor: "pointer",
                     }}
                   >
-                    {(storeName || "").length}/25
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><TagIcon size={14} /> Modern Store Pill Badge</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setStampStyle("classic")}
+                    style={{
+                      padding: "6px 14px",
+                      borderRadius: "var(--radius-md)",
+                      border: `1px solid ${stampStyle === "classic" ? "#6366f1" : "var(--glass-border)"}`,
+                      background: stampStyle === "classic" ? "rgba(99, 102, 241, 0.2)" : "rgba(255, 255, 255, 0.04)",
+                      color: stampStyle === "classic" ? "#ffffff" : "var(--text-silver)",
+                      fontWeight: stampStyle === "classic" ? 700 : 500,
+                      fontSize: "0.8rem",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><FileTextIcon size={14} /> Classic Minimal Stamp</span>
+                  </button>
+                </div>
+              </div>
+
+              {stampStyle === "badge" && (
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 12, flexWrap: "wrap" }}>
+                  <label htmlFor="store-name-input" style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text-silver)", minWidth: 120 }}>
+                    Store / Brand Name:
+                  </label>
+                  <div style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
+                    <input
+                      type="text"
+                      id="store-name-input"
+                      aria-label="Store or Brand Name"
+                      maxLength={25}
+                      className="input-field"
+                      value={storeName}
+                      onChange={(e) => setStoreName(e.target.value)}
+                      placeholder={status === "authenticated" ? "e.g. YOUR STORE NAME" : "e.g. YOUR STORE"}
+                      style={{ width: 280, padding: "8px 54px 8px 12px", fontSize: "0.88rem", fontWeight: 700, letterSpacing: "0.03em" }}
+                    />
+                    <span
+                      style={{
+                        position: "absolute",
+                        right: 10,
+                        fontSize: "0.72rem",
+                        fontFamily: "var(--font-mono)",
+                        color: (storeName || "").length >= 22 ? "#f59e0b" : "var(--text-dim)",
+                        fontWeight: 600,
+                        pointerEvents: "none",
+                      }}
+                    >
+                      {(storeName || "").length}/25
+                    </span>
+                  </div>
+                  <span style={{ fontSize: "0.74rem", color: "var(--text-dim)" }}>
+                    (Max 25 characters for perfect thermal label fitting)
                   </span>
                 </div>
-                <span style={{ fontSize: "0.74rem", color: "var(--text-dim)" }}>
-                  (Max 25 characters for perfect thermal label fitting)
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Preset Bar */}
-          <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--glass-border)", borderRadius: "14px", padding: "18px 20px", marginBottom: 24 }}>
-            <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-silver)", display: "block", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-              Stamp Text Presets
-            </span>
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <button
-                type="button"
-                className="btn-secondary"
-                style={{ background: "rgba(79, 172, 254, 0.12)", borderColor: "var(--aurora-2)", color: "var(--aurora-1)", fontSize: "0.82rem", padding: "8px 16px" }}
-                onClick={() => {
-                  setDetailText("Scan to Follow Store!\nOrder: {orderNo}\nSKU: {sku}");
-                  setActiveInput("detailText");
-                  if (!qrText) {
-                    const inputEl = document.getElementById("qr-text-input");
-                    if (inputEl) inputEl.focus();
-                  }
-                }}
-              >
-                <StoreIcon /> Store Follower Template
-              </button>
-
-              <button
-                type="button"
-                className="btn-secondary"
-                style={{ fontSize: "0.82rem", padding: "8px 16px", borderColor: "rgba(236, 72, 153, 0.4)", color: "#f472b6" }}
-                onClick={() => {
-                  setDetailText("Thank You for Shopping with Us!\n{regionalThankYou}\nOrder: {orderNo} | SKU: {sku}");
-                  setActiveInput("detailText");
-                  if (!qrText) {
-                    const inputEl = document.getElementById("qr-text-input");
-                    if (inputEl) inputEl.focus();
-                  }
-                }}
-              >
-                <HeartIcon /> State-Smart Regional Thank You
-              </button>
-            </div>
-          </div>
-
-          {/* Variable Chips */}
-          <div style={{ marginBottom: 24 }}>
-            <span style={{ fontSize: "0.78rem", color: "var(--text-silver)", fontWeight: 600, display: "block", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-              Insert Variable
-            </span>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-              {TAG_PLACEHOLDERS.map((t) => (
-                <span key={t} className="tag-pill" onClick={() => insertTag(t)} style={{ padding: "6px 12px", fontSize: "0.78rem" }}>
-                  + {t}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: 20, marginBottom: 24 }}>
-            {/* QR Content */}
-            <div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 4 }}>
-                <label htmlFor="qr-text-input" style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text-pure)" }}>
-                  QR Code Scannable URL / Content {enableQr && <span style={{ color: "#EF4444" }}>*</span>}
-                </label>
-                {enableQr && (!qrText || !qrText.trim()) && (
-                  <span style={{ fontSize: "0.72rem", background: "rgba(239, 68, 68, 0.15)", color: "#EF4444", border: "1px solid rgba(239, 68, 68, 0.35)", padding: "2px 8px", borderRadius: 6, fontWeight: 700 }}>
-                    ⚠️ URL Required
-                  </span>
-                )}
-              </div>
-              <input
-                id="qr-text-input"
-                aria-label="QR Code Scannable URL or Text Content"
-                className="input-field input-field-mono"
-                value={qrText}
-                onFocus={() => setActiveInput("qrText")}
-                onChange={(e) => setQrText(e.target.value)}
-                placeholder="e.g. https://www.meesho.com/yourstore"
-                style={
-                  enableQr && (!qrText || !qrText.trim())
-                    ? { borderColor: "#EF4444", background: "rgba(239, 68, 68, 0.05)" }
-                    : {}
-                }
-              />
-              {enableQr && (!qrText || !qrText.trim()) ? (
-                <span style={{ fontSize: "0.75rem", color: "#EF4444", marginTop: 6, display: "inline-flex", alignItems: "center", gap: 5, fontWeight: 600 }}>
-                  ⚠️ QR Code is enabled — Please enter your Store URL or Target Link above!
-                </span>
-              ) : (
-                <span style={{ fontSize: "0.75rem", color: "var(--text-dim)", marginTop: 6, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <CheckIcon /> Valid URL: Scanning QR directly opens this web page.
-                </span>
               )}
             </div>
 
-            {/* Detail Lines */}
-            <div>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-pure)", marginBottom: 8 }}>
-                Printed Text Lines (Next to QR)
-              </label>
-              <textarea
-                className="input-field input-field-mono"
-                style={{ height: 74, resize: "vertical" }}
-                value={detailText}
-                onFocus={() => setActiveInput("detailText")}
-                onChange={(e) => setDetailText(e.target.value)}
-                placeholder="Follow\nour page"
-              />
-            </div>
-          </div>
-
-          {/* Live Real-Time Stamp Design Preview (Exact 1:1 Matching User Screenshot) */}
-          <div style={{ background: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: "16px", padding: "20px 24px", marginTop: 10 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <TagIcon size={18} color="#4F46E5" />
-                <span style={{ fontSize: "0.88rem", fontWeight: 800, color: "#0F172A" }}>
-                  Live Real-Time Stamp Preview (Client-Side Stamp Engine)
-                </span>
-                <span style={{ fontSize: "0.72rem", background: "#EEF2FF", color: "#4F46E5", padding: "2px 8px", borderRadius: "9999px", fontWeight: 700 }}>
-                  0ms Client-Side • Auto-Scaling Prominent Size
-                </span>
-              </div>
-              <span style={{ fontSize: "0.75rem", color: "#64748B", fontFamily: "var(--font-mono)", fontWeight: 600 }}>
-                Offset: ({qrX}pt, {qrY}pt) • Scale: {qrSize}pt • Font: {fontSize}pt
+            {/* Preset Bar */}
+            <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--glass-border)", borderRadius: "14px", padding: "18px 20px", marginBottom: 24 }}>
+              <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-silver)", display: "block", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                Stamp Text Presets
               </span>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  style={{ background: "rgba(79, 172, 254, 0.12)", borderColor: "var(--aurora-2)", color: "var(--aurora-1)", fontSize: "0.82rem", padding: "8px 16px" }}
+                  onClick={() => {
+                    setDetailText("Scan to Follow Store!\nOrder: {orderNo}\nSKU: {sku}");
+                    setActiveInput("detailText");
+                    if (!qrText) {
+                      const inputEl = document.getElementById("qr-text-input");
+                      if (inputEl) inputEl.focus();
+                    }
+                  }}
+                >
+                  <StoreIcon /> Store Follower Template
+                </button>
+
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  style={{ fontSize: "0.82rem", padding: "8px 16px", borderColor: "rgba(236, 72, 153, 0.4)", color: "#f472b6" }}
+                  onClick={() => {
+                    setDetailText("Thank You for Shopping with Us!\n{regionalThankYou}\nOrder: {orderNo} | SKU: {sku}");
+                    setActiveInput("detailText");
+                    if (!qrText) {
+                      const inputEl = document.getElementById("qr-text-input");
+                      if (inputEl) inputEl.focus();
+                    }
+                  }}
+                >
+                  <HeartIcon /> State-Smart Regional Thank You
+                </button>
+              </div>
             </div>
 
-            {/* Visual Badge Card matching screenshot */}
-            <div style={{ display: "flex", justifyContent: "center", padding: "16px 0 10px", overflowX: "auto" }}>
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  background: "#FFFFFF",
-                  border: "2.5px solid #000000",
-                  borderRadius: "16px",
-                  padding: "14px 26px",
-                  boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
-                  gap: 0,
-                  maxWidth: "100%",
-                }}
-              >
-                {/* Left: Storefront Icon + Store Name */}
-                <div style={{ display: "flex", alignItems: "center", gap: 14, flexShrink: 0 }}>
-                  <StorefrontIcon size={44} />
-                  <span
-                    style={{
-                      fontSize: (displayStoreName || "").length > 18 ? "1.15rem" : (displayStoreName || "").length > 12 ? "1.32rem" : "1.52rem",
-                      fontWeight: 900,
-                      color: "#000000",
-                      letterSpacing: "0.02em",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {(displayStoreName || "YOUR STORE").toUpperCase()}
+            {/* Variable Chips */}
+            <div style={{ marginBottom: 24 }}>
+              <span style={{ fontSize: "0.78rem", color: "var(--text-silver)", fontWeight: 600, display: "block", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                Insert Variable
+              </span>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                {TAG_PLACEHOLDERS.map((t) => (
+                  <span key={t} className="tag-pill" onClick={() => insertTag(t)} style={{ padding: "6px 12px", fontSize: "0.78rem" }}>
+                    + {t}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: 20, marginBottom: 24 }}>
+              {/* QR Content */}
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 4 }}>
+                  <label htmlFor="qr-text-input" style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text-pure)" }}>
+                    QR Code Scannable URL / Content {enableQr && <span style={{ color: "#EF4444" }}>*</span>}
+                  </label>
+                  {enableQr && (!qrText || !qrText.trim()) && (
+                    <span style={{ fontSize: "0.72rem", background: "rgba(239, 68, 68, 0.15)", color: "#EF4444", border: "1px solid rgba(239, 68, 68, 0.35)", padding: "2px 8px", borderRadius: 6, fontWeight: 700 }}>
+                      ⚠️ URL Required
+                    </span>
+                  )}
+                </div>
+                <input
+                  id="qr-text-input"
+                  aria-label="QR Code Scannable URL or Text Content"
+                  className="input-field input-field-mono"
+                  value={qrText}
+                  onFocus={() => setActiveInput("qrText")}
+                  onChange={(e) => setQrText(e.target.value)}
+                  placeholder="e.g. https://www.meesho.com/yourstore"
+                  style={
+                    enableQr && (!qrText || !qrText.trim())
+                      ? { borderColor: "#EF4444", background: "rgba(239, 68, 68, 0.05)" }
+                      : {}
+                  }
+                />
+                {enableQr && (!qrText || !qrText.trim()) ? (
+                  <span style={{ fontSize: "0.75rem", color: "#EF4444", marginTop: 6, display: "inline-flex", alignItems: "center", gap: 5, fontWeight: 600 }}>
+                    ⚠️ QR Code is enabled — Please enter your Store URL or Target Link above!
+                  </span>
+                ) : (
+                  <span style={{ fontSize: "0.75rem", color: "var(--text-dim)", marginTop: 6, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    <CheckIcon /> Valid URL: Scanning QR directly opens this web page.
+                  </span>
+                )}
+              </div>
+
+              {/* Detail Lines */}
+              <div>
+                <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-pure)", marginBottom: 8 }}>
+                  Printed Text Lines (Next to QR)
+                </label>
+                <textarea
+                  className="input-field input-field-mono"
+                  style={{ height: 74, resize: "vertical" }}
+                  value={detailText}
+                  onFocus={() => setActiveInput("detailText")}
+                  onChange={(e) => setDetailText(e.target.value)}
+                  placeholder="Follow\nour page"
+                />
+              </div>
+            </div>
+
+            {/* Live Real-Time Stamp Design Preview (Exact 1:1 Matching User Screenshot) */}
+            <div style={{ background: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: "16px", padding: "20px 24px", marginTop: 10 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <TagIcon size={18} color="#4F46E5" />
+                  <span style={{ fontSize: "0.88rem", fontWeight: 800, color: "#0F172A" }}>
+                    Live Real-Time Stamp Preview (Client-Side Stamp Engine)
+                  </span>
+                  <span style={{ fontSize: "0.72rem", background: "#EEF2FF", color: "#4F46E5", padding: "2px 8px", borderRadius: "9999px", fontWeight: 700 }}>
+                    0ms Client-Side • Auto-Scaling Prominent Size
                   </span>
                 </div>
+                <span style={{ fontSize: "0.75rem", color: "#64748B", fontFamily: "var(--font-mono)", fontWeight: 600 }}>
+                  Offset: ({qrX}pt, {qrY}pt) • Scale: {qrSize}pt • Font: {fontSize}pt
+                </span>
+              </div>
 
-                {/* Middle: Vertical Divider */}
-                <div style={{ width: 2.5, height: 54, background: "#000000", margin: "0 20px", flexShrink: 0 }} />
+              {/* Visual Badge Card matching screenshot */}
+              <div style={{ display: "flex", justifyContent: "center", padding: "16px 0 10px", overflowX: "auto" }}>
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    background: "#FFFFFF",
+                    border: "2.5px solid #000000",
+                    borderRadius: "16px",
+                    padding: "14px 26px",
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
+                    gap: 0,
+                    maxWidth: "100%",
+                  }}
+                >
+                  {/* Left: Storefront Icon + Store Name */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 14, flexShrink: 0 }}>
+                    <StorefrontIcon size={44} />
+                    <span
+                      style={{
+                        fontSize: (displayStoreName || "").length > 18 ? "1.15rem" : (displayStoreName || "").length > 12 ? "1.32rem" : "1.52rem",
+                        fontWeight: 900,
+                        color: "#000000",
+                        letterSpacing: "0.02em",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {(displayStoreName || "YOUR STORE").toUpperCase()}
+                    </span>
+                  </div>
 
-                {/* Right: QR Code + Text */}
-                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                  {previewQrDataUrl ? (
-                    <img src={previewQrDataUrl} alt="Marketing QR Code Preview" style={{ width: 54, height: 54, objectFit: "contain", flexShrink: 0 }} />
-                  ) : (
-                    <div style={{ width: 54, height: 54, border: "2px dashed #EF4444", borderRadius: 6, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#DC2626", fontSize: 9, fontWeight: 700, flexShrink: 0, textAlign: "center", padding: 2, background: "#FEF2F2" }}>
-                      <span>⚠️</span>
-                      <span>URL Missing</span>
+                  {/* Middle: Vertical Divider */}
+                  <div style={{ width: 2.5, height: 54, background: "#000000", margin: "0 20px", flexShrink: 0 }} />
+
+                  {/* Right: QR Code + Text */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                    {previewQrDataUrl ? (
+                      <img src={previewQrDataUrl} alt="Marketing QR Code Preview" style={{ width: 54, height: 54, objectFit: "contain", flexShrink: 0 }} />
+                    ) : (
+                      <div style={{ width: 54, height: 54, border: "2px dashed #EF4444", borderRadius: 6, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#DC2626", fontSize: 9, fontWeight: 700, flexShrink: 0, textAlign: "center", padding: 2, background: "#FEF2F2" }}>
+                        <span>⚠️</span>
+                        <span>URL Missing</span>
+                      </div>
+                    )}
+                    <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", maxWidth: 300 }}>
+                      {(detailText || "Follow\nour page").split("\n").map((line, idx) => (
+                        <span
+                          key={idx}
+                          style={{
+                            fontSize: (detailText || "").length > 30 ? "0.98rem" : "1.08rem",
+                            fontWeight: 800,
+                            color: "#000000",
+                            lineHeight: 1.25,
+                            wordBreak: "break-word",
+                            whiteSpace: "pre-wrap",
+                          }}
+                        >
+                          {line || " "}
+                        </span>
+                      ))}
                     </div>
-                  )}
-                  <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", maxWidth: 300 }}>
-                    {(detailText || "Follow\nour page").split("\n").map((line, idx) => (
-                      <span
-                        key={idx}
-                        style={{
-                          fontSize: (detailText || "").length > 30 ? "0.98rem" : "1.08rem",
-                          fontWeight: 800,
-                          color: "#000000",
-                          lineHeight: 1.25,
-                          wordBreak: "break-word",
-                          whiteSpace: "pre-wrap",
-                        }}
-                      >
-                        {line || " "}
-                      </span>
-                    ))}
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
+          </div>
         </div>
-      </div>
 
         {/* Batch Sorter & Filter Control */}
         <div className="premium-glass" style={{ marginBottom: 24 }}>
@@ -3348,7 +3348,7 @@ export default function Home() {
                 Automatically group and sort label pages by SKU, Quantity, Order Date, or Customer Name.
               </p>
             </div>
-            
+
             <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
               {analytics && (
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>

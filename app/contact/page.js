@@ -375,7 +375,7 @@ export default function ContactUsPage() {
                   <BuildingIcon size={14} color="#64748B" /> Operational Headquarters &amp; Entity
                 </div>
                 <div style={{ fontSize: "0.92rem", color: "#0F172A", fontWeight: 600, marginTop: 2 }}>
-                  Mahir Enterprise, Ratanvav, Gujarat, India - 360575
+                  Mahir Enterprise, Ratanvav, Gujarat, India - 364710
                 </div>
               </div>
 
