@@ -1740,11 +1740,9 @@ export default function RemoveDuplicatePage() {
                 </div>
               </div>
               <p style={{ fontSize: "0.84rem", color: "#B91C1C", margin: "0 0 12px 0", lineHeight: 1.5 }}>
-                Aap <strong>{getPlatformBadge(file1Platform).label}</strong> aur{" "}
-                <strong>{getPlatformBadge(file2Platform).label}</strong> ki PDF aapas mein compare nahi kar sakte! Dono
-                platforms ke Order ID formats alag hote hain (jaise Meesho ka <code>12345678901_1</code> vs Flipkart ka{" "}
-                <code>OD...</code>), isliye 0 duplicate match honge.{" "}
-                <strong>Kripya same platform ki dono PDF upload karein.</strong>
+                You cannot cross-compare PDFs from different marketplaces (<strong>{getPlatformBadge(file1Platform).label}</strong> and{" "}
+                <strong>{getPlatformBadge(file2Platform).label}</strong>)! Marketplace order ID formats differ (e.g. Meesho <code>12345678901_1</code> vs Flipkart <code>OD...</code>), so zero duplicate matches will be found.{" "}
+                <strong>Please upload batch files from the same marketplace.</strong>
               </p>
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                 <button
@@ -2299,12 +2297,11 @@ export default function RemoveDuplicatePage() {
                 </span>
               </div>
               <p style={{ fontSize: "0.85rem", color: "#7F1D1D", lineHeight: 1.55, margin: 0, textAlign: "center" }}>
-                Aapne Batch 1 mein <strong>{getPlatformBadge(file1Platform).label}</strong> aur Batch 2 mein galti se{" "}
-                <strong>{getPlatformBadge(file2Platform).label}</strong> upload kar diya hai. Dono platforms ke Order ID
-                formats alag hote hain, isliye inme koi duplicate match nahi hoga.
+                You have uploaded <strong>{getPlatformBadge(file1Platform).label}</strong> in Batch 1 and{" "}
+                <strong>{getPlatformBadge(file2Platform).label}</strong> in Batch 2. Marketplace order ID formats differ, so no duplicates can match across different platforms.
                 <br />
                 <br />
-                <strong>Kripya same marketplace ki dono PDF upload karein (jaise dono Meesho ya dono Flipkart).</strong>
+                <strong>Please upload both PDF batches from the same marketplace (e.g. both Meesho or both Flipkart).</strong>
               </p>
             </div>
 

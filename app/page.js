@@ -1268,7 +1268,7 @@ export default function Home() {
             allDuplicateOrderWarnings = [...allDuplicateOrderWarnings, ...(data.duplicateOrderWarnings || [])];
           } else {
             const errData = await res.json().catch(() => ({}));
-            const errMsg = errData.error || "Kripya thik shipping label PDF upload karein (Order ID aur Customer Name nahi mila).";
+            const errMsg = errData.error || "Please upload a valid shipping label PDF (Order ID and Customer Name could not be detected).";
             setError(errMsg);
             showToast(errMsg, "error");
             setPages([]);
@@ -1307,7 +1307,7 @@ export default function Home() {
               allDuplicateOrderWarnings = [...allDuplicateOrderWarnings, ...(data.duplicateOrderWarnings || [])];
             } else {
               const errData = await res.json().catch(() => ({}));
-              const errMsg = errData.error || "Kripya thik shipping label PDF upload karein (Order ID aur Customer Name nahi mila).";
+              const errMsg = errData.error || "Please upload a valid shipping label PDF (Order ID and Customer Name could not be detected).";
               setError(errMsg);
               showToast(errMsg, "error");
               setPages([]);
@@ -1345,7 +1345,7 @@ export default function Home() {
           setShowMixedMarketplaceModal(true);
         }
       } else {
-        const errMsg = "Kripya thik shipping label PDF upload karein (Order ID aur Customer Name nahi mila).";
+        const errMsg = "Please upload a valid shipping label PDF (Order ID and Customer Name could not be detected).";
         setError(errMsg);
         showToast(errMsg, "error");
         setPages([]);
@@ -1457,7 +1457,7 @@ export default function Home() {
     }
 
     if (enableQr && (!qrText || !qrText.trim())) {
-      const msg = "⚠️ QR Code ON hai! Kripya pehle apna Store URL / Link enter karein, ya QR Code ko OFF karein.";
+      const msg = "⚠️ QR Code is enabled! Please enter your Store URL or Target Link, or turn off the QR Code option.";
       showToast(msg, "error");
       setError(msg);
       const inputEl = document.getElementById("qr-text-input");
@@ -3226,7 +3226,7 @@ export default function Home() {
               />
               {enableQr && (!qrText || !qrText.trim()) ? (
                 <span style={{ fontSize: "0.75rem", color: "#EF4444", marginTop: 6, display: "inline-flex", alignItems: "center", gap: 5, fontWeight: 600 }}>
-                  ⚠️ QR Code ON hai — Kripya apna Store URL / Link yahan enter karein!
+                  ⚠️ QR Code is enabled — Please enter your Store URL or Target Link above!
                 </span>
               ) : (
                 <span style={{ fontSize: "0.75rem", color: "var(--text-dim)", marginTop: 6, display: "inline-flex", alignItems: "center", gap: 4 }}>
