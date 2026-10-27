@@ -25,8 +25,8 @@ export default function TemplatesPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [enableQr, setEnableQr] = useState(true);
-  const [qrText, setQrText] = useState("https://www.meesho.com/themahirenterprise");
-  const [detailText, setDetailText] = useState("Scan to Follow Meesho Store!\nOrder: {orderNo}\nSKU: {sku}");
+  const [qrText, setQrText] = useState("");
+  const [detailText, setDetailText] = useState("Scan to Follow Store!\nOrder: {orderNo}\nSKU: {sku}");
   const [qrX, setQrX] = useState(30);
   const [qrY, setQrY] = useState(30);
   const [qrSize, setQrSize] = useState(90);
@@ -82,6 +82,10 @@ export default function TemplatesPage() {
     e.preventDefault();
     if (!name.trim()) {
       showToast("Please enter a template name", "error");
+      return;
+    }
+    if (enableQr && (!qrText || !qrText.trim())) {
+      showToast("⚠️ Please enter a QR Code URL or disable QR code", "error");
       return;
     }
     if (!session?.user?.email) {
@@ -374,14 +378,30 @@ export default function TemplatesPage() {
           </div>
 
           <div>
-            <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-silver)", marginBottom: 6 }}>
-              QR Code URL / Target
-            </label>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+              <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-silver)" }}>
+                QR Code URL / Target {enableQr && <span style={{ color: "#EF4444" }}>*</span>}
+              </label>
+              {enableQr && (!qrText || !qrText.trim()) && (
+                <span style={{ fontSize: "0.7rem", color: "#EF4444", fontWeight: 700 }}>URL Required</span>
+              )}
+            </div>
             <input
               className="input-field input-field-mono"
               value={qrText}
               onChange={(e) => setQrText(e.target.value)}
+              placeholder="e.g. https://www.meesho.com/yourstore"
+              style={
+                enableQr && (!qrText || !qrText.trim())
+                  ? { borderColor: "#EF4444", background: "rgba(239, 68, 68, 0.05)" }
+                  : {}
+              }
             />
+            {enableQr && (!qrText || !qrText.trim()) && (
+              <span style={{ fontSize: "0.72rem", color: "#EF4444", marginTop: 4, display: "block" }}>
+                ⚠️ Please enter your store or target URL
+              </span>
+            )}
           </div>
 
           <div>

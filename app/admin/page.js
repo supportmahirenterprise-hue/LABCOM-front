@@ -3189,7 +3189,7 @@ export default function AdminPage() {
                             type="text"
                             value={settingsForm.qrText}
                             onChange={(e) => setSettingsForm({ ...settingsForm, qrText: e.target.value })}
-                            placeholder="https://www.meesho.com/themahirenterprise"
+                            placeholder="https://www.meesho.com/yourstore"
                             style={{
                               width: "100%",
                               padding: "10px 14px 10px 38px",

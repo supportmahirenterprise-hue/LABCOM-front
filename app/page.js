@@ -326,8 +326,8 @@ export default function Home() {
   const [enableQr, setEnableQr] = useState(true);
   const [useNativeScript, setUseNativeScript] = useState(true);
 
-  // QR Config with default Meesho Store URL requested by user
-  const [qrText, setQrText] = useState("https://www.meesho.com/themahirenterprise");
+  // QR Config: empty by default so user is prompted to input their own store/target URL
+  const [qrText, setQrText] = useState("");
   const [detailText, setDetailText] = useState(
     "Thank You for Shopping with Us!\n{regionalThankYou}\nOrder: {orderNo} | SKU: {sku}"
   );
@@ -349,7 +349,11 @@ export default function Home() {
 
   useEffect(() => {
     let isMounted = true;
-    QRCode.toDataURL(qrText || "https://www.meesho.com", { margin: 0, width: 140 })
+    if (!qrText || !qrText.trim()) {
+      setPreviewQrDataUrl("");
+      return;
+    }
+    QRCode.toDataURL(qrText.trim(), { margin: 0, width: 140 })
       .then((url) => {
         if (isMounted) setPreviewQrDataUrl(url);
       })
@@ -1451,6 +1455,19 @@ export default function Home() {
       }
       return;
     }
+
+    if (enableQr && (!qrText || !qrText.trim())) {
+      const msg = "⚠️ QR Code ON hai! Kripya pehle apna Store URL / Link enter karein, ya QR Code ko OFF karein.";
+      showToast(msg, "error");
+      setError(msg);
+      const inputEl = document.getElementById("qr-text-input");
+      if (inputEl) {
+        inputEl.focus();
+        inputEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      return;
+    }
+
     setError("");
     setSuccessMsg("");
     if (isSample) {
@@ -3129,40 +3146,36 @@ export default function Home() {
           {/* Preset Bar */}
           <div style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--glass-border)", borderRadius: "14px", padding: "18px 20px", marginBottom: 24 }}>
             <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-silver)", display: "block", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-              Store Link Presets
+              Stamp Text Presets
             </span>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
               <button
+                type="button"
                 className="btn-secondary"
                 style={{ background: "rgba(79, 172, 254, 0.12)", borderColor: "var(--aurora-2)", color: "var(--aurora-1)", fontSize: "0.82rem", padding: "8px 16px" }}
                 onClick={() => {
-                  setQrText("https://www.meesho.com/themahirenterprise");
-                  setDetailText("Scan to Follow Meesho Store!\nOrder: {orderNo}\nSKU: {sku}");
-                  setActiveInput("qrText");
+                  setDetailText("Scan to Follow Store!\nOrder: {orderNo}\nSKU: {sku}");
+                  setActiveInput("detailText");
+                  if (!qrText) {
+                    const inputEl = document.getElementById("qr-text-input");
+                    if (inputEl) inputEl.focus();
+                  }
                 }}
               >
-                <StoreIcon /> Default Meesho Store (themahirenterprise)
+                <StoreIcon /> Store Follower Template
               </button>
 
               <button
-                className="btn-secondary"
-                style={{ fontSize: "0.82rem", padding: "8px 16px" }}
-                onClick={() => {
-                  setQrText("https://instagram.com/mahir.enterprise_");
-                  setDetailText("Scan to Follow on Instagram!\n@mahir.enterprise_\nSKU: {sku}");
-                  setActiveInput("qrText");
-                }}
-              >
-                <InstagramIcon /> Instagram Page (@mahir.enterprise_)
-              </button>
-
-              <button
+                type="button"
                 className="btn-secondary"
                 style={{ fontSize: "0.82rem", padding: "8px 16px", borderColor: "rgba(236, 72, 153, 0.4)", color: "#f472b6" }}
                 onClick={() => {
-                  setQrText("https://www.meesho.com/themahirenterprise");
                   setDetailText("Thank You for Shopping with Us!\n{regionalThankYou}\nOrder: {orderNo} | SKU: {sku}");
-                  setActiveInput("qrText");
+                  setActiveInput("detailText");
+                  if (!qrText) {
+                    const inputEl = document.getElementById("qr-text-input");
+                    if (inputEl) inputEl.focus();
+                  }
                 }}
               >
                 <HeartIcon /> State-Smart Regional Thank You
@@ -3187,9 +3200,16 @@ export default function Home() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: 20, marginBottom: 24 }}>
             {/* QR Content */}
             <div>
-              <label htmlFor="qr-text-input" style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-pure)", marginBottom: 8 }}>
-                QR Code Scannable URL / Content
-              </label>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 4 }}>
+                <label htmlFor="qr-text-input" style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text-pure)" }}>
+                  QR Code Scannable URL / Content {enableQr && <span style={{ color: "#EF4444" }}>*</span>}
+                </label>
+                {enableQr && (!qrText || !qrText.trim()) && (
+                  <span style={{ fontSize: "0.72rem", background: "rgba(239, 68, 68, 0.15)", color: "#EF4444", border: "1px solid rgba(239, 68, 68, 0.35)", padding: "2px 8px", borderRadius: 6, fontWeight: 700 }}>
+                    ⚠️ URL Required
+                  </span>
+                )}
+              </div>
               <input
                 id="qr-text-input"
                 aria-label="QR Code Scannable URL or Text Content"
@@ -3197,11 +3217,22 @@ export default function Home() {
                 value={qrText}
                 onFocus={() => setActiveInput("qrText")}
                 onChange={(e) => setQrText(e.target.value)}
-                placeholder="https://www.meesho.com/themahirenterprise"
+                placeholder="e.g. https://www.meesho.com/yourstore"
+                style={
+                  enableQr && (!qrText || !qrText.trim())
+                    ? { borderColor: "#EF4444", background: "rgba(239, 68, 68, 0.05)" }
+                    : {}
+                }
               />
-              <span style={{ fontSize: "0.75rem", color: "var(--text-dim)", marginTop: 6, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                <CheckIcon /> Valid URL: Scanning QR directly opens this web page.
-              </span>
+              {enableQr && (!qrText || !qrText.trim()) ? (
+                <span style={{ fontSize: "0.75rem", color: "#EF4444", marginTop: 6, display: "inline-flex", alignItems: "center", gap: 5, fontWeight: 600 }}>
+                  ⚠️ QR Code ON hai — Kripya apna Store URL / Link yahan enter karein!
+                </span>
+              ) : (
+                <span style={{ fontSize: "0.75rem", color: "var(--text-dim)", marginTop: 6, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  <CheckIcon /> Valid URL: Scanning QR directly opens this web page.
+                </span>
+              )}
             </div>
 
             {/* Detail Lines */}
@@ -3276,8 +3307,9 @@ export default function Home() {
                   {previewQrDataUrl ? (
                     <img src={previewQrDataUrl} alt="Marketing QR Code Preview" style={{ width: 54, height: 54, objectFit: "contain", flexShrink: 0 }} />
                   ) : (
-                    <div style={{ width: 54, height: 54, background: "#000000", borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", color: "#FFF", fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
-                      QR
+                    <div style={{ width: 54, height: 54, border: "2px dashed #EF4444", borderRadius: 6, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#DC2626", fontSize: 9, fontWeight: 700, flexShrink: 0, textAlign: "center", padding: 2, background: "#FEF2F2" }}>
+                      <span>⚠️</span>
+                      <span>URL Missing</span>
                     </div>
                   )}
                   <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", maxWidth: 300 }}>
