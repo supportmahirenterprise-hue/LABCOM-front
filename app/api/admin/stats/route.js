@@ -2,20 +2,16 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../../../lib/auth";
 import { NextResponse } from "next/server";
 import { getDb } from "../../../../lib/mongodb";
-import { isSuperAdmin } from "../../../../lib/admin";
+import { isSuperAdmin, getVerifiedSuperAdmin, INTERNAL_API_SECRET } from "../../../../lib/admin";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req) {
   try {
     const session = await getServerSession(authOptions);
-    const headerEmail = req.headers.get("x-user-email");
-    const { searchParams } = new URL(req.url);
-    const queryEmail = searchParams.get("email");
+    const email = await getVerifiedSuperAdmin(session, req);
 
-    const email = (session?.user?.email || headerEmail || queryEmail || "").toLowerCase().trim();
-
-    if (!isSuperAdmin(email)) {
+    if (!email) {
       return NextResponse.json(
         { error: "Access Denied: SuperAdmin privileges required." },
         { status: 403 }
@@ -31,7 +27,10 @@ export async function GET(req) {
       const backendRes = await fetch(
         `${BACKEND_URL}/api/admin/stats?email=${encodeURIComponent(email)}`,
         {
-          headers: { "x-user-email": email },
+          headers: {
+            "x-user-email": email,
+            "x-internal-secret": INTERNAL_API_SECRET,
+          },
           cache: "no-store",
         }
       );

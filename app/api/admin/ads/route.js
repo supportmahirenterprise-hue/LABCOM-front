@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../../../lib/auth";
 import { NextResponse } from "next/server";
 import { getDb } from "../../../../lib/mongodb";
-import { isSuperAdmin } from "../../../../lib/admin";
+import { isSuperAdmin, getVerifiedSuperAdmin } from "../../../../lib/admin";
 import { DEFAULT_ADS_CONFIG } from "../../../../lib/adsConfig";
 
 export const dynamic = "force-dynamic";
@@ -10,13 +10,9 @@ export const dynamic = "force-dynamic";
 export async function GET(req) {
   try {
     const session = await getServerSession(authOptions);
-    const headerEmail = req.headers.get("x-user-email");
-    const { searchParams } = new URL(req.url);
-    const queryEmail = searchParams.get("email");
+    const email = await getVerifiedSuperAdmin(session, req);
 
-    const email = (session?.user?.email || headerEmail || queryEmail || "").toLowerCase().trim();
-
-    if (!isSuperAdmin(email)) {
+    if (!email) {
       return NextResponse.json(
         { error: "Access Denied: SuperAdmin privileges required." },
         { status: 403 }
@@ -59,13 +55,9 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     const session = await getServerSession(authOptions);
-    const headerEmail = req.headers.get("x-user-email");
-    const { searchParams } = new URL(req.url);
-    const queryEmail = searchParams.get("email");
+    const email = await getVerifiedSuperAdmin(session, req);
 
-    const email = (session?.user?.email || headerEmail || queryEmail || "").toLowerCase().trim();
-
-    if (!isSuperAdmin(email)) {
+    if (!email) {
       return NextResponse.json(
         { error: "Access Denied: SuperAdmin privileges required." },
         { status: 403 }

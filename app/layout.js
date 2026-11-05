@@ -3,6 +3,7 @@ import { Providers } from "./components/Providers";
 import { Sidebar } from "./components/Sidebar";
 import AdSlot from "./components/AdSlot";
 import CookieConsent from "./components/CookieConsent";
+import ClientSecurityGuard from "./components/ClientSecurityGuard";
 import Script from "next/script";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://labelpro.in";
@@ -253,6 +254,7 @@ export default function RootLayout({ children }) {
           </div>
         </Providers>
         <CookieConsent />
+        <ClientSecurityGuard />
       </body>
     </html>
   );

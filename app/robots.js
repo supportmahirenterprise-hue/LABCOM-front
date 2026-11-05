@@ -3,33 +3,61 @@ export default function robots() {
 
   return {
     rules: [
+      // 1. Legitimate Search Engines & Social Indexers (Full SEO Access to 11 Sitemap Pages)
+      {
+        userAgent: [
+          "Googlebot",
+          "Googlebot-Image",
+          "Bingbot",
+          "Slurp",
+          "DuckDuckBot",
+          "Baiduspider",
+          "YandexBot",
+          "facebookexternalhit",
+          "Twitterbot",
+          "LinkedInBot",
+          "WhatsApp",
+          "Mediapartners-Google",
+        ],
+        allow: "/",
+        disallow: [
+          "/api/",
+          "/admin",
+          "/settings",
+          "/login",
+          "/_next/",
+          "/*.json$",
+        ],
+      },
+      // 2. AI Scrapers, Automated Web Harvesters & Model Training Bots (Blocked from entire site)
+      {
+        userAgent: [
+          "CCBot",
+          "Bytespider",
+          "Diffbot",
+          "GPTBot",
+          "ClaudeBot",
+          "anthropic-ai",
+          "Google-Extended",
+          "FacebookBot",
+          "Amazonbot",
+          "cohere-ai",
+          "Scrapy",
+        ],
+        disallow: ["/"],
+      },
+      // 3. Fallback for general crawlers
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/settings", "/login", "/admin"],
-      },
-      {
-        userAgent: "Mediapartners-Google",
-        allow: "/",
-      },
-      {
-        userAgent: [
-          "GPTBot",
-          "ChatGPT-User",
-          "ClaudeBot",
-          "PerplexityBot",
-          "Google-Extended",
-          "Applebot-Extended",
-          "anthropic-ai",
-          "FacebookBot",
-          "Amazonbot",
-          "Bytespider",
-          "CCBot",
-          "cohere-ai",
-          "OAI-SearchBot",
+        disallow: [
+          "/api/",
+          "/admin",
+          "/settings",
+          "/login",
+          "/_next/",
+          "/*.json$",
         ],
-        allow: "/",
-        disallow: ["/api/", "/settings", "/login", "/admin"],
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,

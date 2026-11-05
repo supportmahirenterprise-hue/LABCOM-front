@@ -2,25 +2,23 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../../../lib/auth";
 import { NextResponse } from "next/server";
 import { getDb } from "../../../../lib/mongodb";
-import { isSuperAdmin } from "../../../../lib/admin";
+import { isSuperAdmin, getVerifiedSuperAdmin, INTERNAL_API_SECRET } from "../../../../lib/admin";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req) {
   try {
     const session = await getServerSession(authOptions);
-    const headerEmail = req.headers.get("x-user-email");
-    const { searchParams } = new URL(req.url);
-    const queryEmail = searchParams.get("email");
-    const callerEmail = (session?.user?.email || headerEmail || queryEmail || "").toLowerCase().trim();
+    const callerEmail = await getVerifiedSuperAdmin(session, req);
 
-    if (!isSuperAdmin(callerEmail)) {
+    if (!callerEmail) {
       return NextResponse.json(
         { error: "Access Denied: SuperAdmin privileges required." },
         { status: 403 }
       );
     }
 
+    const { searchParams } = new URL(req.url);
     const targetEmail = (searchParams.get("targetEmail") || "").toLowerCase().trim();
     const type = (searchParams.get("type") || "customers").toLowerCase().trim();
     const isUnassigned =
@@ -37,7 +35,10 @@ export async function GET(req) {
       const backendRes = await fetch(
         `${BACKEND_URL}/api/admin/drilldown?targetEmail=${encodeURIComponent(targetEmail)}&type=${encodeURIComponent(type)}&email=${encodeURIComponent(callerEmail)}`,
         {
-          headers: { "x-user-email": callerEmail },
+          headers: {
+            "x-user-email": callerEmail,
+            "x-internal-secret": INTERNAL_API_SECRET,
+          },
           cache: "no-store",
         }
       );

@@ -332,11 +332,12 @@ export default function AdminPage() {
   const [sessionEmail, setSessionEmail] = useState(() => {
     if (typeof window !== "undefined") {
       try {
-        const p = new URLSearchParams(window.location.search);
-        const qEmail = p.get("email");
-        if (qEmail && isSuperAdmin(qEmail)) return qEmail;
-        const cached = localStorage.getItem("adminEmail");
-        if (cached && isSuperAdmin(cached)) return cached;
+        const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+        if (process.env.NODE_ENV !== "production" && isLocalhost) {
+          const p = new URLSearchParams(window.location.search);
+          const qEmail = p.get("email");
+          if (qEmail && isSuperAdmin(qEmail)) return qEmail;
+        }
       } catch (e) {}
     }
     return "";
@@ -354,19 +355,15 @@ export default function AdminPage() {
   useEffect(() => {
     if (session?.user?.email) {
       setSessionEmail(session.user.email);
-      try {
-        if (isSuperAdmin(session.user.email)) {
-          localStorage.setItem("adminEmail", session.user.email);
-        } else {
-          localStorage.removeItem("adminEmail");
-        }
-      } catch (e) {}
     } else {
       if (typeof window !== "undefined") {
-        const p = new URLSearchParams(window.location.search);
-        const qEmail = p.get("email");
-        if (qEmail && isSuperAdmin(qEmail)) {
-          setSessionEmail(qEmail);
+        const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+        if (process.env.NODE_ENV !== "production" && isLocalhost) {
+          const p = new URLSearchParams(window.location.search);
+          const qEmail = p.get("email");
+          if (qEmail && isSuperAdmin(qEmail)) {
+            setSessionEmail(qEmail);
+          }
         }
       }
       fetch("/api/auth/session")
@@ -374,9 +371,6 @@ export default function AdminPage() {
         .then((data) => {
           if (data?.user?.email) {
             setSessionEmail(data.user.email);
-            if (isSuperAdmin(data.user.email)) {
-              localStorage.setItem("adminEmail", data.user.email);
-            }
           }
         })
         .catch(() => {});

@@ -2,16 +2,15 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../../../../lib/auth";
 import { NextResponse } from "next/server";
 import { getDb } from "../../../../../lib/mongodb";
-import { isSuperAdmin } from "../../../../../lib/admin";
+import { isSuperAdmin, getVerifiedSuperAdmin, INTERNAL_API_SECRET } from "../../../../../lib/admin";
 import { setInMemoryUserBlocked } from "../../../../../lib/blockGuard";
 
 export async function POST(req) {
   try {
     const session = await getServerSession(authOptions);
-    const headerEmail = req.headers.get("x-user-email");
-    const adminEmail = (session?.user?.email || headerEmail || "").toLowerCase().trim();
+    const adminEmail = await getVerifiedSuperAdmin(session, req);
 
-    if (!isSuperAdmin(adminEmail)) {
+    if (!adminEmail) {
       return NextResponse.json(
         { error: "Access Denied: SuperAdmin privileges required." },
         { status: 403 }
@@ -45,6 +44,7 @@ export async function POST(req) {
         headers: {
           "Content-Type": "application/json",
           "x-user-email": adminEmail,
+          "x-internal-secret": INTERNAL_API_SECRET,
         },
         body: JSON.stringify({ email: targetEmail, isBlocked: shouldBlock }),
       });
