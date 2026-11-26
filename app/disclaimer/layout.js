@@ -34,6 +34,50 @@ export const metadata = {
   },
 };
 
+const disclaimerSchema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://labelpro.in",
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Legal Disclaimer",
+          "item": "https://labelpro.in/disclaimer",
+        },
+      ],
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://labelpro.in/disclaimer#webpage",
+      "url": "https://labelpro.in/disclaimer",
+      "name": "Legal Disclaimer & Marketplace Safe Harbor - LabelPro",
+      "description":
+        "Legal disclaimer regarding marketplace compatibility. LabelPro is an independent third-party tool compatible with Meesho, Flipkart, and Amazon shipping label formats.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Mahir Enterprise",
+        "url": "https://labelpro.in"
+      }
+    }
+  ]
+};
+
 export default function DisclaimerLayout({ children }) {
-  return children;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(disclaimerSchema) }}
+      />
+      {children}
+    </>
+  );
 }

@@ -35,6 +35,50 @@ export const metadata = {
   },
 };
 
+const termsSchema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://labelpro.in",
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Terms of Service",
+          "item": "https://labelpro.in/terms",
+        },
+      ],
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://labelpro.in/terms#webpage",
+      "url": "https://labelpro.in/terms",
+      "name": "Terms of Service & Seller Agreement - LabelPro",
+      "description":
+        "Terms and conditions governing access and usage of LabelPro's free e-commerce shipping label studio, duplicate remover, and analytics suite.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Mahir Enterprise",
+        "url": "https://labelpro.in"
+      }
+    }
+  ]
+};
+
 export default function TermsLayout({ children }) {
-  return children;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(termsSchema) }}
+      />
+      {children}
+    </>
+  );
 }

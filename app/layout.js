@@ -117,15 +117,45 @@ const jsonLdGraph = {
       "@type": "Organization",
       "@id": `${siteUrl}/#organization`,
       "name": "LabelPro",
+      "legalName": "Mahir Enterprise",
       "url": siteUrl,
       "logo": `${siteUrl}/icon.png`,
+      "founder": {
+        "@type": "Person",
+        "name": "Mahir Enterprise"
+      },
+      "foundingLocation": {
+        "@type": "Place",
+        "name": "Porbandar, Gujarat, India"
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Ratanvav",
+        "addressLocality": "Porbandar",
+        "addressRegion": "Gujarat",
+        "postalCode": "360575",
+        "addressCountry": "IN"
+      },
       "contactPoint": {
         "@type": "ContactPoint",
         "telephone": "+91-9664720473",
         "contactType": "customer service",
         "areaServed": "IN",
-        "availableLanguage": ["en", "hi"]
-      }
+        "availableLanguage": ["en", "hi", "gu"]
+      },
+      "sameAs": [
+        siteUrl,
+        "https://wa.me/919664720473"
+      ],
+      "knowsAbout": [
+        "E-Commerce Warehouse Automation",
+        "Thermal Label Cropping",
+        "Duplicate Order Detection",
+        "Meesho Shipping Labels",
+        "Flipkart Label Formats",
+        "Amazon Easy Ship ATS Labels",
+        "Reverse Logistics RTO Management"
+      ]
     },
     {
       "@type": "SoftwareApplication",

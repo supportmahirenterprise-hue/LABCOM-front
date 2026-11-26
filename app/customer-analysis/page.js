@@ -1521,6 +1521,170 @@ export default function CustomerAnalysisPage() {
             </div>
           </div>
         )}
+
+        {/* Semantic Educational & SEO Guide for Customer & District Demand Intelligence */}
+        <section
+          style={{
+            marginTop: 48,
+            marginBottom: 32,
+            borderTop: "1px solid #E2E8F0",
+            paddingTop: 36,
+          }}
+        >
+          <div style={{ maxWidth: 1150, margin: "0 auto" }}>
+            <div style={{ marginBottom: 32, textAlign: "center" }}>
+              <span
+                style={{
+                  fontSize: "0.76rem",
+                  fontWeight: 800,
+                  color: "#4F46E5",
+                  background: "#EEF2FF",
+                  padding: "4px 12px",
+                  borderRadius: "9999px",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                Logistics Analytics &amp; Geographic Intelligence
+              </span>
+              <h2
+                className="heading-display"
+                style={{
+                  fontSize: "1.75rem",
+                  fontWeight: 800,
+                  color: "#0F172A",
+                  margin: "12px 0 8px",
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                Demystifying District Demand &amp; Customer Retention for Indian Sellers
+              </h2>
+              <p
+                style={{
+                  fontSize: "0.95rem",
+                  color: "#64748B",
+                  maxWidth: 820,
+                  margin: "0 auto",
+                  lineHeight: 1.6,
+                }}
+              >
+                Discover how analyzing pin codes, state-wise order densities, and buyer repeat rates empowers Meesho, Flipkart, and Amazon sellers to maximize profit margins.
+              </p>
+            </div>
+
+            {/* 3 Core Intelligence Pillars */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                gap: 20,
+                marginBottom: 36,
+              }}
+            >
+              <div
+                style={{
+                  background: "#FFFFFF",
+                  borderRadius: 16,
+                  padding: 24,
+                  border: "1px solid #E2E8F0",
+                  boxShadow: "0 4px 16px -2px rgba(15, 23, 42, 0.04)",
+                }}
+              >
+                <h3 style={{ fontSize: "1.08rem", fontWeight: 700, color: "#0F172A", marginTop: 0, marginBottom: 10 }}>
+                  District (Jila) Demand Concentration
+                </h3>
+                <p style={{ fontSize: "0.86rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                  India spans over 700 distinct administrative districts. By grouping parcel addresses into geographic clusters (e.g. Surat, Jaipur, Pune, Patna), sellers can allocate inventory closer to high-demand fulfillment hubs and tailor promotional campaigns to high-converting regions.
+                </p>
+              </div>
+
+              <div
+                style={{
+                  background: "#FFFFFF",
+                  borderRadius: 16,
+                  padding: 24,
+                  border: "1px solid #E2E8F0",
+                  boxShadow: "0 4px 16px -2px rgba(15, 23, 42, 0.04)",
+                }}
+              >
+                <h3 style={{ fontSize: "1.08rem", fontWeight: 700, color: "#0F172A", marginTop: 0, marginBottom: 10 }}>
+                  Repeat Buyer Lifetime Value (LTV)
+                </h3>
+                <p style={{ fontSize: "0.86rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                  Acquiring a new customer is 5x more expensive than retaining an existing one. LabelPro highlights loyal repeat buyers across marketplace batches, enabling you to package special thank-you notes, customized store QR codes, and exclusive discounts for repeat shoppers.
+                </p>
+              </div>
+
+              <div
+                style={{
+                  background: "#FFFFFF",
+                  borderRadius: 16,
+                  padding: 24,
+                  border: "1px solid #E2E8F0",
+                  boxShadow: "0 4px 16px -2px rgba(15, 23, 42, 0.04)",
+                }}
+              >
+                <h3 style={{ fontSize: "1.08rem", fontWeight: 700, color: "#0F172A", marginTop: 0, marginBottom: 10 }}>
+                  Proactive High-RTO Risk Mitigation
+                </h3>
+                <p style={{ fontSize: "0.86rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                  Certain rural routes and high-COD regions suffer elevated Courier Return to Origin (RTO) rates. By tracking delivery success rates across states, sellers can identify problematic pincodes and verify COD orders before dispatch to eliminate unnecessary forward and reverse freight expenses.
+                </p>
+              </div>
+            </div>
+
+            {/* Seller FAQ Box */}
+            <div
+              style={{
+                background: "#F8FAFC",
+                borderRadius: 20,
+                padding: 32,
+                border: "1px solid #E2E8F0",
+              }}
+            >
+              <h2
+                style={{
+                  fontSize: "1.3rem",
+                  fontWeight: 800,
+                  color: "#0F172A",
+                  marginTop: 0,
+                  marginBottom: 20,
+                }}
+              >
+                Frequently Asked Questions (FAQ) — Customer &amp; District Demand
+              </h2>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div>
+                  <h3 style={{ fontSize: "0.96rem", fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>
+                    How is district and pincode demand extracted from shipping labels?
+                  </h3>
+                  <p style={{ fontSize: "0.86rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                    When label batches are processed, LabelPro parses the recipient shipping address block, extracts the 6-digit postal code, and maps it against an all-India district database. This automatically groups orders by state, city, and district.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 style={{ fontSize: "0.96rem", fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>
+                    Is customer data kept private and protected under the DPDP Act?
+                  </h3>
+                  <p style={{ fontSize: "0.86rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                    Yes. Customer intelligence is strictly isolated to your authenticated seller account with end-to-end multi-tenant isolation. No customer data is shared, sold, or accessible to other sellers.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 style={{ fontSize: "0.96rem", fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>
+                    Can I export customer analytics to Excel or CSV?
+                  </h3>
+                  <p style={{ fontSize: "0.86rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                    Yes. You can export complete customer records, repeat buyer reports, and state-wise order breakdowns directly to Excel/CSV for offline financial analysis and accounting.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
 
       {/* Order History Modal Popup */}

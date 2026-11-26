@@ -36,6 +36,50 @@ export const metadata = {
   },
 };
 
+const templatesSchema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://labelpro.in",
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Custom Label Presets & Templates",
+          "item": "https://labelpro.in/templates",
+        },
+      ],
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Custom Label Presets & QR Code Templates - LabelPro",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web-based",
+      "description":
+        "Create and manage custom QR code positions, Instagram follower boosters, Meesho store links, and dynamic print templates for thermal shipping labels.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "INR",
+      },
+    },
+  ],
+};
+
 export default function TemplatesLayout({ children }) {
-  return children;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(templatesSchema) }}
+      />
+      {children}
+    </>
+  );
 }

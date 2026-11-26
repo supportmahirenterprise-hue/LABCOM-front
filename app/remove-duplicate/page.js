@@ -2203,6 +2203,181 @@ export default function RemoveDuplicatePage() {
         </>
       )}
 
+      {/* Semantic Educational & SEO Guide for Marketplace Sellers */}
+      <section
+        style={{
+          marginTop: 48,
+          marginBottom: 32,
+          borderTop: "1px solid #E2E8F0",
+          paddingTop: 36,
+        }}
+      >
+        <div style={{ maxWidth: 1150, margin: "0 auto" }}>
+          <div style={{ marginBottom: 32, textAlign: "center" }}>
+            <span
+              style={{
+                fontSize: "0.76rem",
+                fontWeight: 800,
+                color: "#4F46E5",
+                background: "#EEF2FF",
+                padding: "4px 12px",
+                borderRadius: "9999px",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+              }}
+            >
+              Seller Knowledge Base &amp; Warehouse Operations
+            </span>
+            <h2
+              className="heading-display"
+              style={{
+                fontSize: "1.75rem",
+                fontWeight: 800,
+                color: "#0F172A",
+                margin: "12px 0 8px",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              How Duplicate Label Remover Protects Indian Marketplace Sellers
+            </h2>
+            <p
+              style={{
+                fontSize: "0.95rem",
+                color: "#64748B",
+                maxWidth: 820,
+                margin: "0 auto",
+                lineHeight: 1.6,
+              }}
+            >
+              Learn how automated cross-batch PDF comparison prevents double dispatches, saves courier penalty fees, and speeds up Meesho, Flipkart, and Amazon order fulfillment.
+            </p>
+          </div>
+
+          {/* 3 Core Value Pillars */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: 20,
+              marginBottom: 36,
+            }}
+          >
+            <div
+              style={{
+                background: "#FFFFFF",
+                borderRadius: 16,
+                padding: 24,
+                border: "1px solid #E2E8F0",
+                boxShadow: "0 4px 16px -2px rgba(15, 23, 42, 0.04)",
+              }}
+            >
+              <h3 style={{ fontSize: "1.08rem", fontWeight: 700, color: "#0F172A", marginTop: 0, marginBottom: 10 }}>
+                Stop Accidental Double Dispatches
+              </h3>
+              <p style={{ fontSize: "0.86rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                When downloading orders multiple times a day on Meesho or Flipkart seller portals, previously packed orders often re-appear in newly downloaded PDFs. Dispatching the same product twice results in lost inventory, double shipping charges, and marketplace customer return disputes.
+              </p>
+            </div>
+
+            <div
+              style={{
+                background: "#FFFFFF",
+                borderRadius: 16,
+                padding: 24,
+                border: "1px solid #E2E8F0",
+                boxShadow: "0 4px 16px -2px rgba(15, 23, 42, 0.04)",
+              }}
+            >
+              <h3 style={{ fontSize: "1.08rem", fontWeight: 700, color: "#0F172A", marginTop: 0, marginBottom: 10 }}>
+                0ms In-Browser Memory Processing
+              </h3>
+              <p style={{ fontSize: "0.86rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                Unlike legacy software that requires uploading gigabyte-sized shipping manifests to external servers, LabelPro runs 100% inside your browser using WebAssembly. Your customer names, phone numbers, and delivery addresses never leave your computer, ensuring absolute DPDP Act compliance.
+              </p>
+            </div>
+
+            <div
+              style={{
+                background: "#FFFFFF",
+                borderRadius: 16,
+                padding: 24,
+                border: "1px solid #E2E8F0",
+                boxShadow: "0 4px 16px -2px rgba(15, 23, 42, 0.04)",
+              }}
+            >
+              <h3 style={{ fontSize: "1.08rem", fontWeight: 700, color: "#0F172A", marginTop: 0, marginBottom: 10 }}>
+                Flawless Barcode Vector Preservation
+              </h3>
+              <p style={{ fontSize: "0.86rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                LabelPro filters entire vector PDF pages rather than rasterizing them into low-resolution PNGs or JPEGs. As a result, courier barcodes (Code 128, QR codes, Datamatrix) remain razor sharp for instant 1st-pass scanning on Delhivery, Shadowfax, Xpressbees, and BlueDart pickup scanners.
+              </p>
+            </div>
+          </div>
+
+          {/* Seller FAQ Box */}
+          <div
+            style={{
+              background: "#F8FAFC",
+              borderRadius: 20,
+              padding: 32,
+              border: "1px solid #E2E8F0",
+            }}
+          >
+            <h2
+              style={{
+                fontSize: "1.3rem",
+                fontWeight: 800,
+                color: "#0F172A",
+                marginTop: 0,
+                marginBottom: 20,
+              }}
+            >
+              Frequently Asked Questions (FAQ) — Duplicate Shipping Labels
+            </h2>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div>
+                <h3 style={{ fontSize: "0.96rem", fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>
+                  How does LabelPro detect duplicate shipping labels?
+                </h3>
+                <p style={{ fontSize: "0.86rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                  LabelPro reads the embedded text layer of your PDF shipping labels directly inside your browser. It extracts marketplace order identifiers (such as Meesho order numbers or Flipkart OD tracking IDs) and cross-references them against previous batches, stripping duplicate occurrences instantly with zero blank pages.
+                </p>
+              </div>
+
+              <div>
+                <h3 style={{ fontSize: "0.96rem", fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>
+                  Can I deduplicate a single PDF batch with internal repetitions?
+                </h3>
+                <p style={{ fontSize: "0.86rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                  Yes. Simply upload your single PDF file into Batch 1. LabelPro scans the entire document for internal repeating order numbers and gives you a clean PDF containing only unique orders.
+                </p>
+              </div>
+
+              <div>
+                <h3 style={{ fontSize: "0.96rem", fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>
+                  What are Clean Mode A, Clean Mode B, and Merge Unique?
+                </h3>
+                <p style={{ fontSize: "0.86rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                  <strong>Clean Mode A:</strong> Keeps Batch 1 but removes any order that was already in Batch 2.<br />
+                  <strong>Clean Mode B:</strong> Keeps Batch 2 but removes any order that already existed in Batch 1.<br />
+                  <strong>Merge Unique:</strong> Combines both batches into a single consolidated PDF, keeping exactly one copy of every order.
+                </p>
+              </div>
+
+              <div>
+                <h3 style={{ fontSize: "0.96rem", fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>
+                  Can I directly send clean labels to the 4x6 Thermal Cropper?
+                </h3>
+                <p style={{ fontSize: "0.86rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                  Yes! With a single click on &quot;Crop Clean Labels in Studio&quot;, your clean unique PDF is seamlessly transferred to the LabelPro Studio workspace for 4x6 thermal cropping, SKU sorting, and QR code stamping without re-uploading.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Optional Policy-Compliant Bottom Banner Ad (Managed via Admin) */}
       <AdSlot slotKey="bottomBanner" />
 

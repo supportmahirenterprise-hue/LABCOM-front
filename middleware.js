@@ -6,9 +6,9 @@ export async function middleware(req) {
   const { pathname } = req.nextUrl;
   const userAgent = req.headers.get("user-agent") || "";
 
-  // 1. Allow official search engine crawlers (Googlebot, Bingbot, etc.) for 100% SEO indexation without redirects
+  // 1. Allow official search engine crawlers (Googlebot, Bingbot, Applebot, etc.) for 100% SEO indexation without redirects
   const isSearchEngineBot =
-    /Googlebot|bingbot|Baiduspider|DuckDuckBot|YandexBot|facebot|facebookexternalhit|Twitterbot/i.test(
+    /Googlebot|Googlebot-Image|bingbot|Slurp|DuckDuckBot|Baiduspider|YandexBot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|Applebot|Mediapartners-Google/i.test(
       userAgent
     );
   if (isSearchEngineBot) {

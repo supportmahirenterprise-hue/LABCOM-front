@@ -964,6 +964,170 @@ export default function ReturnsPage() {
             </div>
           </div>
         )}
+
+        {/* Semantic Educational & SEO Guide for Reverse Logistics & Return Management */}
+        <section
+          style={{
+            marginTop: 48,
+            marginBottom: 32,
+            borderTop: "1px solid #E2E8F0",
+            paddingTop: 36,
+          }}
+        >
+          <div style={{ maxWidth: 1150, margin: "0 auto" }}>
+            <div style={{ marginBottom: 32, textAlign: "center" }}>
+              <span
+                style={{
+                  fontSize: "0.76rem",
+                  fontWeight: 800,
+                  color: "#4F46E5",
+                  background: "#EEF2FF",
+                  padding: "4px 12px",
+                  borderRadius: "9999px",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                Reverse Logistics &amp; Margin Protection
+              </span>
+              <h2
+                className="heading-display"
+                style={{
+                  fontSize: "1.75rem",
+                  fontWeight: 800,
+                  color: "#0F172A",
+                  margin: "12px 0 8px",
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                Comprehensive Guide to E-Commerce Return &amp; RTO Management
+              </h2>
+              <p
+                style={{
+                  fontSize: "0.95rem",
+                  color: "#64748B",
+                  maxWidth: 820,
+                  margin: "0 auto",
+                  lineHeight: 1.6,
+                }}
+              >
+                Learn how reconciling supplier return CSVs and tracking Customer Returns vs Courier RTOs protects seller profitability on Meesho, Flipkart, and Amazon India.
+              </p>
+            </div>
+
+            {/* 3 Core Pillars */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                gap: 20,
+                marginBottom: 36,
+              }}
+            >
+              <div
+                style={{
+                  background: "#FFFFFF",
+                  borderRadius: 16,
+                  padding: 24,
+                  border: "1px solid #E2E8F0",
+                  boxShadow: "0 4px 16px -2px rgba(15, 23, 42, 0.04)",
+                }}
+              >
+                <h3 style={{ fontSize: "1.08rem", fontWeight: 700, color: "#0F172A", marginTop: 0, marginBottom: 10 }}>
+                  Customer Returns vs. Courier RTOs
+                </h3>
+                <p style={{ fontSize: "0.86rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                  A <strong>Courier RTO</strong> occurs when the parcel cannot be delivered (unreachable customer, incorrect address, or fake attempt). A <strong>Customer Return</strong> occurs after successful delivery when the buyer opens and sends the item back. Separating these metrics helps sellers dispute unjustified marketplace penalty charges.
+                </p>
+              </div>
+
+              <div
+                style={{
+                  background: "#FFFFFF",
+                  borderRadius: 16,
+                  padding: 24,
+                  border: "1px solid #E2E8F0",
+                  boxShadow: "0 4px 16px -2px rgba(15, 23, 42, 0.04)",
+                }}
+              >
+                <h3 style={{ fontSize: "1.08rem", fontWeight: 700, color: "#0F172A", marginTop: 0, marginBottom: 10 }}>
+                  Automated CSV Reconciliation
+                </h3>
+                <p style={{ fontSize: "0.86rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                  Uploading your marketplace return spreadsheet automatically maps Sub Order IDs against previously dispatched parcel records. Instantly view customer names, full addresses, return delivery dates, and proof-of-delivery (POD) links without manual spreadsheet vlookups.
+                </p>
+              </div>
+
+              <div
+                style={{
+                  background: "#FFFFFF",
+                  borderRadius: 16,
+                  padding: 24,
+                  border: "1px solid #E2E8F0",
+                  boxShadow: "0 4px 16px -2px rgba(15, 23, 42, 0.04)",
+                }}
+              >
+                <h3 style={{ fontSize: "1.08rem", fontWeight: 700, color: "#0F172A", marginTop: 0, marginBottom: 10 }}>
+                  SKU Pause Matrix &amp; Ad Budget Protection
+                </h3>
+                <p style={{ fontSize: "0.86rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                  Running paid ads on items with high return ratios erodes profit margins rapidly. LabelPro identifies SKUs with return rates exceeding 20%, allowing you to pause ad spend, inspect sizing discrepancies, or update product images before incurring further losses.
+                </p>
+              </div>
+            </div>
+
+            {/* Seller FAQ Box */}
+            <div
+              style={{
+                background: "#F8FAFC",
+                borderRadius: 20,
+                padding: 32,
+                border: "1px solid #E2E8F0",
+              }}
+            >
+              <h2
+                style={{
+                  fontSize: "1.3rem",
+                  fontWeight: 800,
+                  color: "#0F172A",
+                  marginTop: 0,
+                  marginBottom: 20,
+                }}
+              >
+                Frequently Asked Questions (FAQ) — Reverse Logistics &amp; Returns
+              </h2>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div>
+                  <h3 style={{ fontSize: "0.96rem", fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>
+                    Which marketplace return files are supported?
+                  </h3>
+                  <p style={{ fontSize: "0.86rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                    LabelPro supports standard return and RTO reports exported from Meesho (Supplier Panel), Valmo, Shadowfax, Xpressbees, Flipkart, and Amazon India in CSV, XLSX, or XLS formats.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 style={{ fontSize: "0.96rem", fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>
+                    How do I dispute a fraudulent or damaged return?
+                  </h3>
+                  <p style={{ fontSize: "0.86rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                    Use the Proof of Delivery (POD) link and matched courier AWB number displayed in your return log to file an instant claim with marketplace seller support within the dispute filing window.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 style={{ fontSize: "0.96rem", fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>
+                    Can I track both Forward and Reverse AWB numbers?
+                  </h3>
+                  <p style={{ fontSize: "0.86rem", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+                    Yes. Both the original dispatch tracking number and the return tracking number are logged together for complete parcel lineage tracking.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
 
       {/* CSV Upload Modal */}

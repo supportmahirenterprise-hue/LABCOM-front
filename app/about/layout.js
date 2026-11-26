@@ -37,23 +37,40 @@ export const metadata = {
   },
 };
 
-const breadcrumbSchema = {
+const aboutSchema = {
   "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
+  "@graph": [
     {
-      "@type": "ListItem",
-      "position": 1,
-      "name": "Home",
-      "item": "https://labelpro.in",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://labelpro.in",
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "About LabelPro",
+          "item": "https://labelpro.in/about",
+        },
+      ],
     },
     {
-      "@type": "ListItem",
-      "position": 2,
-      "name": "About LabelPro",
-      "item": "https://labelpro.in/about",
-    },
-  ],
+      "@type": "AboutPage",
+      "@id": "https://labelpro.in/about#webpage",
+      "url": "https://labelpro.in/about",
+      "name": "About LabelPro — Warehouse Automation for Indian Sellers",
+      "description":
+        "Learn about LabelPro: India's first intelligent e-commerce shipping label studio. Built for Meesho, Flipkart & Amazon sellers with 0ms client-side processing, duplicate removal, and customer intelligence.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Mahir Enterprise",
+        "url": "https://labelpro.in"
+      }
+    }
+  ]
 };
 
 export default function AboutLayout({ children }) {
@@ -61,7 +78,7 @@ export default function AboutLayout({ children }) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutSchema) }}
       />
       {children}
     </>

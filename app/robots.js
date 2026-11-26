@@ -3,7 +3,7 @@ export default function robots() {
 
   return {
     rules: [
-      // 1. Legitimate Search Engines & Social Indexers (Full SEO Access to 11 Sitemap Pages)
+      // 1. Legitimate Search Engines & Social Indexers (Full SEO Access to All Public Pages)
       {
         userAgent: [
           "Googlebot",
@@ -13,6 +13,7 @@ export default function robots() {
           "DuckDuckBot",
           "Baiduspider",
           "YandexBot",
+          "Applebot",
           "facebookexternalhit",
           "Twitterbot",
           "LinkedInBot",
@@ -24,6 +25,7 @@ export default function robots() {
           "/api/",
           "/admin",
           "/settings",
+          "/history",
           "/login",
           "/_next/",
           "/*.json$",
@@ -54,6 +56,7 @@ export default function robots() {
           "/api/",
           "/admin",
           "/settings",
+          "/history",
           "/login",
           "/_next/",
           "/*.json$",

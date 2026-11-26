@@ -36,6 +36,50 @@ export const metadata = {
   },
 };
 
+const analyticsSchema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://labelpro.in",
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "QR Scan Analytics",
+          "item": "https://labelpro.in/analytics",
+        },
+      ],
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "QR Scan Analytics & Conversion Tracking - LabelPro",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web-based",
+      "description":
+        "Real-time QR scan conversion tracking, daily dispatch timelines, top-scanned SKUs, and target destination performance metrics for marketplace sellers.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "INR",
+      },
+    },
+  ],
+};
+
 export default function AnalyticsLayout({ children }) {
-  return children;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(analyticsSchema) }}
+      />
+      {children}
+    </>
+  );
 }
