@@ -104,7 +104,7 @@ export default function ReturnsPage() {
       });
 
       const res = await fetch(
-        `${BACKEND_URL}/api/returns?${queryParams.toString()}`,
+        `/api/returns?${queryParams.toString()}`,
         {
           headers: { "x-user-email": userEmail },
         }
@@ -153,7 +153,7 @@ export default function ReturnsPage() {
       const fd = new FormData();
       fd.append("file", file);
 
-      const res = await fetch(`${BACKEND_URL}/api/returns/upload`, {
+      const res = await fetch(`/api/returns/upload`, {
         method: "POST",
         headers: { "x-user-email": session.user.email },
         body: fd,
@@ -187,7 +187,7 @@ export default function ReturnsPage() {
   async function handleDeleteReturn(id) {
     if (!id || !confirm("Are you sure you want to delete this return record?")) return;
     try {
-      const res = await fetch(`${BACKEND_URL}/api/returns?id=${id}`, {
+      const res = await fetch(`/api/returns?id=${id}`, {
         method: "DELETE",
         headers: { "x-user-email": session?.user?.email || "" },
       });

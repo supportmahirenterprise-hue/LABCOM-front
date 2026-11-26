@@ -56,7 +56,7 @@ export default function TemplatesPage() {
     try {
       const userEmail = session.user.email;
       const res = await fetch(
-        `${BACKEND_URL}/api/templates?email=${encodeURIComponent(userEmail)}`,
+        `/api/templates?email=${encodeURIComponent(userEmail)}`,
         {
           headers: { "x-user-email": userEmail },
         }
@@ -95,7 +95,7 @@ export default function TemplatesPage() {
     setCreating(true);
     try {
       const userEmail = session.user.email;
-      const res = await fetch(`${BACKEND_URL}/api/templates`, {
+      const res = await fetch(`/api/templates`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -136,7 +136,7 @@ export default function TemplatesPage() {
     try {
       const userEmail = session?.user?.email || "";
       const res = await fetch(
-        `${BACKEND_URL}/api/templates?id=${id}&email=${encodeURIComponent(userEmail)}`,
+        `/api/templates?id=${id}&email=${encodeURIComponent(userEmail)}`,
         {
           method: "DELETE",
           headers: { "x-user-email": userEmail },

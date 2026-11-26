@@ -187,10 +187,10 @@ export default function CustomerAnalysisPage() {
       });
 
       const [resCustomer, resInsights] = await Promise.all([
-        fetch(`${BACKEND_URL}/api/customer-analysis?${queryParams.toString()}`, {
+        fetch(`/api/customer-analysis?${queryParams.toString()}`, {
           headers: { "x-user-email": userEmail },
         }),
-        fetch(`${BACKEND_URL}/api/insights/dashboard?email=${encodeURIComponent(userEmail)}${force === true ? "&refresh=true" : ""}`, {
+        fetch(`/api/insights/dashboard?email=${encodeURIComponent(userEmail)}${force === true ? "&refresh=true" : ""}`, {
           headers: { "x-user-email": userEmail },
         }).catch(() => null),
       ]);

@@ -208,12 +208,11 @@ export default function SettingsPage() {
         setTestingWa(false);
         return;
       }
-      const testRes = await fetch(`${BACKEND_URL}/api/whatsapp/send-media`, {
+      const testRes = await fetch(`/api/whatsapp/send-media`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "x-user-email": userEmail,
-          "x-internal-secret": "core-engine-internal",
         },
         body: JSON.stringify({
           waApiKey: waApiKey.trim(),

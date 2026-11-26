@@ -93,7 +93,7 @@ export default function HistoryPage() {
       try {
         const userEmail = session.user.email;
         const res = await fetch(
-          `${BACKEND_URL}/api/history?email=${encodeURIComponent(userEmail)}`,
+          `/api/history?email=${encodeURIComponent(userEmail)}`,
           {
             headers: { "x-user-email": userEmail },
           }

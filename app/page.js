@@ -535,29 +535,36 @@ export default function Home() {
       if (session?.user?.email && typeof window !== "undefined") {
         const cachedStr = localStorage.getItem("user_stamp_settings_" + session.user.email);
         if (cachedStr) {
-          const s = JSON.parse(cachedStr);
-          if (s.enableQr !== undefined) setEnableQr(s.enableQr);
-          if (s.useNativeScript !== undefined) setUseNativeScript(s.useNativeScript);
-          if (s.storeName !== undefined) setStoreName(s.storeName);
-          if (s.stampStyle !== undefined) setStampStyle(s.stampStyle);
-          if (s.qrText !== undefined) setQrText(s.qrText);
-          if (s.detailText !== undefined) setDetailText(s.detailText);
-          if (s.qrX !== undefined) setQrX(s.qrX);
-          if (s.qrY !== undefined) setQrY(s.qrY);
-          if (s.qrSize !== undefined) setQrSize(s.qrSize);
-          if (s.fontSize !== undefined) setFontSize(s.fontSize);
-          if (s.sortBy !== undefined) setSortBy(s.sortBy);
-          if (s.sortOrder !== undefined) setSortOrder(s.sortOrder);
-          if (s.downloadSummary !== undefined) setDownloadSummary(s.downloadSummary);
-          if (s.sendWhatsApp !== undefined) setSendWhatsApp(s.sendWhatsApp);
-          else if (s.enableWhatsApp !== undefined) setSendWhatsApp(s.enableWhatsApp);
-          if (s.cropEnabled !== undefined) setCropEnabled(s.cropEnabled);
-          if (s.cropPreset !== undefined) setCropPreset(s.cropPreset);
-          if (s.cropMode !== undefined) setCropMode(s.cropMode);
-          if (s.cropTop !== undefined) setCropTop(s.cropTop);
-          if (s.cropBottom !== undefined) setCropBottom(s.cropBottom);
-          if (s.cropLeft !== undefined) setCropLeft(s.cropLeft);
-          if (s.cropRight !== undefined) setCropRight(s.cropRight);
+          let s = null;
+          try {
+            s = JSON.parse(cachedStr);
+          } catch (e) {
+            s = null;
+          }
+          if (s && typeof s === "object") {
+            if (s.enableQr !== undefined) setEnableQr(s.enableQr);
+            if (s.useNativeScript !== undefined) setUseNativeScript(s.useNativeScript);
+            if (s.storeName !== undefined) setStoreName(s.storeName);
+            if (s.stampStyle !== undefined) setStampStyle(s.stampStyle);
+            if (s.qrText !== undefined) setQrText(s.qrText);
+            if (s.detailText !== undefined) setDetailText(s.detailText);
+            if (s.qrX !== undefined) setQrX(s.qrX);
+            if (s.qrY !== undefined) setQrY(s.qrY);
+            if (s.qrSize !== undefined) setQrSize(s.qrSize);
+            if (s.fontSize !== undefined) setFontSize(s.fontSize);
+            if (s.sortBy !== undefined) setSortBy(s.sortBy);
+            if (s.sortOrder !== undefined) setSortOrder(s.sortOrder);
+            if (s.downloadSummary !== undefined) setDownloadSummary(s.downloadSummary);
+            if (s.sendWhatsApp !== undefined) setSendWhatsApp(s.sendWhatsApp);
+            else if (s.enableWhatsApp !== undefined) setSendWhatsApp(s.enableWhatsApp);
+            if (s.cropEnabled !== undefined) setCropEnabled(s.cropEnabled);
+            if (s.cropPreset !== undefined) setCropPreset(s.cropPreset);
+            if (s.cropMode !== undefined) setCropMode(s.cropMode);
+            if (s.cropTop !== undefined) setCropTop(s.cropTop);
+            if (s.cropBottom !== undefined) setCropBottom(s.cropBottom);
+            if (s.cropLeft !== undefined) setCropLeft(s.cropLeft);
+            if (s.cropRight !== undefined) setCropRight(s.cropRight);
+          }
         }
       }
     } catch (e) { }
@@ -1675,7 +1682,13 @@ export default function Home() {
           });
 
           const pngDataUrl = canvas.toDataURL("image/png");
-          const pngBytes = await fetch(pngDataUrl).then((r) => r.arrayBuffer());
+          const base64Data = pngDataUrl.substring(pngDataUrl.indexOf(",") + 1);
+          const binaryStr = atob(base64Data);
+          const binLen = binaryStr.length;
+          const pngBytes = new Uint8Array(binLen);
+          for (let b = 0; b < binLen; b++) {
+            pngBytes[b] = binaryStr.charCodeAt(b);
+          }
 
           return {
             pngBytes,
@@ -1856,7 +1869,7 @@ export default function Home() {
       // Async Background Server Sync (Zero delay on download speed)
       const userEmail = session?.user?.email || "";
       const historyFileName = targetFiles.length > 1 ? `${targetFiles.length} PDFs (${targetFiles.map(f => f.name).join(", ")})` : targetFiles[0].name;
-      fetch(`${BACKEND_URL}/api/history`, {
+      fetch(`/api/history`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-user-email": userEmail },
         body: JSON.stringify({ email: userEmail, fileName: historyFileName, pageCount: isSample ? 1 : pages.length, isSample, sortBy, sortOrder, enableQr, qrText, pages: isSample ? [] : pages }),
@@ -1867,7 +1880,7 @@ export default function Home() {
         try {
           const today2 = new Date();
           const dateStr2 = `${String(today2.getDate()).padStart(2, "0")}.${String(today2.getMonth() + 1).padStart(2, "0")}.${today2.getFullYear()}`;
-          const summaryRes = await fetch(`${BACKEND_URL}/api/generate-summary`, {
+          const summaryRes = await fetch(`/api/generate-summary`, {
             method: "POST",
             headers: { "Content-Type": "application/json", "x-user-email": userEmail },
             body: JSON.stringify({ pages, fileName: historyFileName }),
@@ -1956,7 +1969,7 @@ export default function Home() {
       const today = new Date();
       const dateStr = `${String(today.getDate()).padStart(2, "0")}.${String(today.getMonth() + 1).padStart(2, "0")}.${today.getFullYear()}`;
       const pageCount = pages?.length || 1;
-      const res = await fetch(`${BACKEND_URL}/api/generate-summary`, {
+      const res = await fetch(`/api/generate-summary`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pages, fileName: file.name }),

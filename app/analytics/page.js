@@ -57,7 +57,7 @@ export default function AnalyticsPage() {
     try {
       const userEmail = session.user.email;
       const res = await fetch(
-        `${BACKEND_URL}/api/analytics?email=${encodeURIComponent(userEmail)}`,
+        `/api/analytics?email=${encodeURIComponent(userEmail)}`,
         {
           headers: { "x-user-email": userEmail },
         }
@@ -97,7 +97,7 @@ export default function AnalyticsPage() {
       const randomSku = sampleSkus[Math.floor(Math.random() * sampleSkus.length)];
       const randomOrder = `324${Math.floor(10000000000000 + Math.random() * 90000000000000)}`;
 
-      const res = await fetch(`${BACKEND_URL}/api/analytics`, {
+      const res = await fetch(`/api/analytics`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

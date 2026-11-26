@@ -64,6 +64,16 @@ const nextConfig = {
           },
         ],
       },
+      // Cache-control for public images, fonts, and icons
+      {
+        source: "/:all*(svg|jpg|jpeg|png|webp|ico|woff|woff2)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=86400, stale-while-revalidate=604800",
+          },
+        ],
+      },
     ];
   },
 };
