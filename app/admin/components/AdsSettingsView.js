@@ -158,6 +158,7 @@ export default function AdsSettingsView({ adminEmail, showToast }) {
   }, [adminEmail]);
 
   const fetchConfig = async () => {
+    if (!adminEmail) return;
     setLoading(true);
     try {
       const res = await fetch(`/api/admin/ads?email=${encodeURIComponent(adminEmail)}`, {

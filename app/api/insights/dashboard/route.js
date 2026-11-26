@@ -7,6 +7,9 @@ const BACKEND_URL = (
   process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.labelpro.in"
 ).replace(/\/+$/, "");
 
+const INTERNAL_API_SECRET =
+  process.env.INTERNAL_API_SECRET || "veloura-labelpro-internal-secure-key-2026";
+
 export async function GET(req) {
   try {
     const session = await getServerSession(authOptions);
@@ -20,18 +23,27 @@ export async function GET(req) {
     }
 
     const res = await fetch(`${BACKEND_URL}/api/insights/dashboard`, {
-      headers: { "x-user-email": userEmail },
+      headers: {
+        "x-user-email": userEmail,
+        "x-internal-secret": INTERNAL_API_SECRET,
+      },
       cache: "no-store",
     });
 
     if (!res.ok) {
-      // Fallback response if backend server is starting
-      return NextResponse.json({
-        error: "Backend server temporarily unreachable",
-      }, { status: 502 });
+      return NextResponse.json(
+        { error: "Backend server temporarily unreachable" },
+        { status: 502 }
+      );
     }
 
-    const data = await res.json();
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { error: "Invalid response from backend server" };
+    }
     return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

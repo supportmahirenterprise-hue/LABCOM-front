@@ -30,17 +30,28 @@ export async function GET(req) {
       process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.labelpro.in"
     ).replace(/\/+$/, "");
 
+    const INTERNAL_API_SECRET =
+      process.env.INTERNAL_API_SECRET || "veloura-labelpro-internal-secure-key-2026";
+
     try {
       const backendRes = await fetch(
         `${BACKEND_URL}/api/user/settings?email=${encodeURIComponent(cleanEmail)}`,
         {
-          headers: { "x-user-email": cleanEmail },
+          headers: {
+            "x-user-email": cleanEmail,
+            "x-internal-secret": INTERNAL_API_SECRET,
+          },
           cache: "no-store",
         }
       );
       if (backendRes.ok) {
-        const backendData = await backendRes.json();
-        return NextResponse.json(backendData);
+        const text = await backendRes.text();
+        try {
+          const backendData = JSON.parse(text);
+          return NextResponse.json(backendData);
+        } catch {
+          // ignore and fallback
+        }
       }
     } catch (e) {
       // fallback to local db
@@ -80,18 +91,27 @@ export async function POST(req) {
       process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.labelpro.in"
     ).replace(/\/+$/, "");
 
+    const INTERNAL_API_SECRET =
+      process.env.INTERNAL_API_SECRET || "veloura-labelpro-internal-secure-key-2026";
+
     try {
       const backendRes = await fetch(`${BACKEND_URL_POST}/api/user/settings`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "x-user-email": cleanEmail,
+          "x-internal-secret": INTERNAL_API_SECRET,
         },
         body: JSON.stringify({ email: cleanEmail, ...body }),
       });
       if (backendRes.ok) {
-        const backendData = await backendRes.json();
-        return NextResponse.json(backendData);
+        const text = await backendRes.text();
+        try {
+          const backendData = JSON.parse(text);
+          return NextResponse.json(backendData);
+        } catch {
+          // ignore and fallback
+        }
       }
     } catch (e) {
       // fallback to local db

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { usePathname } from "next/navigation";
+import { DEFAULT_ADS_CONFIG } from "../../lib/adsConfig";
 
 // In-memory cache to prevent multiple round-trips when multiple slots mount
 let cachedConfig = null;
@@ -14,14 +15,14 @@ export function updateAdsConfigMemory(newConfig) {
 }
 
 function useAdsConfig() {
-  const [config, setConfig] = useState(cachedConfig);
+  const [config, setConfig] = useState(cachedConfig || DEFAULT_ADS_CONFIG);
   const [loading, setLoading] = useState(!cachedConfig);
 
   useEffect(() => {
     let mounted = true;
 
     const listener = (newConfig) => {
-      if (mounted) setConfig(newConfig);
+      if (mounted) setConfig(newConfig || DEFAULT_ADS_CONFIG);
     };
     listeners.add(listener);
 
@@ -34,11 +35,11 @@ function useAdsConfig() {
               cachedConfig = data.adsConfig;
               return cachedConfig;
             }
-            return null;
+            return DEFAULT_ADS_CONFIG;
           })
           .catch((err) => {
-            console.warn("Failed to load ads config:", err);
-            return null;
+            // Silently fallback to built-in verified default configuration
+            return DEFAULT_ADS_CONFIG;
           })
           .finally(() => {
             fetchPromise = null;
@@ -46,12 +47,11 @@ function useAdsConfig() {
       }
 
       fetchPromise.then((cfg) => {
-        if (mounted && cfg) {
-          setConfig(cfg);
+        if (mounted) {
+          const finalCfg = cfg || DEFAULT_ADS_CONFIG;
+          setConfig(finalCfg);
           setLoading(false);
-          listeners.forEach((fn) => fn(cfg));
-        } else if (mounted) {
-          setLoading(false);
+          listeners.forEach((fn) => fn(finalCfg));
         }
       });
     } else {
@@ -72,6 +72,19 @@ export default function AdSlot({ slotKey = "rightSkyscraper", className = "", st
   const { config, loading } = useAdsConfig();
   const adPushedRef = useRef(false);
   const containerRef = useRef(null);
+  const insRef = useRef(null);
+  const [isWideScreen, setIsWideScreen] = useState(false);
+
+  // Responsive screen-size tracking for right skyscraper (must be >= 1400px to avoid 0-width error)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const checkWidth = () => {
+      setIsWideScreen(window.innerWidth >= 1400);
+    };
+    checkWidth();
+    window.addEventListener("resize", checkWidth, { passive: true });
+    return () => window.removeEventListener("resize", checkWidth);
+  }, []);
 
   // Disable ads entirely on Admin and Auth pages
   const isExcludedPage = pathname?.startsWith("/admin") || pathname === "/login";
@@ -80,23 +93,52 @@ export default function AdSlot({ slotKey = "rightSkyscraper", className = "", st
   const slot = config?.slots?.[slotKey];
   const isSlotEnabled = Boolean(slot?.enabled);
 
+  // Safely trigger Google AdSense
+  const tryPushAdSense = useCallback(() => {
+    if (typeof window === "undefined") return;
+    if (adPushedRef.current) return;
+
+    const ins = insRef.current;
+    if (!ins) return;
+
+    // Check if already processed by AdSense
+    if (ins.getAttribute("data-adsbygoogle-status") === "done") {
+      adPushedRef.current = true;
+      return;
+    }
+
+    // Ensure slot element has painted and has non-zero client dimensions
+    if (ins.offsetWidth === 0 && ins.offsetHeight === 0) {
+      return;
+    }
+
+    try {
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+      adPushedRef.current = true;
+    } catch (err) {
+      // Suppress adblocker / TagError warnings safely
+    }
+  }, []);
+
+  // Run AdSense push when slot becomes visible and ready
   useEffect(() => {
     if (!isMasterEnabled || !isSlotEnabled || isExcludedPage || loading) return;
+    if (slotKey === "rightSkyscraper" && !isWideScreen) return;
 
-    // Trigger Google AdSense render if standard adsense mode
-    if (slot?.mode !== "custom" && !adPushedRef.current && typeof window !== "undefined") {
-      try {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-        adPushedRef.current = true;
-      } catch (err) {
-        // Suppress expected adsbygoogle push warnings (e.g. strict mode or ad blockers)
-      }
+    if (slot?.mode !== "custom") {
+      // Delay slightly (50ms) to allow DOM layout engine to calculate exact dimensions
+      const timer = setTimeout(() => {
+        tryPushAdSense();
+      }, 50);
+      return () => clearTimeout(timer);
     }
-  }, [isMasterEnabled, isSlotEnabled, isExcludedPage, loading, slot]);
+  }, [isMasterEnabled, isSlotEnabled, isExcludedPage, loading, slot, isWideScreen, slotKey, tryPushAdSense]);
 
   // Execute custom HTML script if custom mode
   useEffect(() => {
     if (!isMasterEnabled || !isSlotEnabled || isExcludedPage || loading) return;
+    if (slotKey === "rightSkyscraper" && !isWideScreen) return;
+
     if (slot?.mode === "custom" && slot?.customCode && containerRef.current) {
       try {
         const container = containerRef.current;
@@ -115,9 +157,14 @@ export default function AdSlot({ slotKey = "rightSkyscraper", className = "", st
         console.warn("Failed executing custom ad script:", err);
       }
     }
-  }, [isMasterEnabled, isSlotEnabled, isExcludedPage, loading, slot]);
+  }, [isMasterEnabled, isSlotEnabled, isExcludedPage, loading, slot, isWideScreen, slotKey]);
 
   if (isExcludedPage || loading || !isMasterEnabled || !isSlotEnabled) {
+    return null;
+  }
+
+  // Right skyscraper is strictly desktop-only (>= 1400px)
+  if (slotKey === "rightSkyscraper" && !isWideScreen) {
     return null;
   }
 
@@ -168,6 +215,7 @@ export default function AdSlot({ slotKey = "rightSkyscraper", className = "", st
               <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
             ) : (
               <ins
+                ref={insRef}
                 className="adsbygoogle"
                 style={{
                   display: "inline-block",
@@ -176,7 +224,7 @@ export default function AdSlot({ slotKey = "rightSkyscraper", className = "", st
                   overflow: "hidden",
                 }}
                 data-ad-client={publisherId}
-                data-ad-slot={slot?.slotId || undefined}
+                data-ad-slot={slot?.slotId || "2412795862"}
                 data-ad-format="vertical"
               />
             )}
@@ -224,10 +272,11 @@ export default function AdSlot({ slotKey = "rightSkyscraper", className = "", st
             <div ref={containerRef} style={{ width: "100%", textAlign: "center" }} />
           ) : (
             <ins
+              ref={insRef}
               className="adsbygoogle"
               style={{ display: "block", minHeight: 90, width: "100%", textAlign: "center" }}
               data-ad-client={publisherId}
-              data-ad-slot={slot?.slotId || undefined}
+              data-ad-slot={slot?.slotId || "4537677582"}
               data-ad-format="horizontal"
               data-full-width-responsive="true"
             />

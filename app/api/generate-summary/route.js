@@ -320,7 +320,7 @@ async function generateSummaryPdf(pagesData, sourceFileName = "labels.pdf") {
 
 export async function POST(req) {
   try {
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const { pages = [], fileName = "labels.pdf" } = body;
     if (!Array.isArray(pages) || pages.length === 0) {
       return NextResponse.json({ error: "No page data available" }, { status: 400 });

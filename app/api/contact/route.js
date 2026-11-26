@@ -4,18 +4,31 @@ const BACKEND_URL = (
   process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.labelpro.in"
 ).replace(/\/+$/, "");
 
+const INTERNAL_API_SECRET =
+  process.env.INTERNAL_API_SECRET || "veloura-labelpro-internal-secure-key-2026";
+
+async function safeParseJson(res) {
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { error: text || res.statusText || "Invalid backend response" };
+  }
+}
+
 export async function POST(req) {
   try {
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const res = await fetch(`${BACKEND_URL}/api/contact`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "x-internal-secret": INTERNAL_API_SECRET,
       },
       body: JSON.stringify(body),
     });
 
-    const data = await res.json();
+    const data = await safeParseJson(res);
     return NextResponse.json(data, { status: res.status });
   } catch (error) {
     return NextResponse.json(
@@ -36,11 +49,14 @@ export async function GET(req) {
     if (limit) url.searchParams.set("limit", limit);
 
     const res = await fetch(url.toString(), {
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-internal-secret": INTERNAL_API_SECRET,
+      },
       cache: "no-store",
     });
 
-    const data = await res.json();
+    const data = await safeParseJson(res);
     return NextResponse.json(data, { status: res.status });
   } catch (error) {
     return NextResponse.json(
