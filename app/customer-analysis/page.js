@@ -200,7 +200,11 @@ export default function CustomerAnalysisPage() {
 
       if (resCustomer && resCustomer.ok) {
         latestCustomerData = await resCustomer.json();
-        setData(latestCustomerData);
+        if (latestCustomerData?.error) {
+          showToast(latestCustomerData.message || latestCustomerData.error, "error");
+        } else {
+          setData(latestCustomerData);
+        }
       } else {
         showToast("Failed to load customer analysis data", "error");
       }
